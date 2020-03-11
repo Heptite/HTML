@@ -11,8 +11,10 @@ cwd      := $(shell pwd)
 vim2html := $(shell find $(HOME)/share/vim -name vim2html.pl | tail -1)
 vim2html := $(or $(vim2html),false)
 
-RCS_FILES_IN = $(wildcard RCS/*,v)
-RCS_FILES = $(RCS_FILES_IN:RCS/%,v=%)
+#RCS_FILES_IN = $(wildcard RCS/*,v)
+#RCS_FILES = $(RCS_FILES_IN:RCS/%,v=%)
+
+PLUGIN_FILES = browser_launcher.vim HTML.txt HTML.vim MangleImageTag.vim
 
 .PHONY : default debug all force html.zip html.html bitmaps pixmaps changelog
 
@@ -46,14 +48,14 @@ debug:
 	@echo "\$${tmpdir}     = ${tmpdir}"
 	@echo "\$${cwd}        = ${cwd}"
 	@echo "\$${vim2html}   = ${vim2html}"
-	@echo "\$$(RCS_FILES)  = $(RCS_FILES)"
+#	@echo "\$$(RCS_FILES)  = $(RCS_FILES)"
 
 all: ChangeLog.html HTML.html HTML.zip \
 	bitmaps vim-html-pixmaps.zip toolbar-icons.png \
 	version
 
-$(RCS_FILES):
-	co $@
+# $(RCS_FILES):
+# 	co $@
 
 version: HTML.vim
 	rm -f version
@@ -62,7 +64,8 @@ version: HTML.vim
 
 zip html.zip: HTML.zip
 
-HTML.zip: $(RCS_FILES) $(allxpm) $(allbmp)
+#HTML.zip: $(RCS_FILES) $(allxpm) $(allbmp)
+HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp)
 	rm -f HTML.zip
 	mkdir -p ${tmpdir}/bitmaps ${tmpdir}/ftplugin/html ${tmpdir}/doc
 	cp ${bitmaps}/* ${tmpdir}/bitmaps
@@ -104,14 +107,21 @@ vim-html-pixmaps.zip: $(allxpm) $(allbmp)
 
 changelog: ChangeLog
 
-ChangeLog: $(RCS_FILES) ChangeLog-base
+#ChangeLog: $(RCS_FILES) ChangeLog-base
+#	rm -f ChangeLog
+#	rcs2log -R -u 'infynity	Christian J. Robinson	heptite at gmail dot com' \
+#		-u 'Heptite	Christian J. Robinson	heptite at gmail dot com' \
+#		| perl -ne 's/^\t/ /g; $$ate=0, print "\n" if $$ate && m/^\S/; if ($$eat) { $$eat = $$ate = 0; $$_ = "", $$ate=1 if m/^\s*$$/; } $$eat=1 if m/^ \* |^\s*$$/; print'\
+#		> ChangeLog
+#	cat ChangeLog-base >> ChangeLog
+#	chmod a+r ChangeLog
+
+ChangeLog: $(PLUGIN_FILES) ChangeLog-base
 	rm -f ChangeLog
-	rcs2log -R -u 'infynity	Christian J. Robinson	heptite at gmail dot com' \
-		-u 'Heptite	Christian J. Robinson	heptite at gmail dot com' \
-		| perl -ne 's/^\t/ /g; $$ate=0, print "\n" if $$ate && m/^\S/; if ($$eat) { $$eat = $$ate = 0; $$_ = "", $$ate=1 if m/^\s*$$/; } $$eat=1 if m/^ \* |^\s*$$/; print'\
-		> ChangeLog
+	git log --no-merges --format=%aD\ %an%n\ \*\ %B > ChangeLog
 	cat ChangeLog-base >> ChangeLog
 	chmod a+r ChangeLog
+
 
 changelog.html: ChangeLog.html
 

@@ -1,3 +1,6 @@
+Wed, 11 Mar 2020 10:26:14 -0600 Christian J. Robinson
+ * Transition from RCS to Git
+
 2020-02-17  Christian J. Robinson  <heptite at gmail dot com>
 
  * HTML.txt: Document <button> tag
