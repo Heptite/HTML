@@ -1,0 +1,115 @@
+
+February 26, 2001
+ Switching to RCS logging
+
+January 15, 2001
+ Wrote an HTML.txt documentation file in Vim helpfile format.  For Vim6, put
+ it somewhere in the 'runtimepath' and use the :helptags command.  (Read the
+ help.)  While doing this, I somehow stumbled onto the fact that 'cpoptions'
+ might not have a 'sane' value for this script to run, so it's saved and
+ reset, then restored at the end of the script.
+
+ Deleted the commented mappings that are now superseded by HTMLmap() calls.
+ There are still some commented in the 'old format', but they were commented
+ originally.
+
+ I'm not sure this script works with Vim versions earlier than 5.7 now, and
+ I have no way to test it.  You really should be using 5.7 (or whatever the
+ latest stable release is) anyway, so upgrade if you have problems.
+
+December 30, 2000
+ Interactive table generation function, with normal mode ;ta mapping.
+ Toolbar button switched to use this, and menu items tweaked.
+
+ The <TAB> mapping now handles <TAG>^M</TAG> patterns if the user is using
+ Vim 6.  Removed some unnecessary pattern code from the search() call.
+
+December 12, 2000
+ Missed some mappings.  Removed all hard tabs.  Tweaks.
+
+December 10, 2000
+ Created HTMLmap function that makes the mappings local to the buffer if the
+ Vim verison is 6 or above.  The function is left defined so it can be used
+ in autocommands.
+
+ The syntax for the search() function in Vim 6 changed.
+
+October 07, 2000
+ Added form mappings and submenu.
+
+September 08, 2000
+ Added more character entities, reordered the HTML menu slightly.
+
+March 30, 2000
+ Command that calls the SetIfUnset function.
+
+February 26, 2000
+ Added more stuff to the ;html template.  Now if you have html_authorname
+ and html_authoremail set, they're inserted in the template when it's used.
+
+October 06, 1999
+ <BODY> tag now sets "all" the colors, and they're configurable via
+ variables:
+   html_bgcolor     Page background color.
+   html_textcolor   Page text color.
+   html_linkcolor   Link color.
+   html_alinkcolor  Link color when mouse is clicking on it.
+   html_vlinkcolor  Visited link color.
+
+ SetIfUnset function.  Sets a variable to a value if it's not already set to
+ some value.
+
+August 18, 1999
+ Added normal-mode menu items for character entities.
+
+ Added a few more visual mappings, plus the corresponding menu items.
+
+August 17, 1999
+ Redid all the visual mappings.  They didn't work linewise.  Added a few
+ more.
+
+ Refined the menus and several of the mappings.
+
+ Don't load the browser remote control stuff if it's already loaded.
+
+August 16, 1999
+ Added menu items for the character entity mappings.  (Insert mode only.)
+
+ The addition of menu separators, which only works for 5.4 and up.  (Still
+ usable with 5.3, but the separators are normal menu entries, which is ugly
+ and potentially hazardous.  Don't select them.)
+
+August 14, 1999
+ Added a bunch of visual mappings.  Visually select an area, type one of
+ the macros and the selected area is surrounded by that HTML tag.  (Not all
+ tags will do this.)  This allows me to add some corresponding vmenu items.
+
+ Added menu items for most of the mappings.
+
+June 24, 1999
+ Tweaked the <TAB> mappings.  Now it removes the search from the history and
+ sets the search back to the previously used search.  This eliminates the
+ need for a :nohlsearch in the mapping and hitting 'n' will do what's
+ expected.  (The mapping isn't set if the version is less than 5.4.)
+
+June 11, 1999
+ Tweaked the template function.
+
+April 18, 1999
+ Ported the perl browser control code to direct vimscript.  This is only
+ possible with Vim 5.4 greater.  The mappings and code aren't defined if the
+ version is less than 5.4, so it's still usable with 5.3.
+
+ Removed the old template creation macros.  They were just in the way.
+
+March 28, 1999
+ Added many &...; codes a while ago.  Added the <TAB> mapping.  Tweaked the
+ ;html macro.  Now requires Vim 5.4 or greater.  (Still works with 5.3, but
+ it spits out an error and doesn't go into insert mode on the ;html macro.)
+
+February 05, 1999
+ Now uses user defined functions, so it requires Vim 5.3(?) or greater.
+
+April 17, 1998
+ Changed for Vim 5, this version will no longer run under standard VI.
+ (In fact, it won't run on anything earlier than Vim 5.)
