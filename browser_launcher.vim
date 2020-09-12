@@ -49,10 +49,10 @@
 "  * This code is messy and needs to be rethought.
 "
 "--------------------------------------------------------------------------
-" $Id: browser_launcher.vim,v 1.27 2020/02/02 21:41:17 Heptite Exp $
+" $Id: browser_launcher.vim,v 1.28 2020/09/12 03:00:48 Heptite Exp $
 "--------------------------------------------------------------------------
 
-if v:version < 702
+if v:version < 8
 	finish
 endif
 
@@ -64,7 +64,7 @@ function! s:ShellEscape(str) " {{{
 	if exists('*shellescape')
 		return shellescape(a:str)
 	else
-		return "'" . substitute(a:str, "'", "'\\\\''", 'g') . "'"
+		return "'" . a:str->substitute("'", "'\\\\''", 'g') . "'"
 	endif
 endfunction " }}}
 
@@ -99,33 +99,33 @@ if has('mac') || has('macunix')  " {{{1
 		endif
 
 		if a:0 >= 1 && a:0 <= 2
-			let new = a:1
+			let l:new = a:1
 		else
-			let new = 0
+			let l:new = 0
 		endif
 
-		let file = expand('%:p')
+		let l:file = expand('%:p')
 
 		" Can we open new tabs and windows?
-		let use_AS = s:UseAppleScript()
+		let l:use_AS = s:UseAppleScript()
 
 		" Why we can't open new tabs and windows:
-		let as_msg = "This feature utilizes the built-in Graphic User " .
+		let l:as_msg = "This feature utilizes the built-in Graphic User " .
 				\ "Interface Scripting architecture of Mac OS X which is " .
 				\ "currently disabled. You can activate GUI Scripting by " .
 				\ "selecting the checkbox \"Enable access for assistive " .
 				\ "devices\" in the Universal Access preference pane."
 
 		if (a:app ==? 'safari') " {{{
-			if new != 0 && use_AS
-				if new == 2
-					let torn = 't'
+			if l:new != 0 && l:use_AS
+				if l:new == 2
+					let l:torn = 't'
 					BRCMESG Opening file in new Safari tab...
 				else
-					let torn = 'n'
+					let l:torn = 'n'
 					BRCMESG Opening file in new Safari window...
 				endif
-				let script = '-e "tell application \"safari\"" ' .
+				let l:script = '-e "tell application \"safari\"" ' .
 				\ '-e "activate" ' .
 				\ '-e "tell application \"System Events\"" ' .
 				\ '-e "tell process \"safari\"" ' .
@@ -134,104 +134,104 @@ if has('mac') || has('macunix')  " {{{1
 				\ '-e "end tell" ' .
 				\ '-e "delay 0.3" ' .
 				\ '-e "tell window 1" ' .
-				\ '-e ' . s:ShellEscape("set (URL of last tab) to \"" . file . "\"") . ' ' .
+				\ '-e ' . s:ShellEscape("set (URL of last tab) to \"" . l:file . "\"") . ' ' .
 				\ '-e "end tell" ' .
 				\ '-e "end tell" '
 
-				let command = "/usr/bin/osascript " . script
+				let l:command = "/usr/bin/osascript " . script
 
 			else
-				if new != 0
+				if l:new != 0
 					" Let the user know what's going on:
-					exec 'BRCERROR ' . as_msg
+					exec 'BRCERROR ' . l:as_msg
 				endif
 				BRCMESG Opening file in Safari...
-				let command = "/usr/bin/open -a safari " . s:ShellEscape(file)
+				let l:command = "/usr/bin/open -a safari " . s:ShellEscape(l:file)
 			endif
 		endif "}}}
 
 		if (a:app ==? 'firefox') " {{{
-			if new != 0 && use_AS
-				if new == 2
+			if l:new != 0 && l:use_AS
+				if l:new == 2
 
-					let torn = 't'
+					let l:torn = 't'
 					BRCMESG Opening file in new Firefox tab...
 				else
 
-					let torn = 'n'
+					let l:torn = 'n'
 					BRCMESG Opening file in new Firefox window...
 				endif
-				let script = '-e "tell application \"firefox\"" ' .
+				let l:script = '-e "tell application \"firefox\"" ' .
 				\ '-e "activate" ' .
 				\ '-e "tell application \"System Events\"" ' .
 				\ '-e "tell process \"firefox\"" ' .
-				\ '-e "keystroke \"' . torn . '\" using {command down}" ' .
+				\ '-e "keystroke \"' . l:torn . '\" using {command down}" ' .
 				\ '-e "delay 0.8" ' .
 				\ '-e "keystroke \"l\" using {command down}" ' .
 				\ '-e "keystroke \"a\" using {command down}" ' .
-				\ '-e ' . s:ShellEscape("keystroke \"" . file . "\" & return") . " " .
+				\ '-e ' . s:ShellEscape("keystroke \"" . l:file . "\" & return") . " " .
 				\ '-e "end tell" ' .
 				\ '-e "end tell" ' .
 				\ '-e "end tell" '
 
-				let command = "/usr/bin/osascript " . script
+				let l:command = "/usr/bin/osascript " . script
 
 			else
-				if new != 0
+				if l:new != 0
 					" Let the user know wath's going on:
-					exec 'BRCERROR ' . as_msg
+					exec 'BRCERROR ' . l:as_msg
 
 				endif
 				BRCMESG Opening file in Firefox...
-				let command = "/usr/bin/open -a firefox " . s:ShellEscape(file)
+				let l:command = "/usr/bin/open -a firefox " . s:ShellEscape(l:file)
 			endif
 		endif " }}}
 
 		if (a:app ==? 'opera') " {{{
-			if new != 0 && use_AS
-				if new == 2
+			if l:new != 0 && l:use_AS
+				if l:new == 2
 
-					let torn = 't'
+					let l:torn = 't'
 					BRCMESG Opening file in new Opera tab...
 				else
 
-					let torn = 'n'
+					let l:torn = 'n'
 					BRCMESG Opening file in new Opera window...
 				endif
-				let script = '-e "tell application \"Opera\"" ' .
+				let l:script = '-e "tell application \"Opera\"" ' .
 				\ '-e "activate" ' .
 				\ '-e "tell application \"System Events\"" ' .
 				\ '-e "tell process \"opera\"" ' .
-				\ '-e "keystroke \"' . torn . '\" using {command down}" ' .
+				\ '-e "keystroke \"' . l:torn . '\" using {command down}" ' .
 				\ '-e "end tell" ' .
 				\ '-e "end tell" ' .
 				\ '-e "delay 0.5" ' .
-				\ '-e ' . s:ShellEscape("set URL of front document to \"" . file . "\"") . " " .
+				\ '-e ' . s:ShellEscape("set URL of front document to \"" . l:file . "\"") . " " .
 				\ '-e "end tell" '
 
-				let command = "/usr/bin/osascript " . script
+				let l:command = "/usr/bin/osascript " . l:script
 
 			else
-				if new != 0
+				if l:new != 0
 					" Let the user know what's going on:
-					exec 'BRCERROR ' . as_msg
+					exec 'BRCERROR ' . l:as_msg
 
 				endif
 				BRCMESG Opening file in Opera...
-				let command = "/usr/bin/open -a opera " . s:ShellEscape(file)
+				let l:command = "/usr/bin/open -a opera " . s:ShellEscape(l:file)
 			endif
 		endif " }}}
 
 		if (a:app ==? 'default')
 
 			BRCMESG Opening file in default browser...
-			let command = "/usr/bin/open " . s:ShellEscape(file)
+			let l:command = "/usr/bin/open " . s:ShellEscape(l:file)
 		endif
 
 		if (! exists('command'))
 
-			exe 'BRCMESG Opening ' . substitute(a:app, '^.', '\U&', '') . '...'
-			let command = "open -a " . a:app . " " . s:ShellEscape(file)
+			exe 'BRCMESG Opening ' . a:app->substitute('^.', '\U&', '') . '...'
+			let l:command = "open -a " . a:app . " " . s:ShellEscape(l:file)
 		endif
 
 		call system(command . " 2>&1 >/dev/null")
@@ -260,13 +260,13 @@ elseif has('unix') && ! has('win32unix') " {{{1
 
 		if v:shell_error == 0
 			let s:Browsers[s:temp1][0] = s:temp2
-			let s:Browsers[s:temp1][1] = substitute(s:temp3, "\n$", '', '')
+			let s:Browsers[s:temp1][1] = s:temp3->substitute("\n$", '', '')
 		else
-			let s:BrowsersExist = substitute(s:BrowsersExist, s:temp1, '', 'g')
+			let s:BrowsersExist = s:BrowsersExist->substitute(s:temp1, '', 'g')
 		endif
 	endfor
 
-	"for [key, value] in items(s:Browsers)
+	"for [key, value] in s:Browsers->items()
 	"	echomsg key . ': ' . join(value, ', ')
 	"endfor
 
@@ -326,61 +326,61 @@ endif
 " were found.
 function! LaunchBrowser(...)
 
-	let err = 0
+	let l:err = 0
 
 	if a:0 == 0
 		return s:BrowsersExist
 	elseif a:0 >= 2
-		let which = a:1
-		let new = a:2
+		let l:which = a:1
+		let l:new = a:2
 	else
-		let err = 1
+		let l:err = 1
 	endif
 
 	" If we're on Cygwin, translate the file path to a Windows native path
 	" for later use, otherwise just add the file:// prefix:
-	let file = 'file://' .
+	let l:file = 'file://' .
 			\(has('win32unix') ?
-				\ substitute(system('cygpath -w ' . s:ShellEscape(expand('%:p'))), "\n$", '', '') :
+				\ system('cygpath -w ' . expand('%:p')->s:ShellEscape())->substitute("\n$", '', '') :
 				\ expand('%:p')
 			\)
 
 	if a:0 == 3
-		let file = a:3
+		let l:file = a:3
 	elseif a:0 > 3
-		let err = 1
+		let l:err = 1
 	endif
 
-	if err
+	if l:err
 		exe 'BRCERROR E119: Wrong number of arguments for function: '
-					\ . substitute(expand('<sfile>'), '^function ', '', '')
+					\ . expand('<sfile>')->substitute('^function ', '', '')
 		return 0
 	endif
 
-	if which ==? 'default'
-		let which = strpart(s:BrowsersExist, 0, 1)
+	if l:which ==? 'default'
+		let l:which = s:BrowsersExist->strpart(0, 1)
 	endif
 
-	if s:BrowsersExist !~? which
-		if exists('s:Browsers[which]')
+	if s:BrowsersExist !~? l:which
+		if exists('s:Browsers[l:which]')
 			exe 'BRCERROR '
-						\ . (type(s:Browsers[which][0]) == type([]) ? s:Browsers[which][0][0] : s:Browsers[which][0])
+						\ . (s:Browsers[l:which][0]->type() == type([]) ? s:Browsers[l:which][0][0] : s:Browsers[l:which][0])
 						\ . ' not found'
 		else
-			exe 'BRCERROR Unknown browser ID: ' . which
+			exe 'BRCERROR Unknown browser ID: ' . l:which
 		endif
 
 		return 0
 	endif
 
-	if has('unix') && (! strlen($DISPLAY) || which ==? 'l') " {{{
+	if has('unix') && (! strlen($DISPLAY) || l:which ==? 'l') " {{{
 		BRCMESG Launching lynx...
 
-		if (has("gui_running") || new) && strlen($DISPLAY)
-			let command='xterm -T Lynx -e lynx ' . s:ShellEscape(file) . ' &'
+		if (has("gui_running") || l:new) && strlen($DISPLAY)
+			let l:command='xterm -T Lynx -e lynx ' . s:ShellEscape(l:file) . ' &'
 		else
 			sleep 1
-			execute "!lynx " . s:ShellEscape(file)
+			execute "!lynx " . s:ShellEscape(l:file)
 
 			if v:shell_error
 				BRCERROR Unable to launch lynx.
@@ -389,14 +389,14 @@ function! LaunchBrowser(...)
 		endif
 	endif " }}}
 
-	if has('unix') && (which ==? 'w') " {{{
+	if has('unix') && (l:which ==? 'w') " {{{
 		BRCMESG Launching w3m...
 
-		if (has("gui_running") || new) && strlen($DISPLAY)
-			let command='xterm -T w3m -e w3m ' . s:ShellEscape(file) . ' &'
+		if (has("gui_running") || l:new) && strlen($DISPLAY)
+			let l:command='xterm -T w3m -e w3m ' . s:ShellEscape(l:file) . ' &'
 		else
 			sleep 1
-			execute "!w3m " . s:ShellEscape(file)
+			execute "!w3m " . s:ShellEscape(l:file)
 
 			if v:shell_error
 				BRCERROR Unable to launch w3m.
@@ -405,77 +405,77 @@ function! LaunchBrowser(...)
 		endif
 	endif " }}}
 
-	if (which ==? 'o') " {{{
-		if new == 2
+	if (l:which ==? 'o') " {{{
+		if l:new == 2
 			BRCMESG Opening new Opera tab...
 			if has('win32') || has('win64') || has('win32unix')
-				let command='start ' . s:Browsers[which][0] . ' ' . <SID>ShellEscape(file)
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file)
 			else
-				let command="sh -c \"trap '' HUP; " . s:Browsers[which][1] . " " . s:ShellEscape(file) . " &\""
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " &\""
 			endif
-		elseif new
+		elseif l:new
 			BRCMESG Opening new Opera window...
 			if has('win32') || has('win64') || has('win32unix')
-				let command='start ' . s:Browsers[which][0] . ' ' . <SID>ShellEscape(file) . ' --new-window'
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file) . ' --new-window'
 			else
-				let command="sh -c \"trap '' HUP; " . s:Browsers[which][1] . " " . s:ShellEscape(file) . " --new-window &\""
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " --new-window &\""
 			endif
 		else
 			BRCMESG Sending remote command to Opera...
 			if has('win32') || has('win64') || has('win32unix')
-				let command='start ' . s:Browsers[which][0] . ' ' . <SID>ShellEscape(file)
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file)
 			else
-				let command="sh -c \"trap '' HUP; " . s:Browsers[which][1] . " " . s:ShellEscape(file) . " &\""
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " &\""
 			endif
 		endif
 	endif " }}}
 
-	if (which ==? 'c') " {{{
-		if new == 2
+	if (l:which ==? 'c') " {{{
+		if l:new == 2
 			BRCMESG Opening new Chrome tab...
 			if has('win32') || has('win64') || has('win32unix')
-				let command='start ' . s:Browsers[which][0] . ' ' . <SID>ShellEscape(file)
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file)
 			else
-				let command="sh -c \"trap '' HUP; " . s:Browsers[which][1] . " " . s:ShellEscape(file) . " &\""
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " &\""
 			endif
-		elseif new
+		elseif l:new
 			BRCMESG Opening new Chrome window...
 			if has('win32') || has('win64') || has('win32unix')
-				let command='start ' . s:Browsers[which][0] . ' ' . <SID>ShellEscape(file) . ' --new-window'
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file) . ' --new-window'
 			else
-				let command="sh -c \"trap '' HUP; " . s:Browsers[which][1] . " " . s:ShellEscape(file) . " --new-window &\""
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " --new-window &\""
 			endif
 		else
 			BRCMESG Sending remote command to Chrome...
 			if has('win32') || has('win64') || has('win32unix')
-				let command='start ' . s:Browsers[which][0] . ' ' . <SID>ShellEscape(file)
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file)
 			else
-				let command="sh -c \"trap '' HUP; " . s:Browsers[which][1] . " " . s:ShellEscape(file) . " &\""
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " &\""
 			endif
 		endif
 	endif " }}}
 
-	if (which ==? 'f') " {{{
-		if new == 2
+	if (l:which ==? 'f') " {{{
+		if l:new == 2
 			BRCMESG Opening new Firefox tab...
 			if has('win32') || has('win64') || has('win32unix')
-				let command='start ' . s:Browsers[which][0] . ' --new-tab ' . <SID>ShellEscape(file)
+				let l:command='start ' . s:Browsers[l:which][0] . ' --new-tab ' . <SID>ShellEscape(l:file)
 			else
-				let command="sh -c \"trap '' HUP; " . s:Browsers[which][1] . " --new-tab " . s:ShellEscape(file) . " &\""
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " --new-tab " . s:ShellEscape(l:file) . " &\""
 			endif
-		elseif new
+		elseif l:new
 			BRCMESG Opening new Firefox window...
 			if has('win32') || has('win64') || has('win32unix')
-				let command='start ' . s:Browsers[which][0] . ' --new-window ' . <SID>ShellEscape(file)
+				let l:command='start ' . s:Browsers[l:which][0] . ' --new-window ' . <SID>ShellEscape(l:file)
 			else
-				let command="sh -c \"trap '' HUP; " . s:Browsers[which][1] . " --new-window " . s:ShellEscape(file) . " &\""
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " --new-window " . s:ShellEscape(l:file) . " &\""
 			endif
 		else
 			BRCMESG Sending remote command to Firefox...
 			if has('win32') || has('win64') || has('win32unix')
-				let command='start ' . s:Browsers[which][0] . ' ' . <SID>ShellEscape(file)
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file)
 			else
-				let command="sh -c \"trap '' HUP; " . s:Browsers[which][1] . " " . s:ShellEscape(file) . " &\""
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " &\""
 			endif
 		endif
 	endif " }}}
@@ -484,15 +484,15 @@ function! LaunchBrowser(...)
 
 		if has('win32unix')
 			" Change "start" to "cygstart":
-			let command='cyg' . command
+			let l:command='cyg' . l:command
 		endif
 
-		"echomsg command
-		call system(command)
+		"echomsg l:command
+		call system(l:command)
 
 		"if has('unix') && v:shell_error
 		if v:shell_error
-			exe 'BRCERROR Command failed: ' . command
+			exe 'BRCERROR Command failed: ' . l:command
 			return 0
 		endif
 

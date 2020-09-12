@@ -2,8 +2,8 @@
 "
 " Author:      Christian J. Robinson <heptite@gmail.com>
 " URL:         http://christianrobinson.name/vim/HTML/
-" Last Change: February 17, 2020
-" Version:     0.42.6
+" Last Change: September 11, 2020
+" Version:     0.43
 " Original Concept: Doug Renze
 "
 "
@@ -52,13 +52,13 @@
 "     visual selection ;ta, then gv and ;tr, then gv and ;td work.
 "
 " ---- RCS Information: ------------------------------------------------- {{{1
-" $Id: HTML.vim,v 1.246 2020/02/18 02:16:45 Heptite Exp $
+" $Id: HTML.vim,v 1.247 2020/09/12 03:00:13 Heptite Exp $
 " ----------------------------------------------------------------------- }}}1
 
 " ---- Initialization: -------------------------------------------------- {{{1
 
-if v:version < 702
-  echoerr "HTML.vim no longer supports Vim versions prior to 7.2."
+if v:version < 800
+  echoerr "HTML.vim no longer supports Vim versions prior to 8."
   sleep 2
   finish
 endif
@@ -101,14 +101,14 @@ command! -nargs=+ SetIfUnset call SetIfUnset(<f-args>)
 "  This /will not/ work on function-local variable names.
 function! s:BoolVar(var)
   if a:var =~ '^[bgstvw]:'
-    let var = a:var
+    let l:var = a:var
   else
-    let var = 'g:' . a:var
+    let l:var = 'g:' . a:var
   endif
 
-  if s:IsSet(var)
-    execute "let varval = " . var
-    return s:Bool(varval)
+  if l:var->s:IsSet()
+    execute "let l:varval = " . l:var
+    return l:varval->s:Bool()
   else
     return 0
   endif
@@ -140,23 +140,23 @@ endfunction
 "  -1 - An error occurred
 function! SetIfUnset(var, ...)
   if a:var =~ '^[bgstvw]:'
-    let var = a:var
+    let l:var = a:var
   else
-    let var = 'g:' . a:var
+    let l:var = 'g:' . a:var
   endif
 
   if a:0 == 0
     exe "HTMLERROR E119: Not enough arguments for function: " . expand('<sfile>')
     return -1
   else
-    let val = join(a:000, ' ')
+    let l:val = a:000->join(' ')
   endif
 
-  if ! s:IsSet(var)
-    if val == "-"
-      execute "let " . var . "= \"\""
+  if ! l:var->s:IsSet()
+    if l:val == "-"
+      execute "let " . l:var . "= \"\""
     else
-      execute "let " . var . "= val"
+      execute "let " . l:var . "= l:val"
     endif
     return 1
   endif
@@ -260,19 +260,19 @@ let g:did_html_functions = 1
 " Return Value:
 "  String:  The encoded string.
 function! HTMLencodeString(string, ...)
-  let out = a:string
+  let l:out = a:string
 
   if a:0 == 0
-    let out = substitute(out, '.', '\=printf("&#%d;",  char2nr(submatch(0)))', 'g')
+    let l:out = l:out->substitute('.', '\=printf("&#%d;",  submatch(0)->char2nr())', 'g')
   elseif a:1 == 'x'
-    let out = substitute(out, '.', '\=printf("&#x%x;", char2nr(submatch(0)))', 'g')
+    let l:out = l:out->substitute('.', '\=printf("&#x%x;", submatch(0)->char2nr())', 'g')
   elseif a:1 == '%'
-    let out = substitute(out, '[\x00-\x99]', '\=printf("%%%02X", char2nr(submatch(0)))', 'g')
+    let l:out = l:out->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
   elseif a:1 =~? '^d\(ecode\)\=$'
-    let out = substitute(out, '\(&#x\x\+;\|&#\d\+;\|%\x\x\)', '\=HTMLdecodeSymbol(submatch(1))', 'g')
+    let l:out = l:out->substitute('\(&#x\x\+;\|&#\d\+;\|%\x\x\)', '\=submatch(1)->HTMLdecodeSymbol()', 'g')
   endif
 
-  return out
+  return l:out
 endfunction
 
 " HTMLdecodeSymbol()  {{{2
@@ -285,16 +285,16 @@ endfunction
 "  Character:  The decoded character.
 function! HTMLdecodeSymbol(symbol)
   if a:symbol =~ '&#\(x\x\+\);'
-    let char = nr2char('0' . strpart(a:symbol, 2, strlen(a:symbol) - 3))
+    let l:char = nr2char('0' . strpart(a:symbol, 2, strlen(a:symbol) - 3))
   elseif a:symbol =~ '&#\(\d\+\);'
-    let char = nr2char(strpart(a:symbol, 2, strlen(a:symbol) - 3))
+    let l:char = nr2char(strpart(a:symbol, 2, strlen(a:symbol) - 3))
   elseif a:symbol =~ '%\(\x\x\)'
-    let char = nr2char('0x' . strpart(a:symbol, 1, strlen(a:symbol) - 1))
+    let l:char = nr2char('0x' . strpart(a:symbol, 1, strlen(a:symbol) - 1))
   else
-    let char = a:symbol
+    let l:char = a:symbol
   endif
 
-  return char
+  return l:char
 endfunction
 
 " HTMLmap()  {{{2
@@ -322,48 +322,48 @@ let s:modes = {
       \ 'l': 'langmap',
     \}
 function! HTMLmap(cmd, map, arg, ...)
-  let mode = strpart(a:cmd, 0, 1)
-  let map = substitute(a:map, '^<lead>\c', escape(g:html_map_leader, '&~\'), '')
-  let map = substitute(map, '^<elead>\c', escape(g:html_map_entity_leader, '&~\'), '')
+  let l:mode = a:cmd->strpart(0, 1)
+  let l:map = a:map->substitute('^<lead>\c', escape(g:html_map_leader, '&~\'), '')
+  let l:map = l:map->substitute('^<elead>\c', escape(g:html_map_entity_leader, '&~\'), '')
 
-  if exists('s:modes[mode]') && s:MapCheck(map, mode) >= 2
+  if exists('s:modes[mode]') && l:map->s:MapCheck(l:mode) >= 2
     return
   endif
 
-  let arg = s:ConvertCase(a:arg)
+  let l:arg = a:arg->s:ConvertCase()
   if ! s:BoolVar('b:do_xhtml_mappings')
-    let arg = substitute(arg, ' \?/>', '>', 'g')
+    let l:arg = l:arg->substitute(' \?/>', '>', 'g')
   endif
 
-  if mode == 'v'
+  if l:mode == 'v'
     " If 'selection' is "exclusive" all the visual mode mappings need to
     " behave slightly differently:
-    let arg = substitute(arg, "`>a\\C", "`>i<C-R>=<SID>VI()<CR>", 'g')
+    let l:arg = substitute(arg, "`>a\\C", "`>i<C-R>=<SID>VI()<CR>", 'g')
 
     if a:0 >= 1 && a:1 < 0
-      execute a:cmd . " <buffer> <silent> " . map . " " . arg
+      execute a:cmd . " <buffer> <silent> " . l:map . " " . l:arg
     elseif a:0 >= 1 && a:1 >= 1
-      execute a:cmd . " <buffer> <silent> " . map . " <C-C>:call <SID>TO(0)<CR>gv" . arg
+      execute a:cmd . " <buffer> <silent> " . l:map . " <C-C>:call <SID>TO(0)<CR>gv" . l:arg
         \ . ":call <SID>TO(1)<CR>m':call <SID>ReIndent(line(\"'<\"), line(\"'>\"), " . a:1 . ")<CR>``"
     elseif a:0 >= 1
-      execute a:cmd . " <buffer> <silent> " . map . " <C-C>:call <SID>TO(0)<CR>gv" . arg
+      execute a:cmd . " <buffer> <silent> " . l:map . " <C-C>:call <SID>TO(0)<CR>gv" . l:arg
         \ . "<C-O>:call <SID>TO(1)<CR>"
     else
-      execute a:cmd . " <buffer> <silent> " . map . " <C-C>:call <SID>TO(0)<CR>gv" . arg
+      execute a:cmd . " <buffer> <silent> " . l:map . " <C-C>:call <SID>TO(0)<CR>gv" . l:arg
         \ . ":call <SID>TO(1)<CR>"
     endif
   else
-    execute a:cmd . " <buffer> <silent> " . map . " " . arg
+    execute a:cmd . " <buffer> <silent> " . l:map . " " . l:arg
   endif
 
   if exists('s:modes[mode]')
-    let b:HTMLclearMappings = b:HTMLclearMappings . ':' . mode . "unmap <buffer> " . map . "\<CR>"
+    let b:HTMLclearMappings = b:HTMLclearMappings . ':' . l:mode . "unmap <buffer> " . l:map . "\<CR>"
   else
-    let b:HTMLclearMappings = b:HTMLclearMappings . ":unmap <buffer> " . map . "\<CR>"
+    let b:HTMLclearMappings = b:HTMLclearMappings . ":unmap <buffer> " . l:map . "\<CR>"
   endif
 
-  call s:ExtraMappingsAdd(':call HTMLmap("' . a:cmd . '", "' . escape(a:map, '"\')
-        \ . '", "' . escape(a:arg, '"\') . (a:0 >= 1 ? ('", ' . a:1) : '"' ) . ')')
+  call s:ExtraMappingsAdd(':call HTMLmap("' . a:cmd . '", "' . a:map->escape('"\')
+        \ . '", "' . a:arg->escape('"\') . (a:0 >= 1 ? ('", ' . a:1) : '"' ) . ')')
 endfunction
 
 " HTMLmapo()  {{{2
@@ -389,7 +389,7 @@ function! HTMLmapo(map, insert)
     \ . ':set operatorfunc=<SID>WR<CR>g@'
 
   let b:HTMLclearMappings = b:HTMLclearMappings . ":nunmap <buffer> " . map . "\<CR>"
-  call s:ExtraMappingsAdd(':call HTMLmapo("' . escape(a:map, '"\') . '", ' . a:insert . ')')
+  call s:ExtraMappingsAdd(':call HTMLmapo("' . a:map->escape('"\') . '", ' . a:insert . ')')
 endfunction
 
 " s:MapCheck()  {{{2
@@ -439,13 +439,13 @@ endfunction
 "  Null strings have to be left unescaped, due to a limitation in Vim itself.
 "  (VimL represents newline characters as nulls...ouch.)
 function! s:SI(str)
-  return substitute(a:str, '[^\x00\x20-\x7E]', '\="\x16" . submatch(0)', 'g')
+  return a:str->substitute('[^\x00\x20-\x7E]', '\="\x16" . submatch(0)', 'g')
 endfunction
 
 " s:WR()  {{{2
 " Function set in 'operatorfunc' for mappings that take an operator:
 function! s:WR(type)
-  let sel_save = &selection
+  let l:sel_save = &selection
   let &selection = "inclusive"
 
   if a:type == 'line'
@@ -456,7 +456,7 @@ function! s:WR(type)
     execute "normal `[v`]" . b:htmltagaction
   endif
 
-  let &selection = sel_save
+  let &selection = l:sel_save
 
   if b:htmltaginsert
     if b:htmltaginsert < 2
@@ -547,14 +547,14 @@ endfunction
 function! s:ToggleClipboard(i)
   if a:i == 2
     if exists("b:did_html_mappings")
-      let i=1
+      let l:i=1
     else
-      let i=0
+      let l:i=0
     endif
   else
-    let i=a:i
+    let l:i=a:i
   endif
-  if i == 0
+  if l:i == 0
     let &clipboard=s:savecb
   else
     if &clipboard !~? 'html'
@@ -592,15 +592,15 @@ endfunction
 "  The converted string.
 function! s:ConvertCase(str)
   if (! exists('b:html_tag_case')) || b:html_tag_case =~? 'u\(pper\(case\)\?\)\?' || b:html_tag_case == ''
-    let str = substitute(a:str, '\[{\(.\{-}\)}\]', '\U\1', 'g')
+    let l:str = a:str->substitute('\[{\(.\{-}\)}\]', '\U\1', 'g')
   elseif b:html_tag_case =~? 'l\(ower\(case\)\?\)\?'
-    let str = substitute(a:str, '\[{\(.\{-}\)}\]', '\L\1', 'g')
+    let l:str = a:str->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g')
   else
     exe "HTMLWARN WARNING: b:html_tag_case = '" . b:html_tag_case . "' invalid, overriding to 'upppercase'."
     let b:html_tag_case = 'uppercase'
-    let str = s:ConvertCase(a:str)
+    let l:str = a:str->s:ConvertCase()
   endif
-  return str
+  return l:str
 endfunction
 
 " s:ReIndent()  {{{2
@@ -616,34 +616,31 @@ endfunction
 "               *: Don't add an extra line.
 function! s:ReIndent(first, last, extraline)
   " To find out if filetype indenting is enabled:
-  let save_register = @x
-  redir @x | silent! filetype | redir END
-  let filetype_output = @x
-  let @x = save_register
+  redir =>l:filetype_output | silent! filetype | redir END
 
-  if filetype_output =~ "indent:OFF" && &indentexpr == ''
+  if l:filetype_output =~ "indent:OFF" && &indentexpr == ''
     return
   endif
 
   " Make sure the range is in the proper order:
   if a:last >= a:first
-    let firstline = a:first
-    let lastline = a:last
+    let l:firstline = a:first
+    let l:lastline = a:last
   else
-    let lastline = a:first
-    let firstline = a:last
+    let l:lastline = a:first
+    let l:firstline = a:last
   endif
 
   " Make sure the full region to be re-indendted is included:
   if a:extraline == 1
-    if firstline == lastline
-      let lastline = lastline + 2
+    if l:firstline == lastline
+      let l:lastline = lastline + 2
     else
-      let lastline = lastline + 1
+      let l:lastline = lastline + 1
     endif
   endif
 
-  execute firstline . ',' . lastline . 'norm =='
+  execute l:firstline . ',' . l:lastline . 'norm =='
 endfunction
 
 " s:ByteOffset()  {{{2
@@ -655,7 +652,7 @@ endfunction
 " Return Value:
 "  The byte offset
 function! s:ByteOffset()
-  return line2byte(line('.')) + col('.') - 1
+  return line('.')->line2byte() + col('.') - 1
 endfunction
 
 " HTMLnextInsertPoint()  {{{2
@@ -679,35 +676,34 @@ endfunction
 "       the first line of the buffer when the cursor is on the first line and
 "       tab is successively pressed
 function! HTMLnextInsertPoint(...)
-  let saveerrmsg  = v:errmsg | let v:errmsg = ''
-  let saveruler   = &ruler   | let &ruler   = 0
-  let saveshowcmd = &showcmd | let &showcmd = 0
-  let byteoffset  = s:ByteOffset()
+  let l:saveerrmsg  = v:errmsg | let v:errmsg = ''
+  let l:saveruler   = &ruler   | let &ruler   = 0
+  let l:saveshowcmd = &showcmd | let &showcmd = 0
+  let l:byteoffset  = s:ByteOffset()
 
   " Tab in insert mode on the beginning of a closing tag jumps us to
   " after the tag:
   if a:0 >= 1 && a:1 == 'i'
-    if strpart(getline(line('.')), col('.') - 1, 2) == '</'
+    if line('.')->getline()->strpart(col('.') - 1, 2) == '</'
       normal %
-      let done = 1
-    "elseif strpart(getline(line('.')), col('.') - 1, 4) =~ ' *-->'
-    elseif strpart(getline(line('.')), col('.') - 1) =~ '^ *-->'
+      let l:done = 1
+    elseif line('.')->getline()->strpart(col('.') - 1) =~ '^ *-->'
       normal f>
-      let done = 1
+      let l:done = 1
     else
-      let done = 0
+      let l:done = 0
     endif
 
-    if done == 1
+    if l:done == 1
       if col('.') == col('$') - 1
         startinsert!
       else
         normal l
       endif
 
-      let v:errmsg = saveerrmsg
-      let &ruler   = saveruler
-      let &showcmd = saveshowcmd
+      let v:errmsg = l:saveerrmsg
+      let &ruler   = l:saveruler
+      let &showcmd = l:saveshowcmd
 
       return
     endif
@@ -717,13 +713,13 @@ function! HTMLnextInsertPoint(...)
   normal 0
 
   " Running the search twice is inefficient, but it squelches error
-  " messages and the second search puts my cursor where it's needed...
+  " messages and the second search puts the cursor where it's needed...
 
   if search('<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->', 'w') == 0
-    if byteoffset == -1
+    if l:byteoffset == -1
       go 1
     else
-      execute ':go ' . byteoffset
+      execute ':go ' . l:byteoffset
       if a:0 >= 1 && a:1 == 'i' && col('.') == col('$') - 1
         startinsert!
       endif
@@ -731,7 +727,7 @@ function! HTMLnextInsertPoint(...)
   else
     normal 0
     silent! execute ':go ' . (s:ByteOffset() - 1)
-    execute 'silent! normal! /<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->/;/>\_s*<\|""\|<!--\_s*-->/e' . "\<CR>"
+    execute 'silent! keeppatterns normal! /<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->/;/>\_s*<\|""\|<!--\_s*-->/e' . "\<CR>"
 
     " Handle cursor positioning for comments and/or open+close tags spanning
     " multiple lines:
@@ -746,13 +742,11 @@ function! HTMLnextInsertPoint(...)
       normal k$
     endif
 
-    call histdel('search', -1)
-    let @/ = histget('search', -1)
   endif
 
-  let v:errmsg = saveerrmsg
-  let &ruler   = saveruler
-  let &showcmd = saveshowcmd
+  let v:errmsg = l:saveerrmsg
+  let &ruler   = l:saveruler
+  let &showcmd = l:saveshowcmd
 endfunction
 
 " s:tag()  {{{2
@@ -845,23 +839,24 @@ let s:smarttags['comment'] = {
 " }}}
 
 function! s:tag(tag, mode)
-  let attr=synIDattr(synID(line('.'), col('.') - 1, 1), "name")
-  if ( a:tag == 'i' && attr =~? 'italic' )
-        \ || ( a:tag == 'em' && attr =~? 'italic' )
-        \ || ( a:tag == 'b' && attr =~? 'bold' )
-        \ || ( a:tag == 'strong' && attr =~? 'bold' )
-        \ || ( a:tag == 'u' && attr =~? 'underline' )
-        \ || ( a:tag == 'comment' && attr =~? 'comment' )
-    let ret=s:ConvertCase(s:smarttags[a:tag][a:mode]['c'])
+  let l:attr=synID(line('.'), col('.') - 1, 1)->synIDattr("name")
+  echomsg l:attr
+  if ( a:tag == 'i' && l:attr =~? 'italic' )
+        \ || ( a:tag == 'em' && l:attr =~? 'italic' )
+        \ || ( a:tag == 'b' && l:attr =~? 'bold' )
+        \ || ( a:tag == 'strong' && l:attr =~? 'bold' )
+        \ || ( a:tag == 'u' && l:attr =~? 'underline' )
+        \ || ( a:tag == 'comment' && l:attr =~? 'comment' )
+    let l:ret=s:smarttags[a:tag][a:mode]['c']->s:ConvertCase()
   else
-    let ret=s:ConvertCase(s:smarttags[a:tag][a:mode]['o'])
+    let l:ret=s:smarttags[a:tag][a:mode]['o']->s:ConvertCase()
   endif
   if a:mode == 'v'
     " If 'selection' is "exclusive" all the visual mode mappings need to
     " behave slightly differently:
-    let ret = substitute(ret, "`>a\\C", "`>i" . s:VI(), 'g')
+    let l:ret = l:ret->substitute("`>a\\C", "`>i" . s:VI(), 'g')
   endif
-  return ret
+  return l:ret
 endfunction
 
 " s:DetectCharset()  {{{2
@@ -892,20 +887,20 @@ function! s:DetectCharset()
   endif
 
   if &fileencoding != ''
-    let enc=tolower(&fileencoding)
+    let l:enc=tolower(&fileencoding)
   else
-    let enc=tolower(&encoding)
+    let l:enc=tolower(&encoding)
   endif
 
   " The iso-8859-* encodings are valid for the Content-Type charset header:
-  if enc =~? '^iso-8859-'
-    return enc
+  if l:enc =~? '^iso-8859-'
+    return l:enc
   endif
 
-  let enc=substitute(enc, '\W', '_', 'g')
+  let enc=l:enc->substitute('\W', '_', 'g')
 
-  if s:charsets[enc] != ''
-    return s:charsets[enc]
+  if s:charsets[l:enc] != ''
+    return s:charsets[l:enc]
   endif
 
   return g:html_default_charset
@@ -920,28 +915,28 @@ endfunction
 " Return Value:
 "  None
 function! HTMLgenerateTable()
-  let byteoffset = s:ByteOffset()
+  let l:byteoffset = s:ByteOffset()
 
-  let rows    = inputdialog("Number of rows: ") + 0
-  let columns = inputdialog("Number of columns: ") + 0
+  let l:rows    = inputdialog("Number of rows: ") + 0
+  let l:columns = inputdialog("Number of columns: ") + 0
 
-  if ! (rows > 0 && columns > 0)
+  if ! (l:rows > 0 && l:columns > 0)
     HTMLERROR Rows and columns must be integers.
     return
   endif
 
-  let border = inputdialog("Border width of table [none]: ") + 0
+  let l:border = inputdialog("Border width of table [none]: ") + 0
 
-  if border
-    execute s:ConvertCase("normal o<[{TABLE BORDER}]=" . border . ">\<ESC>")
+  if l:border
+    execute s:ConvertCase("normal o<[{TABLE BORDER}]=" . l:border . ">\<ESC>")
   else
     execute s:ConvertCase("normal o<[{TABLE}]>\<ESC>")
   endif
 
-  for r in range(rows)
+  for l:r in range(l:rows)
     execute s:ConvertCase("normal o<[{TR}]>\<ESC>")
 
-    for c in range(columns)
+    for l:c in range(l:columns)
       execute s:ConvertCase("normal o<[{TD}]></[{TD}]>\<ESC>")
     endfor
 
@@ -950,7 +945,7 @@ function! HTMLgenerateTable()
 
   execute s:ConvertCase("normal o</[{TABLE}]>\<ESC>")
 
-  execute ":go " . (byteoffset <= 0 ? 1 : byteoffset)
+  execute ":go " . (l:byteoffset <= 0 ? 1 : l:byteoffset)
 
   normal jjj$F<
 
@@ -1048,13 +1043,13 @@ function! s:MenuControl(...)
       echoerr "Invalid argument: " . a:1
       return
     else
-      let bool = a:1
+      let l:bool = a:1
     endif
   else
-    let bool = ''
+    let l:bool = ''
   endif
 
-  if bool == 'disable' || ! exists("b:did_html_mappings")
+  if l:bool == 'disable' || ! exists("b:did_html_mappings")
     amenu disable HTML
     amenu disable HTML.*
     if exists('g:did_html_toolbar')
@@ -1075,7 +1070,7 @@ function! s:MenuControl(...)
       amenu enable HTML.Control.Enable\ Mappings
       amenu enable HTML.Control.Reload\ Mappings
     endif
-  elseif bool == 'enable' || exists("b:did_html_mappings_init")
+  elseif l:bool == 'enable' || exists("b:did_html_mappings_init")
     amenu enable HTML
     if exists("b:did_html_mappings")
       amenu enable HTML.*
@@ -1118,41 +1113,41 @@ function! s:ShowColors(...)
     return
   endif
 
-  let curbuf = bufnr('%')
-  let maxw = 0
+  let l:curbuf = bufnr('%')
+  let l:maxw = 0
 
   silent new [HTML\ Colors\ Display]
   setlocal buftype=nofile noswapfile bufhidden=wipe
 
-  for key in keys(s:color_list)
-    if strlen(key) > maxw
-      let maxw = strlen(key)
+  for l:key in keys(s:color_list)
+    if strlen(l:key) > l:maxw
+      let l:maxw = strlen(l:key)
     endif
   endfor
 
-  let col = 0
-  let line = ''
-  for key in sort(keys(s:color_list))
-    let col+=1
+  let l:col = 0
+  let l:line = ''
+  for l:key in keys(s:color_list)->sort()
+    let l:col += 1
 
-    let line.=repeat(' ', maxw - strlen(key)) . key . ' = ' . s:color_list[key]
+    let l:line .= repeat(' ', l:maxw - strlen(l:key)) . l:key . ' = ' . s:color_list[l:key]
 
-    if col >= 2
+    if l:col >= 2
       call append('$', line)
-      let line = ''
-      let col = 0
+      let l:line = ''
+      let l:col = 0
     else
-      let line .= '      '
+      let l:line .= '      '
     endif
 
-    let key2 = substitute(key, ' ', '', 'g')
+    let l:key2 = l:key->substitute(' ', '', 'g')
 
-    execute 'syntax match hc_' . key2 . ' /' . s:color_list[key] . '/'
-    execute 'highlight hc_' . key2 . ' guibg=' . s:color_list[key]
+    execute 'syntax match hc_' . l:key2 . ' /' . s:color_list[l:key] . '/'
+    execute 'highlight hc_' . l:key2 . ' guibg=' . s:color_list[l:key]
   endfor
 
-  if line != ''
-    call append('$', line)
+  if l:line != ''
+    call append('$', l:line)
   endif
 
   call append(0, [
@@ -1180,29 +1175,29 @@ function! s:ShowColors(...)
   inoremap <silent> <buffer> <tab> <C-o>:call search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
 
   if a:0 >= 1
-    let ext = ', "' . escape(a:1, '"') . '"'
+    let l:ext = ', "' . escape(a:1, '"') . '"'
   else
-    let ext = ''
+    let l:ext = ''
   endif
 
-  execute 'noremap <silent> <buffer> <cr> :call <SID>ColorSelect(' . curbuf . ext . ')<CR>'
-  execute 'inoremap <silent> <buffer> <cr> <C-o>:call <SID>ColorSelect(' . curbuf . ext . ')<CR>'
-  execute 'noremap <silent> <buffer> <2-leftmouse> :call <SID>ColorSelect(' . curbuf . ext . ')<CR>'
-  execute 'inoremap <silent> <buffer> <2-leftmouse> <C-o>:call <SID>ColorSelect(' . curbuf . ext . ')<CR>'
+  execute 'noremap <silent> <buffer> <cr> :call <SID>ColorSelect(' . l:curbuf . l:ext . ')<CR>'
+  execute 'inoremap <silent> <buffer> <cr> <C-o>:call <SID>ColorSelect(' . l:curbuf . l:ext . ')<CR>'
+  execute 'noremap <silent> <buffer> <2-leftmouse> :call <SID>ColorSelect(' . l:curbuf . l:ext . ')<CR>'
+  execute 'inoremap <silent> <buffer> <2-leftmouse> <C-o>:call <SID>ColorSelect(' . l:curbuf . l:ext . ')<CR>'
 
   stopinsert
 endfunction
 
 function! s:ColorSelect(bufnr, ...)
-  let line  = getline('.')
-  let col   = col('.')
-  let color = substitute(line, '.\{-\}\%<' . (col + 1) . 'c\([A-Za-z][A-Za-z ]\+ = #\x\{6\}\)\%>' . col . 'c.*', '\1', '') 
+  let l:line  = getline('.')
+  let l:col   = col('.')
+  let l:color = substitute(l:line, '.\{-\}\%<' . (l:col + 1) . 'c\([A-Za-z][A-Za-z ]\+ = #\x\{6\}\)\%>' . l:col . 'c.*', '\1', '') 
 
-  if color == line
+  if l:color == l:line
     return ''
   endif
 
-  let colora = split(color, ' = ')
+  let l:colora = split(l:color, ' = ')
 
   close
   if bufwinnr(a:bufnr) == -1
@@ -1212,14 +1207,14 @@ function! s:ColorSelect(bufnr, ...)
   endif
 
   if a:0 >= 1
-    let which = a:1
+    let l:which = a:1
   else
-    let which = 'i'
+    let l:which = 'i'
   endif
 
-  exe 'normal ' . which . colora[1]
+  exe 'normal ' . l:which . l:colora[1]
   stopinsert
-  echo color
+  echo l:color
 endfunction
 
 " s:ShellEscape()  {{{2
@@ -1236,10 +1231,10 @@ endfunction
 "  shellescape() internal Vim function is nonexistant.
 function! s:ShellEscape(str)
 	if exists('*shellescape')
-		return shellescape(a:str)
+		return a:str->shellescape()
 	else
     if has('unix')
-      return "'" . substitute(a:str, "'", "'\\\\''", 'g') . "'"
+      return "'" . a:str->substitute("'", "'\\\\''", 'g') . "'"
     else
       return a:str
     endif
@@ -1304,7 +1299,7 @@ function! s:HTMLtemplate2()
   endif
 
   if template != ''
-    if filereadable(expand(template))
+    if expand(template)->filereadable()
       silent execute "0read " . template
     else
       exe HTMLERROR "Unable to insert template file: " . template
@@ -1350,7 +1345,7 @@ endfunction  " }}}3
 
 endif " ! exists("g:did_html_functions")
 
-let s:internal_html_template=
+let s:internal_html_template =
   \" <[{HEAD}]>\n\n" .
   \"  <[{TITLE></TITLE}]>\n\n" .
   \"  <[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=%charset%\" />" .
@@ -2567,8 +2562,6 @@ endfunction
 
 if ! s:BoolVar('g:no_html_toolbar') && has("toolbar")
 
-  "if ((has("win32") || has('win64')) && globpath(&rtp, 'bitmaps/Browser.bmp') == '')
-  "    \ || globpath(&rtp, 'bitmaps/Browser.xpm') == ''
   if ((has("win32") || has('win64')) && findfile('bitmaps/Browser.bmp', &rtp) == '')
       \ || findfile('bitmaps/Browser.xpm', &rtp) == ''
     let s:tmp = "Warning:\nYou need to install the Toolbar Bitmaps for the "
@@ -3132,13 +3125,13 @@ let s:colors_sort = {
     \}
 let s:color_list = {}
 function! s:ColorsMenu(name, color)
-  let c = toupper(strpart(a:name, 0, 1))
-  let name = substitute(a:name, '\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
-  execute 'imenu HTML.&Colors.&' . s:colors_sort[c] . '.' . escape(name, ' ')
+  let c = a:name->strpart(0, 1)->toupper()
+  let a:name = a:name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
+  execute 'imenu HTML.&Colors.&' . s:colors_sort[c] . '.' . a:name->escape(' ')
         \ . '<tab>(' . a:color . ') ' . a:color
-  execute 'nmenu HTML.&Colors.&' . s:colors_sort[c] . '.' . escape(name, ' ')
+  execute 'nmenu HTML.&Colors.&' . s:colors_sort[c] . '.' . a:name->escape(' ')
         \ . '<tab>(' . a:color . ') i' . a:color . '<esc>'
-  call extend(s:color_list, {name : a:color})
+  call s:color_list->extend({a:name : a:color})
 endfunction
 
 if (has('gui_running') || &t_Co >= 256)
