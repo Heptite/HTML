@@ -172,7 +172,7 @@ function! MangleImageTag() "{{{1
 	let saveautoindent=&autoindent
 	let &l:autoindent=0
 
-	call setline(l:start_linenr, split(l:line, "\n"))
+	call split(l:line, "\n")->setline(l:start_linenr)
 
 	let &l:autoindent=saveautoindent
 endfunction
@@ -200,7 +200,7 @@ function! s:ImageSize(image) "{{{1
 			let l:string = split(l:l, '\zs')
 			for l:c in l:string
 				let l:char = char2nr(l:c)
-				call l:buf2->add((l:char == 10 ? '0' : l:char))
+				eval l:buf2->add((l:char == 10 ? '0' : l:char))
 
 				" Keep the script from being too slow, but could cause a JPG
 				" (and GIF/PNG?) to return as "malformed":
@@ -209,7 +209,7 @@ function! s:ImageSize(image) "{{{1
 					break
 				endif
 			endfor
-			call l:buf2->add('10')
+			eval l:buf2->add('10')
 		endfor
 
 		if l:ext ==? 'png'

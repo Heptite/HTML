@@ -7,5 +7,4 @@ ChangeLog.html
 vim-html-pixmaps.zip
 vim-html-pixmaps-OLD.zip
 toolbar-icons.png
-old/*
-old/RCS/*
+old

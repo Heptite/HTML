@@ -2,8 +2,8 @@
 "
 " Author:      Christian J. Robinson <heptite@gmail.com>
 " URL:         http://christianrobinson.name/vim/HTML/
-" Last Change: September 11, 2020
-" Version:     0.43
+" Last Change: September 14, 2020
+" Version:     0.43.1
 " Original Concept: Doug Renze
 "
 "
@@ -1323,13 +1323,12 @@ function! s:HTMLtemplate2()
   silent! %s/\C%alinkcolor%/\=g:html_alinkcolor/g
   silent! %s/\C%vlinkcolor%/\=g:html_vlinkcolor/g
   silent! %s/\C%date%/\=strftime('%B %d, %Y')/g
-  "silent! %s/\C%date\s*\([^%]\{-}\)\s*%/\=strftime(substitute(submatch(1),'\\\@<!!','%','g'))/g
-  silent! %s/\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%/\=strftime(substitute(substitute(submatch(1),'\\%','%%','g'),'\\\@<!!','%','g'))/g
+  silent! %s/\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%/\=submatch(1)->substitute('\\%','%%','g')->substitute('\\\@<!!','%','g')->strftime()/g
   silent! %s/\C%time%/\=strftime('%r %Z')/g
   silent! %s/\C%time12%/\=strftime('%r %Z')/g
   silent! %s/\C%time24%/\=strftime('%T')/g
   silent! %s/\C%charset%/\=<SID>DetectCharset()/g
-  silent! %s/\C%vimversion%/\=strpart(v:version, 0, 1) . '.' . (strpart(v:version, 1, 2) + 0)/g
+  silent! %s/\C%vimversion%/\=v:version->strpart(0, 1) . '.' . (v:version->strpart(1, 2)->substitute('^0','',''))/g
 
   go 1
 
@@ -3126,12 +3125,12 @@ let s:colors_sort = {
 let s:color_list = {}
 function! s:ColorsMenu(name, color)
   let c = a:name->strpart(0, 1)->toupper()
-  let a:name = a:name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
-  execute 'imenu HTML.&Colors.&' . s:colors_sort[c] . '.' . a:name->escape(' ')
+  let l:name = a:name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
+  execute 'imenu HTML.&Colors.&' . s:colors_sort[c] . '.' . l:name->escape(' ')
         \ . '<tab>(' . a:color . ') ' . a:color
-  execute 'nmenu HTML.&Colors.&' . s:colors_sort[c] . '.' . a:name->escape(' ')
+  execute 'nmenu HTML.&Colors.&' . s:colors_sort[c] . '.' . l:name->escape(' ')
         \ . '<tab>(' . a:color . ') i' . a:color . '<esc>'
-  call s:color_list->extend({a:name : a:color})
+  eval s:color_list->extend({l:name : a:color})
 endfunction
 
 if (has('gui_running') || &t_Co >= 256)
