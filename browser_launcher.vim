@@ -47,10 +47,6 @@
 "    browsers are installed so a few are defined automatically.
 "
 "  * This code is messy and needs to be rethought.
-"
-"--------------------------------------------------------------------------
-" $Id: browser_launcher.vim,v 1.28 2020/09/12 03:00:48 Heptite Exp $
-"--------------------------------------------------------------------------
 
 if v:version < 8
 	finish

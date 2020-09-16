@@ -51,8 +51,6 @@
 "   + This should probably exclude the newly created tag text, so things like
 "     visual selection ;ta, then gv and ;tr, then gv and ;td work.
 "
-" ---- RCS Information: ------------------------------------------------- {{{1
-" $Id: HTML.vim,v 1.247 2020/09/12 03:00:13 Heptite Exp $
 " ----------------------------------------------------------------------- }}}1
 
 " ---- Initialization: -------------------------------------------------- {{{1

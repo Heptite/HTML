@@ -20,55 +20,6 @@
 " You should have received a copy of the GNU General Public License along with
 " this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 " Place - Suite 330, Boston, MA 02111-1307, USA.
-"
-" RCS info: -------------------------------------------------------------- {{{
-" $Id: MangleImageTag.vim,v 1.14 2020/09/12 03:01:19 Heptite Exp $
-" $Log: MangleImageTag.vim,v $
-" Revision 1.14  2020/09/12 03:01:19  Heptite
-" Start trasition to Vim 8
-"
-" Revision 1.13  2009/06/23 14:04:35  infynity
-" Update email address
-"
-" Revision 1.12  2008/05/30 00:53:28  infynity
-" - Clarify an error message
-" - Don't move the cursor when updating the tag
-"
-" Revision 1.11  2008/05/26 01:11:25  infynity
-" *** empty log message ***
-"
-" Revision 1.10  2008/05/01 05:01:02  infynity
-" Code changed for Vim 7:
-"  - Computed sizes should always be correct now
-"  - Code is a bit cleaner, but unfortunately slower
-"
-" Revision 1.9  2007/05/04 02:03:42  infynity
-" Computed sizes were very wrong when 'encoding' was set to UTF8 or similar
-"
-" Revision 1.8  2007/05/04 01:32:27  infynity
-" Missing quotes
-"
-" Revision 1.7  2007/01/04 04:29:55  infynity
-" Enclose the values of the width/height in quotes by default
-"
-" Revision 1.6  2006/09/22 06:25:14  infynity
-" Search for the image file in the current directory and the buffer's directory.
-"
-" Revision 1.5  2006/06/09 07:56:08  infynity
-" Was resetting 'autoindent' globally, switch it to locally.
-"
-" Revision 1.4  2006/06/08 04:16:17  infynity
-" Temporarily reset 'autoindent' (required for Vim7)
-"
-" Revision 1.3  2005/05/19 18:31:31  infynity
-" SizeGif was returning width as height and vice-versa.
-"
-" Revision 1.2  2004/03/22 10:04:24  infynity
-" Update the right tag if more than one IMG tag appears on the line.
-"
-" Revision 1.1  2004/03/22 05:58:34  infynity
-" Initial revision
-" ------------------------------------------------------------------------ }}}
 
 if v:version < 800 || exists("*MangleImageTag")
 	finish
