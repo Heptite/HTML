@@ -2,8 +2,8 @@
 "
 " Author:      Christian J. Robinson <heptite@gmail.com>
 " URL:         http://christianrobinson.name/vim/HTML/
-" Last Change: September 14, 2020
-" Version:     0.43.1
+" Last Change: September 16, 2020
+" Version:     0.43.2
 " Original Concept: Doug Renze
 "
 "
@@ -283,11 +283,11 @@ endfunction
 "  Character:  The decoded character.
 function! HTMLdecodeSymbol(symbol)
   if a:symbol =~ '&#\(x\x\+\);'
-    let l:char = nr2char('0' . strpart(a:symbol, 2, strlen(a:symbol) - 3))
+    let l:char = ('0' . strpart(a:symbol, 2, strlen(a:symbol) - 3))->nr2char()
   elseif a:symbol =~ '&#\(\d\+\);'
-    let l:char = nr2char(strpart(a:symbol, 2, strlen(a:symbol) - 3))
+    let l:char = strpart(a:symbol, 2, strlen(a:symbol) - 3)->nr2char()
   elseif a:symbol =~ '%\(\x\x\)'
-    let l:char = nr2char('0x' . strpart(a:symbol, 1, strlen(a:symbol) - 1))
+    let l:char = ('0x' . strpart(a:symbol, 1, strlen(a:symbol) - 1))->nr2char()
   else
     let l:char = a:symbol
   endif
@@ -713,7 +713,7 @@ function! HTMLnextInsertPoint(...)
   " Running the search twice is inefficient, but it squelches error
   " messages and the second search puts the cursor where it's needed...
 
-  if search('<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->', 'w') == 0
+  if '<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->'->search('w') == 0
     if l:byteoffset == -1
       go 1
     else
@@ -1125,7 +1125,7 @@ function! s:ShowColors(...)
 
   let l:col = 0
   let l:line = ''
-  for l:key in keys(s:color_list)->sort()
+  for l:key in s:color_list->keys()->sort()
     let l:col += 1
 
     let l:line .= repeat(' ', l:maxw - strlen(l:key)) . l:key . ' = ' . s:color_list[l:key]
@@ -2471,11 +2471,11 @@ elseif has("unix") " {{{2
   call system("which xdg-open")
   if v:shell_error == 0
     " Run the default Unix browser:
-    call HTMLmap("nnoremap", "<lead>db", ":call system('xdg-open ' . <SID>ShellEscape(expand('%:p')) . ' 2>&1 >/dev/null &')<CR>")
+    call HTMLmap("nnoremap", "<lead>db", ":call system('xdg-open ' . expand('%:p')-><SID>ShellEscape() . ' 2>&1 >/dev/null &')<CR>")
   endif
 elseif has("win32") || has('win64') " {{{2
   " Run the default Windows browser:
-  call HTMLmap("nnoremap", "<lead>db", ":call system('start RunDll32.exe shell32.dll,ShellExec_RunDLL ' . <SID>ShellEscape(expand('%:p')))<CR>")
+  call HTMLmap("nnoremap", "<lead>db", ":call system('start RunDll32.exe shell32.dll,ShellExec_RunDLL ' . expand('%:p')-><SID>ShellEscape())<CR>")
 endif " }}}2
 
 if exists("*LaunchBrowser") " {{{2
@@ -2496,6 +2496,14 @@ if exists("*LaunchBrowser") " {{{2
     call HTMLmap("nnoremap", "<lead>ngc", ":call LaunchBrowser('c',1)<CR>")
     " Chrome: Open a new tab, and view the current file:
     call HTMLmap("nnoremap", "<lead>tgc", ":call LaunchBrowser('c',2)<CR>")
+  endif
+  if s:browsers =~ 'e'
+    " Edge: View current file, starting Microsoft Edge if it's not running:
+    call HTMLmap("nnoremap", "<lead>ed", ":call LaunchBrowser('e',0)<CR>")
+    " Edge: Open a new window, and view the current file:
+    call HTMLmap("nnoremap", "<lead>ned", ":call LaunchBrowser('e',1)<CR>")
+    " Edge: Open a new tab, and view the current file:
+    call HTMLmap("nnoremap", "<lead>ted", ":call LaunchBrowser('e',2)<CR>")
   endif
   if s:browsers =~ 'o'
     " Opera: View current file, starting Opera if it's not running:
@@ -2518,9 +2526,6 @@ if exists("*LaunchBrowser") " {{{2
     call HTMLmap("nnoremap", "<lead>nw3", ":call LaunchBrowser('w',1)<CR>")
   endif
 endif " }}}2
-
-" Attempt to run Microsoft Edge (doesn't seem to work for file:// URI's):
-"call HTMLmap("nnoremap", "<lead>ed", ":call system('start \"microsoft-edge:file://' . <SID>ShellEscape(expand('%:p')) . '\"')<CR>")
 
 " ----------------------------------------------------------------------------
 
@@ -2725,17 +2730,22 @@ if ! s:BoolVar('g:no_html_toolbar') && has("toolbar")
       HTMLmenu amenu  1.530 ToolBar.Chrome    gc
     endif
 
+    if s:browsers =~ 'e'
+      tmenu           1.540 ToolBar.Edge      Launch Edge on Current File
+      HTMLmenu amenu  1.540 ToolBar.Edge      ed
+    endif
+
     if s:browsers =~ 'o'
-      tmenu           1.540 ToolBar.Opera     Launch Opera on Current File
-      HTMLmenu amenu  1.540 ToolBar.Opera     oa
+      tmenu           1.550 ToolBar.Opera     Launch Opera on Current File
+      HTMLmenu amenu  1.550 ToolBar.Opera     oa
     endif
 
     if s:browsers =~ 'w'
-      tmenu           1.550 ToolBar.w3m       Launch w3m on Current File
-      HTMLmenu amenu  1.550 ToolBar.w3m       w3
+      tmenu           1.560 ToolBar.w3m       Launch w3m on Current File
+      HTMLmenu amenu  1.560 ToolBar.w3m       w3
     elseif s:browsers =~ 'l'
-      tmenu           1.550 ToolBar.Lynx      Launch Lynx on Current File
-      HTMLmenu amenu  1.550 ToolBar.Lynx      ly
+      tmenu           1.560 ToolBar.Lynx      Launch Lynx on Current File
+      HTMLmenu amenu  1.560 ToolBar.Lynx      ly
     endif
   endif
 
@@ -2802,6 +2812,12 @@ if maparg(g:html_map_leader . 'gc', 'n') != ''
   HTMLmenu amenu - HTML.&Preview.&Chrome                 gc
   HTMLmenu amenu - HTML.&Preview.Chrome\ (New\ Window)   ngc
   HTMLmenu amenu - HTML.&Preview.Chrome\ (New\ Tab)      tgc
+endif
+if maparg(g:html_map_leader . 'ed', 'n') != ''
+   menu HTML.Preview.-sep2-                              <nop>
+  HTMLmenu amenu - HTML.&Preview.&Edge                   ed
+  HTMLmenu amenu - HTML.&Preview.Edge\ (New\ Window)     ned
+  HTMLmenu amenu - HTML.&Preview.Edge\ (New\ Tab)        ted
 endif
 if maparg(g:html_map_leader . 'oa', 'n') != ''
    menu HTML.Preview.-sep3-                              <nop>

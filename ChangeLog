@@ -1,3 +1,6 @@
+Wed, 16 Sep 2020 14:46:10 -0600 Christian J. Robinson
+ * RCS $ tags are useless now that I've switched to Git
+
 Mon, 14 Sep 2020 21:03:10 -0600 Christian J. Robinson
  * Untested code was live.
 

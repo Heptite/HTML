@@ -274,10 +274,11 @@ elseif has('win32') || has('win64') || has('win32unix')  " {{{1
 	" support for a few and let the Windows system complain if a browser
 	" doesn't exist:
 	let s:Browsers = {}
-	let s:BrowsersExist = 'fco'
+	let s:BrowsersExist = 'fcoe'
 	let s:Browsers['f'] = ['firefox', '']
 	let s:Browsers['c'] = ['chrome',  '']
 	let s:Browsers['o'] = ['opera',   '']
+	let s:Browsers['e'] = ['msedge',  '']
 	
 else " {{{1
 
@@ -443,6 +444,31 @@ function! LaunchBrowser(...)
 			endif
 		else
 			BRCMESG Sending remote command to Chrome...
+			if has('win32') || has('win64') || has('win32unix')
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file)
+			else
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " &\""
+			endif
+		endif
+	endif " }}}
+
+	if (l:which ==? 'e') " {{{
+		if l:new == 2
+			BRCMESG Opening new Edge tab...
+			if has('win32') || has('win64') || has('win32unix')
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file)
+			else
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " &\""
+			endif
+		elseif l:new
+			BRCMESG Opening new Edge window...
+			if has('win32') || has('win64') || has('win32unix')
+				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file) . ' --new-window'
+			else
+				let l:command="sh -c \"trap '' HUP; " . s:Browsers[l:which][1] . " " . s:ShellEscape(l:file) . " --new-window &\""
+			endif
+		else
+			BRCMESG Sending remote command to Edge...
 			if has('win32') || has('win64') || has('win32unix')
 				let l:command='start ' . s:Browsers[l:which][0] . ' ' . <SID>ShellEscape(l:file)
 			else
