@@ -2,8 +2,8 @@
 "
 " Author:      Christian J. Robinson <heptite@gmail.com>
 " URL:         http://christianrobinson.name/vim/HTML/
-" Last Change: September 16, 2020
-" Version:     0.43.2
+" Last Change: October 1, 2020
+" Version:     0.44
 " Original Concept: Doug Renze
 "
 "
@@ -45,6 +45,7 @@
 "
 " - Add more HTML 5 tags:
 "   https://www.w3schools.com/html/html5_new_elements.asp
+"   https://www.w3.org/wiki/HTML/New_HTML5_Elements
 " - Find a way to make "gv", after executing a visual mapping, re-select the
 "   right text.  (Currently my extra code that wraps around the visual
 "   mappings can tweak the selected area significantly.)
@@ -55,8 +56,8 @@
 
 " ---- Initialization: -------------------------------------------------- {{{1
 
-if v:version < 800
-  echoerr "HTML.vim no longer supports Vim versions prior to 8."
+if v:version < 802
+  echoerr "HTML.vim no longer supports Vim versions prior to 8.2"
   sleep 2
   finish
 endif
@@ -97,20 +98,41 @@ command! -nargs=+ SetIfUnset call SetIfUnset(<f-args>)
 "
 " Limitations:
 "  This /will not/ work on function-local variable names.
-function! s:BoolVar(var)
-  if a:var =~ '^[bgstvw]:'
-    let l:var = a:var
-  else
-    let l:var = 'g:' . a:var
-  endif
+if exists(':def')
+  def! s:BoolVar(variable: string): bool
+    var newvariable = variable
 
-  if l:var->s:IsSet()
-    execute "let l:varval = " . l:var
-    return l:varval->s:Bool()
-  else
-    return 0
-  endif
-endfunction
+    if variable !~ '^[bgstvw]:'
+      newvariable = "g:" .. variable
+    endif
+
+    if newvariable->s:IsSet()
+      # Unfortunately this is a suboptimal way to do this, but Vim9script
+      # doesn't allow me to do it any other way:
+      execute "g:tmpvarval = " .. newvariable
+      let varval = g:tmpvarval .. ''
+      unlet g:tmpvarval
+      return varval->s:Bool()
+    else
+      return false
+    endif
+  enddef
+else
+  function! s:BoolVar(var)
+    if a:var =~ '^[bgstvw]:'
+      let l:var = a:var
+    else
+      let l:var = 'g:' .. a:var
+    endif
+
+    if l:var->s:IsSet()
+      execute "let l:varval = " .. l:var
+      return l:varval->s:Bool()
+    else
+      return 0
+    endif
+  endfunction
+endif
 
 " s:Bool() {{{3
 "
@@ -121,9 +143,15 @@ endfunction
 "  1 - String:  1|true|yes / 0|false|no
 " Return Value:
 "  1/0
-function! s:Bool(str)
-  return a:str !~? '^no$\|^false$\|^0$\|^$'
-endfunction
+if exists(':def')
+  def! s:Bool(str: string): bool
+    return str !~? '^no$\|^false$\|^0$\|^$'
+  enddef
+else
+  function! s:Bool(str)
+    return a:str !~? '^no$\|^false$\|^0$\|^$'
+  endfunction
+endif
 
 " SetIfUnset()  {{{3
 "
@@ -136,30 +164,60 @@ endfunction
 "  0  - The variable already existed
 "  1  - The variable didn't exist and was set
 "  -1 - An error occurred
-function! SetIfUnset(var, ...)
-  if a:var =~ '^[bgstvw]:'
-    let l:var = a:var
-  else
-    let l:var = 'g:' . a:var
-  endif
+if exists(':def')
+  def! g:SetIfUnset(variable: string, ...args: list<string>): number
+    var val: string
+    var newvariable = variable
 
-  if a:0 == 0
-    exe "HTMLERROR E119: Not enough arguments for function: " . expand('<sfile>')
-    return -1
-  else
-    let l:val = a:000->join(' ')
-  endif
-
-  if ! l:var->s:IsSet()
-    if l:val == "-"
-      execute "let " . l:var . "= \"\""
-    else
-      execute "let " . l:var . "= l:val"
+    if variable !~ '^[bgstvw]:'
+      newvariable = 'g:' .. variable
     endif
+
+    if (len(args) == 0)
+      execute "HTMLERROR E119: Not enough arguments for function: " .. expand('<sfile>')
+      return -1
+    else
+      val = args->join(' ')
+    endif
+
+    if newvariable->s:IsSet()
+      return 0
+    endif
+
+    if val == "-"
+      execute newvariable .. ' = ""'
+    else
+      execute newvariable .. " = '" .. escape(val, "'\\") .. "'"
+    endif
+
     return 1
-  endif
-  return 0
-endfunction
+  enddef
+else
+  function! SetIfUnset(var, ...)
+    if a:var =~ '^[bgstvw]:'
+      let l:var = a:var
+    else
+      let l:var = 'g:' .. a:var
+    endif
+
+    if a:0 == 0
+      execute "HTMLERROR E119: Not enough arguments for function: " .. expand('<sfile>')
+      return -1
+    else
+      let l:val = a:000->join(' ')
+    endif
+
+    if ! l:var->s:IsSet()
+      if l:val == "-"
+        execute "let " .. l:var .. '= ""'
+      else
+        execute "let " .. l:var .. "= l:val"
+      endif
+      return 1
+    endif
+    return 0
+  endfunction
+endif
 
 " s:IsSet() {{{3
 "
@@ -169,10 +227,24 @@ endfunction
 "  1 - String:  The variable name
 " Return Value:
 "  1/0
-function! s:IsSet(str)
-  execute "let varisset = exists(\"" . a:str . "\")"
-  return varisset
-endfunction  "}}}3
+if exists(':def')
+  def! s:IsSet(str: string): bool
+    if str != ''
+      return exists(str) != 0
+    else
+      return false
+    endif
+  enddef
+else
+  function! s:IsSet(str)
+    if str != ''
+      return exists(a:str) != 0
+    else
+      return false
+    endif
+  endfunction
+endif
+"}}}3
 
 " ----------------------------------------------------------------------- }}}2
 
@@ -257,21 +329,39 @@ let g:did_html_functions = 1
 "               - other:    No change to the string
 " Return Value:
 "  String:  The encoded string.
-function! HTMLencodeString(string, ...)
-  let l:out = a:string
+if exists(':def')
+  def! HTMLencodeString(str: string, decode: string = ''): string
+    var out = str
 
-  if a:0 == 0
-    let l:out = l:out->substitute('.', '\=printf("&#%d;",  submatch(0)->char2nr())', 'g')
-  elseif a:1 == 'x'
-    let l:out = l:out->substitute('.', '\=printf("&#x%x;", submatch(0)->char2nr())', 'g')
-  elseif a:1 == '%'
-    let l:out = l:out->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
-  elseif a:1 =~? '^d\(ecode\)\=$'
-    let l:out = l:out->substitute('\(&#x\x\+;\|&#\d\+;\|%\x\x\)', '\=submatch(1)->HTMLdecodeSymbol()', 'g')
-  endif
+    if decode == ''
+      out = out->substitute('.', '\=printf("&#%d;",  submatch(0)->char2nr())', 'g')
+    elseif decode == 'x'
+      out = out->substitute('.', '\=printf("&#x%x;", submatch(0)->char2nr())', 'g')
+    elseif decode == '%'
+      out = out->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
+    elseif decode =~? '^d\(ecode\)\=$'
+      out = out->substitute('\(&#x\x\+;\|&#\d\+;\|%\x\x\)', '\=submatch(1)->HTMLdecodeSymbol()', 'g')
+    endif
 
-  return l:out
-endfunction
+    return out
+  enddef
+else
+  function! HTMLencodeString(string, ...)
+    let l:out = a:string
+
+    if a:0 == 0
+      let l:out = l:out->substitute('.', '\=printf("&#%d;",  submatch(0)->char2nr())', 'g')
+    elseif a:1 == 'x'
+      let l:out = l:out->substitute('.', '\=printf("&#x%x;", submatch(0)->char2nr())', 'g')
+    elseif a:1 == '%'
+      let l:out = l:out->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
+    elseif a:1 =~? '^d\(ecode\)\=$'
+      let l:out = l:out->substitute('\(&#x\x\+;\|&#\d\+;\|%\x\x\)', '\=submatch(1)->HTMLdecodeSymbol()', 'g')
+    endif
+
+    return l:out
+  endfunction
+endif
 
 " HTMLdecodeSymbol()  {{{2
 "
@@ -281,19 +371,37 @@ endfunction
 "  1 - String:  The string to decode.
 " Return Value:
 "  Character:  The decoded character.
-function! HTMLdecodeSymbol(symbol)
-  if a:symbol =~ '&#\(x\x\+\);'
-    let l:char = ('0' . strpart(a:symbol, 2, strlen(a:symbol) - 3))->nr2char()
-  elseif a:symbol =~ '&#\(\d\+\);'
-    let l:char = strpart(a:symbol, 2, strlen(a:symbol) - 3)->nr2char()
-  elseif a:symbol =~ '%\(\x\x\)'
-    let l:char = ('0x' . strpart(a:symbol, 1, strlen(a:symbol) - 1))->nr2char()
-  else
-    let l:char = a:symbol
-  endif
+if exists(':def')
+  def! HTMLdecodeSymbol(symbol: string): string
+    var char: string
 
-  return l:char
-endfunction
+    if symbol =~ '&#\(x\x\+\);'
+      char = strpart(symbol, 2, strlen(symbol) - 3)->str2nr(8)->nr2char()
+    elseif symbol =~ '&#\(\d\+\);'
+      char = strpart(symbol, 2, strlen(symbol) - 3)->str2nr()->nr2char()
+    elseif symbol =~ '%\(\x\x\)'
+      char = strpart(symbol, 1, strlen(symbol) - 1)->str2nr(16)->nr2char()
+    else
+      char = symbol
+    endif
+
+    return char
+  enddef
+else
+  function! HTMLdecodeSymbol(symbol)
+    if a:symbol =~ '&#\(x\x\+\);'
+      let l:char = ('0' .. strpart(a:symbol, 2, strlen(a:symbol) - 3))->nr2char()
+    elseif a:symbol =~ '&#\(\d\+\);'
+      let l:char = strpart(a:symbol, 2, strlen(a:symbol) - 3)->nr2char()
+    elseif a:symbol =~ '%\(\x\x\)'
+      let l:char = ('0x' .. strpart(a:symbol, 1, strlen(a:symbol) - 1))->nr2char()
+    else
+      let l:char = a:symbol
+    endif
+
+    return l:char
+  endfunction
+endif
 
 " HTMLmap()  {{{2
 "
@@ -319,50 +427,101 @@ let s:modes = {
       \ 'c': 'command-line',
       \ 'l': 'langmap',
     \}
-function! HTMLmap(cmd, map, arg, ...)
-  let l:mode = a:cmd->strpart(0, 1)
-  let l:map = a:map->substitute('^<lead>\c', escape(g:html_map_leader, '&~\'), '')
-  let l:map = l:map->substitute('^<elead>\c', escape(g:html_map_entity_leader, '&~\'), '')
 
-  if exists('s:modes[mode]') && l:map->s:MapCheck(l:mode) >= 2
-    return
-  endif
+if exists(':def')
+  def! HTMLmap(cmd: string, map: string, arg: string, extra: number = -999)
+    var mode = cmd->strpart(0, 1)
+    var newarg = arg
+    var newmap = map->substitute('^<lead>\c', escape(g:html_map_leader, '&~\'), '')
+    newmap = newmap->substitute('^<elead>\c', escape(g:html_map_entity_leader, '&~\'), '')
 
-  let l:arg = a:arg->s:ConvertCase()
-  if ! s:BoolVar('b:do_xhtml_mappings')
-    let l:arg = l:arg->substitute(' \?/>', '>', 'g')
-  endif
-
-  if l:mode == 'v'
-    " If 'selection' is "exclusive" all the visual mode mappings need to
-    " behave slightly differently:
-    let l:arg = substitute(arg, "`>a\\C", "`>i<C-R>=<SID>VI()<CR>", 'g')
-
-    if a:0 >= 1 && a:1 < 0
-      execute a:cmd . " <buffer> <silent> " . l:map . " " . l:arg
-    elseif a:0 >= 1 && a:1 >= 1
-      execute a:cmd . " <buffer> <silent> " . l:map . " <C-C>:call <SID>TO(0)<CR>gv" . l:arg
-        \ . ":call <SID>TO(1)<CR>m':call <SID>ReIndent(line(\"'<\"), line(\"'>\"), " . a:1 . ")<CR>``"
-    elseif a:0 >= 1
-      execute a:cmd . " <buffer> <silent> " . l:map . " <C-C>:call <SID>TO(0)<CR>gv" . l:arg
-        \ . "<C-O>:call <SID>TO(1)<CR>"
-    else
-      execute a:cmd . " <buffer> <silent> " . l:map . " <C-C>:call <SID>TO(0)<CR>gv" . l:arg
-        \ . ":call <SID>TO(1)<CR>"
+    if exists('s:modes["' .. mode .. '""]') && newmap->s:MapCheck(mode) >= 2
+      return
     endif
-  else
-    execute a:cmd . " <buffer> <silent> " . l:map . " " . l:arg
-  endif
 
-  if exists('s:modes[mode]')
-    let b:HTMLclearMappings = b:HTMLclearMappings . ':' . l:mode . "unmap <buffer> " . l:map . "\<CR>"
-  else
-    let b:HTMLclearMappings = b:HTMLclearMappings . ":unmap <buffer> " . l:map . "\<CR>"
-  endif
+    newarg = newarg->s:ConvertCase()
 
-  call s:ExtraMappingsAdd(':call HTMLmap("' . a:cmd . '", "' . a:map->escape('"\')
-        \ . '", "' . a:arg->escape('"\') . (a:0 >= 1 ? ('", ' . a:1) : '"' ) . ')')
-endfunction
+    if s:BoolVar('b:do_xhtml_mappings') == false
+      newarg = newarg->substitute(' \?/>', '>', 'g')
+    endif
+
+    if mode == 'v'
+      # If 'selection' is "exclusive" all the visual mode mappings need to
+      # behave slightly differently:
+      newarg = substitute(newarg, "`>a\\C", "`>i<C-R>=<SID>VI()<CR>", 'g')
+
+      if extra < 0 && extra != -999
+        execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
+      elseif extra >= 1
+        execute cmd .. " <buffer> <silent> " .. newmap .. " <C-C>:call <SID>TO(0)<CR>gv" .. newarg
+          .. ":call <SID>TO(1)<CR>m':call <SID>ReIndent(line(\"'<\"), line(\"'>\"), " .. extra .. ")<CR>``"
+      elseif extra == 0
+        execute cmd .. " <buffer> <silent> " .. newmap .. " <C-C>:call <SID>TO(0)<CR>gv" .. newarg
+          .. "<C-O>:call <SID>TO(1)<CR>"
+      else
+        execute cmd .. " <buffer> <silent> " .. newmap .. " <C-C>:call <SID>TO(0)<CR>gv" .. newarg
+          .. ":call <SID>TO(1)<CR>"
+      endif
+    else
+      execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
+    endif
+
+    if exists('s:modes["' .. mode .. '"]')
+      b:HTMLclearMappings = b:HTMLclearMappings .. ':' .. mode .. "unmap <buffer> " .. newmap .. "\<CR>"
+    else
+      b:HTMLclearMappings = b:HTMLclearMappings .. ":unmap <buffer> " .. newmap .. "\<CR>"
+    endif
+
+    # Save extra mappings so they can be restored if we need to later:
+    call s:ExtraMappingsAdd(':call HTMLmap("' .. cmd .. '", "' .. map->escape('"\')
+          .. '", "' .. arg->escape('"\') .. (extra != -999 ? ('", ' .. extra) : '"' ) .. ')')
+  enddef
+else
+  function! HTMLmap(cmd, map, arg, ...)
+    let l:mode = a:cmd->strpart(0, 1)
+    let l:map = a:map->substitute('^<lead>\c', escape(g:html_map_leader, '&~\'), '')
+    let l:map = l:map->substitute('^<elead>\c', escape(g:html_map_entity_leader, '&~\'), '')
+
+    if exists('s:modes[mode]') && l:map->s:MapCheck(l:mode) >= 2
+      return
+    endif
+
+    let l:arg = a:arg->s:ConvertCase()
+    if ! s:BoolVar('b:do_xhtml_mappings')
+      let l:arg = l:arg->substitute(' \?/>', '>', 'g')
+    endif
+
+    if l:mode == 'v'
+      " If 'selection' is "exclusive" all the visual mode mappings need to
+      " behave slightly differently:
+      let l:arg = substitute(arg, "`>a\\C", "`>i<C-R>=<SID>VI()<CR>", 'g')
+
+      if a:0 >= 1 && a:1 < 0
+        execute a:cmd .. " <buffer> <silent> " .. l:map .. " " .. l:arg
+      elseif a:0 >= 1 && a:1 >= 1
+        execute a:cmd .. " <buffer> <silent> " .. l:map .. " <C-C>:call <SID>TO(0)<CR>gv" .. l:arg
+          \ .. ":call <SID>TO(1)<CR>m':call <SID>ReIndent(line(\"'<\"), line(\"'>\"), " .. a:1 .. ")<CR>``"
+      elseif a:0 >= 1
+        execute a:cmd .. " <buffer> <silent> " .. l:map .. " <C-C>:call <SID>TO(0)<CR>gv" .. l:arg
+          \ .. "<C-O>:call <SID>TO(1)<CR>"
+      else
+        execute a:cmd .. " <buffer> <silent> " .. l:map .. " <C-C>:call <SID>TO(0)<CR>gv" .. l:arg
+          \ .. ":call <SID>TO(1)<CR>"
+      endif
+    else
+      execute a:cmd .. " <buffer> <silent> " .. l:map .. " " .. l:arg
+    endif
+
+    if exists('s:modes[mode]')
+      let b:HTMLclearMappings = b:HTMLclearMappings .. ':' .. l:mode .. "unmap <buffer> " .. l:map .. "\<CR>"
+    else
+      let b:HTMLclearMappings = b:HTMLclearMappings .. ":unmap <buffer> " .. l:map .. "\<CR>"
+    endif
+
+    call s:ExtraMappingsAdd(':call HTMLmap("' .. a:cmd .. '", "' .. a:map->escape('"\')
+          \ .. '", "' .. a:arg->escape('"\') .. (a:0 >= 1 ? ('", ' .. a:1) : '"' ) .. ')')
+  endfunction
+endif
 
 " HTMLmapo()  {{{2
 "
@@ -374,21 +533,39 @@ endfunction
 "  2 - Boolean: Whether to enter insert mode after the mapping has executed.
 "               (A value greater than 1 tells the mapping not to move right one
 "               character.)
-function! HTMLmapo(map, insert)
-  let map = substitute(a:map, "^<lead>", g:html_map_leader, '')
+if exists(':def')
+  def! HTMLmapo(map: string, insert: bool)
+    let newmap = map->substitute("^<lead>", g:html_map_leader, '')
 
-  if s:MapCheck(map, 'o') >= 2
-    return
-  endif
+    if newmap->s:MapCheck('o') >= 2
+      return
+    endif
 
-  execute 'nnoremap <buffer> <silent> ' . map
-    \ . " :let b:htmltagaction='" . map . "'<CR>"
-    \ . ":let b:htmltaginsert=" . a:insert . "<CR>"
-    \ . ':set operatorfunc=<SID>WR<CR>g@'
+    execute 'nnoremap <buffer> <silent> ' .. newmap
+      .. " :let b:htmltagaction='" .. newmap .. "'<CR>"
+      .. ":let b:htmltaginsert=" .. insert .. "<CR>"
+      .. ':set operatorfunc=<SID>WR<CR>g@'
 
-  let b:HTMLclearMappings = b:HTMLclearMappings . ":nunmap <buffer> " . map . "\<CR>"
-  call s:ExtraMappingsAdd(':call HTMLmapo("' . a:map->escape('"\') . '", ' . a:insert . ')')
-endfunction
+    b:HTMLclearMappings = b:HTMLclearMappings .. ":nunmap <buffer> " .. newmap .. "\<CR>"
+    call s:ExtraMappingsAdd(':call HTMLmapo("' .. map->escape('"\') .. '", ' .. insert .. ')')
+  enddef
+else
+  function! HTMLmapo(map, insert)
+    let map = a:map->substitute("^<lead>", g:html_map_leader, '')
+
+    if l:map->s:MapCheck('o') >= 2
+      return
+    endif
+
+    execute 'nnoremap <buffer> <silent> ' .. l:map
+      \ .. " :let b:htmltagaction='" .. l:map .. "'<CR>"
+      \ .. ":let b:htmltaginsert=" .. a:insert .. "<CR>"
+      \ .. ':set operatorfunc=<SID>WR<CR>g@'
+
+    let b:HTMLclearMappings = b:HTMLclearMappings .. ":nunmap <buffer> " .. l:map .. "\<CR>"
+    call s:ExtraMappingsAdd(':call HTMLmapo("' .. a:map->escape('"\') .. '", ' .. a:insert .. ')')
+  endfunction
+endif
 
 " s:MapCheck()  {{{2
 "
@@ -405,26 +582,46 @@ endfunction
 "  3 - The mapping to be defined was suppressed by g:no_html_maps.
 "
 " (Note that suppression only works for the internal mappings.)
-function! s:MapCheck(map, mode)
-  if exists('s:doing_internal_html_mappings') &&
-        \ ( (exists('g:no_html_maps') && a:map =~# g:no_html_maps) ||
-        \   (exists('b:no_html_maps') && a:map =~# b:no_html_maps) )
-    return 3
-  elseif exists('s:modes[a:mode]') && maparg(a:map, a:mode) != ''
-    if s:BoolVar('g:no_html_map_override') && exists('s:doing_internal_html_mappings')
-      return 2
-    else
-      exe "HTMLWARN WARNING: A mapping to \"" . a:map . "\" for " . s:modes[a:mode] . " mode has been overridden for this buffer."
+if exists(':def')
+  def! s:MapCheck(map: string, mode: string): number
+    if exists('s:doing_internal_html_mappings') &&
+          ( (exists('g:no_html_maps') && map =~# g:no_html_maps) ||
+            (exists('b:no_html_maps') && map =~# b:no_html_maps) )
+      return 3
+    elseif exists('s:modes["' .. mode .. '"]') && maparg(map, mode) != ''
+      if s:BoolVar('g:no_html_map_override') && exists('s:doing_internal_html_mappings')
+        return 2
+      else
+        exe "HTMLWARN WARNING: A mapping to \"" .. map .. "\" for " .. s:modes[mode] .. " mode has been overridden for this buffer."
 
-      return 1
+        return 1
+      endif
     endif
-  endif
 
-  return 0
-endfunction
+    return 0
+  enddef
+else
+  function! s:MapCheck(map, mode)
+    if exists('s:doing_internal_html_mappings') &&
+          \ ( (exists('g:no_html_maps') && a:map =~# g:no_html_maps) ||
+          \   (exists('b:no_html_maps') && a:map =~# b:no_html_maps) )
+      return 3
+    elseif exists('s:modes[a:mode]') && maparg(a:map, a:mode) != ''
+      if s:BoolVar('g:no_html_map_override') && exists('s:doing_internal_html_mappings')
+        return 2
+      else
+        exe "HTMLWARN WARNING: A mapping to \"" .. a:map .. "\" for " .. s:modes[a:mode] .. " mode has been overridden for this buffer."
+
+        return 1
+      endif
+    endif
+
+    return 0
+  endfunction
+endif
 
 " s:SI()  {{{2
-" 
+"
 " 'Escape' special characters with a control-v so Vim doesn't handle them as
 " special keys during insertion.  For use in <C-R>=... type calls in mappings.
 "
@@ -436,36 +633,69 @@ endfunction
 " Limitations:
 "  Null strings have to be left unescaped, due to a limitation in Vim itself.
 "  (VimL represents newline characters as nulls...ouch.)
-function! s:SI(str)
-  return a:str->substitute('[^\x00\x20-\x7E]', '\="\x16" . submatch(0)', 'g')
-endfunction
+if exists(':def')
+  def! s:SI(str: string): string
+    return str->substitute('[^\x00\x20-\x7E]', '\="\x16" .. submatch(0)', 'g')
+  enddef
+else
+  function! s:SI(str)
+    return a:str->substitute('[^\x00\x20-\x7E]', '\="\x16" .. submatch(0)', 'g')
+  endfunction
+endif
 
 " s:WR()  {{{2
 " Function set in 'operatorfunc' for mappings that take an operator:
-function! s:WR(type)
-  let l:sel_save = &selection
-  let &selection = "inclusive"
+if exists(':def')
+  def! s:WR(type: string)
+    var sel_save = &selection
+    &selection = "inclusive"
 
-  if a:type == 'line'
-    execute "normal `[V`]" . b:htmltagaction
-  elseif a:type == 'block'
-    execute "normal `[\<C-V>`]" . b:htmltagaction
-  else
-    execute "normal `[v`]" . b:htmltagaction
-  endif
-
-  let &selection = l:sel_save
-
-  if b:htmltaginsert
-    if b:htmltaginsert < 2
-      execute "normal \<Right>"
+    if type == 'line'
+      execute "normal `[V`]" .. b:htmltagaction
+    elseif type == 'block'
+      execute "normal `[\<C-V>`]" .. b:htmltagaction
+    else
+      execute "normal `[v`]" .. b:htmltagaction
     endif
-    startinsert
-  endif
 
-  " Leave these set so .-repeating of operator mappings works:
-  "unlet b:htmltagaction b:htmltaginsert
-endfunction
+    &selection = sel_save
+
+    if b:htmltaginsert
+      if b:htmltaginsert < 2
+        execute "normal \<Right>"
+      endif
+      startinsert
+    endif
+
+    # Leave these set so .-repeating of operator mappings works:
+    #unlet b:htmltagaction b:htmltaginsert
+  enddef
+else
+  function! s:WR(type)
+    let l:sel_save = &selection
+    let &selection = "inclusive"
+
+    if a:type == 'line'
+      execute "normal `[V`]" .. b:htmltagaction
+    elseif a:type == 'block'
+      execute "normal `[\<C-V>`]" .. b:htmltagaction
+    else
+      execute "normal `[v`]" .. b:htmltagaction
+    endif
+
+    let &selection = l:sel_save
+
+    if b:htmltaginsert
+      if b:htmltaginsert < 2
+        execute "normal \<Right>"
+      endif
+      startinsert
+    endif
+
+    " Leave these set so .-repeating of operator mappings works:
+    "unlet b:htmltagaction b:htmltaginsert
+  endfunction
+endif
 
 " s:ExtraMappingsAdd()  {{{2
 "
@@ -473,14 +703,25 @@ endfunction
 "
 " Arguments:
 "  1 - String: The command necessary to re-define the mapping.
-function! s:ExtraMappingsAdd(arg)
-  if ! exists('s:doing_internal_html_mappings') && ! exists('s:doing_extra_html_mappings')
-    if ! exists('b:HTMLextraMappings')
-      let b:HTMLextraMappings = ''
+if exists(':def')
+  def! s:ExtraMappingsAdd(arg: string)
+    if ! exists('s:doing_internal_html_mappings') && ! exists('s:doing_extra_html_mappings')
+      if ! exists('b:HTMLextraMappings')
+        b:HTMLextraMappings = ''
+      endif
+      b:HTMLextraMappings = b:HTMLextraMappings .. arg .. ' |'
     endif
-    let b:HTMLextraMappings = b:HTMLextraMappings . a:arg . ' |'
-  endif
-endfunction
+  enddef
+else
+  function! s:ExtraMappingsAdd(arg)
+    if ! exists('s:doing_internal_html_mappings') && ! exists('s:doing_extra_html_mappings')
+      if ! exists('b:HTMLextraMappings')
+        let b:HTMLextraMappings = ''
+      endif
+      let b:HTMLextraMappings = b:HTMLextraMappings .. a:arg .. ' |'
+    endif
+  endfunction
+endif
 
 " s:TO()  {{{2
 "
@@ -491,31 +732,59 @@ endfunction
 " Arguments:
 "  1 - Integer: 0 - Turn options off.
 "               1 - Turn options back on, if they were on before.
-function! s:TO(s)
-  if a:s == 0
-    let s:savesm=&l:sm | let &l:sm=0
-    let s:saveinde=&l:inde | let &l:inde=''
-    let s:savefo=&l:fo | let &l:fo=''
+if exists(':def')
+  def! s:TO(which: bool)
+    if which
+      &l:sm = s:savesm | unlet s:savesm
+      &l:inde = s:saveinde | unlet s:saveinde
+      &l:fo = s:savefo | unlet s:savefo
 
-    " A trick to make leading indent on the first line of visual-line
-    " selections is handled properly (turn it into a character-wise
-    " selection and exclude the leading indent):
-    if visualmode() ==# 'V'
-      let s:visualmode_save = visualmode()
-      exe "normal `<^v`>\<C-C>"
-    endif
-  else
-    let &l:sm=s:savesm | unlet s:savesm
-    let &l:inde=s:saveinde | unlet s:saveinde
-    let &l:fo=s:savefo | unlet s:savefo
+      # Restore the last visual mode if it was changed:
+      if exists('s:visualmode_save')
+        exe "normal gv" .. s:visualmode_save .. "\<C-C>"
+        unlet s:visualmode_save
+      endif
+    else
+      s:savesm = &l:sm | &l:sm = 0
+      s:saveinde = &l:inde | &l:inde = ''
+      s:savefo = &l:fo | &l:fo = ''
 
-    " Restore the last visual mode if it was changed:
-    if exists('s:visualmode_save')
-      exe "normal gv" . s:visualmode_save . "\<C-C>"
-      unlet s:visualmode_save
+      # A trick to make leading indent on the first line of visual-line
+      # selections is handled properly (turn it into a character-wise
+      # selection and exclude the leading indent):
+      if visualmode() ==# 'V'
+        s:visualmode_save = visualmode()
+        exe "normal `<^v`>\<C-C>"
+      endif
     endif
-  endif
-endfunction
+  enddef
+else
+  function! s:TO(s)
+    if a:s == 0
+      let s:savesm=&l:sm | let &l:sm=0
+      let s:saveinde=&l:inde | let &l:inde=''
+      let s:savefo=&l:fo | let &l:fo=''
+
+      " A trick to make leading indent on the first line of visual-line
+      " selections is handled properly (turn it into a character-wise
+      " selection and exclude the leading indent):
+      if visualmode() ==# 'V'
+        let s:visualmode_save = visualmode()
+        exe "normal `<^v`>\<C-C>"
+      endif
+    else
+      let &l:sm=s:savesm | unlet s:savesm
+      let &l:inde=s:saveinde | unlet s:saveinde
+      let &l:fo=s:savefo | unlet s:savefo
+
+      " Restore the last visual mode if it was changed:
+      if exists('s:visualmode_save')
+        exe "normal gv" .. s:visualmode_save .. "\<C-C>"
+        unlet s:visualmode_save
+      endif
+    endif
+  endfunction
+endif
 
 " s:TC()  {{{2
 "
@@ -525,13 +794,23 @@ endfunction
 " Arguments:
 "  1 - Integer: 0 - Turn option off.
 "               1 - Turn option back on, if they were on before.
-function! s:TC(s)
-  if a:s == 0
-    let s:savecom=&l:com | let &l:com=''
-  else
-    let &l:com=s:savecom | unlet s:savecom
-  endif
-endfunction
+if exists(':def')
+  def! s:TC(s: string)
+    if s
+      s:savecom=&l:com | &l:com=''
+    else
+      &l:com=s:savecom | unlet s:savecom
+    endif
+  enddef
+else
+  function! s:TC(s)
+    if a:s == 0
+      let s:savecom=&l:com | let &l:com=''
+    else
+      let &l:com=s:savecom | unlet s:savecom
+    endif
+  endfunction
+endif
 
 " s:ToggleClipboard()  {{{2
 "
@@ -542,25 +821,50 @@ endfunction
 "  1 - Integer: 0 - Remove 'html' if it was removed before.
 "               1 - Add 'html'.
 "               2 - Auto detect which to do.
-function! s:ToggleClipboard(i)
-  if a:i == 2
-    if exists("b:did_html_mappings")
-      let l:i=1
+"
+" (Note that s:savecb is set by this script's initialization.)
+if exists(':def')
+  def! s:ToggleClipboard(i: number)
+    var newi = i
+
+    if newi == 2
+      if exists("b:did_html_mappings")
+        newi = 1
+      else
+        newi = 0
+      endif
+    endif
+
+    if newi == 0
+      &clipboard = s:savecb
     else
-      let l:i=0
+      if &clipboard !~? 'html'
+        s:savecb = &clipboard
+      endif
+      silent! set clipboard+=html
     endif
-  else
-    let l:i=a:i
-  endif
-  if l:i == 0
-    let &clipboard=s:savecb
-  else
-    if &clipboard !~? 'html'
-      let s:savecb=&clipboard
+  enddef
+else
+  function! s:ToggleClipboard(i)
+    if a:i == 2
+      if exists("b:did_html_mappings")
+        let l:i=1
+      else
+        let l:i=0
+      endif
+    else
+      let l:i=a:i
     endif
-    silent! set clipboard+=html
-  endif
-endfunction
+    if l:i == 0
+      let &clipboard=s:savecb
+    else
+      if &clipboard !~? 'html'
+        let s:savecb=&clipboard
+      endif
+      silent! set clipboard+=html
+    endif
+  endfunction
+endif
 
 " s:VI() {{{2
 "
@@ -571,13 +875,23 @@ endfunction
 "   None
 " Return Value:
 "   The proper movement command based on the value of 'selection'.
-function! s:VI()
-  if &selection == 'inclusive'
-    return "\<right>"
-  else
-    return "\<C-O>`>"
-  endif
-endfunction
+if exists(':def')
+  def! s:VI(): string
+    if &selection == 'inclusive'
+      return "\<right>"
+    else
+      return "\<C-O>`>"
+    endif
+  enddef
+else
+  function! s:VI()
+    if &selection == 'inclusive'
+      return "\<right>"
+    else
+      return "\<C-O>`>"
+    endif
+  endfunction
+endif
 
 " s:ConvertCase()  {{{2
 "
@@ -588,18 +902,40 @@ endfunction
 "  1 - String: The string with the regions to convert surrounded by [{...}].
 " Return Value:
 "  The converted string.
-function! s:ConvertCase(str)
-  if (! exists('b:html_tag_case')) || b:html_tag_case =~? 'u\(pper\(case\)\?\)\?' || b:html_tag_case == ''
-    let l:str = a:str->substitute('\[{\(.\{-}\)}\]', '\U\1', 'g')
-  elseif b:html_tag_case =~? 'l\(ower\(case\)\?\)\?'
-    let l:str = a:str->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g')
-  else
-    exe "HTMLWARN WARNING: b:html_tag_case = '" . b:html_tag_case . "' invalid, overriding to 'upppercase'."
-    let b:html_tag_case = 'uppercase'
-    let l:str = a:str->s:ConvertCase()
-  endif
-  return l:str
-endfunction
+if exists(':def')
+  def! s:ConvertCase(str: string): string
+    var newstr = str
+
+    if ! exists('b:html_tag_case')
+      b:html_tag_case = g:html_tag_case
+    endif
+
+    if b:html_tag_case =~? '^u\(pper\(case\)\?\)\?'
+      newstr = newstr->substitute('\[{\(.\{-}\)}\]', '\U\1', 'g')
+    elseif b:html_tag_case =~? '^l\(ower\(case\)\?\)\?'
+      newstr = newstr->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g')
+    else
+      exe "HTMLWARN WARNING: b:html_tag_case = '" .. b:html_tag_case .. "' invalid, overriding to 'lowercase'."
+      b:html_tag_case = 'lowercase'
+      newstr = newstr->s:ConvertCase()
+    endif
+
+    return newstr
+  enddef
+else
+  function! s:ConvertCase(str)
+    if (! exists('b:html_tag_case')) || b:html_tag_case =~? 'u\(pper\(case\)\?\)\?' || b:html_tag_case == ''
+      let l:str = a:str->substitute('\[{\(.\{-}\)}\]', '\U\1', 'g')
+    elseif b:html_tag_case =~? 'l\(ower\(case\)\?\)\?'
+      let l:str = a:str->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g')
+    else
+      exe "HTMLWARN WARNING: b:html_tag_case = '" .. b:html_tag_case .. "' invalid, overriding to 'lowercase'."
+      let b:html_tag_case = 'lowercase'
+      let l:str = a:str->s:ConvertCase()
+    endif
+    return l:str
+  endfunction
+endif
 
 " s:ReIndent()  {{{2
 "
@@ -612,34 +948,68 @@ endfunction
 "  2 - Integer: End of region.
 "  3 - Integer: 1: Add an extra line below the region to re-indent.
 "               *: Don't add an extra line.
-function! s:ReIndent(first, last, extraline)
-  " To find out if filetype indenting is enabled:
-  redir =>l:filetype_output | silent! filetype | redir END
+if exists(':def')
+  def! s:ReIndent(first: number, last: number, extraline: number)
+    var firstline: number
+    var lastline: number
 
-  if l:filetype_output =~ "indent:OFF" && &indentexpr == ''
-    return
-  endif
+    # To find out if filetype indenting is enabled:
+    silent! redir =>s:filetype_output | silent! filetype | redir END
 
-  " Make sure the range is in the proper order:
-  if a:last >= a:first
-    let l:firstline = a:first
-    let l:lastline = a:last
-  else
-    let l:lastline = a:first
-    let l:firstline = a:last
-  endif
-
-  " Make sure the full region to be re-indendted is included:
-  if a:extraline == 1
-    if l:firstline == lastline
-      let l:lastline = lastline + 2
-    else
-      let l:lastline = lastline + 1
+    if s:filetype_output =~ "indent:OFF" && &indentexpr == ''
+      return
     endif
-  endif
 
-  execute l:firstline . ',' . l:lastline . 'norm =='
-endfunction
+    # Make sure the range is in the proper order:
+    if last >= first
+      firstline = first
+      lastline = last
+    else
+      lastline = first
+      firstline = last
+    endif
+
+    # Make sure the full region to be re-indendted is included:
+    if extraline == 1
+      if firstline == lastline
+        lastline = lastline + 2
+      else
+        lastline = lastline + 1
+      endif
+    endif
+
+    execute ':' .. firstline .. ',' .. lastline .. 'norm =='
+  enddef
+else
+  function! s:ReIndent(first, last, extraline)
+    " To find out if filetype indenting is enabled:
+    redir =>l:filetype_output | silent! filetype | redir END
+
+    if l:filetype_output =~ "indent:OFF" && &indentexpr == ''
+      return
+    endif
+
+    " Make sure the range is in the proper order:
+    if a:last >= a:first
+      let l:firstline = a:first
+      let l:lastline = a:last
+    else
+      let l:lastline = a:first
+      let l:firstline = a:last
+    endif
+
+    " Make sure the full region to be re-indendted is included:
+    if a:extraline == 1
+      if l:firstline == lastline
+        let l:lastline = lastline + 2
+      else
+        let l:lastline = lastline + 1
+      endif
+    endif
+
+    execute l:firstline .. ',' .. l:lastline .. 'norm =='
+  endfunction
+endif
 
 " s:ByteOffset()  {{{2
 "
@@ -649,9 +1019,15 @@ endfunction
 "  None
 " Return Value:
 "  The byte offset
-function! s:ByteOffset()
-  return line('.')->line2byte() + col('.') - 1
-endfunction
+if exists(':def')
+  def! s:ByteOffset(): number
+    return line('.')->line2byte() + col('.') - 1
+  enddef
+else
+  function! s:ByteOffset()
+    return line('.')->line2byte() + col('.') - 1
+  endfunction
+endif
 
 " HTMLnextInsertPoint()  {{{2
 "
@@ -673,81 +1049,158 @@ endfunction
 "    b) won't let the cursor "escape" from an "empty" tag that it can match on
 "       the first line of the buffer when the cursor is on the first line and
 "       tab is successively pressed
-function! HTMLnextInsertPoint(...)
-  let l:saveerrmsg  = v:errmsg | let v:errmsg = ''
-  let l:saveruler   = &ruler   | let &ruler   = 0
-  let l:saveshowcmd = &showcmd | let &showcmd = 0
-  let l:byteoffset  = s:ByteOffset()
+if exists(':def')
+  def! HTMLnextInsertPoint(mode: string = 'n')
+    var saveerrmsg  = v:errmsg | v:errmsg = ''
+    var saveruler   = &ruler   | &ruler   = 0
+    var saveshowcmd = &showcmd | &showcmd = 0
+    var byteoffset  = s:ByteOffset()
+    var done: bool
 
-  " Tab in insert mode on the beginning of a closing tag jumps us to
-  " after the tag:
-  if a:0 >= 1 && a:1 == 'i'
-    if line('.')->getline()->strpart(col('.') - 1, 2) == '</'
-      normal %
-      let l:done = 1
-    elseif line('.')->getline()->strpart(col('.') - 1) =~ '^ *-->'
-      normal f>
-      let l:done = 1
-    else
-      let l:done = 0
-    endif
-
-    if l:done == 1
-      if col('.') == col('$') - 1
-        startinsert!
+    # Tab in insert mode on the beginning of a closing tag jumps us to
+    # after the tag:
+    if mode == 'i'
+      if line('.')->getline()->strpart(col('.') - 1, 2) == '</'
+        normal! %
+        done = true
+      elseif line('.')->getline()->strpart(col('.') - 1) =~ '^ *-->'
+        normal! f>
+        done = true
       else
-        normal l
+        done = false
       endif
 
-      let v:errmsg = l:saveerrmsg
-      let &ruler   = l:saveruler
-      let &showcmd = l:saveshowcmd
+      if done
+        if col('.') == col('$') - 1
+          startinsert!
+        else
+          normal! l
+        endif
 
-      return
+        v:errmsg = saveerrmsg
+        &ruler   = saveruler
+        &showcmd = saveshowcmd
+
+        return
+      endif
     endif
-  endif
 
 
-  normal 0
+    normal! 0
 
-  " Running the search twice is inefficient, but it squelches error
-  " messages and the second search puts the cursor where it's needed...
+    # Running the search twice is inefficient, but it squelches error
+    # messages and the second search puts the cursor where it's needed...
 
-  if '<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->'->search('w') == 0
-    if l:byteoffset == -1
-      go 1
+    if '<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->'->search('w') == 0
+      if byteoffset == -1
+        go 1
+      else
+        execute ':go ' .. byteoffset
+        if mode == 'i' && col('.') == col('$') - 1
+          startinsert!
+        endif
+      endif
     else
-      execute ':go ' . l:byteoffset
-      if a:0 >= 1 && a:1 == 'i' && col('.') == col('$') - 1
-        startinsert!
+      normal! 0
+      silent! execute ':go ' .. (s:ByteOffset() - 1)
+      execute 'silent! keeppatterns normal! /<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->/;/>\_s*<\|""\|<!--\_s*-->/e' .. "\<CR>"
+
+      # Handle cursor positioning for comments and/or open+close tags spanning
+      # multiple lines:
+      if getline('.') =~ '<!-- \+-->'
+        execute "normal! F\<space>"
+      elseif getline('.') =~ '^ *-->' && getline(line('.') - 1) =~ '<!-- *$'
+        normal! 0
+        normal! t-
+      elseif getline('.') =~ '^ *-->' && getline(line('.') - 1) =~ '^ *$'
+        normal! k$
+      elseif getline('.') =~ '^ *<\/[^<>]\+>' && getline(line('.') - 1) =~ '^ *$'
+        normal! k$
+      endif
+
+    endif
+
+    v:errmsg = saveerrmsg
+    &ruler   = saveruler
+    &showcmd = saveshowcmd
+  enddef
+else
+  function! HTMLnextInsertPoint(...)
+    let l:saveerrmsg  = v:errmsg | let v:errmsg = ''
+    let l:saveruler   = &ruler   | let &ruler   = 0
+    let l:saveshowcmd = &showcmd | let &showcmd = 0
+    let l:byteoffset  = s:ByteOffset()
+
+    " Tab in insert mode on the beginning of a closing tag jumps us to
+    " after the tag:
+    if a:0 >= 1 && a:1 == 'i'
+      if line('.')->getline()->strpart(col('.') - 1, 2) == '</'
+        normal %
+        let l:done = 1
+      elseif line('.')->getline()->strpart(col('.') - 1) =~ '^ *-->'
+        normal f>
+        let l:done = 1
+      else
+        let l:done = 0
+      endif
+
+      if l:done == 1
+        if col('.') == col('$') - 1
+          startinsert!
+        else
+          normal l
+        endif
+
+        let v:errmsg = l:saveerrmsg
+        let &ruler   = l:saveruler
+        let &showcmd = l:saveshowcmd
+
+        return
       endif
     endif
-  else
-    normal 0
-    silent! execute ':go ' . (s:ByteOffset() - 1)
-    execute 'silent! keeppatterns normal! /<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->/;/>\_s*<\|""\|<!--\_s*-->/e' . "\<CR>"
 
-    " Handle cursor positioning for comments and/or open+close tags spanning
-    " multiple lines:
-    if getline('.') =~ '<!-- \+-->'
-      execute "normal F\<space>"
-    elseif getline('.') =~ '^ *-->' && getline(line('.')-1) =~ '<!-- *$'
+
+    normal 0
+
+    " Running the search twice is inefficient, but it squelches error
+    " messages and the second search puts the cursor where it's needed...
+
+    if '<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->'->search('w') == 0
+      if l:byteoffset == -1
+        go 1
+      else
+        execute ':go ' .. l:byteoffset
+        if a:0 >= 1 && a:1 == 'i' && col('.') == col('$') - 1
+          startinsert!
+        endif
+      endif
+    else
       normal 0
-      normal t-
-    elseif getline('.') =~ '^ *-->' && getline(line('.')-1) =~ '^ *$'
-      normal k$
-    elseif getline('.') =~ '^ *<\/[^<>]\+>' && getline(line('.')-1) =~ '^ *$'
-      normal k$
+      silent! execute ':go ' .. (s:ByteOffset() - 1)
+      execute 'silent! keeppatterns normal! /<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->/;/>\_s*<\|""\|<!--\_s*-->/e' .. "\<CR>"
+
+      " Handle cursor positioning for comments and/or open+close tags spanning
+      " multiple lines:
+      if getline('.') =~ '<!-- \+-->'
+        execute "normal F\<space>"
+      elseif getline('.') =~ '^ *-->' && getline(line('.')-1) =~ '<!-- *$'
+        normal 0
+        normal t-
+      elseif getline('.') =~ '^ *-->' && getline(line('.')-1) =~ '^ *$'
+        normal k$
+      elseif getline('.') =~ '^ *<\/[^<>]\+>' && getline(line('.')-1) =~ '^ *$'
+        normal k$
+      endif
+
     endif
 
-  endif
+    let v:errmsg = l:saveerrmsg
+    let &ruler   = l:saveruler
+    let &showcmd = l:saveshowcmd
+  endfunction
+endif
 
-  let v:errmsg = l:saveerrmsg
-  let &ruler   = l:saveruler
-  let &showcmd = l:saveshowcmd
-endfunction
-
-" s:tag()  {{{2
+" s:Tag()  {{{2
 "
 " Causes certain tags (such as bold, italic, underline) to be closed then
 " opened rather than opened then closed where appropriate, if syntax
@@ -836,26 +1289,51 @@ let s:smarttags['comment'] = {
     \ }
 " }}}
 
-function! s:tag(tag, mode)
-  let l:attr=synID(line('.'), col('.') - 1, 1)->synIDattr("name")
-  echomsg l:attr
-  if ( a:tag == 'i' && l:attr =~? 'italic' )
-        \ || ( a:tag == 'em' && l:attr =~? 'italic' )
-        \ || ( a:tag == 'b' && l:attr =~? 'bold' )
-        \ || ( a:tag == 'strong' && l:attr =~? 'bold' )
-        \ || ( a:tag == 'u' && l:attr =~? 'underline' )
-        \ || ( a:tag == 'comment' && l:attr =~? 'comment' )
-    let l:ret=s:smarttags[a:tag][a:mode]['c']->s:ConvertCase()
-  else
-    let l:ret=s:smarttags[a:tag][a:mode]['o']->s:ConvertCase()
-  endif
-  if a:mode == 'v'
-    " If 'selection' is "exclusive" all the visual mode mappings need to
-    " behave slightly differently:
-    let l:ret = l:ret->substitute("`>a\\C", "`>i" . s:VI(), 'g')
-  endif
-  return l:ret
-endfunction
+if exists(':def')
+  def! s:Tag(tag: string, mode: string): string
+    var attr = synID(line('.'), col('.') - 1, 1)->synIDattr('name')
+    var ret: string
+
+    if ( tag == 'i' && attr =~? 'italic' )
+          || ( tag == 'em' && attr =~? 'italic' )
+          || ( tag == 'b' && attr =~? 'bold' )
+          || ( tag == 'strong' && attr =~? 'bold' )
+          || ( tag == 'u' && attr =~? 'underline' )
+          || ( tag == 'comment' && attr =~? 'comment' )
+      ret = s:smarttags[tag][mode]['c']->s:ConvertCase()
+    else
+      ret = s:smarttags[tag][mode]['o']->s:ConvertCase()
+    endif
+
+    if mode == 'v'
+      # If 'selection' is "exclusive" all the visual mode mappings need to
+      # behave slightly differently:
+      ret = ret->substitute("`>a\\C", "`>i" .. s:VI(), 'g')
+    endif
+
+    return ret
+  enddef
+else
+  function! s:Tag(tag, mode)
+    let l:attr=synID(line('.'), col('.') - 1, 1)->synIDattr('name')
+    if ( a:tag == 'i' && l:attr =~? 'italic' )
+          \ || ( a:tag == 'em' && l:attr =~? 'italic' )
+          \ || ( a:tag == 'b' && l:attr =~? 'bold' )
+          \ || ( a:tag == 'strong' && l:attr =~? 'bold' )
+          \ || ( a:tag == 'u' && l:attr =~? 'underline' )
+          \ || ( a:tag == 'comment' && l:attr =~? 'comment' )
+      let l:ret=s:smarttags[a:tag][a:mode]['c']->s:ConvertCase()
+    else
+      let l:ret=s:smarttags[a:tag][a:mode]['o']->s:ConvertCase()
+    endif
+    if a:mode == 'v'
+      " If 'selection' is "exclusive" all the visual mode mappings need to
+      " behave slightly differently:
+      let l:ret = l:ret->substitute("`>a\\C", "`>i" .. s:VI(), 'g')
+    endif
+    return l:ret
+  endfunction
+endif
 
 " s:DetectCharset()  {{{2
 "
@@ -878,31 +1356,60 @@ let s:charsets['euc_jp']    = 'EUC-JP'
 let s:charsets['cp950']     = 'Big5'
 let s:charsets['big5']      = 'Big5'
 
-function! s:DetectCharset()
+if exists(':def')
+  def! s:DetectCharset(): string
+    var enc: string
 
-  if exists("g:html_charset")
-    return g:html_charset
-  endif
+    if exists("g:html_charset")
+      return g:html_charset
+    endif
 
-  if &fileencoding != ''
-    let l:enc=tolower(&fileencoding)
-  else
-    let l:enc=tolower(&encoding)
-  endif
+    if &fileencoding != ''
+      enc = tolower(&fileencoding)
+    else
+      enc = tolower(&encoding)
+    endif
 
-  " The iso-8859-* encodings are valid for the Content-Type charset header:
-  if l:enc =~? '^iso-8859-'
-    return l:enc
-  endif
+    # The iso-8859-* encodings are valid for the Content-Type charset header:
+    if enc =~? '^iso-8859-'
+      return enc
+    endif
 
-  let enc=l:enc->substitute('\W', '_', 'g')
+    enc = enc->substitute('\W', '_', 'g')
 
-  if s:charsets[l:enc] != ''
-    return s:charsets[l:enc]
-  endif
+    if s:charsets[enc] != ''
+      return s:charsets[enc]
+    endif
 
-  return g:html_default_charset
-endfunction
+    return g:html_default_charset
+  enddef
+else
+  function! s:DetectCharset()
+
+    if exists("g:html_charset")
+      return g:html_charset
+    endif
+
+    if &fileencoding != ''
+      let l:enc=tolower(&fileencoding)
+    else
+      let l:enc=tolower(&encoding)
+    endif
+
+    " The iso-8859-* encodings are valid for the Content-Type charset header:
+    if l:enc =~? '^iso-8859-'
+      return l:enc
+    endif
+
+    let enc=l:enc->substitute('\W', '_', 'g')
+
+    if s:charsets[l:enc] != ''
+      return s:charsets[l:enc]
+    endif
+
+    return g:html_default_charset
+  endfunction
+endif
 
 " HTMLgenerateTable()  {{{2
 "
@@ -912,42 +1419,80 @@ endfunction
 "  None
 " Return Value:
 "  None
-function! HTMLgenerateTable()
-  let l:byteoffset = s:ByteOffset()
+if exists(':def')
+  def! HTMLgenerateTable()
+    var byteoffset = s:ByteOffset()
+    var rows       = inputdialog("Number of rows: ")->str2nr()
+    let columns    = inputdialog("Number of columns: ")->str2nr()
 
-  let l:rows    = inputdialog("Number of rows: ") + 0
-  let l:columns = inputdialog("Number of columns: ") + 0
+    if (rows < 1 || columns < 1)
+      HTMLERROR Rows and columns must be positive, non-zero integers.
+      return
+    endif
 
-  if ! (l:rows > 0 && l:columns > 0)
-    HTMLERROR Rows and columns must be integers.
-    return
-  endif
+    var border = inputdialog("Border width of table [none]: ")->str2nr()
 
-  let l:border = inputdialog("Border width of table [none]: ") + 0
+    if border
+      execute s:ConvertCase("normal o<[{TABLE BORDER}]=" .. border .. ">\<ESC>")
+    else
+      execute s:ConvertCase("normal o<[{TABLE}]>\<ESC>")
+    endif
 
-  if l:border
-    execute s:ConvertCase("normal o<[{TABLE BORDER}]=" . l:border . ">\<ESC>")
-  else
-    execute s:ConvertCase("normal o<[{TABLE}]>\<ESC>")
-  endif
+    for r in range(rows)
+      execute s:ConvertCase("normal o<[{TR}]>\<ESC>")
 
-  for l:r in range(l:rows)
-    execute s:ConvertCase("normal o<[{TR}]>\<ESC>")
+      for c in range(columns)
+        execute s:ConvertCase("normal o<[{TD}]></[{TD}]>\<ESC>")
+      endfor
 
-    for l:c in range(l:columns)
-      execute s:ConvertCase("normal o<[{TD}]></[{TD}]>\<ESC>")
+      execute s:ConvertCase("normal o</[{TR}]>\<ESC>")
     endfor
 
-    execute s:ConvertCase("normal o</[{TR}]>\<ESC>")
-  endfor
+    execute s:ConvertCase("normal o</[{TABLE}]>\<ESC>")
 
-  execute s:ConvertCase("normal o</[{TABLE}]>\<ESC>")
+    execute ":go " .. (byteoffset <= 0 ? 1 : byteoffset)
 
-  execute ":go " . (l:byteoffset <= 0 ? 1 : l:byteoffset)
+    normal jjj$F<
 
-  normal jjj$F<
+  enddef
+else
+  function! HTMLgenerateTable()
+    let l:byteoffset = s:ByteOffset()
 
-endfunction
+    let l:rows    = inputdialog("Number of rows: ") + 0
+    let l:columns = inputdialog("Number of columns: ") + 0
+
+    if ! (l:rows > 0 && l:columns > 0)
+      HTMLERROR Rows and columns must be integers.
+      return
+    endif
+
+    let l:border = inputdialog("Border width of table [none]: ") + 0
+
+    if l:border
+      execute s:ConvertCase("normal o<[{TABLE BORDER}]=" .. l:border .. ">\<ESC>")
+    else
+      execute s:ConvertCase("normal o<[{TABLE}]>\<ESC>")
+    endif
+
+    for l:r in range(l:rows)
+      execute s:ConvertCase("normal o<[{TR}]>\<ESC>")
+
+      for l:c in range(l:columns)
+        execute s:ConvertCase("normal o<[{TD}]></[{TD}]>\<ESC>")
+      endfor
+
+      execute s:ConvertCase("normal o</[{TR}]>\<ESC>")
+    endfor
+
+    execute s:ConvertCase("normal o</[{TABLE}]>\<ESC>")
+
+    execute ":go " .. (l:byteoffset <= 0 ? 1 : l:byteoffset)
+
+    normal jjj$F<
+
+  endfunction
+endif
 
 " s:MappingsControl()  {{{2
 "
@@ -955,70 +1500,130 @@ endfunction
 "
 " Arguments:
 "  1 - String:  Whether to disable or enable the mappings:
-"                d/disable: Clear the mappings
-"                e/enable:  Redefine the mappings
-"                r/reload:  Completely reload the script
-"                h/html:    Reload the mapppings in HTML mode
-"                x/xhtml:   Reload the mapppings in XHTML mode
+"                d/disable/off:   Clear the mappings
+"                e/enable/on:     Redefine the mappings
+"                r/reload/reinit: Completely reload the script
+"                h/html:          Reload the mapppings in HTML mode
+"                x/xhtml:         Reload the mapppings in XHTML mode
 " Return Value:
 "  None
-silent! function! s:MappingsControl(dowhat)
-  if ! exists('b:did_html_mappings_init')
-    HTMLERROR The HTML mappings were not sourced for this buffer.
-    return
-  endif
-
-  if b:did_html_mappings_init < 0
-    unlet b:did_html_mappings_init
-  endif
-
-  if a:dowhat =~? '^d\(isable\)\=\|off$'
-    if exists('b:did_html_mappings')
-      silent execute b:HTMLclearMappings
-      unlet b:did_html_mappings
-      if exists("g:did_html_menus")
-        call s:MenuControl('disable')
-      endif
-    elseif ! exists('s:quiet_errors')
-      HTMLERROR "The HTML mappings are already disabled."
+if exists(':def')
+  def! s:MappingsControl(dowhat: string)
+    if exists('b:did_html_mappings_init') == 0
+      HTMLERROR The HTML mappings were not sourced for this buffer.
+      return
     endif
-  elseif a:dowhat =~? '^e\(nable\)\=\|on$'
-    if exists('b:did_html_mappings')
-      HTMLERROR "The HTML mappings are already enabled."
+
+    if b:did_html_mappings_init < 0
+      unlet b:did_html_mappings_init
+    endif
+
+    if dowhat =~? '^d\(isable\)\=\|off$'
+      if exists('b:did_html_mappings') == 1
+        silent execute b:HTMLclearMappings
+        unlet b:did_html_mappings
+        if exists("g:did_html_menus") == 1
+          call s:MenuControl('disable')
+        endif
+      elseif exists('s:quiet_errors') == 0
+        HTMLERROR "The HTML mappings are already disabled."
+      endif
+    elseif dowhat =~? '^e\(nable\)\=\|on$'
+      if exists('b:did_html_mappings') == 1
+        HTMLERROR "The HTML mappings are already enabled."
+      else
+        execute "source " .. s:thisfile
+        if exists('b:HTMLextraMappings') == 1
+          s:doing_extra_html_mappings = 1
+          silent execute b:HTMLextraMappings
+          unlet s:doing_extra_html_mappings
+        endif
+      endif
+    elseif dowhat =~? '^r\(eload\|einit\)\=$'
+      s:quiet_errors = 1
+      HTMLmappings off
+      b:did_html_mappings_init = -1
+      silent! unlet g:did_html_menus g:did_html_toolbar g:did_html_functions
+      silent! unmenu HTML
+      silent! unmenu! HTML
+      HTMLmappings on
+      unlet s:quiet_errors
+    elseif dowhat =~? '^h\(tml\)\=$'
+      if exists('b:html_tag_case_save') == 1
+        b:html_tag_case = b:html_tag_case_save
+      endif
+      b:do_xhtml_mappings = 0
+      HTMLmappings off
+      b:did_html_mappings_init = -1
+      HTMLmappings on
+    elseif dowhat =~? '^x\(html\)\=$'
+      b:do_xhtml_mappings = 1
+      HTMLmappings off
+      b:did_html_mappings_init = -1
+      HTMLmappings on
     else
-      execute "source " . s:thisfile
-      if exists('b:HTMLextraMappings')
-        let s:doing_extra_html_mappings = 1
-        silent execute b:HTMLextraMappings
-        unlet s:doing_extra_html_mappings
+      exe "HTMLERROR Invalid argument: " .. dowhat
+    endif
+  enddef
+else
+  silent! function! s:MappingsControl(dowhat)
+    if ! exists('b:did_html_mappings_init')
+      HTMLERROR The HTML mappings were not sourced for this buffer.
+      return
+    endif
+
+    if b:did_html_mappings_init < 0
+      unlet b:did_html_mappings_init
+    endif
+
+    if a:dowhat =~? '^d\(isable\)\=\|off$'
+      if exists('b:did_html_mappings')
+        silent execute b:HTMLclearMappings
+        unlet b:did_html_mappings
+        if exists("g:did_html_menus")
+          call s:MenuControl('disable')
+        endif
+      elseif ! exists('s:quiet_errors')
+        HTMLERROR "The HTML mappings are already disabled."
       endif
+    elseif a:dowhat =~? '^e\(nable\)\=\|on$'
+      if exists('b:did_html_mappings')
+        HTMLERROR "The HTML mappings are already enabled."
+      else
+        execute "source " .. s:thisfile
+        if exists('b:HTMLextraMappings')
+          let s:doing_extra_html_mappings = 1
+          silent execute b:HTMLextraMappings
+          unlet s:doing_extra_html_mappings
+        endif
+      endif
+    elseif a:dowhat =~? '^r\(eload\|einit\)\=$'
+      let s:quiet_errors = 1
+      HTMLmappings off
+      let b:did_html_mappings_init=-1
+      silent! unlet g:did_html_menus g:did_html_toolbar g:did_html_functions
+      silent! unmenu HTML
+      silent! unmenu! HTML
+      HTMLmappings on
+      unlet s:quiet_errors
+    elseif a:dowhat =~? '^h\(tml\)\=$'
+      if exists('b:html_tag_case_save')
+        let b:html_tag_case = b:html_tag_case_save
+      endif
+      let b:do_xhtml_mappings=0
+      HTMLmappings off
+      let b:did_html_mappings_init=-1
+      HTMLmappings on
+    elseif a:dowhat =~? '^x\(html\)\=$'
+      let b:do_xhtml_mappings=1
+      HTMLmappings off
+      let b:did_html_mappings_init=-1
+      HTMLmappings on
+    else
+      exe "HTMLERROR Invalid argument: " .. a:dowhat
     endif
-  elseif a:dowhat =~? '^r\(eload\|einit\)\=$'
-    let s:quiet_errors = 1
-    HTMLmappings off
-    let b:did_html_mappings_init=-1
-    silent! unlet g:did_html_menus g:did_html_toolbar g:did_html_functions
-    silent! unmenu HTML
-    silent! unmenu! HTML
-    HTMLmappings on
-    unlet s:quiet_errors
-  elseif a:dowhat =~? '^h\(tml\)\=$'
-    if exists('b:html_tag_case_save')
-      let b:html_tag_case = b:html_tag_case_save
-    endif
-    let b:do_xhtml_mappings=0
-    HTMLmappings off
-    let b:did_html_mappings_init=-1
-    HTMLmappings on
-  elseif a:dowhat =~? '^x\(html\)\=$'
-    let b:do_xhtml_mappings=1
-    HTMLmappings off
-    let b:did_html_mappings_init=-1
-    HTMLmappings on
-  else
-    exe "HTMLERROR Invalid argument: " . a:dowhat
-  endif
-endfunction
+  endfunction
+endif
 
 command! -nargs=1 HTMLmappings call <SID>MappingsControl(<f-args>)
 command! -nargs=1 HTML call <SID>MappingsControl(<f-args>)
@@ -1035,62 +1640,115 @@ command! -nargs=1 HTML call <SID>MappingsControl(<f-args>)
 "                "enable": Enable the menu and toolbar
 " Return Value:
 "  None
-function! s:MenuControl(...)
-  if a:0 > 0
-    if a:1 !~? '^\(dis\|en\)able$'
-      echoerr "Invalid argument: " . a:1
+if exists(':def')
+  def! s:MenuControl(which: string="detect")
+    if which !~? '^disable$\|^enable$\|^detect$'
+      echoerr "Invalid argument: " .. which
       return
-    else
-      let l:bool = a:1
     endif
-  else
-    let l:bool = ''
-  endif
 
-  if l:bool == 'disable' || ! exists("b:did_html_mappings")
-    amenu disable HTML
-    amenu disable HTML.*
-    if exists('g:did_html_toolbar')
-      amenu disable ToolBar.*
-      amenu enable ToolBar.Open
-      amenu enable ToolBar.Save
-      amenu enable ToolBar.SaveAll
-      amenu enable ToolBar.Cut
-      amenu enable ToolBar.Copy
-      amenu enable ToolBar.Paste
-      amenu enable ToolBar.Find
-      amenu enable ToolBar.Replace
-    endif
-    if exists('b:did_html_mappings_init') && ! exists('b:did_html_mappings')
+    if which == 'disable' || exists("b:did_html_mappings") == 0
+      amenu disable HTML
+      amenu disable HTML.*
+      if exists('g:did_html_toolbar') == 1
+        amenu disable ToolBar.*
+        amenu enable ToolBar.Open
+        amenu enable ToolBar.Save
+        amenu enable ToolBar.SaveAll
+        amenu enable ToolBar.Cut
+        amenu enable ToolBar.Copy
+        amenu enable ToolBar.Paste
+        amenu enable ToolBar.Find
+        amenu enable ToolBar.Replace
+      endif
+      if exists('b:did_html_mappings_init') == 1 && exists('b:did_html_mappings') == 0
+        amenu enable HTML
+        amenu disable HTML.Control.*
+        amenu enable HTML.Control
+        amenu enable HTML.Control.Enable\ Mappings
+        amenu enable HTML.Control.Reload\ Mappings
+      endif
+    elseif which == 'enable' || exists("b:did_html_mappings_init") == 1
       amenu enable HTML
-      amenu disable HTML.Control.*
-      amenu enable HTML.Control
-      amenu enable HTML.Control.Enable\ Mappings
-      amenu enable HTML.Control.Reload\ Mappings
-    endif
-  elseif l:bool == 'enable' || exists("b:did_html_mappings_init")
-    amenu enable HTML
-    if exists("b:did_html_mappings")
-      amenu enable HTML.*
-      amenu enable HTML.Control.*
-      amenu disable HTML.Control.Enable\ Mappings
+      if exists("b:did_html_mappings") == 1
+        amenu enable HTML.*
+        amenu enable HTML.Control.*
+        amenu disable HTML.Control.Enable\ Mappings
 
-      if s:BoolVar('b:do_xhtml_mappings')
-        amenu disable HTML.Control.Switch\ to\ XHTML\ mode
-        amenu enable  HTML.Control.Switch\ to\ HTML\ mode
+        if s:BoolVar('b:do_xhtml_mappings')
+          amenu disable HTML.Control.Switch\ to\ XHTML\ mode
+          amenu enable  HTML.Control.Switch\ to\ HTML\ mode
+        else
+          amenu enable  HTML.Control.Switch\ to\ XHTML\ mode
+          amenu disable HTML.Control.Switch\ to\ HTML\ mode
+        endif
+
+        if exists('g:did_html_toolbar') == 1
+          amenu enable ToolBar.*
+        endif
       else
-        amenu enable  HTML.Control.Switch\ to\ XHTML\ mode
-        amenu disable HTML.Control.Switch\ to\ HTML\ mode
+        amenu enable HTML.Control.Enable\ Mappings
       endif
-
-      if exists('g:did_html_toolbar')
-        amenu enable ToolBar.*
+    endif
+  enddef
+else
+  function! s:MenuControl(...)
+    if a:0 > 0
+      if a:1 !~? '^\(dis\|en\)able$'
+        echoerr "Invalid argument: " .. a:1
+        return
+      else
+        let l:bool = a:1
       endif
     else
-      amenu enable HTML.Control.Enable\ Mappings
+      let l:bool = ''
     endif
-  endif
-endfunction
+
+    if l:bool == 'disable' || ! exists("b:did_html_mappings")
+      amenu disable HTML
+      amenu disable HTML.*
+      if exists('g:did_html_toolbar')
+        amenu disable ToolBar.*
+        amenu enable ToolBar.Open
+        amenu enable ToolBar.Save
+        amenu enable ToolBar.SaveAll
+        amenu enable ToolBar.Cut
+        amenu enable ToolBar.Copy
+        amenu enable ToolBar.Paste
+        amenu enable ToolBar.Find
+        amenu enable ToolBar.Replace
+      endif
+      if exists('b:did_html_mappings_init') && ! exists('b:did_html_mappings')
+        amenu enable HTML
+        amenu disable HTML.Control.*
+        amenu enable HTML.Control
+        amenu enable HTML.Control.Enable\ Mappings
+        amenu enable HTML.Control.Reload\ Mappings
+      endif
+    elseif l:bool == 'enable' || exists("b:did_html_mappings_init")
+      amenu enable HTML
+      if exists("b:did_html_mappings")
+        amenu enable HTML.*
+        amenu enable HTML.Control.*
+        amenu disable HTML.Control.Enable\ Mappings
+
+        if s:BoolVar('b:do_xhtml_mappings')
+          amenu disable HTML.Control.Switch\ to\ XHTML\ mode
+          amenu enable  HTML.Control.Switch\ to\ HTML\ mode
+        else
+          amenu enable  HTML.Control.Switch\ to\ XHTML\ mode
+          amenu disable HTML.Control.Switch\ to\ HTML\ mode
+        endif
+
+        if exists('g:did_html_toolbar')
+          amenu enable ToolBar.*
+        endif
+      else
+        amenu enable HTML.Control.Enable\ Mappings
+      endif
+    endif
+  endfunction
+endif
 
 " s:ShowColors()  {{{2
 "
@@ -1100,144 +1758,236 @@ endfunction
 "  None
 " Return Value:
 "  None
-function! s:ShowColors(...)
-  if ! exists('g:did_html_menus')
-    HTMLERROR The HTML menu was not created.
-    return
-  endif
-
-  if ! exists('b:did_html_mappings_init')
-    HTMLERROR Not in an html buffer.
-    return
-  endif
-
-  let l:curbuf = bufnr('%')
-  let l:maxw = 0
-
-  silent new [HTML\ Colors\ Display]
-  setlocal buftype=nofile noswapfile bufhidden=wipe
-
-  for l:key in keys(s:color_list)
-    if strlen(l:key) > l:maxw
-      let l:maxw = strlen(l:key)
+if exists(':def')
+  def! s:ShowColors(str: string='')
+    if exists('g:did_html_menus') == 0
+      HTMLERROR The HTML menu was not created, and it is necessary for color parsing.
+      return
     endif
-  endfor
 
-  let l:col = 0
-  let l:line = ''
-  for l:key in s:color_list->keys()->sort()
-    let l:col += 1
+    if exists('b:did_html_mappings_init') == 0
+      HTMLERROR Not in an HTML buffer.
+      return
+    endif
 
-    let l:line .= repeat(' ', l:maxw - strlen(l:key)) . l:key . ' = ' . s:color_list[l:key]
+    var curbuf = bufnr('%')
+    var maxw = 0
 
-    if l:col >= 2
+    silent new [HTML\ Colors\ Display]
+    setlocal buftype=nofile noswapfile bufhidden=wipe
+
+    for key in keys(s:color_list)
+      if strlen(key) > maxw
+        maxw = strlen(key)
+      endif
+    endfor
+
+    var col = 0
+    var line = ''
+    for key in s:color_list->keys()->sort()
+      col += 1
+
+      line ..= repeat(' ', maxw - strlen(key)) .. key .. ' = ' .. s:color_list[key]
+
+      if col >= 2
+        call append('$', line)
+        line = ''
+        col = 0
+      else
+        line ..= '      '
+      endif
+
+      var key2 = key->substitute(' ', '', 'g')
+
+      execute 'syntax match hc_' .. key2 .. ' /' .. s:color_list[key] .. '/'
+      execute 'highlight hc_' .. key2 .. ' guibg=' .. s:color_list[key]
+    endfor
+
+    if line != ''
       call append('$', line)
-      let l:line = ''
-      let l:col = 0
-    else
-      let l:line .= '      '
     endif
 
-    let l:key2 = l:key->substitute(' ', '', 'g')
+    call append(0, [
+          '+++ q = quit  <space> = page down   b = page up           +++',
+          '+++ <tab> = Go to next color                              +++',
+          '+++ <enter> or <double click> = Select color under cursor +++',
+        ])
+    go 1
+    exe ':1,3center ' .. ((maxw + 13) * 2)
+    norm }
 
-    execute 'syntax match hc_' . l:key2 . ' /' . s:color_list[l:key] . '/'
-    execute 'highlight hc_' . l:key2 . ' guibg=' . s:color_list[l:key]
-  endfor
+    setlocal nomodifiable
 
-  if l:line != ''
-    call append('$', l:line)
-  endif
+    syntax match hc_colorsKeys =^\%<4l\s*+++ .\+ +++$=
+    highlight link hc_colorsKeys Comment
 
-  call append(0, [
-        \'+++ q = quit  <space> = page down   b = page up           +++',
-        \'+++ <tab> = Go to next color                              +++',
-        \'+++ <enter> or <double click> = Select color under cursor +++',
-      \])
-  exe 0
-  exe '1,3center ' . ((maxw + 13) * 2)
+    wincmd _
 
-  setlocal nomodifiable
+    noremap <silent> <buffer> q <C-w>c
+    inoremap <silent> <buffer> q <C-o><C-w>c
+    noremap <silent> <buffer> <space> <C-f>
+    inoremap <silent> <buffer> <space> <C-o><C-f>
+    noremap <silent> <buffer> b <C-b>
+    inoremap <silent> <buffer> b <C-o><C-b>
+    noremap <silent> <buffer> <tab> :call search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
+    inoremap <silent> <buffer> <tab> <C-o>:call search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
 
-  syntax match hc_colorsKeys =^\%<4l\s*+++ .\+ +++$=
-  highlight link hc_colorsKeys Comment
-
-  wincmd _
-
-  noremap <silent> <buffer> q <C-w>c
-  inoremap <silent> <buffer> q <C-o><C-w>c
-  noremap <silent> <buffer> <space> <C-f>
-  inoremap <silent> <buffer> <space> <C-o><C-f>
-  noremap <silent> <buffer> b <C-b>
-  inoremap <silent> <buffer> b <C-o><C-b>
-  noremap <silent> <buffer> <tab> :call search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
-  inoremap <silent> <buffer> <tab> <C-o>:call search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
-
-  if a:0 >= 1
-    let l:ext = ', "' . escape(a:1, '"') . '"'
-  else
-    let l:ext = ''
-  endif
-
-  execute 'noremap <silent> <buffer> <cr> :call <SID>ColorSelect(' . l:curbuf . l:ext . ')<CR>'
-  execute 'inoremap <silent> <buffer> <cr> <C-o>:call <SID>ColorSelect(' . l:curbuf . l:ext . ')<CR>'
-  execute 'noremap <silent> <buffer> <2-leftmouse> :call <SID>ColorSelect(' . l:curbuf . l:ext . ')<CR>'
-  execute 'inoremap <silent> <buffer> <2-leftmouse> <C-o>:call <SID>ColorSelect(' . l:curbuf . l:ext . ')<CR>'
-
-  stopinsert
-endfunction
-
-function! s:ColorSelect(bufnr, ...)
-  let l:line  = getline('.')
-  let l:col   = col('.')
-  let l:color = substitute(l:line, '.\{-\}\%<' . (l:col + 1) . 'c\([A-Za-z][A-Za-z ]\+ = #\x\{6\}\)\%>' . l:col . 'c.*', '\1', '') 
-
-  if l:color == l:line
-    return ''
-  endif
-
-  let l:colora = split(l:color, ' = ')
-
-  close
-  if bufwinnr(a:bufnr) == -1
-    exe 'buffer ' . a:bufnr
-  else
-    exe bufwinnr(a:bufnr) . 'wincmd w'
-  endif
-
-  if a:0 >= 1
-    let l:which = a:1
-  else
-    let l:which = 'i'
-  endif
-
-  exe 'normal ' . l:which . l:colora[1]
-  stopinsert
-  echo l:color
-endfunction
-
-" s:ShellEscape()  {{{2
-"
-" Quote a string and escape characters that the shell may treat as special.
-"
-" Arguments:
-"  String
-" Return Value:
-"  Escaped string
-"
-" Limitations:
-"  This function doesn't know how to escape for non-Unix OSes if the
-"  shellescape() internal Vim function is nonexistant.
-function! s:ShellEscape(str)
-	if exists('*shellescape')
-		return a:str->shellescape()
-	else
-    if has('unix')
-      return "'" . a:str->substitute("'", "'\\\\''", 'g') . "'"
-    else
-      return a:str
+    let ext = ''
+    if str != ''
+      ext = ', "' .. escape(str, '"') .. '"'
     endif
-	endif
-endfunction
+
+    execute 'noremap <silent> <buffer> <cr> :call <SID>ColorSelect(' .. curbuf .. ext .. ')<CR>'
+    execute 'inoremap <silent> <buffer> <cr> <C-o>:call <SID>ColorSelect(' .. curbuf .. ext .. ')<CR>'
+    execute 'noremap <silent> <buffer> <2-leftmouse> :call <SID>ColorSelect(' .. curbuf .. ext .. ')<CR>'
+    execute 'inoremap <silent> <buffer> <2-leftmouse> <C-o>:call <SID>ColorSelect(' .. curbuf .. ext .. ')<CR>'
+
+    stopinsert
+  enddef
+
+  def! s:ColorSelect(bufnr: number, ext: string = '')
+    var line  = getline('.')
+    var col   = col('.')
+    var color = substitute(line, '.\{-\}\%<' .. (col + 1) .. 'c\([A-Za-z][A-Za-z ]\+ = #\x\{6\}\)\%>' .. col .. 'c.*', '\1', '')
+
+    if color == line
+      return
+    endif
+
+    var colora = split(color, ' = ')
+
+    close
+    if bufwinnr(bufnr) == -1
+      exe ':buffer ' .. bufnr
+    else
+      exe ':' .. bufwinnr(bufnr) .. 'wincmd w'
+    endif
+
+    var which = 'i'
+    if ext != ''
+      which = ext
+    endif
+
+    exe 'normal ' .. which .. colora[1]
+    stopinsert
+    echo color
+  enddef
+else
+  function! s:ShowColors(...)
+    if ! exists('g:did_html_menus')
+      HTMLERROR The HTML menu was not created.
+      return
+    endif
+
+    if ! exists('b:did_html_mappings_init')
+      HTMLERROR Not in an html buffer.
+      return
+    endif
+
+    let l:curbuf = bufnr('%')
+    let l:maxw = 0
+
+    silent new [HTML\ Colors\ Display]
+    setlocal buftype=nofile noswapfile bufhidden=wipe
+
+    for l:key in keys(s:color_list)
+      if strlen(l:key) > l:maxw
+        let l:maxw = strlen(l:key)
+      endif
+    endfor
+
+    let l:col = 0
+    let l:line = ''
+    for l:key in s:color_list->keys()->sort()
+      let l:col += 1
+
+      let l:line .= repeat(' ', l:maxw - strlen(l:key)) .. l:key .. ' = ' .. s:color_list[l:key]
+
+      if l:col >= 2
+        call append('$', line)
+        let l:line = ''
+        let l:col = 0
+      else
+        let l:line .= '      '
+      endif
+
+      let l:key2 = l:key->substitute(' ', '', 'g')
+
+      execute 'syntax match hc_' .. l:key2 .. ' /' .. s:color_list[l:key] .. '/'
+      execute 'highlight hc_' .. l:key2 .. ' guibg=' .. s:color_list[l:key]
+    endfor
+
+    if l:line != ''
+      call append('$', l:line)
+    endif
+
+    call append(0, [
+          \'+++ q = quit  <space> = page down   b = page up           +++',
+          \'+++ <tab> = Go to next color                              +++',
+          \'+++ <enter> or <double click> = Select color under cursor +++',
+        \])
+    exe 0
+    exe '1,3center ' .. ((maxw + 13) * 2)
+
+    setlocal nomodifiable
+
+    syntax match hc_colorsKeys =^\%<4l\s*+++ .\+ +++$=
+    highlight link hc_colorsKeys Comment
+
+    wincmd _
+
+    noremap <silent> <buffer> q <C-w>c
+    inoremap <silent> <buffer> q <C-o><C-w>c
+    noremap <silent> <buffer> <space> <C-f>
+    inoremap <silent> <buffer> <space> <C-o><C-f>
+    noremap <silent> <buffer> b <C-b>
+    inoremap <silent> <buffer> b <C-o><C-b>
+    noremap <silent> <buffer> <tab> :call search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
+    inoremap <silent> <buffer> <tab> <C-o>:call search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
+
+    if a:0 >= 1
+      let l:ext = ', "' .. escape(a:1, '"') .. '"'
+    else
+      let l:ext = ''
+    endif
+
+    execute 'noremap <silent> <buffer> <cr> :call <SID>ColorSelect(' .. l:curbuf .. l:ext .. ')<CR>'
+    execute 'inoremap <silent> <buffer> <cr> <C-o>:call <SID>ColorSelect(' .. l:curbuf .. l:ext .. ')<CR>'
+    execute 'noremap <silent> <buffer> <2-leftmouse> :call <SID>ColorSelect(' .. l:curbuf .. l:ext .. ')<CR>'
+    execute 'inoremap <silent> <buffer> <2-leftmouse> <C-o>:call <SID>ColorSelect(' .. l:curbuf .. l:ext .. ')<CR>'
+
+    stopinsert
+  endfunction
+
+  function! s:ColorSelect(bufnr, ...)
+    let l:line  = getline('.')
+    let l:col   = col('.')
+    let l:color = substitute(l:line, '.\{-\}\%<' .. (l:col + 1) .. 'c\([A-Za-z][A-Za-z ]\+ = #\x\{6\}\)\%>' .. l:col .. 'c.*', '\1', '')
+
+    if l:color == l:line
+      return ''
+    endif
+
+    let l:colora = split(l:color, ' = ')
+
+    close
+    if bufwinnr(a:bufnr) == -1
+      exe 'buffer ' .. a:bufnr
+    else
+      exe bufwinnr(a:bufnr) .. 'wincmd w'
+    endif
+
+    if a:0 >= 1
+      let l:which = a:1
+    else
+      let l:which = 'i'
+    endif
+
+    exe 'normal ' .. l:which .. l:colora[1]
+    stopinsert
+    echo l:color
+  endfunction
+endif
 
 " ---- Template Creation Stuff: {{{2
 
@@ -1250,26 +2000,50 @@ endfunction
 " Return Value:
 "  0 - The cursor is not on an insert point.
 "  1 - The cursor is on an insert point.
-function! HTMLtemplate()
-  let ret = 0
-  let save_ruler = &ruler
-  let save_showcmd = &showcmd
-  set noruler noshowcmd
-  if line('$') == 1 && getline(1) == ''
-    let ret = s:HTMLtemplate2()
-  else
-    let YesNoOverwrite = confirm("Non-empty file.\nInsert template anyway?", "&Yes\n&No\n&Overwrite", 2, "W")
-    if YesNoOverwrite == 1
-      let ret = s:HTMLtemplate2()
-    elseif YesNoOverwrite == 3
-      execute "1,$delete"
-      let ret = s:HTMLtemplate2()
+if exists(':def')
+  def! HTMLtemplate(): bool
+    var ret = false
+    var save_ruler = &ruler
+    var save_showcmd = &showcmd
+    set noruler noshowcmd
+
+    if line('$') == 1 && getline(1) == ''
+      ret = s:HTMLtemplate2()
+    else
+      var YesNoOverwrite = confirm("Non-empty file.\nInsert template anyway?", "&Yes\n&No\n&Overwrite", 2, "W")
+      if YesNoOverwrite == 1
+        ret = s:HTMLtemplate2()
+      elseif YesNoOverwrite == 3
+        execute "1,$delete"
+        ret = s:HTMLtemplate2()
+      endif
     endif
-  endif
-  let &ruler = save_ruler
-  let &showcmd = save_showcmd
-  return ret
-endfunction  " }}}3
+    &ruler = save_ruler
+    &showcmd = save_showcmd
+    return ret
+  enddef
+else
+  function! HTMLtemplate()
+    let ret = 0
+    let save_ruler = &ruler
+    let save_showcmd = &showcmd
+    set noruler noshowcmd
+    if line('$') == 1 && getline(1) == ''
+      let ret = s:HTMLtemplate2()
+    else
+      let YesNoOverwrite = confirm("Non-empty file.\nInsert template anyway?", "&Yes\n&No\n&Overwrite", 2, "W")
+      if YesNoOverwrite == 1
+        let ret = s:HTMLtemplate2()
+      elseif YesNoOverwrite == 3
+        execute "1,$delete"
+        let ret = s:HTMLtemplate2()
+      endif
+    endif
+    let &ruler = save_ruler
+    let &showcmd = save_showcmd
+    return ret
+  endfunction
+endif
 
 " s:HTMLtemplate2()  {{{3
 "
@@ -1280,108 +2054,174 @@ endfunction  " }}}3
 " Return Value:
 "  0 - The cursor is not on an insert point.
 "  1 - The cursor is on an insert point.
-function! s:HTMLtemplate2()
+if exists(':def')
+  def! s:HTMLtemplate2(): bool
 
-  if g:html_authoremail != ''
-    let g:html_authoremail_encoded = HTMLencodeString(g:html_authoremail)
-  else
-    let g:html_authoremail_encoded = ''
-  endif
-
-  let template = ''
-
-  if exists('b:html_template') && b:html_template != ''
-    let template = b:html_template
-  elseif exists('g:html_template') && g:html_template != ''
-    let template = g:html_template
-  endif
-
-  if template != ''
-    if expand(template)->filereadable()
-      silent execute "0read " . template
+    if g:html_authoremail != ''
+      g:html_authoremail_encoded = HTMLencodeString(g:html_authoremail)
     else
-      exe HTMLERROR "Unable to insert template file: " . template
-      HTMLERROR "Either it doesn't exist or it isn't readable."
+      g:html_authoremail_encoded = ''
+    endif
+
+    var template = ''
+
+    if exists('b:html_template') && b:html_template != ''
+      template = b:html_template
+    elseif exists('g:html_template') && g:html_template != ''
+      template = g:html_template
+    endif
+
+    if template != ''
+      if template->expand()->filereadable()
+        silent execute ":0read " .. template
+      else
+        exe "HTMLERROR Unable to insert template file: " .. template
+        HTMLERROR "Either it doesn't exist or it isn't readable."
+        return false
+      endif
+    else
+      :0put =b:internal_html_template
+    endif
+
+    if getline('$') =~ '^\s*$'
+      execute ":$delete"
+    endif
+
+    if getline(1) =~ '^\s*$'
+      execute ":1delete"
+    endif
+
+    # Replace the various tokens with appropriate values:
+    :silent! :%s/\C%authorname%/\=g:html_authorname/g
+    :silent! :%s/\C%authoremail%/\=g:html_authoremail_encoded/g
+    :silent! :%s/\C%bgcolor%/\=g:html_bgcolor/g
+    :silent! :%s/\C%textcolor%/\=g:html_textcolor/g
+    :silent! :%s/\C%linkcolor%/\=g:html_linkcolor/g
+    :silent! :%s/\C%alinkcolor%/\=g:html_alinkcolor/g
+    :silent! :%s/\C%vlinkcolor%/\=g:html_vlinkcolor/g
+    :silent! :%s/\C%date%/\=strftime('%B %d, %Y')/g
+    :silent! :%s/\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%/\=submatch(1)->substitute('\\%', '%%', 'g')->substitute('\\\@<!!', '%', 'g')->strftime()/g
+    :silent! :%s/\C%time%/\=strftime('%r %Z')/g
+    :silent! :%s/\C%time12%/\=strftime('%r %Z')/g
+    :silent! :%s/\C%time24%/\=strftime('%T')/g
+    :silent! :%s/\C%charset%/\=<SID>DetectCharset()/g
+    :silent! :%s/\C%vimversion%/\=v:version->strpart(0, 1) .. '.' .. (v:version->strpart(1, 2)->substitute('^0', '', ''))/g
+
+    go 1
+
+    call HTMLnextInsertPoint('n')
+    if getline('.')[col('.') - 2] .. getline('.')[col('.') - 1] == '><'
+          \ || (getline('.') =~ '^\s*$' && line('.') != 1)
+      return true
+    else
+      return false
+    endif
+
+  enddef
+else
+  function! s:HTMLtemplate2()
+
+    if g:html_authoremail != ''
+      let g:html_authoremail_encoded = HTMLencodeString(g:html_authoremail)
+    else
+      let g:html_authoremail_encoded = ''
+    endif
+
+    let template = ''
+
+    if exists('b:html_template') && b:html_template != ''
+      let template = b:html_template
+    elseif exists('g:html_template') && g:html_template != ''
+      let template = g:html_template
+    endif
+
+    if template != ''
+      if template->expand()->filereadable()
+        silent execute "0read " .. template
+      else
+        exe "HTMLERROR Unable to insert template file: " .. template
+        HTMLERROR "Either it doesn't exist or it isn't readable."
+        return 0
+      endif
+    else
+      0put =b:internal_html_template
+    endif
+
+    if getline('$') =~ '^\s*$'
+      $delete
+    endif
+
+    " Replace the various tokens with appropriate values:
+    silent! %s/\C%authorname%/\=g:html_authorname/g
+    silent! %s/\C%authoremail%/\=g:html_authoremail_encoded/g
+    silent! %s/\C%bgcolor%/\=g:html_bgcolor/g
+    silent! %s/\C%textcolor%/\=g:html_textcolor/g
+    silent! %s/\C%linkcolor%/\=g:html_linkcolor/g
+    silent! %s/\C%alinkcolor%/\=g:html_alinkcolor/g
+    silent! %s/\C%vlinkcolor%/\=g:html_vlinkcolor/g
+    silent! %s/\C%date%/\=strftime('%B %d, %Y')/g
+    silent! %s/\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%/\=submatch(1)->substitute('\\%', '%%', 'g')->substitute('\\\@<!!', '%', 'g')->strftime()/g
+    silent! %s/\C%time%/\=strftime('%r %Z')/g
+    silent! %s/\C%time12%/\=strftime('%r %Z')/g
+    silent! %s/\C%time24%/\=strftime('%T')/g
+    silent! %s/\C%charset%/\=<SID>DetectCharset()/g
+    silent! %s/\C%vimversion%/\=v:version->strpart(0, 1) .. '.' .. (v:version->strpart(1, 2)->substitute('^0', '', ''))/g
+
+    go 1
+
+    call HTMLnextInsertPoint('n')
+    if getline('.')[col('.') - 2] .. getline('.')[col('.') - 1] == '><'
+          \ || (getline('.') =~ '^\s*$' && line('.') != 1)
+      return 1
+    else
       return 0
     endif
-  else
-    0put =b:internal_html_template
-  endif
 
-  if getline('$') =~ '^\s*$'
-    $delete
-  endif
-
-  " Replace the various tokens with appropriate values:
-  silent! %s/\C%authorname%/\=g:html_authorname/g
-  silent! %s/\C%authoremail%/\=g:html_authoremail_encoded/g
-  silent! %s/\C%bgcolor%/\=g:html_bgcolor/g
-  silent! %s/\C%textcolor%/\=g:html_textcolor/g
-  silent! %s/\C%linkcolor%/\=g:html_linkcolor/g
-  silent! %s/\C%alinkcolor%/\=g:html_alinkcolor/g
-  silent! %s/\C%vlinkcolor%/\=g:html_vlinkcolor/g
-  silent! %s/\C%date%/\=strftime('%B %d, %Y')/g
-  silent! %s/\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%/\=submatch(1)->substitute('\\%','%%','g')->substitute('\\\@<!!','%','g')->strftime()/g
-  silent! %s/\C%time%/\=strftime('%r %Z')/g
-  silent! %s/\C%time12%/\=strftime('%r %Z')/g
-  silent! %s/\C%time24%/\=strftime('%T')/g
-  silent! %s/\C%charset%/\=<SID>DetectCharset()/g
-  silent! %s/\C%vimversion%/\=v:version->strpart(0, 1) . '.' . (v:version->strpart(1, 2)->substitute('^0','',''))/g
-
-  go 1
-
-  call HTMLnextInsertPoint('n')
-  if getline('.')[col('.') - 2] . getline('.')[col('.') - 1] == '><'
-        \ || (getline('.') =~ '^\s*$' && line('.') != 1)
-    return 1
-  else
-    return 0
-  endif
-
-endfunction  " }}}3
+  endfunction
+endif " }}}3
 
 endif " ! exists("g:did_html_functions")
 
 let s:internal_html_template =
-  \" <[{HEAD}]>\n\n" .
-  \"  <[{TITLE></TITLE}]>\n\n" .
-  \"  <[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=%charset%\" />" .
-  \"  <[{META NAME}]=\"Generator\" [{CONTENT}]=\"Vim %vimversion% (Vi IMproved editor; http://www.vim.org/)\" />\n" .
-  \"  <[{META NAME}]=\"Author\" [{CONTENT}]=\"%authorname%\" />\n" .
-  \"  <[{META NAME}]=\"Copyright\" [{CONTENT}]=\"Copyright (C) %date% %authorname%\" />\n" .
-  \"  <[{LINK REL}]=\"made\" [{HREF}]=\"mailto:%authoremail%\" />\n\n" .
-  \"  <[{STYLE TYPE}]=\"text/css\">\n" .
-  \"   <!--\n" .
-  \"   [{BODY}] {background: %bgcolor%; color: %textcolor%;}\n" .
-  \"   [{A}]:link {color: %linkcolor%;}\n" .
-  \"   [{A}]:visited {color: %vlinkcolor%;}\n" .
-  \"   [{A}]:hover, [{A}]:active, [{A}]:focus {color: %alinkcolor%;}\n" .
-  \"   -->\n" .
-  \"  </[{STYLE}]>\n\n" .
-  \" </[{HEAD}]>\n" .
-  \" <[{BODY}]>\n\n" .
-  \"  <[{H1 STYLE}]=\"text-align: center;\"></[{H1}]>\n\n" .
-  \"  <[{P}]>\n" .
-  \"  </[{P}]>\n\n" .
-  \"  <[{HR STYLE}]=\"width: 75%;\" />\n\n" .
-  \"  <[{P}]>\n" .
-  \"  Last Modified: <[{I}]>%date%</[{I}]>\n" .
-  \"  </[{P}]>\n\n" .
-  \"  <[{ADDRESS}]>\n" .
-  \"   <[{A HREF}]=\"mailto:%authoremail%\">%authorname% &lt;%authoremail%&gt;</[{A}]>\n" .
-  \"  </[{ADDRESS}]>\n" .
-  \" </[{BODY}]>\n" .
+  \" <[{HEAD}]>\n\n" ..
+  \"  <[{TITLE></TITLE}]>\n\n" ..
+  \"  <[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=%charset%\" />\n" ..
+  \"  <[{META NAME}]=\"Generator\" [{CONTENT}]=\"Vim %vimversion% (Vi IMproved editor; http://www.vim.org/)\" />\n" ..
+  \"  <[{META NAME}]=\"Author\" [{CONTENT}]=\"%authorname%\" />\n" ..
+  \"  <[{META NAME}]=\"Copyright\" [{CONTENT}]=\"Copyright (C) %date% %authorname%\" />\n" ..
+  \"  <[{LINK REL}]=\"made\" [{HREF}]=\"mailto:%authoremail%\" />\n\n" ..
+  \"  <[{STYLE TYPE}]=\"text/css\">\n" ..
+  \"   <!--\n" ..
+  \"   [{BODY}] {background: %bgcolor%; color: %textcolor%;}\n" ..
+  \"   [{A}]:link {color: %linkcolor%;}\n" ..
+  \"   [{A}]:visited {color: %vlinkcolor%;}\n" ..
+  \"   [{A}]:hover, [{A}]:active, [{A}]:focus {color: %alinkcolor%;}\n" ..
+  \"   -->\n" ..
+  \"  </[{STYLE}]>\n\n" ..
+  \" </[{HEAD}]>\n" ..
+  \" <[{BODY}]>\n\n" ..
+  \"  <[{H1 STYLE}]=\"text-align: center;\"></[{H1}]>\n\n" ..
+  \"  <[{P}]>\n" ..
+  \"  </[{P}]>\n\n" ..
+  \"  <[{HR STYLE}]=\"width: 75%;\" />\n\n" ..
+  \"  <[{P}]>\n" ..
+  \"  Last Modified: <[{I}]>%date%</[{I}]>\n" ..
+  \"  </[{P}]>\n\n" ..
+  \"  <[{ADDRESS}]>\n" ..
+  \"   <[{A HREF}]=\"mailto:%authoremail%\">%authorname% &lt;%authoremail%&gt;</[{A}]>\n" ..
+  \"  </[{ADDRESS}]>\n" ..
+  \" </[{BODY}]>\n" ..
   \"</[{HTML}]>"
 
 if s:BoolVar('b:do_xhtml_mappings')
-  let b:internal_html_template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" .
-        \ " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" .
-        \ "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" .
+  let b:internal_html_template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" ..
+        \ " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" ..
+        \ "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" ..
         \ s:internal_html_template
 else
-  let b:internal_html_template = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n" .
-        \ " \"http://www.w3.org/TR/html4/loose.dtd\">\n" .
-        \ "<[{HTML}]>\n" .
+  let b:internal_html_template = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n" ..
+        \ " \"http://www.w3.org/TR/html4/loose.dtd\">\n" ..
+        \ "<[{HTML}]>\n" ..
         \ s:internal_html_template
   let b:internal_html_template = substitute(b:internal_html_template, ' />', '>', 'g')
 endif
@@ -1401,11 +2241,11 @@ let b:did_html_mappings = 1
 let b:HTMLclearMappings = 'normal '
 
 " Make it easy to use a ; (or whatever the map leader is) as normal:
-call HTMLmap("inoremap", '<lead>' . g:html_map_leader, g:html_map_leader)
-call HTMLmap("vnoremap", '<lead>' . g:html_map_leader, g:html_map_leader, -1)
-call HTMLmap("nnoremap", '<lead>' . g:html_map_leader, g:html_map_leader)
+call HTMLmap("inoremap", '<lead>' .. g:html_map_leader, g:html_map_leader)
+call HTMLmap("vnoremap", '<lead>' .. g:html_map_leader, g:html_map_leader, -1)
+call HTMLmap("nnoremap", '<lead>' .. g:html_map_leader, g:html_map_leader)
 " Make it easy to insert a & (or whatever the entity leader is):
-call HTMLmap("inoremap", "<lead>" . g:html_map_entity_leader, g:html_map_entity_leader)
+call HTMLmap("inoremap", "<lead>" .. g:html_map_entity_leader, g:html_map_entity_leader)
 
 if ! s:BoolVar('g:no_html_tab_mapping')
   " Allow hard tabs to be inserted:
@@ -1448,20 +2288,20 @@ else
   " Strict XHTML:
   call HTMLmap("nnoremap", "<lead>s4", ":call append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"') \\\| call append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">')<CR>")
 endif
-call HTMLmap("imap", "<lead>4", "<C-O>" . g:html_map_leader . "4")
-call HTMLmap("imap", "<lead>s4", "<C-O>" . g:html_map_leader . "s4")
+call HTMLmap("imap", "<lead>4", "<C-O>" .. g:html_map_leader .. "4")
+call HTMLmap("imap", "<lead>s4", "<C-O>" .. g:html_map_leader .. "s4")
 
 "       HTML5 Doctype Command           HTML 5
 call HTMLmap("nnoremap", "<lead>5", ":call append(0, '<!DOCTYPE html>')<CR>")
-call HTMLmap("imap", "<lead>5", "<C-O>" . g:html_map_leader . "5")
+call HTMLmap("imap", "<lead>5", "<C-O>" .. g:html_map_leader .. "5")
 
 "       Content-Type META tag
 call HTMLmap("inoremap", "<lead>ct", "<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=<C-R>=<SID>DetectCharset()<CR>\" />")
 
 "       Comment Tag
-call HTMLmap("inoremap", "<lead>cm", "<C-R>=<SID>tag('comment','i')<CR>")
+call HTMLmap("inoremap", "<lead>cm", "<C-R>=<SID>Tag('comment', 'i')<CR>")
 " Visual mapping:
-call HTMLmap("vnoremap", "<lead>cm", "<C-C>:execute \"normal \" . <SID>tag('comment','v')<CR>", 2)
+call HTMLmap("vnoremap", "<lead>cm", "<C-C>:execute \"normal \" .. <SID>Tag('comment', 'v')<CR>", 2)
 " Motion mapping:
 call HTMLmapo('<lead>cm', 0)
 
@@ -1546,9 +2386,9 @@ call HTMLmap("vnoremap", "<lead>au", "<ESC>`>a<CR></[{AUDIO}]><C-O>`<<[{AUDIO CO
 call HTMLmapo('<lead>au', 0)
 
 "       B       Boldfaced Text          HTML 2.0
-call HTMLmap("inoremap", "<lead>bo", "<C-R>=<SID>tag('b','i')<CR>")
+call HTMLmap("inoremap", "<lead>bo", "<C-R>=<SID>Tag('b', 'i')<CR>")
 " Visual mapping:
-call HTMLmap("vnoremap", "<lead>bo", "<C-C>:execute \"normal \" . <SID>tag('b','v')<CR>", 2)
+call HTMLmap("vnoremap", "<lead>bo", "<C-C>:execute \"normal \" .. <SID>Tag('b', 'v')<CR>", 2)
 " Motion mapping:
 call HTMLmapo('<lead>bo', 0)
 
@@ -1679,9 +2519,9 @@ call HTMLmap("vnoremap", "<lead>sn", "<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN}]><ESC>"
 call HTMLmapo('<lead>sn', 0)
 
 "       EM      Emphasize               HTML 2.0
-call HTMLmap("inoremap", "<lead>em", "<C-R>=<SID>tag('em','i')<CR>")
+call HTMLmap("inoremap", "<lead>em", "<C-R>=<SID>Tag('em', 'i')<CR>")
 " Visual mapping:
-call HTMLmap("vnoremap", "<lead>em", "<C-C>:execute \"normal \" . <SID>tag('em','v')<CR>", 2)
+call HTMLmap("vnoremap", "<lead>em", "<C-C>:execute \"normal \" .. <SID>Tag('em', 'v')<CR>", 2)
 " Motion mapping:
 call HTMLmapo('<lead>em', 0)
 
@@ -1790,9 +2630,9 @@ endif
 call HTMLmapo('<lead>ht', 0)
 
 "       I       Italicized Text         HTML 2.0
-call HTMLmap("inoremap", "<lead>it", "<C-R>=<SID>tag('i','i')<CR>")
+call HTMLmap("inoremap", "<lead>it", "<C-R>=<SID>Tag('i', 'i')<CR>")
 " Visual mapping:
-call HTMLmap("vnoremap", "<lead>it", "<C-C>:execute \"normal \" . <SID>tag('i','v')<CR>", 2)
+call HTMLmap("vnoremap", "<lead>it", "<C-C>:execute \"normal \" .. <SID>Tag('i', 'v')<CR>", 2)
 " Motion mapping:
 call HTMLmapo('<lead>it', 0)
 
@@ -1947,9 +2787,9 @@ call HTMLmap("vnoremap", "<lead>sm", "<ESC>`>a</[{SMALL}]><C-O>`<<[{SMALL}]><ESC
 call HTMLmapo('<lead>sm', 0)
 
 "       STRONG  Bold Text               HTML 2.0
-call HTMLmap("inoremap", "<lead>st", "<C-R>=<SID>tag('strong','i')<CR>")
+call HTMLmap("inoremap", "<lead>st", "<C-R>=<SID>Tag('strong', 'i')<CR>")
 " Visual mapping:
-call HTMLmap("vnoremap", "<lead>st", "<C-C>:execute \"normal \" . <SID>tag('strong','v')<CR>", 2)
+call HTMLmap("vnoremap", "<lead>st", "<C-C>:execute \"normal \" .. <SID>Tag('strong', 'v')<CR>", 2)
 " Motion mapping:
 call HTMLmapo('<lead>st', 0)
 
@@ -2004,9 +2844,9 @@ call HTMLmap("vnoremap", "<lead>tt", "<ESC>`>a</[{TT}]><C-O>`<<[{TT}]><ESC>", 2)
 call HTMLmapo('<lead>tt', 0)
 
 "       U       Underlined Text         HTML 2.0
-call HTMLmap("inoremap", "<lead>un", "<C-R>=<SID>tag('u','i')<CR>")
+call HTMLmap("inoremap", "<lead>un", "<C-R>=<SID>Tag('u', 'i')<CR>")
 " Visual mapping:
-call HTMLmap("vnoremap", "<lead>un", "<C-C>:execute \"normal \" . <SID>tag('u','v')<CR>", 2)
+call HTMLmap("vnoremap", "<lead>un", "<C-C>:execute \"normal \" .. <SID>Tag('u', 'v')<CR>", 2)
 " Motion mapping:
 call HTMLmapo('<lead>un', 0)
 
@@ -2331,7 +3171,7 @@ call HTMLmap("inoremap", "<elead>56", "&frac56;")
 call HTMLmap("inoremap", "<elead>18", "&frac18;")
 call HTMLmap("inoremap", "<elead>38", "&frac38;")
 call HTMLmap("inoremap", "<elead>58", "&frac58;")
-call HTMLmap("inoremap", "<elead>78", "&frac78;") 
+call HTMLmap("inoremap", "<elead>78", "&frac78;")
 " Greek letters:
 "   ... Capital:
 call HTMLmap("inoremap", "<elead>Al", "&Alpha;")
@@ -2447,35 +3287,35 @@ if has('mac') || has('macunix') " {{{2
   call HTMLmap("nnoremap", "<lead>db", ":call OpenInMacApp('default')<CR>")
 
   " Firefox: View current file, starting Firefox if it's not running:
-  call HTMLmap("nnoremap", "<lead>ff", ":call OpenInMacApp('firefox',0)<CR>")
+  call HTMLmap("nnoremap", "<lead>ff", ":call OpenInMacApp('firefox', 0)<CR>")
   " Firefox: Open a new window, and view the current file:
-  call HTMLmap("nnoremap", "<lead>nff", ":call OpenInMacApp('firefox',1)<CR>")
+  call HTMLmap("nnoremap", "<lead>nff", ":call OpenInMacApp('firefox', 1)<CR>")
   " Firefox: Open a new tab, and view the current file:
-  call HTMLmap("nnoremap", "<lead>tff", ":call OpenInMacApp('firefox',2)<CR>")
+  call HTMLmap("nnoremap", "<lead>tff", ":call OpenInMacApp('firefox', 2)<CR>")
 
   " Opera: View current file, starting Opera if it's not running:
-  call HTMLmap("nnoremap", "<lead>oa", ":call OpenInMacApp('opera',0)<CR>")
+  call HTMLmap("nnoremap", "<lead>oa", ":call OpenInMacApp('opera', 0)<CR>")
   " Opera: View current file in a new window, starting Opera if it's not running:
-  call HTMLmap("nnoremap", "<lead>noa", ":call OpenInMacApp('opera',1)<CR>")
+  call HTMLmap("nnoremap", "<lead>noa", ":call OpenInMacApp('opera', 1)<CR>")
   " Opera: Open a new tab, and view the current file:
-  call HTMLmap("nnoremap", "<lead>toa", ":call OpenInMacApp('opera',2)<CR>")
+  call HTMLmap("nnoremap", "<lead>toa", ":call OpenInMacApp('opera', 2)<CR>")
 
   " Safari: View current file, starting Safari if it's not running:
   call HTMLmap("nnoremap", "<lead>sf", ":call OpenInMacApp('safari')<CR>")
   " Safari: Open a new window, and view the current file:
-  call HTMLmap("nnoremap", "<lead>nsf", ":call OpenInMacApp('safari',1)<CR>")
+  call HTMLmap("nnoremap", "<lead>nsf", ":call OpenInMacApp('safari', 1)<CR>")
   " Safari: Open a new tab, and view the current file:
-  call HTMLmap("nnoremap", "<lead>tsf", ":call OpenInMacApp('safari',2)<CR>")
+  call HTMLmap("nnoremap", "<lead>tsf", ":call OpenInMacApp('safari', 2)<CR>")
 
 elseif has("unix") " {{{2
   call system("which xdg-open")
   if v:shell_error == 0
     " Run the default Unix browser:
-    call HTMLmap("nnoremap", "<lead>db", ":call system('xdg-open ' . expand('%:p')-><SID>ShellEscape() . ' 2>&1 >/dev/null &')<CR>")
+    call HTMLmap("nnoremap", "<lead>db", ":call system('xdg-open ' .. expand('%:p')->shellescape() .. ' 2>&1 >/dev/null &')<CR>")
   endif
 elseif has("win32") || has('win64') " {{{2
   " Run the default Windows browser:
-  call HTMLmap("nnoremap", "<lead>db", ":call system('start RunDll32.exe shell32.dll,ShellExec_RunDLL ' . expand('%:p')-><SID>ShellEscape())<CR>")
+  call HTMLmap("nnoremap", "<lead>db", ":call system('start RunDll32.exe shell32.dll,ShellExec_RunDLL ' .. expand('%:p')->shellescape())<CR>")
 endif " }}}2
 
 if exists("*LaunchBrowser") " {{{2
@@ -2483,47 +3323,47 @@ if exists("*LaunchBrowser") " {{{2
 
   if s:browsers =~ 'f'
     " Firefox: View current file, starting Firefox if it's not running:
-    call HTMLmap("nnoremap", "<lead>ff", ":call LaunchBrowser('f',0)<CR>")
+    call HTMLmap("nnoremap", "<lead>ff", ":call LaunchBrowser('f', 0)<CR>")
     " Firefox: Open a new window, and view the current file:
-    call HTMLmap("nnoremap", "<lead>nff", ":call LaunchBrowser('f',1)<CR>")
+    call HTMLmap("nnoremap", "<lead>nff", ":call LaunchBrowser('f', 1)<CR>")
     " Firefox: Open a new tab, and view the current file:
-    call HTMLmap("nnoremap", "<lead>tff", ":call LaunchBrowser('f',2)<CR>")
+    call HTMLmap("nnoremap", "<lead>tff", ":call LaunchBrowser('f', 2)<CR>")
   endif
   if s:browsers =~ 'c'
     " Chrome: View current file, starting Chrome if it's not running:
-    call HTMLmap("nnoremap", "<lead>gc", ":call LaunchBrowser('c',0)<CR>")
+    call HTMLmap("nnoremap", "<lead>gc", ":call LaunchBrowser('c', 0)<CR>")
     " Chrome: Open a new window, and view the current file:
-    call HTMLmap("nnoremap", "<lead>ngc", ":call LaunchBrowser('c',1)<CR>")
+    call HTMLmap("nnoremap", "<lead>ngc", ":call LaunchBrowser('c', 1)<CR>")
     " Chrome: Open a new tab, and view the current file:
-    call HTMLmap("nnoremap", "<lead>tgc", ":call LaunchBrowser('c',2)<CR>")
+    call HTMLmap("nnoremap", "<lead>tgc", ":call LaunchBrowser('c', 2)<CR>")
   endif
   if s:browsers =~ 'e'
     " Edge: View current file, starting Microsoft Edge if it's not running:
-    call HTMLmap("nnoremap", "<lead>ed", ":call LaunchBrowser('e',0)<CR>")
+    call HTMLmap("nnoremap", "<lead>ed", ":call LaunchBrowser('e', 0)<CR>")
     " Edge: Open a new window, and view the current file:
-    call HTMLmap("nnoremap", "<lead>ned", ":call LaunchBrowser('e',1)<CR>")
+    call HTMLmap("nnoremap", "<lead>ned", ":call LaunchBrowser('e', 1)<CR>")
     " Edge: Open a new tab, and view the current file:
-    call HTMLmap("nnoremap", "<lead>ted", ":call LaunchBrowser('e',2)<CR>")
+    call HTMLmap("nnoremap", "<lead>ted", ":call LaunchBrowser('e', 2)<CR>")
   endif
   if s:browsers =~ 'o'
     " Opera: View current file, starting Opera if it's not running:
-    call HTMLmap("nnoremap", "<lead>oa", ":call LaunchBrowser('o',0)<CR>")
+    call HTMLmap("nnoremap", "<lead>oa", ":call LaunchBrowser('o', 0)<CR>")
     " Opera: View current file in a new window, starting Opera if it's not running:
-    call HTMLmap("nnoremap", "<lead>noa", ":call LaunchBrowser('o',1)<CR>")
+    call HTMLmap("nnoremap", "<lead>noa", ":call LaunchBrowser('o', 1)<CR>")
     " Opera: Open a new tab, and view the current file:
-    call HTMLmap("nnoremap", "<lead>toa", ":call LaunchBrowser('o',2)<CR>")
+    call HTMLmap("nnoremap", "<lead>toa", ":call LaunchBrowser('o', 2)<CR>")
   endif
   if s:browsers =~ 'l'
     " Lynx:  (This happens anyway if there's no DISPLAY environmental variable.)
-    call HTMLmap("nnoremap","<lead>ly",":call LaunchBrowser('l',0)<CR>")
+    call HTMLmap("nnoremap", "<lead>ly", ":call LaunchBrowser('l', 0)<CR>")
     " Lynx in an xterm:  (This happens regardless in the Vim GUI.)
-    call HTMLmap("nnoremap", "<lead>nly", ":call LaunchBrowser('l',1)<CR>")
+    call HTMLmap("nnoremap", "<lead>nly", ":call LaunchBrowser('l', 1)<CR>")
   endif
   if s:browsers =~ 'w'
     " w3m:
-    call HTMLmap("nnoremap","<lead>w3",":call LaunchBrowser('w',0)<CR>")
+    call HTMLmap("nnoremap", "<lead>w3", ":call LaunchBrowser('w', 0)<CR>")
     " w3m in an xterm:  (This happens regardless in the Vim GUI.)
-    call HTMLmap("nnoremap", "<lead>nw3", ":call LaunchBrowser('w',1)<CR>")
+    call HTMLmap("nnoremap", "<lead>nw3", ":call LaunchBrowser('w', 1)<CR>")
   endif
 endif " }}}2
 
@@ -2536,40 +3376,57 @@ endif " ! exists("b:did_html_mappings")
 if ! has("gui_running") && ! s:BoolVar('g:force_html_menu')
   augroup HTMLplugin
   au!
-  execute 'autocmd GUIEnter * source ' . s:thisfile . ' | autocmd! HTMLplugin GUIEnter *'
+  execute 'autocmd GUIEnter * source ' .. s:thisfile .. ' | autocmd! HTMLplugin GUIEnter *'
   augroup END
 elseif exists("g:did_html_menus")
   call s:MenuControl()
 elseif ! s:BoolVar('g:no_html_menu')
 
 command! -nargs=+ HTMLmenu call s:LeadMenu(<f-args>)
-function! s:LeadMenu(type, level, name, item, ...)
-  if a:0 == 1
-    let pre = a:1
-  else
-    let pre = ''
-  endif
+if exists(':def')
+  def! s:LeadMenu(type: string, level: string, name: string, item: string, pre: string = '')
+    var newlevel: string
 
-  if a:level == '-'
-    let level = ''
-  else
-    let level = a:level
-  endif
+    if level == '-'
+      newlevel = ''
+    else
+      newlevel = level
+    endif
 
-  let name = escape(a:name, ' ')
+    let newname = escape(name, ' ')
 
-  execute a:type . ' ' . level . ' ' . name . '<tab>' . g:html_map_leader . a:item
-    \ . ' ' . pre . g:html_map_leader . a:item
-endfunction
+    execute type .. ' ' .. newlevel .. ' ' .. newname .. '<tab>' .. g:html_map_leader
+        .. item .. ' ' .. pre .. g:html_map_leader .. item
+  enddef
+else
+  function! s:LeadMenu(type, level, name, item, ...)
+    if a:0 == 1
+      let pre = a:1
+    else
+      let pre = ''
+    endif
+
+    if a:level == '-'
+      let level = ''
+    else
+      let level = a:level
+    endif
+
+    let name = escape(a:name, ' ')
+
+    execute a:type .. ' ' .. level .. ' ' .. name .. '<tab>' .. g:html_map_leader .. a:item
+      \ .. ' ' .. pre .. g:html_map_leader .. a:item
+  endfunction
+endif
 
 if ! s:BoolVar('g:no_html_toolbar') && has("toolbar")
 
   if ((has("win32") || has('win64')) && findfile('bitmaps/Browser.bmp', &rtp) == '')
       \ || findfile('bitmaps/Browser.xpm', &rtp) == ''
     let s:tmp = "Warning:\nYou need to install the Toolbar Bitmaps for the "
-          \ . fnamemodify(s:thisfile, ':t') . " plugin. "
-          \ . "See: http://christianrobinson.name/vim/HTML/#files\n"
-          \ . 'Or see ":help g:no_html_toolbar".'
+          \ .. fnamemodify(s:thisfile, ':t') .. " plugin. "
+          \ .. "See: http://christianrobinson.name/vim/HTML/#files\n"
+          \ .. 'Or see ":help g:no_html_toolbar".'
     if has('win32') || has('win64') || has('unix')
       let s:tmp = confirm(s:tmp, "&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
     else
@@ -2587,7 +3444,7 @@ if ! s:BoolVar('g:no_html_toolbar') && has("toolbar")
         call system("which xdg-open")
         if v:shell_error == 0
           " Run the default Unix browser:
-          call system('xdg-open ' . s:ShellEscape('http://christianrobinson.name/vim/HTML/#files') . ' 2>&1 >/dev/null &')
+          call system('xdg-open ' .. shellescape('http://christianrobinson.name/vim/HTML/#files') .. ' 2>&1 >/dev/null &')
         elseif exists('*LaunchBrowser')
           call LaunchBrowser('default', 2, 'http://christianrobinson.name/vim/HTML/#files')
         else
@@ -2654,13 +3511,13 @@ if ! s:BoolVar('g:no_html_toolbar') && has("toolbar")
    menu           1.135 ToolBar.-sep6-     <nul>
 
   tmenu           1.140 ToolBar.Blist      Create Bullet List
-  exe 'imenu      1.140 ToolBar.Blist'     g:html_map_leader . 'ul' . g:html_map_leader . 'li'
-  exe 'vmenu      1.140 ToolBar.Blist'     g:html_map_leader . 'uli' . g:html_map_leader . 'li<ESC>'
-  exe 'nmenu      1.140 ToolBar.Blist'     'i' . g:html_map_leader . 'ul' . g:html_map_leader . 'li'
+  exe 'imenu      1.140 ToolBar.Blist'     g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
+  exe 'vmenu      1.140 ToolBar.Blist'     g:html_map_leader .. 'uli' .. g:html_map_leader .. 'li<ESC>'
+  exe 'nmenu      1.140 ToolBar.Blist'     'i' .. g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
   tmenu           1.150 ToolBar.Nlist      Create Numbered List
-  exe 'imenu      1.150 ToolBar.Nlist'     g:html_map_leader . 'ol' . g:html_map_leader . 'li'
-  exe 'vmenu      1.150 ToolBar.Nlist'     g:html_map_leader . 'oli' . g:html_map_leader . 'li<ESC>'
-  exe 'nmenu      1.150 ToolBar.Nlist'     'i' . g:html_map_leader . 'ol' . g:html_map_leader . 'li'
+  exe 'imenu      1.150 ToolBar.Nlist'     g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
+  exe 'vmenu      1.150 ToolBar.Nlist'     g:html_map_leader .. 'oli' .. g:html_map_leader .. 'li<ESC>'
+  exe 'nmenu      1.150 ToolBar.Nlist'     'i' .. g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
   tmenu           1.160 ToolBar.Litem      Add List Item
   HTMLmenu imenu  1.160 ToolBar.Litem      li
   HTMLmenu nmenu  1.160 ToolBar.Litem      li i
@@ -2712,7 +3569,7 @@ if ! s:BoolVar('g:no_html_toolbar') && has("toolbar")
 
    menu 1.500 ToolBar.-sep50- <nul>
 
-  if maparg(g:html_map_leader . 'db', 'n') != ''
+  if maparg(g:html_map_leader .. 'db', 'n') != ''
     tmenu          1.510 ToolBar.Browser Launch Default Browser on Current File
     HTMLmenu amenu 1.510 ToolBar.Browser db
   endif
@@ -2798,45 +3655,45 @@ else
   amenu disable HTML.Control.Switch\ to\ HTML\ mode
 endif
 
-if maparg(g:html_map_leader . 'db', 'n') != ''
+if maparg(g:html_map_leader .. 'db', 'n') != ''
   HTMLmenu amenu - HTML.&Preview.&Default\ Browser       db
 endif
-if maparg(g:html_map_leader . 'ff', 'n') != ''
+if maparg(g:html_map_leader .. 'ff', 'n') != ''
    menu HTML.Preview.-sep1-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Firefox                ff
   HTMLmenu amenu - HTML.&Preview.Firefox\ (New\ Window)  nff
   HTMLmenu amenu - HTML.&Preview.Firefox\ (New\ Tab)     tff
 endif
-if maparg(g:html_map_leader . 'gc', 'n') != ''
+if maparg(g:html_map_leader .. 'gc', 'n') != ''
    menu HTML.Preview.-sep2-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Chrome                 gc
   HTMLmenu amenu - HTML.&Preview.Chrome\ (New\ Window)   ngc
   HTMLmenu amenu - HTML.&Preview.Chrome\ (New\ Tab)      tgc
 endif
-if maparg(g:html_map_leader . 'ed', 'n') != ''
+if maparg(g:html_map_leader .. 'ed', 'n') != ''
    menu HTML.Preview.-sep2-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Edge                   ed
   HTMLmenu amenu - HTML.&Preview.Edge\ (New\ Window)     ned
   HTMLmenu amenu - HTML.&Preview.Edge\ (New\ Tab)        ted
 endif
-if maparg(g:html_map_leader . 'oa', 'n') != ''
+if maparg(g:html_map_leader .. 'oa', 'n') != ''
    menu HTML.Preview.-sep3-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Opera                  oa
   HTMLmenu amenu - HTML.&Preview.Opera\ (New\ Window)    noa
   HTMLmenu amenu - HTML.&Preview.Opera\ (New\ Tab)       toa
 endif
-if maparg(g:html_map_leader . 'sf', 'n') != ''
+if maparg(g:html_map_leader .. 'sf', 'n') != ''
    menu HTML.Preview.-sep4-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Safari                 sf
   HTMLmenu amenu - HTML.&Preview.Safari\ (New\ Window)   nsf
   HTMLmenu amenu - HTML.&Preview.Safari\ (New\ Tab)      tsf
 endif
-if maparg(g:html_map_leader . 'ly', 'n') != ''
+if maparg(g:html_map_leader .. 'ly', 'n') != ''
    menu HTML.Preview.-sep5-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Lynx                   ly
   HTMLmenu amenu - HTML.&Preview.Lynx\ (New\ Window\)    nly
 endif
-if maparg(g:html_map_leader . 'w3', 'n') != ''
+if maparg(g:html_map_leader .. 'w3', 'n') != ''
    menu HTML.Preview.-sep6-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&w3m                    w3
   HTMLmenu amenu - HTML.&Preview.w3m\ (New\ Window\)     nw3
@@ -2855,34 +3712,59 @@ HTMLmenu amenu - HTML.Template html
 "scriptencoding latin1
 
 command! -nargs=+ HTMLemenu call s:EntityMenu(<f-args>)
-function! s:EntityMenu(name, item, ...)
-  if a:0 >= 1 && a:1 != '-'
-    if a:1 == '\-'
-      let symb = ' (-)'
-    else
-      let symb = ' (' . a:1 . ')'
+if exists(':def')
+  def! s:EntityMenu(name: string, item: string, symb: string = '', pre: string='')
+    var newsymb = ''
+
+    if symb != '-'
+      if symb == '\-'
+        newsymb = ' (-)'
+      else
+        newsymb = ' (' .. symb .. ')'
+      endif
     endif
-  else
-    let symb = ''
-  endif
 
-  if a:0 >= 2
-    let pre = a:2
-  else
-    let pre = ''
-  endif
+    let newname = escape(name, ' ')
 
-  let name = escape(a:name, ' ')
+    execute 'imenu ' .. newname .. newsymb->escape(' &<.|') .. '<tab>'
+          .. g:html_map_entity_leader->escape('&\')
+          .. item->escape('&<') .. ' ' .. pre
+          .. g:html_map_entity_leader .. item
+    execute 'nmenu ' .. newname .. newsymb->escape(' &<.|') .. '<tab>'
+          .. g:html_map_entity_leader->escape('&\')
+          .. item->escape('&<') .. ' ' .. pre .. 'i'
+          .. g:html_map_entity_leader .. item .. '<esc>'
+  enddef
+else
+  function! s:EntityMenu(name, item, ...)
+    if a:0 >= 1 && a:1 != '-'
+      if a:1 == '\-'
+        let symb = ' (-)'
+      else
+        let symb = ' (' .. a:1 .. ')'
+      endif
+    else
+      let symb = ''
+    endif
 
-  execute 'imenu ' . name . escape(symb, ' &<.|') . '<tab>'
-        \ . escape(g:html_map_entity_leader, '&\')
-        \ . escape(a:item, '&<') . ' ' . pre
-        \ . g:html_map_entity_leader . a:item
-  execute 'nmenu ' . name . escape(symb, ' &<.|') . '<tab>'
-        \ . escape(g:html_map_entity_leader, '&\')
-        \ . escape(a:item, '&<') . ' ' . pre . 'i'
-        \ . g:html_map_entity_leader . a:item . '<esc>'
-endfunction
+    if a:0 >= 2
+      let pre = a:2
+    else
+      let pre = ''
+    endif
+
+    let name = escape(a:name, ' ')
+
+    execute 'imenu ' .. name .. escape(symb, ' &<.|') .. '<tab>'
+          \ .. escape(g:html_map_entity_leader, '&\')
+          \ .. escape(a:item, '&<') .. ' ' .. pre
+          \ .. g:html_map_entity_leader .. a:item
+    execute 'nmenu ' .. name .. escape(symb, ' &<.|') .. '<tab>'
+          \ .. escape(g:html_map_entity_leader, '&\')
+          \ .. escape(a:item, '&<') .. ' ' .. pre .. 'i'
+          \ .. g:html_map_entity_leader .. a:item .. '<esc>'
+  endfunction
+endif
 
 
 HTMLmenu vmenu - HTML.Character\ &Entities.Convert\ to\ Entity                &
@@ -3105,7 +3987,7 @@ HTMLemenu HTML.Character\ Entities.A&rrows.Left-right\ double\ arrow  hA ⇔
 HTMLemenu HTML.Character\ Entities.&Quotes.Quotation\ mark            '  "
 HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Single\ Quote        l' ‘
 HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Single\ Quote       r' ’
-HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Double\ Quote        l" “ 
+HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Double\ Quote        l" “
 HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Double\ Quote       r" ”
 HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Angle\ Quote         2< «
 HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Angle\ Quote        2> »
@@ -3137,20 +4019,33 @@ let s:colors_sort = {
       \ 'Y': 'T-Z', 'Z': 'T-Z',
     \}
 let s:color_list = {}
-function! s:ColorsMenu(name, color)
-  let c = a:name->strpart(0, 1)->toupper()
-  let l:name = a:name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
-  execute 'imenu HTML.&Colors.&' . s:colors_sort[c] . '.' . l:name->escape(' ')
-        \ . '<tab>(' . a:color . ') ' . a:color
-  execute 'nmenu HTML.&Colors.&' . s:colors_sort[c] . '.' . l:name->escape(' ')
-        \ . '<tab>(' . a:color . ') i' . a:color . '<esc>'
-  eval s:color_list->extend({l:name : a:color})
-endfunction
+
+if exists(':def')
+  def! s:ColorsMenu(name: string, color: string)
+    var c = name->strpart(0, 1)->toupper()
+    var newname = name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
+    execute 'imenu HTML.&Colors.&' .. s:colors_sort[c] .. '.' .. newname->escape(' ')
+          .. '<tab>(' .. color .. ') ' .. color
+    execute 'nmenu HTML.&Colors.&' .. s:colors_sort[c] .. '.' .. newname->escape(' ')
+          .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
+    eval s:color_list->extend({newname: color})
+  enddef
+else
+  function! s:ColorsMenu(name, color)
+    let c = a:name->strpart(0, 1)->toupper()
+    let l:name = a:name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
+    execute 'imenu HTML.&Colors.&' .. s:colors_sort[c] .. '.' .. l:name->escape(' ')
+          \ .. '<tab>(' .. a:color .. ') ' .. a:color
+    execute 'nmenu HTML.&Colors.&' .. s:colors_sort[c] .. '.' .. l:name->escape(' ')
+          \ .. '<tab>(' .. a:color .. ') i' .. a:color .. '<esc>'
+    eval s:color_list->extend({l:name : a:color})
+  endfunction
+endif
 
 if (has('gui_running') || &t_Co >= 256)
   command! -nargs=? ColorSelect call s:ShowColors(<f-args>)
   command! -nargs=? CS call s:ShowColors(<f-args>)
-  
+
   call HTMLmap("nnoremap", "<lead>3", ":ColorSelect<CR>")
   call HTMLmap("inoremap", "<lead>3", "<C-O>:ColorSelect<CR>")
 
@@ -3338,44 +4233,44 @@ HTMLmenu imenu - HTML.Font\ &Styles.Font\ Color fc
 HTMLmenu vmenu - HTML.Font\ &Styles.Font\ Color fc
 HTMLmenu nmenu - HTML.Font\ &Styles.Font\ Color fc i
  menu HTML.Font\ Styles.-sep2- <nul>
-HTMLmenu imenu - HTML.Font\ &Styles.CITE           ci 
-HTMLmenu vmenu - HTML.Font\ &Styles.CITE           ci 
+HTMLmenu imenu - HTML.Font\ &Styles.CITE           ci
+HTMLmenu vmenu - HTML.Font\ &Styles.CITE           ci
 HTMLmenu nmenu - HTML.Font\ &Styles.CITE           ci i
-HTMLmenu imenu - HTML.Font\ &Styles.CODE           co 
-HTMLmenu vmenu - HTML.Font\ &Styles.CODE           co 
+HTMLmenu imenu - HTML.Font\ &Styles.CODE           co
+HTMLmenu vmenu - HTML.Font\ &Styles.CODE           co
 HTMLmenu nmenu - HTML.Font\ &Styles.CODE           co i
-HTMLmenu imenu - HTML.Font\ &Styles.Inserted\ Text in 
-HTMLmenu vmenu - HTML.Font\ &Styles.Inserted\ Text in 
+HTMLmenu imenu - HTML.Font\ &Styles.Inserted\ Text in
+HTMLmenu vmenu - HTML.Font\ &Styles.Inserted\ Text in
 HTMLmenu nmenu - HTML.Font\ &Styles.Inserted\ Text in i
-HTMLmenu imenu - HTML.Font\ &Styles.Deleted\ Text  de 
-HTMLmenu vmenu - HTML.Font\ &Styles.Deleted\ Text  de 
+HTMLmenu imenu - HTML.Font\ &Styles.Deleted\ Text  de
+HTMLmenu vmenu - HTML.Font\ &Styles.Deleted\ Text  de
 HTMLmenu nmenu - HTML.Font\ &Styles.Deleted\ Text  de i
-HTMLmenu imenu - HTML.Font\ &Styles.Emphasize      em 
-HTMLmenu vmenu - HTML.Font\ &Styles.Emphasize      em 
+HTMLmenu imenu - HTML.Font\ &Styles.Emphasize      em
+HTMLmenu vmenu - HTML.Font\ &Styles.Emphasize      em
 HTMLmenu nmenu - HTML.Font\ &Styles.Emphasize      em i
-HTMLmenu imenu - HTML.Font\ &Styles.Keyboard\ Text kb 
-HTMLmenu vmenu - HTML.Font\ &Styles.Keyboard\ Text kb 
+HTMLmenu imenu - HTML.Font\ &Styles.Keyboard\ Text kb
+HTMLmenu vmenu - HTML.Font\ &Styles.Keyboard\ Text kb
 HTMLmenu nmenu - HTML.Font\ &Styles.Keyboard\ Text kb i
-HTMLmenu imenu - HTML.Font\ &Styles.Sample\ Text   sa 
-HTMLmenu vmenu - HTML.Font\ &Styles.Sample\ Text   sa 
+HTMLmenu imenu - HTML.Font\ &Styles.Sample\ Text   sa
+HTMLmenu vmenu - HTML.Font\ &Styles.Sample\ Text   sa
 HTMLmenu nmenu - HTML.Font\ &Styles.Sample\ Text   sa i
-HTMLmenu imenu - HTML.Font\ &Styles.Strikethrough  sk 
-HTMLmenu vmenu - HTML.Font\ &Styles.Strikethrough  sk 
+HTMLmenu imenu - HTML.Font\ &Styles.Strikethrough  sk
+HTMLmenu vmenu - HTML.Font\ &Styles.Strikethrough  sk
 HTMLmenu nmenu - HTML.Font\ &Styles.Strikethrough  sk i
-HTMLmenu imenu - HTML.Font\ &Styles.STRONG         st 
-HTMLmenu vmenu - HTML.Font\ &Styles.STRONG         st 
+HTMLmenu imenu - HTML.Font\ &Styles.STRONG         st
+HTMLmenu vmenu - HTML.Font\ &Styles.STRONG         st
 HTMLmenu nmenu - HTML.Font\ &Styles.STRONG         st i
-HTMLmenu imenu - HTML.Font\ &Styles.Subscript      sb 
-HTMLmenu vmenu - HTML.Font\ &Styles.Subscript      sb 
+HTMLmenu imenu - HTML.Font\ &Styles.Subscript      sb
+HTMLmenu vmenu - HTML.Font\ &Styles.Subscript      sb
 HTMLmenu nmenu - HTML.Font\ &Styles.Subscript      sb i
-HTMLmenu imenu - HTML.Font\ &Styles.Superscript    sp 
-HTMLmenu vmenu - HTML.Font\ &Styles.Superscript    sp 
+HTMLmenu imenu - HTML.Font\ &Styles.Superscript    sp
+HTMLmenu vmenu - HTML.Font\ &Styles.Superscript    sp
 HTMLmenu nmenu - HTML.Font\ &Styles.Superscript    sp i
-HTMLmenu imenu - HTML.Font\ &Styles.Teletype\ Text tt 
-HTMLmenu vmenu - HTML.Font\ &Styles.Teletype\ Text tt 
+HTMLmenu imenu - HTML.Font\ &Styles.Teletype\ Text tt
+HTMLmenu vmenu - HTML.Font\ &Styles.Teletype\ Text tt
 HTMLmenu nmenu - HTML.Font\ &Styles.Teletype\ Text tt i
-HTMLmenu imenu - HTML.Font\ &Styles.Variable       va 
-HTMLmenu vmenu - HTML.Font\ &Styles.Variable       va 
+HTMLmenu imenu - HTML.Font\ &Styles.Variable       va
+HTMLmenu vmenu - HTML.Font\ &Styles.Variable       va
 HTMLmenu nmenu - HTML.Font\ &Styles.Variable       va i
 
 
@@ -3397,18 +4292,18 @@ HTMLmenu nmenu - HTML.&Frames.IFRAME   if i
 
 " Headings menu:   {{{2
 
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 1 h1 
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 2 h2 
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 3 h3 
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 4 h4 
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 5 h5 
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 6 h6 
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 1 h1 
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 2 h2 
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 3 h3 
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 4 h4 
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 5 h5 
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 6 h6 
+HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 1 h1
+HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 2 h2
+HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 3 h3
+HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 4 h4
+HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 5 h5
+HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 6 h6
+HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 1 h1
+HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 2 h2
+HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 3 h3
+HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 4 h4
+HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 5 h5
+HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 6 h6
 HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 1 h1 i
 HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 2 h2 i
 HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 3 h3 i
@@ -3419,50 +4314,50 @@ HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 6 h6 i
 
 " Lists menu:   {{{2
 
-HTMLmenu imenu - HTML.&Lists.Ordered\ List    ol 
-HTMLmenu vmenu - HTML.&Lists.Ordered\ List    ol 
+HTMLmenu imenu - HTML.&Lists.Ordered\ List    ol
+HTMLmenu vmenu - HTML.&Lists.Ordered\ List    ol
 HTMLmenu nmenu - HTML.&Lists.Ordered\ List    ol i
-HTMLmenu imenu - HTML.&Lists.Unordered\ List  ul 
-HTMLmenu vmenu - HTML.&Lists.Unordered\ List  ul 
+HTMLmenu imenu - HTML.&Lists.Unordered\ List  ul
+HTMLmenu vmenu - HTML.&Lists.Unordered\ List  ul
 HTMLmenu nmenu - HTML.&Lists.Unordered\ List  ul i
-HTMLmenu imenu - HTML.&Lists.List\ Item       li 
-HTMLmenu vmenu - HTML.&Lists.List\ Item       li 
+HTMLmenu imenu - HTML.&Lists.List\ Item       li
+HTMLmenu vmenu - HTML.&Lists.List\ Item       li
 HTMLmenu nmenu - HTML.&Lists.List\ Item       li i
  menu HTML.Lists.-sep1- <nul>
-HTMLmenu imenu - HTML.&Lists.Definition\ List dl 
-HTMLmenu vmenu - HTML.&Lists.Definition\ List dl 
+HTMLmenu imenu - HTML.&Lists.Definition\ List dl
+HTMLmenu vmenu - HTML.&Lists.Definition\ List dl
 HTMLmenu nmenu - HTML.&Lists.Definition\ List dl i
-HTMLmenu imenu - HTML.&Lists.Definition\ Term dt 
+HTMLmenu imenu - HTML.&Lists.Definition\ Term dt
 HTMLmenu vmenu - HTML.&Lists.Definition\ Term dt
 HTMLmenu nmenu - HTML.&Lists.Definition\ Term dt i
-HTMLmenu imenu - HTML.&Lists.Definition\ Body dd 
+HTMLmenu imenu - HTML.&Lists.Definition\ Body dd
 HTMLmenu vmenu - HTML.&Lists.Definition\ Body dd
 HTMLmenu nmenu - HTML.&Lists.Definition\ Body dd i
 
 
 " Tables menu:   {{{2
 
-HTMLmenu nmenu - HTML.&Tables.Interactive\ Table      tA 
-HTMLmenu imenu - HTML.&Tables.TABLE                   ta 
-HTMLmenu vmenu - HTML.&Tables.TABLE                   ta 
+HTMLmenu nmenu - HTML.&Tables.Interactive\ Table      tA
+HTMLmenu imenu - HTML.&Tables.TABLE                   ta
+HTMLmenu vmenu - HTML.&Tables.TABLE                   ta
 HTMLmenu nmenu - HTML.&Tables.TABLE                   ta i
-HTMLmenu imenu - HTML.&Tables.Header\ Row             tH 
-HTMLmenu vmenu - HTML.&Tables.Header\ Row             tH 
+HTMLmenu imenu - HTML.&Tables.Header\ Row             tH
+HTMLmenu vmenu - HTML.&Tables.Header\ Row             tH
 HTMLmenu nmenu - HTML.&Tables.Header\ Row             tH i
-HTMLmenu imenu - HTML.&Tables.Row                     tr 
-HTMLmenu vmenu - HTML.&Tables.Row                     tr 
+HTMLmenu imenu - HTML.&Tables.Row                     tr
+HTMLmenu vmenu - HTML.&Tables.Row                     tr
 HTMLmenu nmenu - HTML.&Tables.Row                     tr i
-HTMLmenu imenu - HTML.&Tables.Footer\ Row             tf 
-HTMLmenu vmenu - HTML.&Tables.Footer\ Row             tf 
+HTMLmenu imenu - HTML.&Tables.Footer\ Row             tf
+HTMLmenu vmenu - HTML.&Tables.Footer\ Row             tf
 HTMLmenu nmenu - HTML.&Tables.Footer\ Row             tf i
-HTMLmenu imenu - HTML.&Tables.Column\ Header          th 
-HTMLmenu vmenu - HTML.&Tables.Column\ Header          th 
+HTMLmenu imenu - HTML.&Tables.Column\ Header          th
+HTMLmenu vmenu - HTML.&Tables.Column\ Header          th
 HTMLmenu nmenu - HTML.&Tables.Column\ Header          th i
-HTMLmenu imenu - HTML.&Tables.Data\ (Column\ Element) td 
-HTMLmenu vmenu - HTML.&Tables.Data\ (Column\ Element) td 
+HTMLmenu imenu - HTML.&Tables.Data\ (Column\ Element) td
+HTMLmenu vmenu - HTML.&Tables.Data\ (Column\ Element) td
 HTMLmenu nmenu - HTML.&Tables.Data\ (Column\ Element) td i
-HTMLmenu imenu - HTML.&Tables.CAPTION                 ca 
-HTMLmenu vmenu - HTML.&Tables.CAPTION                 ca 
+HTMLmenu imenu - HTML.&Tables.CAPTION                 ca
+HTMLmenu vmenu - HTML.&Tables.CAPTION                 ca
 HTMLmenu nmenu - HTML.&Tables.CAPTION                 ca i
 
 
@@ -3507,8 +4402,8 @@ HTMLmenu nmenu - HTML.F&orms.FILE             fi i
 HTMLmenu imenu - HTML.F&orms.SELECT           se
 HTMLmenu vmenu - HTML.F&orms.SELECT           se
 HTMLmenu nmenu - HTML.F&orms.SELECT           se i
-HTMLmenu imenu - HTML.F&orms.SELECT\ MULTIPLE ms 
-HTMLmenu vmenu - HTML.F&orms.SELECT\ MULTIPLE ms 
+HTMLmenu imenu - HTML.F&orms.SELECT\ MULTIPLE ms
+HTMLmenu vmenu - HTML.F&orms.SELECT\ MULTIPLE ms
 HTMLmenu nmenu - HTML.F&orms.SELECT\ MULTIPLE ms i
 HTMLmenu imenu - HTML.F&orms.OPTION           op
 HTMLmenu vmenu - HTML.F&orms.OPTION           op
@@ -3590,10 +4485,10 @@ HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&WBR                    wb i
 
  menu HTML.-sep6- <nul>
 
-HTMLmenu nmenu - HTML.Doctype\ (4\.01\ transitional) 4 
-HTMLmenu nmenu - HTML.Doctype\ (4\.01\ strict)       s4 
+HTMLmenu nmenu - HTML.Doctype\ (4\.01\ transitional) 4
+HTMLmenu nmenu - HTML.Doctype\ (4\.01\ strict)       s4
 HTMLmenu nmenu - HTML.Doctype\ (HTML\ 5)             5
-HTMLmenu imenu - HTML.Content-Type                   ct 
+HTMLmenu imenu - HTML.Content-Type                   ct
 HTMLmenu nmenu - HTML.Content-Type                   ct i
 
  menu HTML.-sep7- <nul>
@@ -3621,80 +4516,80 @@ HTMLmenu nmenu - HTML.HTML             ht i
 HTMLmenu imenu - HTML.Hyperlink        ah
 HTMLmenu vmenu - HTML.Hyperlink        ah
 HTMLmenu nmenu - HTML.Hyperlink        ah i
-HTMLmenu imenu - HTML.Inline\ Image    im 
-HTMLmenu vmenu - HTML.Inline\ Image    im 
+HTMLmenu imenu - HTML.Inline\ Image    im
+HTMLmenu vmenu - HTML.Inline\ Image    im
 HTMLmenu nmenu - HTML.Inline\ Image    im i
 if exists("*MangleImageTag")
-  HTMLmenu imenu - HTML.Update\ Image\ Size\ Attributes mi 
+  HTMLmenu imenu - HTML.Update\ Image\ Size\ Attributes mi
   HTMLmenu vmenu - HTML.Update\ Image\ Size\ Attributes mi <ESC>
-  HTMLmenu nmenu - HTML.Update\ Image\ Size\ Attributes mi 
+  HTMLmenu nmenu - HTML.Update\ Image\ Size\ Attributes mi
 endif
-HTMLmenu imenu - HTML.Line\ Break        br 
+HTMLmenu imenu - HTML.Line\ Break        br
 HTMLmenu nmenu - HTML.Line\ Break        br i
-HTMLmenu imenu - HTML.Named\ Anchor      an 
-HTMLmenu vmenu - HTML.Named\ Anchor      an 
+HTMLmenu imenu - HTML.Named\ Anchor      an
+HTMLmenu vmenu - HTML.Named\ Anchor      an
 HTMLmenu nmenu - HTML.Named\ Anchor      an i
-HTMLmenu imenu - HTML.Paragraph          pp 
-HTMLmenu vmenu - HTML.Paragraph          pp 
+HTMLmenu imenu - HTML.Paragraph          pp
+HTMLmenu vmenu - HTML.Paragraph          pp
 HTMLmenu nmenu - HTML.Paragraph          pp i
-HTMLmenu imenu - HTML.Preformatted\ Text pr 
-HTMLmenu vmenu - HTML.Preformatted\ Text pr 
+HTMLmenu imenu - HTML.Preformatted\ Text pr
+HTMLmenu vmenu - HTML.Preformatted\ Text pr
 HTMLmenu nmenu - HTML.Preformatted\ Text pr i
-HTMLmenu imenu - HTML.TITLE              ti 
-HTMLmenu vmenu - HTML.TITLE              ti 
+HTMLmenu imenu - HTML.TITLE              ti
+HTMLmenu vmenu - HTML.TITLE              ti
 HTMLmenu nmenu - HTML.TITLE              ti i
 
-HTMLmenu imenu - HTML.&More\.\.\..ADDRESS                   ad 
-HTMLmenu vmenu - HTML.&More\.\.\..ADDRESS                   ad 
+HTMLmenu imenu - HTML.&More\.\.\..ADDRESS                   ad
+HTMLmenu vmenu - HTML.&More\.\.\..ADDRESS                   ad
 HTMLmenu nmenu - HTML.&More\.\.\..ADDRESS                   ad i
-HTMLmenu imenu - HTML.&More\.\.\..BASE\ HREF                bh 
-HTMLmenu vmenu - HTML.&More\.\.\..BASE\ HREF                bh 
+HTMLmenu imenu - HTML.&More\.\.\..BASE\ HREF                bh
+HTMLmenu vmenu - HTML.&More\.\.\..BASE\ HREF                bh
 HTMLmenu nmenu - HTML.&More\.\.\..BASE\ HREF                bh i
-HTMLmenu imenu - HTML.&More\.\.\..BASE\ TARGET              bt 
-HTMLmenu vmenu - HTML.&More\.\.\..BASE\ TARGET              bt 
+HTMLmenu imenu - HTML.&More\.\.\..BASE\ TARGET              bt
+HTMLmenu vmenu - HTML.&More\.\.\..BASE\ TARGET              bt
 HTMLmenu nmenu - HTML.&More\.\.\..BASE\ TARGET              bt i
-HTMLmenu imenu - HTML.&More\.\.\..BLOCKQUTE                 bl 
-HTMLmenu vmenu - HTML.&More\.\.\..BLOCKQUTE                 bl 
+HTMLmenu imenu - HTML.&More\.\.\..BLOCKQUTE                 bl
+HTMLmenu vmenu - HTML.&More\.\.\..BLOCKQUTE                 bl
 HTMLmenu nmenu - HTML.&More\.\.\..BLOCKQUTE                 bl i
-HTMLmenu imenu - HTML.&More\.\.\..Defining\ Instance        df 
-HTMLmenu vmenu - HTML.&More\.\.\..Defining\ Instance        df 
+HTMLmenu imenu - HTML.&More\.\.\..Defining\ Instance        df
+HTMLmenu vmenu - HTML.&More\.\.\..Defining\ Instance        df
 HTMLmenu nmenu - HTML.&More\.\.\..Defining\ Instance        df i
-HTMLmenu imenu - HTML.&More\.\.\..Document\ Division        dv 
-HTMLmenu vmenu - HTML.&More\.\.\..Document\ Division        dv 
+HTMLmenu imenu - HTML.&More\.\.\..Document\ Division        dv
+HTMLmenu vmenu - HTML.&More\.\.\..Document\ Division        dv
 HTMLmenu nmenu - HTML.&More\.\.\..Document\ Division        dv i
 HTMLmenu imenu - HTML.&More\.\.\..JavaScript                js
 HTMLmenu nmenu - HTML.&More\.\.\..JavaScript                js i
-HTMLmenu imenu - HTML.&More\.\.\..Sourced\ JavaScript       sj 
+HTMLmenu imenu - HTML.&More\.\.\..Sourced\ JavaScript       sj
 HTMLmenu nmenu - HTML.&More\.\.\..Sourced\ JavaScript       sj i
-HTMLmenu imenu - HTML.&More\.\.\..LINK\ HREF                lk 
-HTMLmenu vmenu - HTML.&More\.\.\..LINK\ HREF                lk 
+HTMLmenu imenu - HTML.&More\.\.\..LINK\ HREF                lk
+HTMLmenu vmenu - HTML.&More\.\.\..LINK\ HREF                lk
 HTMLmenu nmenu - HTML.&More\.\.\..LINK\ HREF                lk i
-HTMLmenu imenu - HTML.&More\.\.\..META                      me 
-HTMLmenu vmenu - HTML.&More\.\.\..META                      me 
+HTMLmenu imenu - HTML.&More\.\.\..META                      me
+HTMLmenu vmenu - HTML.&More\.\.\..META                      me
 HTMLmenu nmenu - HTML.&More\.\.\..META                      me i
-HTMLmenu imenu - HTML.&More\.\.\..META\ HTTP-EQUIV          mh 
-HTMLmenu vmenu - HTML.&More\.\.\..META\ HTTP-EQUIV          mh 
+HTMLmenu imenu - HTML.&More\.\.\..META\ HTTP-EQUIV          mh
+HTMLmenu vmenu - HTML.&More\.\.\..META\ HTTP-EQUIV          mh
 HTMLmenu nmenu - HTML.&More\.\.\..META\ HTTP-EQUIV          mh i
-HTMLmenu imenu - HTML.&More\.\.\..NOSCRIPT                  nj 
-HTMLmenu vmenu - HTML.&More\.\.\..NOSCRIPT                  nj 
+HTMLmenu imenu - HTML.&More\.\.\..NOSCRIPT                  nj
+HTMLmenu vmenu - HTML.&More\.\.\..NOSCRIPT                  nj
 HTMLmenu nmenu - HTML.&More\.\.\..NOSCRIPT                  nj i
-HTMLmenu imenu - HTML.&More\.\.\..Generic\ Embedded\ Object ob 
-HTMLmenu vmenu - HTML.&More\.\.\..Generic\ Embedded\ Object ob 
+HTMLmenu imenu - HTML.&More\.\.\..Generic\ Embedded\ Object ob
+HTMLmenu vmenu - HTML.&More\.\.\..Generic\ Embedded\ Object ob
 HTMLmenu nmenu - HTML.&More\.\.\..Generic\ Embedded\ Object ob i
-HTMLmenu imenu - HTML.&More\.\.\..Object\ Parameter         pm 
-HTMLmenu vmenu - HTML.&More\.\.\..Object\ Parameter         pm 
+HTMLmenu imenu - HTML.&More\.\.\..Object\ Parameter         pm
+HTMLmenu vmenu - HTML.&More\.\.\..Object\ Parameter         pm
 HTMLmenu nmenu - HTML.&More\.\.\..Object\ Parameter         pm i
-HTMLmenu imenu - HTML.&More\.\.\..Quoted\ Text              qu 
-HTMLmenu vmenu - HTML.&More\.\.\..Quoted\ Text              qu 
+HTMLmenu imenu - HTML.&More\.\.\..Quoted\ Text              qu
+HTMLmenu vmenu - HTML.&More\.\.\..Quoted\ Text              qu
 HTMLmenu nmenu - HTML.&More\.\.\..Quoted\ Text              qu i
-HTMLmenu imenu - HTML.&More\.\.\..SPAN                      sn 
-HTMLmenu vmenu - HTML.&More\.\.\..SPAN                      sn 
+HTMLmenu imenu - HTML.&More\.\.\..SPAN                      sn
+HTMLmenu vmenu - HTML.&More\.\.\..SPAN                      sn
 HTMLmenu nmenu - HTML.&More\.\.\..SPAN                      sn i
-HTMLmenu imenu - HTML.&More\.\.\..STYLE\ (Inline\ CSS\)     cs 
-HTMLmenu vmenu - HTML.&More\.\.\..STYLE\ (Inline\ CSS\)     cs 
+HTMLmenu imenu - HTML.&More\.\.\..STYLE\ (Inline\ CSS\)     cs
+HTMLmenu vmenu - HTML.&More\.\.\..STYLE\ (Inline\ CSS\)     cs
 HTMLmenu nmenu - HTML.&More\.\.\..STYLE\ (Inline\ CSS\)     cs i
-HTMLmenu imenu - HTML.&More\.\.\..Linked\ CSS               ls 
-HTMLmenu vmenu - HTML.&More\.\.\..Linked\ CSS               ls 
+HTMLmenu imenu - HTML.&More\.\.\..Linked\ CSS               ls
+HTMLmenu vmenu - HTML.&More\.\.\..Linked\ CSS               ls
 HTMLmenu nmenu - HTML.&More\.\.\..Linked\ CSS               ls i
 
 let g:did_html_menus = 1
@@ -3729,5 +4624,5 @@ unlet s:savecpo
 
 unlet s:doing_internal_html_mappings
 
-" vim:ts=2:sw=2:expandtab:tw=78:fo=croq2j:comments=b\:\":
-" vim:fdm=marker:fdc=4:cms=\ "\ %s:sw=0:
+" vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
+" vim:foldmethod=marker:foldcolumn=4:comments=b\:\":commentstring=\ "\ %s:
