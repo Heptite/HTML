@@ -1,4 +1,5 @@
 .*.swp
+.*.swo
 RCS/*
 HTML.html.bak
 HTML.html

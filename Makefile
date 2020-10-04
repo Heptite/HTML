@@ -14,7 +14,7 @@ vim2html := $(or $(vim2html),false)
 #RCS_FILES_IN = $(wildcard RCS/*,v)
 #RCS_FILES = $(RCS_FILES_IN:RCS/%,v=%)
 
-PLUGIN_FILES = browser_launcher.vim HTML.txt HTML.vim MangleImageTag.vim
+PLUGIN_FILES = browser_launcher.vim browser_launcher_vim9.vim HTML.txt HTML.vim MangleImageTag.vim MangleImageTag_vim9.vim
 
 .PHONY : default debug all force html.zip html.html bitmaps pixmaps changelog
 
@@ -71,7 +71,9 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp)
 	cp ${bitmaps}/* ${tmpdir}/bitmaps
 	cp HTML.vim ${tmpdir}/ftplugin/html
 	cp browser_launcher.vim ${tmpdir}
+	cp browser_launcher_vim9.vim ${tmpdir}
 	cp MangleImageTag.vim ${tmpdir}
+	cp MangleImageTag_vim9.vim ${tmpdir}
 	cp HTML.txt ${tmpdir}/doc
 	cd ${tmpdir}; zip -9mr ${cwd}/HTML.zip *
 	rmdir ${tmpdir}
@@ -141,20 +143,25 @@ rsync scp:
 	@echo "WARNING! This does NOT make sure the various files are updated, do \"make all\" first!"
 	@echo
 	rsync --verbose --archive --times --rsh=ssh --stats --progress \
-		bitmaps browser_launcher.vim MangleImageTag.vim \
-		HTML.vim HTML.txt HTML.html HTML.zip version ChangeLog \
-		ChangeLog.html toolbar-icons.png vim-html-pixmaps.zip \
+		bitmaps browser_launcher.vim browser_launcher_vim9.vim \
+		MangleImageTag.vim MangleImageTag_vim9.vim HTML.vim \
+		HTML.txt HTML.html HTML.zip version ChangeLog ChangeLog.html \
+		toolbar-icons.png vim-html-pixmaps.zip \
 		pi@heptite.localnet:~/www/programming/vim/HTML/
 
-install: HTML.vim HTML.txt browser_launcher.vim MangleImageTag.vim
+install: HTML.vim HTML.txt browser_launcher.vim browser_launcher_vim9.vim MangleImageTag.vim MangleImageTag_vim9.vim
 	cp -f HTML.vim ~/.vim/ftplugin/html/
 	cp -f HTML.txt ~/.vim/doc/
 	cp -f browser_launcher.vim ~/.vim/
+	cp -f browser_launcher_vim9.vim ~/.vim/
 	cp -f MangleImageTag.vim ~/.vim/
+	cp -f MangleImageTag_vim9.vim ~/.vim/
 	cp -f HTML.vim ~/Dropbox/vimfiles/ftplugin/html/
 	cp -f HTML.txt ~/Dropbox/vimfiles/doc/
 	cp -f browser_launcher.vim ~/Dropbox/vimfiles/
+	cp -f browser_launcher_vim9.vim ~/Dropbox/vimfiles/
 	cp -f MangleImageTag.vim ~/Dropbox/vimfiles/
+	cp -f MangleImageTag_vim9.vim ~/Dropbox/vimfiles/
 	vim -c 'helptags ~/.vim/doc' -c 'helptags ~/Dropbox/vimfiles/doc' -c 'qa' > /dev/null 2> /dev/null
 
 

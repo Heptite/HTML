@@ -2,8 +2,8 @@
 "
 " Author:      Christian J. Robinson <heptite@gmail.com>
 " URL:         http://christianrobinson.name/vim/HTML/
-" Last Change: October 1, 2020
-" Version:     0.44
+" Last Change: October 3, 2020
+" Version:     0.44.2
 " Original Concept: Doug Renze
 "
 "
@@ -110,7 +110,7 @@ if exists(':def')
       # Unfortunately this is a suboptimal way to do this, but Vim9script
       # doesn't allow me to do it any other way:
       execute "g:tmpvarval = " .. newvariable
-      let varval = g:tmpvarval .. ''
+      var varval = g:tmpvarval .. ''
       unlet g:tmpvarval
       return varval->s:Bool()
     else
@@ -330,7 +330,7 @@ let g:did_html_functions = 1
 " Return Value:
 "  String:  The encoded string.
 if exists(':def')
-  def! HTMLencodeString(str: string, decode: string = ''): string
+  def! g:HTMLencodeString(str: string, decode: string = ''): string
     var out = str
 
     if decode == ''
@@ -372,7 +372,7 @@ endif
 " Return Value:
 "  Character:  The decoded character.
 if exists(':def')
-  def! HTMLdecodeSymbol(symbol: string): string
+  def! g:HTMLdecodeSymbol(symbol: string): string
     var char: string
 
     if symbol =~ '&#\(x\x\+\);'
@@ -429,7 +429,7 @@ let s:modes = {
     \}
 
 if exists(':def')
-  def! HTMLmap(cmd: string, map: string, arg: string, extra: number = -999)
+  def! g:HTMLmap(cmd: string, map: string, arg: string, extra: number = -999)
     var mode = cmd->strpart(0, 1)
     var newarg = arg
     var newmap = map->substitute('^<lead>\c', escape(g:html_map_leader, '&~\'), '')
@@ -534,8 +534,8 @@ endif
 "               (A value greater than 1 tells the mapping not to move right one
 "               character.)
 if exists(':def')
-  def! HTMLmapo(map: string, insert: bool)
-    let newmap = map->substitute("^<lead>", g:html_map_leader, '')
+  def! g:HTMLmapo(map: string, insert: bool)
+    var newmap = map->substitute("^<lead>", g:html_map_leader, '')
 
     if newmap->s:MapCheck('o') >= 2
       return
@@ -1050,7 +1050,7 @@ endif
 "       the first line of the buffer when the cursor is on the first line and
 "       tab is successively pressed
 if exists(':def')
-  def! HTMLnextInsertPoint(mode: string = 'n')
+  def! g:HTMLnextInsertPoint(mode: string = 'n')
     var saveerrmsg  = v:errmsg | v:errmsg = ''
     var saveruler   = &ruler   | &ruler   = 0
     var saveshowcmd = &showcmd | &showcmd = 0
@@ -1420,7 +1420,7 @@ endif
 " Return Value:
 "  None
 if exists(':def')
-  def! HTMLgenerateTable()
+  def! g:HTMLgenerateTable()
     var byteoffset = s:ByteOffset()
     var rows       = inputdialog("Number of rows: ")->str2nr()
     let columns    = inputdialog("Number of columns: ")->str2nr()
@@ -2001,7 +2001,7 @@ endif
 "  0 - The cursor is not on an insert point.
 "  1 - The cursor is on an insert point.
 if exists(':def')
-  def! HTMLtemplate(): bool
+  def! g:HTMLtemplate(): bool
     var ret = false
     var save_ruler = &ruler
     var save_showcmd = &showcmd
@@ -2105,7 +2105,7 @@ if exists(':def')
     :silent! :%s/\C%time12%/\=strftime('%r %Z')/g
     :silent! :%s/\C%time24%/\=strftime('%T')/g
     :silent! :%s/\C%charset%/\=<SID>DetectCharset()/g
-    :silent! :%s/\C%vimversion%/\=v:version->strpart(0, 1) .. '.' .. (v:version->strpart(1, 2)->substitute('^0', '', ''))/g
+    :silent! :%s#\C%vimversion%#\=(v:version / 100) .. '.' .. (v:version % 100) .. '.' .. (v:versionlong % 10000)#g
 
     go 1
 
@@ -2165,7 +2165,7 @@ else
     silent! %s/\C%time12%/\=strftime('%r %Z')/g
     silent! %s/\C%time24%/\=strftime('%T')/g
     silent! %s/\C%charset%/\=<SID>DetectCharset()/g
-    silent! %s/\C%vimversion%/\=v:version->strpart(0, 1) .. '.' .. (v:version->strpart(1, 2)->substitute('^0', '', ''))/g
+    silent! %s#\C%vimversion%#\=(v:version / 100) .. '.' .. (v:version % 100) .. '.' .. (v:versionlong % 10000)#g
 
     go 1
 
@@ -2263,7 +2263,11 @@ else
 endif
 
 " Update an image tag's WIDTH & HEIGHT attributes (experimental!):
-runtime! MangleImageTag.vim
+if exists(":vim9script")
+  runtime! MangleImageTag_vim9.vim
+else
+  runtime! MangleImageTag.vim
+endif
 if exists("*MangleImageTag")
   call HTMLmap("nnoremap", "<lead>mi", ":call MangleImageTag()<CR>")
   call HTMLmap("inoremap", "<lead>mi", "<C-O>:call MangleImageTag()<CR>")
@@ -3279,7 +3283,11 @@ call HTMLmap("inoremap", "<elead>r1000", "&#x217f;")
 
 " ---- Browser Remote Controls: ----------------------------------------- {{{1
 
-runtime! browser_launcher.vim
+"if exists(':vim9script') == 2
+"  runtime! browser_launcher_vim9.vim
+"else
+  runtime! browser_launcher.vim
+"endif
 
 if has('mac') || has('macunix') " {{{2
 
@@ -3393,7 +3401,7 @@ if exists(':def')
       newlevel = level
     endif
 
-    let newname = escape(name, ' ')
+    var newname = escape(name, ' ')
 
     execute type .. ' ' .. newlevel .. ' ' .. newname .. '<tab>' .. g:html_map_leader
         .. item .. ' ' .. pre .. g:html_map_leader .. item
@@ -3707,10 +3715,6 @@ HTMLmenu amenu - HTML.Template html
 
 " Character Entities menu:   {{{2
 
-"let b:save_encoding=&encoding
-"let &encoding='latin1'
-"scriptencoding latin1
-
 command! -nargs=+ HTMLemenu call s:EntityMenu(<f-args>)
 if exists(':def')
   def! s:EntityMenu(name: string, item: string, symb: string = '', pre: string='')
@@ -3724,7 +3728,7 @@ if exists(':def')
       endif
     endif
 
-    let newname = escape(name, ' ')
+    var newname = escape(name, ' ')
 
     execute 'imenu ' .. newname .. newsymb->escape(' &<.|') .. '<tab>'
           .. g:html_map_entity_leader->escape('&\')
@@ -3999,10 +4003,6 @@ HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..C-cedilla   C, Ç
 HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..c-cedilla   c, ç
 HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..O-slash     O/ Ø
 HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..o-slash     o/ ø
-
-"let &encoding=b:save_encoding
-"unlet b:save_encoding
-"scriptencoding
 
 " Colors menu:   {{{2
 

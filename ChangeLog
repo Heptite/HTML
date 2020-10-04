@@ -1,3 +1,8 @@
+Fri, 2 Oct 2020 10:11:21 -0600 Christian J. Robinson
+ * * Transition to Vim 8.2
+* Add Vim9 versions of functions to HTML.vim to hopefully speed up the
+  script
+
 Wed, 16 Sep 2020 17:30:06 -0600 Christian J. Robinson
  * Support Microsoft Edge as a browser.
 

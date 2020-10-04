@@ -271,6 +271,22 @@ elseif has('win32') || has('win64') || has('win32unix')  " {{{1
 	let s:Browsers['o'] = ['opera',   '']
 	let s:Browsers['e'] = ['msedge',  '']
 	
+  if has('win32unix')
+    let s:temp = system("which lynx")
+    if v:shell_error == 0
+			let s:BrowsersExist ..= 'l'
+      let s:Browsers['l'] = ['lynx', s:temp->substitute("\n$", '', '')]
+    endif
+    let s:temp = system("which w3m")
+    if v:shell_error == 0
+			let s:BrowsersExist ..= 'w'
+      let s:Browsers['w'] = ['w3m', s:temp->substitute("\n$", '', '')]
+    endif
+
+		unlet s:temp
+  endif
+
+
 else " {{{1
 
 	BRCWARN Your OS is not recognized, browser controls will not work.
@@ -361,7 +377,18 @@ function! LaunchBrowser(...)
 		return 0
 	endif
 
-	if has('unix') && (! strlen($DISPLAY) || l:which ==? 'l') " {{{
+  if has('unix') && ! has('win32unix') && strlen($DISPLAY) == 0
+    if exists('s:Browsers["l"]')
+      let which = 'l'
+    elseif exists('s:Browsers["w"]')
+      which = 'w'
+    else
+      BRCERROR $DISPLAY is not set and Lynx and w3m are not found, no browser launched.
+      return 0
+    endif
+  endif
+
+	if (l:which ==? 'l') " {{{
 		BRCMESG Launching lynx...
 
 		if (has("gui_running") || l:new) && strlen($DISPLAY)
@@ -377,7 +404,7 @@ function! LaunchBrowser(...)
 		endif
 	endif " }}}
 
-	if has('unix') && (l:which ==? 'w') " {{{
+	if (l:which ==? 'w') " {{{
 		BRCMESG Launching w3m...
 
 		if (has("gui_running") || l:new) && strlen($DISPLAY)
