@@ -35,7 +35,7 @@
 "    same HTML rendering engine as Firefox, so supporting them isn't as
 "    important. Others use the same engine as Chrome/Chromium (Opera?).
 "
-"  - Defaulting to Lynx if the the GUI isn't available on Unix may be
+"  - Defaulting to Lynx/w3m if the the GUI isn't available on Unix may be
 "    undesirable.
 "
 " BUGS:
@@ -48,7 +48,7 @@
 "
 "  * This code is messy and needs to be rethought.
 
-if v:version < 800
+if v:version < 802
 	finish
 endif
 
@@ -381,7 +381,7 @@ function! LaunchBrowser(...)
     if exists('s:Browsers["l"]')
       let which = 'l'
     elseif exists('s:Browsers["w"]')
-      which = 'w'
+      let which = 'w'
     else
       BRCERROR $DISPLAY is not set and Lynx and w3m are not found, no browser launched.
       return 0

@@ -146,9 +146,6 @@ def s:ImageSize(image: string): list<number> # {{{1
     endif
 
     if filereadable(image) == 1
-        var ldsave = &lazyredraw
-        set lazyredraw
-
         var buf = readfile(image, 'b', 1024)
         var buf2: list<number>
 
@@ -162,7 +159,7 @@ def s:ImageSize(image: string): list<number> # {{{1
                 # Keep the script from being too slow, but could cause a JPG
                 # (and GIF/PNG?) to return as "malformed":
                 i += 1
-                if i > 1024 * 4
+                if i > 1024 * 8
                     break
                 endif
             endfor
@@ -176,8 +173,6 @@ def s:ImageSize(image: string): list<number> # {{{1
         elseif ext ==? 'jpg' || ext ==? 'jpeg'
             size = buf2->s:SizeJpg()
         endif
-
-        &lazyredraw = ldsave
     else
         echohl ErrorMsg
         echomsg "Can't read file: " .. image

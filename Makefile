@@ -7,7 +7,7 @@ allbmp   := $(allxpm:.xpm=.bmp)
 #faq      := $(HOME)/html/web_page/vim/HTML/faq.shtml
 #textfaq  := $(faq:%shtml=%)txt
 tmpdir   := $(shell mktemp -du $(TMPDIR)/make-tmp.XXXXXX)
-cwd      := $(shell pwd)
+savecwd  := $(shell pwd)
 vim2html := $(shell find $(HOME)/share/vim -name vim2html.pl | tail -1)
 vim2html := $(or $(vim2html),false)
 
@@ -46,7 +46,7 @@ debug:
 #	@echo "\$${faq}        = ${faq}"
 #	@echo "\$${textfaq}    = ${textfaq}"
 	@echo "\$${tmpdir}     = ${tmpdir}"
-	@echo "\$${cwd}        = ${cwd}"
+	@echo "\$${savecwd}    = ${savecwd}"
 	@echo "\$${vim2html}   = ${vim2html}"
 #	@echo "\$$(RCS_FILES)  = $(RCS_FILES)"
 
@@ -70,12 +70,10 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp)
 	mkdir -p ${tmpdir}/bitmaps ${tmpdir}/ftplugin/html ${tmpdir}/doc
 	cp ${bitmaps}/* ${tmpdir}/bitmaps
 	cp HTML.vim ${tmpdir}/ftplugin/html
-	cp browser_launcher.vim ${tmpdir}
-	cp browser_launcher_vim9.vim ${tmpdir}
-	cp MangleImageTag.vim ${tmpdir}
-	cp MangleImageTag_vim9.vim ${tmpdir}
+	cp browser_launcher.vim browser_launcher_vim9.vim ${tmpdir}
+	cp MangleImageTag.vim MangleImageTag_vim9.vim ${tmpdir}
 	cp HTML.txt ${tmpdir}/doc
-	cd ${tmpdir}; zip -9mr ${cwd}/HTML.zip *
+	cd ${tmpdir}; zip -9mr ${savecwd}/HTML.zip *
 	rmdir ${tmpdir}
 	chmod a+r HTML.zip
 
@@ -134,7 +132,8 @@ ChangeLog.html: ChangeLog
 		-c 'highlight link changelogError ignore' \
 		-c 'autocmd FileType html syntax clear' \
 		-c 'runtime syntax/2html.vim' \
-		-c '%s/<title>.*ChangeLog.html/<title>ChangeLog/' \
+		-c '%s/^<title>.*ChangeLog.html/<title>ChangeLog/' \
+		-c '%s/^<style>$$/<meta name="viewport" content="width=device-width, initial-scale=1.0">\r<style>/' \
 		-c 'w ChangeLog.html' -c 'qa!' ChangeLog
 	chmod a+r ChangeLog.html
 

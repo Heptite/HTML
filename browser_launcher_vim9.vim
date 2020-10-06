@@ -37,7 +37,7 @@ vim9script
 #    same HTML rendering engine as Firefox, so supporting them isn't as
 #    important. Others use the same engine as Chrome/Chromium (Opera?).
 #
-#  - Defaulting to Lynx if the the GUI isn't available on Unix may be
+#  - Defaulting to Lynx/w3m if the the GUI isn't available on Unix may be
 #    undesirable.
 #
 # BUGS:

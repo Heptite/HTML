@@ -21,7 +21,7 @@
 " this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 " Place - Suite 330, Boston, MA 02111-1307, USA.
 
-if v:version < 800 || exists("*MangleImageTag")
+if v:version < 802 || exists("*MangleImageTag")
 	finish
 endif
 
@@ -140,9 +140,6 @@ function! s:ImageSize(image) "{{{1
 	endif
 
 	if filereadable(a:image)
-		let l:ldsave=&lazyredraw
-		set lazyredraw
-
 		let l:buf=readfile(a:image, 'b', 1024)
 		let l:buf2=[]
 

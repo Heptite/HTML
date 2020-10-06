@@ -1,3 +1,7 @@
+Sun, 4 Oct 2020 12:59:15 -0600 Christian J. Robinson
+ * Further prepare for release of Vim 9 by creating Vim 9 versions of
+   browser_launcher.vim and MangleImageTag.vim
+
 Fri, 2 Oct 2020 10:11:21 -0600 Christian J. Robinson
  * * Transition to Vim 8.2
 * Add Vim9 versions of functions to HTML.vim to hopefully speed up the
