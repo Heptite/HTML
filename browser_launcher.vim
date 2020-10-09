@@ -217,7 +217,7 @@ if has('mac') || has('macunix')  " {{{1
 
 		if (! exists('command'))
 
-			exe 'BRCMESG Opening ' . a:app->substitute('^.', '\U&', '') . '...'
+			execute 'BRCMESG Opening ' . a:app->substitute('^.', '\U&', '') . '...'
 			let l:command = "open -a " . a:app . " " . shellescape(l:file)
 		endif
 
@@ -356,7 +356,7 @@ function! LaunchBrowser(...)
 	endif
 
 	if l:err
-		exe 'BRCERROR E119: Wrong number of arguments for function: '
+		execute 'BRCERROR E119: Wrong number of arguments for function: '
 					\ . expand('<sfile>')->substitute('^function ', '', '')
 		return 0
 	endif
@@ -367,11 +367,11 @@ function! LaunchBrowser(...)
 
 	if s:BrowsersExist !~? l:which
 		if exists('s:Browsers[l:which]')
-			exe 'BRCERROR '
+			execute 'BRCERROR '
 						\ . (s:Browsers[l:which][0]->type() == type([]) ? s:Browsers[l:which][0][0] : s:Browsers[l:which][0])
 						\ . ' not found'
 		else
-			exe 'BRCERROR Unknown browser ID: ' . l:which
+			execute 'BRCERROR Unknown browser ID: ' . l:which
 		endif
 
 		return 0
@@ -532,7 +532,7 @@ function! LaunchBrowser(...)
 
 		"if has('unix') && v:shell_error
 		if v:shell_error
-			exe 'BRCERROR Command failed: ' . l:command
+			execute 'BRCERROR Command failed: ' . l:command
 			return 0
 		endif
 

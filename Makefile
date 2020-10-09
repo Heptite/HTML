@@ -1,4 +1,4 @@
-VIM       = $(shell zsh -c 'whence vim8 || whence vim')
+VIM       = $(shell zsh -c 'whence vim9 || whence vim')
 TMPDIR   ?= /usr/tmp
 bitmaps  := bitmaps
 allxpm   := $(wildcard $(bitmaps)/*.xpm)

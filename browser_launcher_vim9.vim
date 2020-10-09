@@ -29,6 +29,7 @@ vim9script
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
 #  - Chrome   (remote [new window / new tab] / launch)
+#  - Plus lynx & w3m on Cygwin if they can be found.
 #
 # TODO:
 #
@@ -53,6 +54,11 @@ vim9script
 command! -nargs=+ BRCWARN :echohl WarningMsg | echomsg <q-args> | echohl None
 command! -nargs=+ BRCERROR :echohl ErrorMsg | echomsg <q-args> | echohl None
 command! -nargs=+ BRCMESG :echohl Todo | echo <q-args> | echohl None
+
+# Allow auto-scoping to work properly for Vim 9,
+# initialize these variables here:
+var Browsers: dict<list<any>>
+var BrowsersExist: string
 
 if has('mac') || has('macunix')  # {{{1
   if exists("*g:OpenInMacApp")
@@ -79,7 +85,7 @@ if has('mac') || has('macunix')  # {{{1
 
   def g:OpenInMacApp(app: string, new: number = 0): bool # {{{
     if (! s:MacAppExists(app) && app !=? 'default')
-      exec 'BRCERROR ' .. app .. " not found"
+      execute 'BRCERROR ' .. app .. " not found"
       return 0
     endif
 
@@ -126,7 +132,7 @@ if has('mac') || has('macunix')  # {{{1
       else
         if new != 0
           # Let the user know what's going on:
-          exec 'BRCERROR ' .. as_msg
+          execute 'BRCERROR ' .. as_msg
         endif
         BRCMESG Opening file in Safari...
         command = "/usr/bin/open -a safari " .. shellescape(file)
@@ -162,7 +168,7 @@ if has('mac') || has('macunix')  # {{{1
       else
         if new != 0
           # Let the user know wath's going on:
-          exec 'BRCERROR ' .. as_msg
+          execute 'BRCERROR ' .. as_msg
 
         endif
         BRCMESG Opening file in Firefox...
@@ -197,7 +203,7 @@ if has('mac') || has('macunix')  # {{{1
       else
         if new != 0
           # Let the user know what's going on:
-          exec 'BRCERROR ' .. as_msg
+          execute 'BRCERROR ' .. as_msg
 
         endif
         BRCMESG Opening file in Opera...
@@ -211,7 +217,7 @@ if has('mac') || has('macunix')  # {{{1
     endif
 
     if (command == '')
-      exe 'BRCMESG Opening ' .. app->substitute('^.', '\U&', '') .. '...'
+      execute 'BRCMESG Opening ' .. app->substitute('^.', '\U&', '') .. '...'
       command = "open -a " .. app .. " " .. shellescape(file)
     endif
 
@@ -222,32 +228,31 @@ if has('mac') || has('macunix')  # {{{1
 
 elseif has('unix') && ! has('win32unix') # {{{1
 
-  var s:Browsers = dict<string>
   # Set this manually, since the first in the list is the default:
-  var s:BrowsersExist = 'fcolw'
-  s:Browsers['f'] = [['firefox', 'iceweasel'],               '']
-  s:Browsers['c'] = [['google-chrome', 'chromium-browser'],  '']
-  s:Browsers['o'] = ['opera',                                '']
-  s:Browsers['l'] = ['lynx',                                 '']
-  s:Browsers['w'] = ['w3m',                                  '']
+  BrowsersExist = 'fcolw'
+  Browsers['f'] = [['firefox', 'iceweasel'],               '', '', '--new-tab', '--new-window']
+  Browsers['c'] = [['google-chrome', 'chromium-browser'],  '', '', '',          '--new-window']
+  Browsers['o'] = ['opera',                                '', '', '',          '--new-window']
+  Browsers['l'] = ['lynx',                                 '', '', '',          '']
+  Browsers['w'] = ['w3m',                                  '', '', '',          '']
 
   var temp1: string
   var temp2: string
   var temp3: string
 
-  for temp1 in keys(s:Browsers)
-    for temp2 in (type(s:Browsers[temp1][0]) == type([]) ? s:Browsers[temp1][0] : [s:Browsers[temp1][0]])
-      var temp3 = system("which " .. temp2)
+  for temp1 in keys(Browsers)
+    for temp2 in (type(Browsers[temp1][0]) == type([]) ? Browsers[temp1][0] : [Browsers[temp1][0]])
+      temp3 = system("which " .. temp2)
       if v:shell_error == 0
         break
       endif
     endfor
 
     if v:shell_error == 0
-      s:Browsers[s:temp1][0] = temp2
-      s:Browsers[s:temp1][1] = temp3->substitute("\n$", '', '')
+      Browsers[s:temp1][0] = temp2
+      Browsers[s:temp1][1] = temp3->substitute("\n$", '', '')
     else
-      s:BrowsersExist = s:BrowsersExist->substitute(temp1, '', 'g')
+      BrowsersExist = BrowsersExist->substitute(temp1, '', 'g')
     endif
   endfor
 
@@ -256,24 +261,23 @@ elseif has('win32') || has('win64') || has('win32unix')  # {{{1
   # No reliably scriptable way to detect installed browsers, so just add
   # support for a few and let the Windows system complain if a browser
   # doesn't exist:
-  var s:Browsers: dict<string>
-  var s:BrowsersExist = 'fcoe'
-  s:Browsers['f'] = ['firefox', '']
-  s:Browsers['c'] = ['chrome',  '']
-  s:Browsers['o'] = ['opera',   '']
-  s:Browsers['e'] = ['msedge',  '']
+  BrowsersExist = 'fcoe'
+  Browsers['f'] = ['firefox', '', '', '--new-tab', '--new-window']
+  Browsers['c'] = ['chrome',  '', '', '',          '--new-window']
+  Browsers['o'] = ['opera',   '', '', '',          '--new-window']
+  Browsers['e'] = ['msedge',  '', '', '',          '--new-window']
 
   if has('win32unix')
     var temp: string
     temp = system("which lynx")
     if v:shell_error == 0
-      s:BrowsersExist ..= 'l'
-      s:Browsers['l'] = ['lynx', temp->substitute("\n$", '', '')]
+      BrowsersExist ..= 'l'
+      Browsers['l'] = ['lynx', temp->substitute("\n$", '', ''), '', '', '']
     endif
     temp = system("which w3m")
     if v:shell_error == 0
-      s:BrowsersExist ..= 'w'
-      s:Browsers['w'] = ['w3m', temp->substitute("\n$", '', '')]
+      BrowsersExist ..= 'w'
+      Browsers['w'] = ['w3m', temp->substitute("\n$", '', ''), '', '', '']
     endif
   endif
 
@@ -308,27 +312,29 @@ endif
 #    current file.
 #
 # Return value:
-#  "0" - Failure (No browser was launched/controlled.)
-#  "1" - Success
-#
-#  (Due to Vim9's typing, these are STRING values, and must be treated as
-#  such!)
+#  false - Failure (No browser was launched/controlled.)
+#  true  - Success
 #
 #  A special case of no arguments returns a character list of what browsers
 #  were found.
-def g:LaunchBrowser(browser: string = '', new: number = 0, url: string = ''): string
+def g:LaunchBrowser(browser: string = '', new: number = 0, url: string = ''): any
 
   if browser == '' && new == 0 && url == ''
-    return s:BrowsersExist
+    return BrowsersExist
   endif
 
   var which = browser
   var command = ''
 
-  # If we're on Cygwin, translate the file path to a Windows native path
-  # for later use, otherwise just add the file:// prefix:
+  if which ==? 'default' || which == ''
+    which = BrowsersExist->strpart(0, 1)
+  endif
+
+  # If we're on Cygwin and not using lynx or w3m, translate the file path
+  # to a Windows native path for later use, otherwise just add the file://
+  # prefix:
   var file = 'file://' ..
-      (has('win32unix') ?
+      (has('win32unix') && which !~ '\c[lw]' ?
          system('cygpath -w ' .. expand('%:p')->shellescape())->substitute("\n$", '', '') :
          expand('%:p'))
 
@@ -336,184 +342,102 @@ def g:LaunchBrowser(browser: string = '', new: number = 0, url: string = ''): st
     file = url
   endif
 
-  if which ==? 'default' || which == ''
-    which = s:BrowsersExist->strpart(0, 1)
-  endif
-
-  if s:BrowsersExist !~? which
-    if exists('s:Browsers["' .. which .. '"]')
-      exe 'BRCERROR '
-            .. (s:Browsers[which][0]->type() == type([]) ? s:Browsers[which][0][0] : s:Browsers[which][0])
+  if BrowsersExist !~ which
+    if exists('Browsers["' .. which .. '"]')
+      execute 'BRCERROR '
+            .. (Browsers[which][0]->type() == type([]) ? Browsers[which][0][0] : Browsers[which][0])
             .. ' not found'
     else
-      exe 'BRCERROR Unknown browser ID: ' .. which
+      execute 'BRCERROR Unknown browser ID: ' .. which
     endif
 
-    return "0"
+    return false
   endif
 
-  if has('unix') && ! has('win32unix') && strlen($DISPLAY) == 0
-    if exists('s:Browsers["l"]')
+  if has('unix') == 1 && strlen($DISPLAY) == 0 && has('win32unix') == 0
+    if exists('Browsers["l"]')
       which = 'l'
-    elseif exists('s:Browsers["w"]')
+    elseif exists('Browsers["w"]')
       which = 'w'
     else
       BRCERROR $DISPLAY is not set and Lynx and w3m are not found, no browser launched.
-      return "0"
+      return false
     endif
   endif
 
-  if (which ==? 'l') # {{{
-    BRCMESG Launching lynx...
+  if which =~ '\c[lw]'
+    execute "BRCMESG Launching " .. Browsers['l'][0] .. "..."
 
     if (has("gui_running") || new > 0) && strlen($DISPLAY) > 0
-      command = 'xterm -T Lynx -e ' .. s:Browsers['l'][1] .. ' ' .. shellescape(file) .. ' &'
+      command = 'xterm -T ' .. Browsers['l'][0] .. ' -e ' ..
+        Browsers['l'][1] .. ' ' .. shellescape(file) .. ' &'
     else
       sleep 1
-      execute "!" .. s:Browsers['l'][1] .. " " .. shellescape(file)
+      execute "!" .. Browsers['l'][1] .. " " .. shellescape(file)
 
       if v:shell_error
-        BRCERROR Unable to launch lynx.
-        return "0"
+        execute "BRCERROR Unable to launch " .. Browsers['l'][0] .. "."
+        return false
       endif
+
+      return true
     endif
-  endif # }}}
+  endif
 
-  if (which ==? 'w') # {{{
-    BRCMESG Launching w3m...
-
-    if (has("gui_running") || new > 0) && strlen($DISPLAY) > 0
-      command = 'xterm -T w3m -e w3m ' .. shellescape(file) .. ' &'
-    else
-      sleep 1
-      execute "!w3m " .. shellescape(file)
-
-      if v:shell_error
-        BRCERROR Unable to launch w3m.
-        return "0"
-      endif
-    endif
-  endif # }}}
-
-  if (which ==? 'o') # {{{
+  if command == ''
     if new == 2
-      BRCMESG Opening new Opera tab...
+      execute "BRCMESG Opening new " .. Browsers[which][0]->s:Cap() .. " tab..."
       if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file)
+        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file) ..
+          ' ' .. Browsers[which][3] 
       else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " &\""
+        command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " " ..
+          shellescape(file) .. ' ' .. Browsers[which][3]  .. " &\""
       endif
     elseif new > 0
-      BRCMESG Opening new Opera window...
+      execute "BRCMESG Opening new " .. Browsers[which][0]->s:Cap() .. " window..."
       if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file) .. ' --new-window'
+        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file) ..
+          ' ' .. Browsers[which][4] 
       else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " --new-window &\""
+        command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " " ..
+          shellescape(file) .. ' ' .. Browsers[which][4]  .. " &\""
       endif
     else
-      BRCMESG Sending remote command to Opera...
+      execute "BRCMESG Sending remote command to " .. Browsers[which][0]->s:Cap() .. "..."
       if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file)
+        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file) ..
+          ' ' .. Browsers[which][2] 
       else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " &\""
+        command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " " ..
+          shellescape(file) .. ' ' .. Browsers[which][2]  .. " &\""
       endif
     endif
-  endif # }}}
-
-  if (which ==? 'c') # {{{
-    if new == 2
-      BRCMESG Opening new Chrome tab...
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file)
-      else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " &\""
-      endif
-    elseif new > 0
-      BRCMESG Opening new Chrome window...
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file) .. ' --new-window'
-      else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " --new-window &\""
-      endif
-    else
-      BRCMESG Sending remote command to Chrome...
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file)
-      else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " &\""
-      endif
-    endif
-  endif # }}}
-
-  if (which ==? 'e') # {{{
-    if new == 2
-      BRCMESG Opening new Edge tab...
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file)
-      else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " &\""
-      endif
-    elseif new > 0
-      BRCMESG Opening new Edge window...
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file) .. ' --new-window'
-      else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " --new-window &\""
-      endif
-    else
-      BRCMESG Sending remote command to Edge...
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file)
-      else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " &\""
-      endif
-    endif
-  endif # }}}
-
-  if (which ==? 'f') # {{{
-    if new == 2
-      BRCMESG Opening new Firefox tab...
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' --new-tab ' .. shellescape(file)
-      else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " --new-tab " .. shellescape(file) .. " &\""
-      endif
-    elseif new > 0
-      BRCMESG Opening new Firefox window...
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' --new-window ' .. shellescape(file)
-      else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " --new-window " .. shellescape(file) .. " &\""
-      endif
-    else
-      BRCMESG Sending remote command to Firefox...
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. s:Browsers[which][0] .. ' ' .. shellescape(file)
-      else
-        command = "sh -c \"trap '' HUP; " .. s:Browsers[which][1] .. " " .. shellescape(file) .. " &\""
-      endif
-    endif
-  endif # }}}
+  endif
 
   if command != ''
 
     if has('win32unix')
       # Change "start" to "cygstart":
-      command = 'cyg' .. command
+      command = command->substitute('^start', 'cygstart', '')
     endif
 
     call system(command)
 
     if v:shell_error
-      exe 'BRCERROR Command failed: ' .. command
-      return "0"
+      execute 'BRCERROR Command failed: ' .. command
+      return false
     endif
 
-    return "1"
+    return true
   endif
 
   BRCERROR Something went wrong, we should not ever get here...
-  return "0"
+  return false
 enddef # }}}1
+
+def s:Cap(arg: string): string
+  return arg->substitute('\<.', '\U&', 'g')
+enddef
 
 # vim: set ts=2 sw=0 et ai nu tw=75 fo=croq2 fdm=marker fdc=4 cms=\ #\ %s:

@@ -2,8 +2,8 @@
 "
 " Author:      Christian J. Robinson <heptite@gmail.com>
 " URL:         http://christianrobinson.name/vim/HTML/
-" Last Change: October 3, 2020
-" Version:     0.44.2
+" Last Change: October 8, 2020
+" Version:     0.44.3
 " Original Concept: Doug Renze
 "
 "
@@ -592,7 +592,7 @@ if exists(':def')
       if s:BoolVar('g:no_html_map_override') && exists('s:doing_internal_html_mappings')
         return 2
       else
-        exe "HTMLWARN WARNING: A mapping to \"" .. map .. "\" for " .. s:modes[mode] .. " mode has been overridden for this buffer."
+        execute "HTMLWARN WARNING: A mapping to \"" .. map .. "\" for " .. s:modes[mode] .. " mode has been overridden for this buffer."
 
         return 1
       endif
@@ -610,7 +610,7 @@ else
       if s:BoolVar('g:no_html_map_override') && exists('s:doing_internal_html_mappings')
         return 2
       else
-        exe "HTMLWARN WARNING: A mapping to \"" .. a:map .. "\" for " .. s:modes[a:mode] .. " mode has been overridden for this buffer."
+        execute "HTMLWARN WARNING: A mapping to \"" .. a:map .. "\" for " .. s:modes[a:mode] .. " mode has been overridden for this buffer."
 
         return 1
       endif
@@ -741,7 +741,7 @@ if exists(':def')
 
       # Restore the last visual mode if it was changed:
       if exists('s:visualmode_save')
-        exe "normal gv" .. s:visualmode_save .. "\<C-C>"
+        execute "normal gv" .. s:visualmode_save .. "\<C-C>"
         unlet s:visualmode_save
       endif
     else
@@ -754,7 +754,7 @@ if exists(':def')
       # selection and exclude the leading indent):
       if visualmode() ==# 'V'
         s:visualmode_save = visualmode()
-        exe "normal `<^v`>\<C-C>"
+        execute "normal `<^v`>\<C-C>"
       endif
     endif
   enddef
@@ -770,7 +770,7 @@ else
       " selection and exclude the leading indent):
       if visualmode() ==# 'V'
         let s:visualmode_save = visualmode()
-        exe "normal `<^v`>\<C-C>"
+        execute "normal `<^v`>\<C-C>"
       endif
     else
       let &l:sm=s:savesm | unlet s:savesm
@@ -779,7 +779,7 @@ else
 
       " Restore the last visual mode if it was changed:
       if exists('s:visualmode_save')
-        exe "normal gv" .. s:visualmode_save .. "\<C-C>"
+        execute "normal gv" .. s:visualmode_save .. "\<C-C>"
         unlet s:visualmode_save
       endif
     endif
@@ -915,7 +915,7 @@ if exists(':def')
     elseif b:html_tag_case =~? '^l\(ower\(case\)\?\)\?'
       newstr = newstr->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g')
     else
-      exe "HTMLWARN WARNING: b:html_tag_case = '" .. b:html_tag_case .. "' invalid, overriding to 'lowercase'."
+      execute "HTMLWARN WARNING: b:html_tag_case = '" .. b:html_tag_case .. "' invalid, overriding to 'lowercase'."
       b:html_tag_case = 'lowercase'
       newstr = newstr->s:ConvertCase()
     endif
@@ -929,7 +929,7 @@ else
     elseif b:html_tag_case =~? 'l\(ower\(case\)\?\)\?'
       let l:str = a:str->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g')
     else
-      exe "HTMLWARN WARNING: b:html_tag_case = '" .. b:html_tag_case .. "' invalid, overriding to 'lowercase'."
+      execute "HTMLWARN WARNING: b:html_tag_case = '" .. b:html_tag_case .. "' invalid, overriding to 'lowercase'."
       let b:html_tag_case = 'lowercase'
       let l:str = a:str->s:ConvertCase()
     endif
@@ -1562,7 +1562,7 @@ if exists(':def')
       b:did_html_mappings_init = -1
       HTMLmappings on
     else
-      exe "HTMLERROR Invalid argument: " .. dowhat
+      execute "HTMLERROR Invalid argument: " .. dowhat
     endif
   enddef
 else
@@ -1620,7 +1620,7 @@ else
       let b:did_html_mappings_init=-1
       HTMLmappings on
     else
-      exe "HTMLERROR Invalid argument: " .. a:dowhat
+      execute "HTMLERROR Invalid argument: " .. a:dowhat
     endif
   endfunction
 endif
@@ -1813,7 +1813,7 @@ if exists(':def')
           '+++ <enter> or <double click> = Select color under cursor +++',
         ])
     go 1
-    exe ':1,3center ' .. ((maxw + 13) * 2)
+    execute ':1,3center ' .. ((maxw + 13) * 2)
     norm }
 
     setlocal nomodifiable
@@ -1858,9 +1858,9 @@ if exists(':def')
 
     close
     if bufwinnr(bufnr) == -1
-      exe ':buffer ' .. bufnr
+      execute ':buffer ' .. bufnr
     else
-      exe ':' .. bufwinnr(bufnr) .. 'wincmd w'
+      execute ':' .. bufwinnr(bufnr) .. 'wincmd w'
     endif
 
     var which = 'i'
@@ -1868,7 +1868,7 @@ if exists(':def')
       which = ext
     endif
 
-    exe 'normal ' .. which .. colora[1]
+    execute 'normal ' .. which .. colora[1]
     stopinsert
     echo color
   enddef
@@ -1926,8 +1926,8 @@ else
           \'+++ <tab> = Go to next color                              +++',
           \'+++ <enter> or <double click> = Select color under cursor +++',
         \])
-    exe 0
-    exe '1,3center ' .. ((maxw + 13) * 2)
+    execute 0
+    execute '1,3center ' .. ((maxw + 13) * 2)
 
     setlocal nomodifiable
 
@@ -1972,9 +1972,9 @@ else
 
     close
     if bufwinnr(a:bufnr) == -1
-      exe 'buffer ' .. a:bufnr
+      execute 'buffer ' .. a:bufnr
     else
-      exe bufwinnr(a:bufnr) .. 'wincmd w'
+      execute bufwinnr(a:bufnr) .. 'wincmd w'
     endif
 
     if a:0 >= 1
@@ -1983,7 +1983,7 @@ else
       let l:which = 'i'
     endif
 
-    exe 'normal ' .. l:which .. l:colora[1]
+    execute 'normal ' .. l:which .. l:colora[1]
     stopinsert
     echo l:color
   endfunction
@@ -2075,7 +2075,7 @@ if exists(':def')
       if template->expand()->filereadable()
         silent execute ":0read " .. template
       else
-        exe "HTMLERROR Unable to insert template file: " .. template
+        execute "HTMLERROR Unable to insert template file: " .. template
         HTMLERROR "Either it doesn't exist or it isn't readable."
         return false
       endif
@@ -2139,7 +2139,7 @@ else
       if template->expand()->filereadable()
         silent execute "0read " .. template
       else
-        exe "HTMLERROR Unable to insert template file: " .. template
+        execute "HTMLERROR Unable to insert template file: " .. template
         HTMLERROR "Either it doesn't exist or it isn't readable."
         return 0
       endif
@@ -3283,11 +3283,11 @@ call HTMLmap("inoremap", "<elead>r1000", "&#x217f;")
 
 " ---- Browser Remote Controls: ----------------------------------------- {{{1
 
-"if exists(':vim9script') == 2
-"  runtime! browser_launcher_vim9.vim
-"else
+if exists(':vim9script') == 2
+  runtime! browser_launcher_vim9.vim
+else
   runtime! browser_launcher.vim
-"endif
+endif
 
 if has('mac') || has('macunix') " {{{2
 

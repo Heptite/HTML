@@ -1,3 +1,6 @@
+Tue, 6 Oct 2020 16:24:45 -0600 Christian J. Robinson
+ * Various small changes and bug fixes
+
 Sun, 4 Oct 2020 12:59:15 -0600 Christian J. Robinson
  * Further prepare for release of Vim 9 by creating Vim 9 versions of
    browser_launcher.vim and MangleImageTag.vim

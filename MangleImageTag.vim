@@ -1,7 +1,7 @@
 " MangleImageTag() - updates an <IMG>'s width and height tags.
 "
 " Requirements:
-"       VIM 8 or later
+"       Vim 8.2 or later
 "
 " Copyright (C) 2004-2020 Christian J. Robinson <heptite@gmail.com>
 "
