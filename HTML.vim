@@ -314,7 +314,7 @@ let s:thisfile = expand("<sfile>:p")
 if ! exists("g:did_html_functions")
 let g:did_html_functions = 1
 
-" HTMLencodeString()  {{{2
+" g:HTMLencodeString()  {{{2
 "
 " Encode the characters in a string to/from their HTML representations.
 "
@@ -363,7 +363,7 @@ else
   endfunction
 endif
 
-" HTMLdecodeSymbol()  {{{2
+" g:HTMLdecodeSymbol()  {{{2
 "
 " Decode the HTML symbol string to its literal character counterpart
 "
@@ -403,7 +403,7 @@ else
   endfunction
 endif
 
-" HTMLmap()  {{{2
+" g:HTMLmap()  {{{2
 "
 " Define the HTML mappings with the appropriate case, plus some extra stuff.
 "
@@ -523,7 +523,7 @@ else
   endfunction
 endif
 
-" HTMLmapo()  {{{2
+" g:HTMLmapo()  {{{2
 "
 " Define a map that takes an operator to its corresponding visual mode
 " mapping.
@@ -1029,7 +1029,7 @@ else
   endfunction
 endif
 
-" HTMLnextInsertPoint()  {{{2
+" g:HTMLnextInsertPoint()  {{{2
 "
 " Position the cursor at the next point in the file that needs data.
 "
@@ -1411,7 +1411,7 @@ else
   endfunction
 endif
 
-" HTMLgenerateTable()  {{{2
+" g:HTMLgenerateTable()  {{{2
 "
 " Interactively creates a table.
 "

@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Feb 17
+		Last change: 2020 Oct 09
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -1551,4 +1551,4 @@ I will never include mappings for certain tags, such as <BLINK></BLINK> and
 <MARQUEE></MARQUEE> (which were always nonstandard).  As far as I am concerned
 these tags should never have existed.
 
- vim:tw=78:ts=8:sw=8:ft=help:fo=tcq2:ai:
+ vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:

@@ -1,3 +1,6 @@
+Thu, 8 Oct 2020 20:03:19 -0600 Christian J. Robinson
+ * Fix browser_launcher_vim9.vim, improve and simplify the code
+
 Tue, 6 Oct 2020 16:24:45 -0600 Christian J. Robinson
  * Various small changes and bug fixes
 

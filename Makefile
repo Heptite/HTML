@@ -65,14 +65,15 @@ version: HTML.vim
 zip html.zip: HTML.zip
 
 #HTML.zip: $(RCS_FILES) $(allxpm) $(allbmp)
-HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp)
+HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) tags
 	rm -f HTML.zip
-	mkdir -p ${tmpdir}/bitmaps ${tmpdir}/ftplugin/html ${tmpdir}/doc
-	cp ${bitmaps}/* ${tmpdir}/bitmaps
-	cp HTML.vim ${tmpdir}/ftplugin/html
-	cp browser_launcher.vim browser_launcher_vim9.vim ${tmpdir}
-	cp MangleImageTag.vim MangleImageTag_vim9.vim ${tmpdir}
-	cp HTML.txt ${tmpdir}/doc
+	mkdir -p ${tmpdir}/pack/cjr/start/HTML/bitmaps ${tmpdir}/pack/cjr/start/HTML/ftplugin/html ${tmpdir}/pack/cjr/start/HTML/doc
+	cp ${bitmaps}/* ${tmpdir}/pack/cjr/start/HTML/bitmaps
+	cp HTML.vim ${tmpdir}/pack/cjr/start/HTML/ftplugin/html
+	cp browser_launcher.vim browser_launcher_vim9.vim ${tmpdir}/pack/cjr/start/HTML
+	cp MangleImageTag.vim MangleImageTag_vim9.vim ${tmpdir}/pack/cjr/start/HTML
+	cp HTML.txt ${tmpdir}/pack/cjr/start/HTML/doc
+	cp tags ${tmpdir}/pack/cjr/start/HTML/doc
 	cd ${tmpdir}; zip -9mr ${savecwd}/HTML.zip *
 	rmdir ${tmpdir}
 	chmod a+r HTML.zip
