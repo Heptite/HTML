@@ -48,8 +48,10 @@ vim9script
 #
 #  * On Windows (and Cygwin) there's no reliable way to detect which
 #    browsers are installed so a few are defined automatically.
-#
-#  * This code is messy and needs to be rethought.
+
+# if v:version < 900
+#   finish
+# endif
 
 command! -nargs=+ BRCWARN :echohl WarningMsg | echomsg <q-args> | echohl None
 command! -nargs=+ BRCERROR :echohl ErrorMsg | echomsg <q-args> | echohl None
@@ -418,7 +420,6 @@ def g:LaunchBrowser(browser: string = '', new: number = 0, url: string = ''): an
   if command != ''
 
     if has('win32unix')
-      # Change "start" to "cygstart":
       command = command->substitute('^start', 'cygstart', '')
     endif
 

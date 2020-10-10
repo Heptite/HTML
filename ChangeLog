@@ -1,3 +1,6 @@
+Fri, 9 Oct 2020 17:31:01 -0600 Christian J. Robinson
+ * Transition to using a Vim package directory to keep the entire plugin self-contained
+
 Thu, 8 Oct 2020 20:03:19 -0600 Christian J. Robinson
  * Fix browser_launcher_vim9.vim, improve and simplify the code
 

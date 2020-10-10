@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Oct 09
+		Last change: 2020 Oct 10
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -17,7 +17,7 @@ are distributable under the terms of the GNU GPL version 2 or later.
 2. Customization Variables		|html-variables|
 3. Commands				|html-commands|
 4. Mappings for Normal <> Tags		|html-tags|
-5. Mappings for &...; Codes, such as &lt; &gt; &amp; and so on
+5. Mappings for &...; codes, such as &lt; &gt; &amp; and so on
 					|character-codes|
 6. How to Use Browser Mappings		|browser-control|
 7. Miscellaneous Extras			|html-misc|

@@ -3,7 +3,6 @@ TMPDIR   ?= /usr/tmp
 bitmaps  := bitmaps
 allxpm   := $(wildcard $(bitmaps)/*.xpm)
 allbmp   := $(allxpm:.xpm=.bmp)
-#docdir   := $(HOME)/.vim/doc
 #faq      := $(HOME)/html/web_page/vim/HTML/faq.shtml
 #textfaq  := $(faq:%shtml=%)txt
 tmpdir   := $(shell mktemp -du $(TMPDIR)/make-tmp.XXXXXX)
@@ -42,7 +41,6 @@ debug:
 	@echo "\$${bitmaps}    = ${bitmaps}"
 	@echo "\$$(allxpm)     = $(allxpm)"
 	@echo "\$$(allbmp)     = $(allbmp)"
-#	@echo "\$${docdir}     = ${docdir}"
 #	@echo "\$${faq}        = ${faq}"
 #	@echo "\$${textfaq}    = ${textfaq}"
 	@echo "\$${tmpdir}     = ${tmpdir}"
@@ -50,9 +48,7 @@ debug:
 	@echo "\$${vim2html}   = ${vim2html}"
 #	@echo "\$$(RCS_FILES)  = $(RCS_FILES)"
 
-all: ChangeLog.html HTML.html HTML.zip \
-	bitmaps vim-html-pixmaps.zip toolbar-icons.png \
-	version
+all: ChangeLog.html HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
 
 # $(RCS_FILES):
 # 	co $@
@@ -150,19 +146,15 @@ rsync scp:
 		pi@heptite.localnet:~/www/programming/vim/HTML/
 
 install: HTML.vim HTML.txt browser_launcher.vim browser_launcher_vim9.vim MangleImageTag.vim MangleImageTag_vim9.vim
-	cp -f HTML.vim ~/.vim/ftplugin/html/
-	cp -f HTML.txt ~/.vim/doc/
-	cp -f browser_launcher.vim ~/.vim/
-	cp -f browser_launcher_vim9.vim ~/.vim/
-	cp -f MangleImageTag.vim ~/.vim/
-	cp -f MangleImageTag_vim9.vim ~/.vim/
-	cp -f HTML.vim ~/Dropbox/vimfiles/ftplugin/html/
-	cp -f HTML.txt ~/Dropbox/vimfiles/doc/
-	cp -f browser_launcher.vim ~/Dropbox/vimfiles/
-	cp -f browser_launcher_vim9.vim ~/Dropbox/vimfiles/
-	cp -f MangleImageTag.vim ~/Dropbox/vimfiles/
-	cp -f MangleImageTag_vim9.vim ~/Dropbox/vimfiles/
-	vim -c 'helptags ~/.vim/doc' -c 'helptags ~/Dropbox/vimfiles/doc' -c 'qa' > /dev/null 2> /dev/null
+	cp -f HTML.vim ~/.vim/pack/cjr/start/HTML/ftplugin/html/
+	cp -f HTML.txt ~/.vim/pack/cjr/start/HTML/doc/
+	cp -f browser_launcher.vim browser_launcher_vim9.vim ~/.vim/pack/cjr/start/HTML/
+	cp -f MangleImageTag.vim MangleImageTag_vim9.vim ~/.vim/pack/cjr/start/HTML/
+	cp -f HTML.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/ftplugin/html/
+	cp -f HTML.txt ~/Dropbox/vimfiles/pack/cjr/start/HTML/doc/
+	cp -f browser_launcher.vim browser_launcher_vim9.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/
+	cp -f MangleImageTag.vim MangleImageTag_vim9.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/
+	vim -c 'helptags ~/.vim/pack/cjr/start/HTML/doc' -c 'helptags ~/Dropbox/vimfiles/pack/cjr/start/HTML/doc' -c 'qa' > /dev/null 2> /dev/null
 
 
 #faq FAQ: $(textfaq)
@@ -173,4 +165,4 @@ install: HTML.vim HTML.txt browser_launcher.vim browser_launcher_vim9.vim Mangle
 
 force:
 
-# vim:ts=4:sw=4:fdm=indent:fdn=1:
+# vim:ts=4:sw=0:fdm=indent:fdn=1:

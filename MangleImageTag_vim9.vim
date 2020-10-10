@@ -23,7 +23,7 @@ vim9script
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-if exists("*g:MangleImageTag")
+if exists("*g:MangleImageTag") # || v:version < 900
     finish
 endif
 
@@ -86,7 +86,7 @@ def g:MangleImageTag() # {{{1
         return
     endif
 
-    if filereadable(src) == 0
+    if ! src->filereadable()
         if filereadable(expand("%:p:h") .. '/' .. src)
             src = expand("%:p:h") .. '/' .. src
         else
@@ -128,7 +128,7 @@ def g:MangleImageTag() # {{{1
     var saveautoindent = &autoindent
     &autoindent = 0
 
-    call split(line, "\n")->setline(start_linenr)
+    call line->split("\n")->setline(start_linenr)
 
     &autoindent = saveautoindent
 enddef
