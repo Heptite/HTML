@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Oct 10
+		Last change: 2020 Oct 12
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -28,7 +28,8 @@ are distributable under the terms of the GNU GPL version 2 or later.
 To start, you should familiarize yourself with Vim enough to know the
 terminology, and you should know HTML to some degree.
 
-The mappings are local to the buffer the script was sourced from, and the menu
+The mappings are local to the buffer the script was sourced from (this is
+normally done automatically when editing an HTML type buffer), and the menu
 and toolbar are active only for buffers the script was sourced from.
 
 This help file follows the Vim help file standards.  To see what modes a
@@ -38,7 +39,7 @@ below works in normal, insert mode and visual mode.
 							*html-smart-tag*
 Noted tags are "smart".  If syntax highlighting is enabled it can be used to
 detect whether to close then open a tag instead of open then close the tag.
-For example, if the cursor is in italicized text and you type ;it, it will
+For example, if the cursor is in italicized text and you type |;it|, it will
 insert </I><I> instead of <I></I>.
 
 This can not be done on most tags due to its dependence on Vim's syntax
@@ -240,7 +241,7 @@ will be overwritten when the template macro is used.)
 
 *g:html_bgcolor* *g:html_textcolor* *g:html_linkcolor*
 *g:html_alinkcolor* *g:html_vlinkcolor*
-These control the <BODY> tag in the internal template and can also be used as
+These control the CSS in the internal template and can also be used as
 |html-tokens| in the user defined template.  They default to: >
 	:let g:html_bgcolor     = '#FFFFFF'
 	:let g:html_textcolor   = '#000000'
@@ -302,7 +303,7 @@ This is replaced by a string that is automatically detected based on the
 
 %vimversion%					*%vimversion%*
 The current version of Vim, based on |v:version|.  For example, if v:version
-was "700" the %vimversion% token would contain "7.0".
+was "701" the %vimversion% token would contain "7.1".
 
 So if you had the template: >
  <HTML>
@@ -385,10 +386,10 @@ You would get something like: >
 	window you can slect a color to be inserted in the buffer from which
 	the window was opened.  This command fails if you're not in an HTML
 	buffer or the colors menu was not defined.  {only in the GUI or in a
-	256 color capable terminal with the menu enabled}
+	truecolor capable terminal with the menu enabled, see |termguiclors|}
 							*n_;3* *i_;3*
 ;3	A shortcut mapping to call |:ColorSelect|.  {only in the GUI or in a
-	256 color capable terminal with the menu enabled}
+	truecolor capable terminal with the menu enabled, see |termguiclors|}
 
 See |g:force_html_menu|.
 
@@ -691,7 +692,7 @@ another character of your preference.  See |g:html_map_leader|.
 	<IMG SRC="" ALT="">
 <	Places the cursor on the second " of the SRC="".  In visual mode it
 	puts the visually selected text ALT="here" and places the cursor on
-	the second " of the SRC="".  (|n_;|)
+	the second " of the SRC="".  (|n_;|) (see also |n_;mi|)
 							*i_;iM* *v_;iM* *n_;iM*
 ;iM	Same as |;im|, but puts the visually selected text <IMG SRC="here"
 	ALT=""> and places the cursor on the second " of ALT="".  If this is

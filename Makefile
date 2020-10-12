@@ -68,8 +68,7 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) tags
 	cp HTML.vim ${tmpdir}/pack/cjr/start/HTML/ftplugin/html
 	cp browser_launcher.vim browser_launcher_vim9.vim ${tmpdir}/pack/cjr/start/HTML
 	cp MangleImageTag.vim MangleImageTag_vim9.vim ${tmpdir}/pack/cjr/start/HTML
-	cp HTML.txt ${tmpdir}/pack/cjr/start/HTML/doc
-	cp tags ${tmpdir}/pack/cjr/start/HTML/doc
+	cp HTML.txt tags ${tmpdir}/pack/cjr/start/HTML/doc
 	cd ${tmpdir}; zip -9mr ${savecwd}/HTML.zip *
 	rmdir ${tmpdir}
 	chmod a+r HTML.zip
@@ -165,4 +164,4 @@ install: HTML.vim HTML.txt browser_launcher.vim browser_launcher_vim9.vim Mangle
 
 force:
 
-# vim:ts=4:sw=0:fdm=indent:fdn=1:
+# vim:ts=4:sw=0:fdm=indent:fdn=1:fdc=2:

@@ -2,8 +2,8 @@
 "
 " Author:      Christian J. Robinson <heptite@gmail.com>
 " URL:         http://christianrobinson.name/vim/HTML/
-" Last Change: October 9, 2020
-" Version:     0.44.3
+" Last Change: October 12, 2020
+" Version:     0.44.4
 " Original Concept: Doug Renze
 "
 "
@@ -1832,7 +1832,7 @@ if exists(':def')
     noremap <silent> <buffer> <tab> :call search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
     inoremap <silent> <buffer> <tab> <C-o>:call search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
 
-    let ext = ''
+    var ext = ''
     if str != ''
       ext = ', "' .. escape(str, '"') .. '"'
     endif
@@ -2262,11 +2262,11 @@ else
   call HTMLmap("vnoremap", "<lead><tab>", "<C-C>:call HTMLnextInsertPoint('n')<CR>", -1)
 endif
 
-" Update an image tag's WIDTH & HEIGHT attributes (experimental!):
+" Update an image tag's WIDTH & HEIGHT attributes:
 if exists(":vim9script")
-  runtime! MangleImageTag_vim9.vim
+  runtime MangleImageTag_vim9.vim
 else
-  runtime! MangleImageTag.vim
+  runtime MangleImageTag.vim
 endif
 if exists("*MangleImageTag")
   call HTMLmap("nnoremap", "<lead>mi", ":call MangleImageTag()<CR>")
@@ -3284,9 +3284,9 @@ call HTMLmap("inoremap", "<elead>r1000", "&#x217f;")
 " ---- Browser Remote Controls: ----------------------------------------- {{{1
 
 if exists(':vim9script') == 2
-  runtime! browser_launcher_vim9.vim
+  runtime browser_launcher_vim9.vim
 else
-  runtime! browser_launcher.vim
+  runtime browser_launcher.vim
 endif
 
 if has('mac') || has('macunix') " {{{2
@@ -4042,7 +4042,7 @@ else
   endfunction
 endif
 
-if (has('gui_running') || &t_Co >= 256)
+if (has('gui_running') || &termguicolors)
   command! -nargs=? ColorSelect call s:ShowColors(<f-args>)
   command! -nargs=? CS call s:ShowColors(<f-args>)
 
