@@ -1423,7 +1423,7 @@ if exists(':def')
   def! g:HTMLgenerateTable()
     var byteoffset = s:ByteOffset()
     var rows       = inputdialog("Number of rows: ")->str2nr()
-    let columns    = inputdialog("Number of columns: ")->str2nr()
+    var columns    = inputdialog("Number of columns: ")->str2nr()
 
     if (rows < 1 || columns < 1)
       HTMLERROR Rows and columns must be positive, non-zero integers.

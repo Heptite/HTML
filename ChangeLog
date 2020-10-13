@@ -1,3 +1,6 @@
+Mon, 12 Oct 2020 17:06:16 -0600 Christian J. Robinson
+ * 256color terminal isn't enough to display the color selection
+
 Sat, 10 Oct 2020 16:36:44 -0600 Christian J. Robinson
  * Tweaks, change installation location in Makefile
 
