@@ -153,7 +153,7 @@ else
   endfunction
 endif
 
-" SetIfUnset()  {{{3
+" g:SetIfUnset()  {{{3
 "
 " Set a variable if it's not already set.
 "

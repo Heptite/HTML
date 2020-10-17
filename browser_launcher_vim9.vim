@@ -61,6 +61,7 @@ command! -nargs=+ BRCMESG :echohl Todo | echo <q-args> | echohl None
 # initialize these variables here:
 var Browsers: dict<list<any>>
 var BrowsersExist: string
+var TextmodeBrowsers = 'lw'
 
 if has('mac') || has('macunix')  # {{{1
   if exists("*g:OpenInMacApp")
@@ -244,7 +245,7 @@ elseif has('unix') && ! has('win32unix') # {{{1
 
   for temp1 in keys(Browsers)
     for temp2 in (type(Browsers[temp1][0]) == type([]) ? Browsers[temp1][0] : [Browsers[temp1][0]])
-      temp3 = system("which " .. temp2)
+      temp3 = system("which " .. temp2)->substitute("\n$", '', '')
       if v:shell_error == 0
         break
       endif
@@ -252,7 +253,7 @@ elseif has('unix') && ! has('win32unix') # {{{1
 
     if v:shell_error == 0
       Browsers[s:temp1][0] = temp2
-      Browsers[s:temp1][1] = temp3->substitute("\n$", '', '')
+      Browsers[s:temp1][1] = temp3
     else
       BrowsersExist = BrowsersExist->substitute(temp1, '', 'g')
     endif
@@ -271,15 +272,15 @@ elseif has('win32') || has('win64') || has('win32unix')  # {{{1
 
   if has('win32unix')
     var temp: string
-    temp = system("which lynx")
+    temp = system("which lynx")->substitute("\n$", '', '')
     if v:shell_error == 0
       BrowsersExist ..= 'l'
-      Browsers['l'] = ['lynx', temp->substitute("\n$", '', ''), '', '', '']
+      Browsers['l'] = ['lynx', temp, '', '', '']
     endif
-    temp = system("which w3m")
+    temp = system("which w3m")->substitute("\n$", '', '')
     if v:shell_error == 0
       BrowsersExist ..= 'w'
-      Browsers['w'] = ['w3m', temp->substitute("\n$", '', ''), '', '', '']
+      Browsers['w'] = ['w3m', temp, '', '', '']
     endif
   endif
 
@@ -318,33 +319,33 @@ endif
 #  true  - Success
 #
 #  A special case of no arguments returns a character list of what browsers
-#  were found.
+#  are available.
 def g:LaunchBrowser(browser: string = '', new: number = 0, url: string = ''): any
-
   if browser == '' && new == 0 && url == ''
     return BrowsersExist
   endif
 
   var which = browser
   var command = ''
+  var file = ''
 
   if which ==? 'default' || which == ''
     which = BrowsersExist->strpart(0, 1)
   endif
 
-  # If we're on Cygwin and not using lynx or w3m, translate the file path
-  # to a Windows native path for later use, otherwise just add the file://
-  # prefix:
-  var file = 'file://' ..
-      (has('win32unix') && which !~ '\c[lw]' ?
-         system('cygpath -w ' .. expand('%:p')->shellescape())->substitute("\n$", '', '') :
-         expand('%:p'))
-
   if url != ''
     file = url
+  else
+    # If we're on Cygwin and not using lynx or w3m, translate the file path
+    # to a Windows native path for later use, otherwise just add the file://
+    # prefix:
+    file = 'file://' ..
+        (has('win32unix') && which !~# '[' .. TextmodeBrowsers .. ']' ?
+           system('cygpath -w ' .. expand('%:p')->shellescape())->substitute("\n$", '', '') :
+           expand('%:p'))
   endif
 
-  if BrowsersExist !~ which
+  if BrowsersExist !~# which
     if exists('Browsers["' .. which .. '"]')
       execute 'BRCERROR '
             .. (Browsers[which][0]->type() == type([]) ? Browsers[which][0][0] : Browsers[which][0])
@@ -356,7 +357,7 @@ def g:LaunchBrowser(browser: string = '', new: number = 0, url: string = ''): an
     return false
   endif
 
-  if has('unix') == 1 && strlen($DISPLAY) == 0 && has('win32unix') == 0
+  if has('unix') == 1 && $DISPLAY == '' && has('win32unix') == 0
     if exists('Browsers["l"]')
       which = 'l'
     elseif exists('Browsers["w"]')
@@ -367,18 +368,32 @@ def g:LaunchBrowser(browser: string = '', new: number = 0, url: string = ''): an
     endif
   endif
 
-  if which =~ '\c[lw]'
-    execute "BRCMESG Launching " .. Browsers['l'][0] .. "..."
+  if which =~# '[' .. TextmodeBrowsers .. ']'
+    execute "BRCMESG Launching " .. Browsers[which][0] .. "..."
 
-    if (has("gui_running") || new > 0) && strlen($DISPLAY) > 0
-      command = 'xterm -T ' .. Browsers['l'][0] .. ' -e ' ..
-        Browsers['l'][1] .. ' ' .. shellescape(file) .. ' &'
+    var xterm = system("which xterm")->substitute("\n$", '', '')
+    if v:shell_error != 0
+      xterm = ''
+    endif
+
+    if has("gui_running") || new > 0
+      if $DISPLAY != '' && xterm != ''
+        command = xterm .. ' -T ' .. Browsers[which][0] .. ' -e ' ..
+          Browsers[which][1] .. ' ' .. shellescape(file) .. ' &'
+      elseif exists(':terminal') == 2
+        execute 'terminal ++close ' .. Browsers[which][1] .. ' ' .. file
+        return true
+      else
+        execute "BRCERROR XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch " ..
+          Browsers[which][0] .. '.'
+        return false
+      endif
     else
       sleep 1
-      execute "!" .. Browsers['l'][1] .. " " .. shellescape(file)
+      execute "!" .. Browsers[which][1] .. " " .. shellescape(file)
 
       if v:shell_error
-        execute "BRCERROR Unable to launch " .. Browsers['l'][0] .. "."
+        execute "BRCERROR Unable to launch " .. Browsers[which][0] .. "."
         return false
       endif
 

@@ -78,7 +78,7 @@ html HTML html.html: HTML.html
 HTML.html: HTML.txt tags
 	rm -f HTML.html
 	$(vim2html) tags HTML.txt
-	perl -p -i -e 's#<link rel="stylesheet" href="([^"]+)" type="text/css">#open(F,$$1); join("", "<style type=\"text/css\">\n<!--\n", <F>, "-->\n</style>")#e;unlink $$1' HTML.html
+	perl -p -i -e 's#<link rel="stylesheet" href="([^"]+)" type="text/css">#open(F,$$1); join("", "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<style type=\"text/css\">\n<!--\n", <F>, "-->\n</style>")#e && unlink $$1' HTML.html
 	chmod a+r HTML.html
 
 tags: HTML.txt
@@ -118,7 +118,6 @@ ChangeLog: $(PLUGIN_FILES) ChangeLog-base
 	cat ChangeLog-base >> ChangeLog
 	chmod a+r ChangeLog
 
-
 changelog.html: ChangeLog.html
 
 ChangeLog.html: ChangeLog
@@ -133,7 +132,6 @@ ChangeLog.html: ChangeLog
 		-c 'w ChangeLog.html' -c 'qa!' ChangeLog
 	chmod a+r ChangeLog.html
 
-
 rsync scp:
 	@echo "WARNING! This does NOT make sure the various files are updated, do \"make all\" first!"
 	@echo
@@ -144,16 +142,15 @@ rsync scp:
 		toolbar-icons.png vim-html-pixmaps.zip \
 		pi@heptite.localnet:~/www/programming/vim/HTML/
 
-install: HTML.vim HTML.txt browser_launcher.vim browser_launcher_vim9.vim MangleImageTag.vim MangleImageTag_vim9.vim
+install: HTML.vim HTML.txt tags browser_launcher.vim browser_launcher_vim9.vim MangleImageTag.vim MangleImageTag_vim9.vim
 	cp -f HTML.vim ~/.vim/pack/cjr/start/HTML/ftplugin/html/
-	cp -f HTML.txt ~/.vim/pack/cjr/start/HTML/doc/
+	cp -f HTML.txt tags ~/.vim/pack/cjr/start/HTML/doc/
 	cp -f browser_launcher.vim browser_launcher_vim9.vim ~/.vim/pack/cjr/start/HTML/
 	cp -f MangleImageTag.vim MangleImageTag_vim9.vim ~/.vim/pack/cjr/start/HTML/
 	cp -f HTML.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/ftplugin/html/
-	cp -f HTML.txt ~/Dropbox/vimfiles/pack/cjr/start/HTML/doc/
+	cp -f HTML.txt tags ~/Dropbox/vimfiles/pack/cjr/start/HTML/doc/
 	cp -f browser_launcher.vim browser_launcher_vim9.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/
 	cp -f MangleImageTag.vim MangleImageTag_vim9.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/
-	vim -c 'helptags ~/.vim/pack/cjr/start/HTML/doc' -c 'helptags ~/Dropbox/vimfiles/pack/cjr/start/HTML/doc' -c 'qa' > /dev/null 2> /dev/null
 
 
 #faq FAQ: $(textfaq)
