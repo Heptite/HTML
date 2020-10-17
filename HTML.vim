@@ -2,8 +2,8 @@
 "
 " Author:      Christian J. Robinson <heptite@gmail.com>
 " URL:         http://christianrobinson.name/vim/HTML/
-" Last Change: October 12, 2020
-" Version:     0.44.4
+" Last Change: October 17, 2020
+" Version:     0.44.5
 " Original Concept: Doug Renze
 "
 "
@@ -56,13 +56,40 @@
 
 " ---- Initialization: -------------------------------------------------- {{{1
 
+scriptencoding utf8
+
 if v:version < 802
   echoerr "HTML.vim no longer supports Vim versions prior to 8.2"
   sleep 2
   finish
 endif
 
-scriptencoding utf8
+" Try to reduce support requests from users:
+let s:pluginfiles = findfile('ftplugin/html/HTML.vim', &rtp, -1)
+if len(s:pluginfiles) > 1
+  let s:pluginfilesmatched = []
+  for s:pluginfile in s:pluginfiles
+    let i = 0
+    for s:pluginfileline in readfile(s:pluginfile)
+      if s:pluginfileline =~ 'http://christianrobinson.name/\(programming/\)\?vim/HTML/'
+        call add(s:pluginfilesmatched, s:pluginfile->fnamemodify(':p'))
+        break
+      endif
+      if i >= 15
+        break
+      endif
+      let i += 1
+    endfor
+  endfor
+
+  if len(s:pluginfilesmatched) > 1
+    let s:pluginfileline = "Multiple versions of the HTML.vim filetype plugin are installed.\n" ..
+          \ "Locations:\n   " .. s:pluginfilesmatched->join("\n   ") ..
+          \ "\n(Don't forget about browser_launcher.vim and MangleImageTag.vim)"
+    call confirm(s:pluginfileline, "&Dismiss", 1, 'Warning')
+  endif
+endif
+silent! unlet s:pluginfiles s:pluginfile s:pluginfileline s:pluginfilesmatched
 
 " Save cpoptions and remove some junk that will throw us off (reset at the end
 " of the script):

@@ -48,7 +48,7 @@ debug:
 	@echo "\$${vim2html}   = ${vim2html}"
 #	@echo "\$$(RCS_FILES)  = $(RCS_FILES)"
 
-all: ChangeLog.html HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
+all: ChangeLog ChangeLog.html HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
 
 # $(RCS_FILES):
 # 	co $@

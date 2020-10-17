@@ -1,3 +1,6 @@
+Fri, 16 Oct 2020 18:44:09 -0600 Christian J. Robinson
+ * Bug fixes, allow textmode browsers to be loaded in a :terminal
+
 Tue, 13 Oct 2020 12:07:04 -0600 Christian J. Robinson
  * Minor bug fixes
 
