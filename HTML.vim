@@ -3,7 +3,7 @@
 " Author:      Christian J. Robinson <heptite@gmail.com>
 " URL:         http://christianrobinson.name/vim/HTML/
 " Last Change: October 17, 2020
-" Version:     0.44.5
+" Version:     0.44.6
 " Original Concept: Doug Renze
 "
 "
@@ -58,13 +58,13 @@
 
 scriptencoding utf8
 
-if v:version < 802
-  echoerr "HTML.vim no longer supports Vim versions prior to 8.2"
+if v:versionlong < 8021860
+  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1860'
   sleep 2
   finish
 endif
 
-" Try to reduce support requests from users:
+" Try to reduce support requests from users:   {{{
 let s:pluginfiles = findfile('ftplugin/html/HTML.vim', &rtp, -1)
 if len(s:pluginfiles) > 1
   let s:pluginfilesmatched = []
@@ -86,10 +86,11 @@ if len(s:pluginfiles) > 1
     let s:pluginfileline = "Multiple versions of the HTML.vim filetype plugin are installed.\n" ..
           \ "Locations:\n   " .. s:pluginfilesmatched->join("\n   ") ..
           \ "\n(Don't forget about browser_launcher.vim and MangleImageTag.vim)"
-    call confirm(s:pluginfileline, "&Dismiss", 1, 'Warning')
+    call confirm(s:pluginfileline, '&Dismiss', 1, 'Warning')
   endif
 endif
 silent! unlet s:pluginfiles s:pluginfile s:pluginfileline s:pluginfilesmatched
+" }}}
 
 " Save cpoptions and remove some junk that will throw us off (reset at the end
 " of the script):
@@ -107,11 +108,14 @@ setlocal matchpairs+=<:>
 
 " ---- Init Functions and Commands: ------------------------------------- {{{2
 
+if ! exists(':HTMLWARN')
 command! -nargs=+ HTMLWARN :echohl WarningMsg | echomsg <q-args> | echohl None
 command! -nargs=+ HTMLERROR :echohl ErrorMsg | echomsg <q-args> | echohl None
 command! -nargs=+ HTMLMESG :echohl Todo | echo <q-args> | echohl None
 command! -nargs=+ SetIfUnset call SetIfUnset(<f-args>)
+endif
 
+if ! exists("g:did_html_functions")
 " s:BoolVar()  {{{3
 "
 " Given a string, test to see if a variable by that string name exists, and if
@@ -272,6 +276,7 @@ else
   endfunction
 endif
 "}}}3
+endif
 
 " ----------------------------------------------------------------------- }}}2
 
@@ -334,7 +339,6 @@ call SetIfUnset('b:html_tag_case', g:html_tag_case)
 
 let s:thisfile = expand("<sfile>:p")
 " ----------------------------------------------------------------------------
-
 
 " ---- Functions: ------------------------------------------------------- {{{1
 
@@ -1112,7 +1116,6 @@ if exists(':def')
       endif
     endif
 
-
     normal! 0
 
     # Running the search twice is inefficient, but it squelches error
@@ -1185,7 +1188,6 @@ else
         return
       endif
     endif
-
 
     normal 0
 
@@ -2259,7 +2261,6 @@ let b:internal_html_template = s:ConvertCase(b:internal_html_template)
 
 endif " ! exists("b:did_html_mappings_init")
 
-
 " ---- Miscellaneous Mappings: ------------------------------------------ {{{1
 
 if ! exists("b:did_html_mappings")
@@ -2290,7 +2291,7 @@ else
 endif
 
 " Update an image tag's WIDTH & HEIGHT attributes:
-if exists(":vim9script")
+if exists(":vim9script") == 2
   runtime MangleImageTag_vim9.vim
 else
   runtime MangleImageTag.vim
@@ -2303,7 +2304,6 @@ endif
 call HTMLmap("nnoremap", "<lead>html", ":if HTMLtemplate() \\| startinsert \\| endif<CR>")
 
 " ----------------------------------------------------------------------------
-
 
 " ---- General Markup Tag Mappings: ------------------------------------- {{{1
 
@@ -3050,7 +3050,6 @@ call HTMLmapo("<lead>lA", 1)
 
 " ----------------------------------------------------------------------------
 
-
 " ---- Special Character (Character Entities) Mappings: ----------------- {{{1
 
 " Convert the character under the cursor or the highlighted string to decimal
@@ -3307,7 +3306,6 @@ call HTMLmap("inoremap", "<elead>r1000", "&#x217f;")
 
 " ----------------------------------------------------------------------------
 
-
 " ---- Browser Remote Controls: ----------------------------------------- {{{1
 
 if exists(':vim9script') == 2
@@ -3316,7 +3314,7 @@ else
   runtime browser_launcher.vim
 endif
 
-if has('mac') || has('macunix') " {{{2
+if (has('mac') || has('macunix')) && exists('*OpenInMacApp') " {{{2
 
   " Run the default Mac browser:
   call HTMLmap("nnoremap", "<lead>db", ":call OpenInMacApp('default')<CR>")
@@ -3342,18 +3340,18 @@ if has('mac') || has('macunix') " {{{2
   " Safari: Open a new tab, and view the current file:
   call HTMLmap("nnoremap", "<lead>tsf", ":call OpenInMacApp('safari', 2)<CR>")
 
-elseif has("unix") " {{{2
-  call system("which xdg-open")
+elseif has('unix') " {{{2
+  call system('which xdg-open')
   if v:shell_error == 0
     " Run the default Unix browser:
     call HTMLmap("nnoremap", "<lead>db", ":call system('xdg-open ' .. expand('%:p')->shellescape() .. ' 2>&1 >/dev/null &')<CR>")
   endif
-elseif has("win32") || has('win64') " {{{2
+elseif has('win32') || has('win64') " {{{2
   " Run the default Windows browser:
   call HTMLmap("nnoremap", "<lead>db", ":call system('start RunDll32.exe shell32.dll,ShellExec_RunDLL ' .. expand('%:p')->shellescape())<CR>")
 endif " }}}2
 
-if exists("*LaunchBrowser") " {{{2
+if exists('*LaunchBrowser') " {{{2
   let s:browsers = LaunchBrowser()
 
   if s:browsers =~ 'f'
@@ -3405,7 +3403,6 @@ endif " }}}2
 " ----------------------------------------------------------------------------
 
 endif " ! exists("b:did_html_mappings")
-
 
 " ---- ToolBar Buttons: ------------------------------------------------- {{{1
 if ! has("gui_running") && ! s:BoolVar('g:force_html_menu')
@@ -3648,7 +3645,6 @@ if ! s:BoolVar('g:no_html_toolbar') && has("toolbar")
   let did_html_toolbar = 1
 endif  " ! s:BoolVar('g:no_html_toolbar') && has("toolbar")
 " ----------------------------------------------------------------------------
-
 
 " ---- Menu Items: ------------------------------------------------------ {{{1
 
@@ -4623,7 +4619,6 @@ let g:did_html_menus = 1
 endif
 " ---------------------------------------------------------------------------
 
-
 " ---- Clean Up: -------------------------------------------------------- {{{1
 
 if exists('s:browsers')
@@ -4652,4 +4647,4 @@ unlet s:savecpo
 unlet s:doing_internal_html_mappings
 
 " vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
-" vim:foldmethod=marker:foldcolumn=4:comments=b\:\":commentstring=\ "\ %s:
+" vim:foldmethod=marker:foldcolumn=4:comments=b\:\",b\:#:commentstring=\ "\ %s:

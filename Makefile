@@ -13,7 +13,7 @@ vim2html := $(or $(vim2html),false)
 #RCS_FILES_IN = $(wildcard RCS/*,v)
 #RCS_FILES = $(RCS_FILES_IN:RCS/%,v=%)
 
-PLUGIN_FILES = browser_launcher.vim browser_launcher_vim9.vim HTML.txt HTML.vim MangleImageTag.vim MangleImageTag_vim9.vim
+PLUGIN_FILES = HTML.txt HTML.vim browser_launcher.vim browser_launcher_vim9.vim MangleImageTag.vim MangleImageTag_vim9.vim
 
 .PHONY : default debug all force html.zip html.html bitmaps pixmaps changelog
 
@@ -69,6 +69,7 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) tags
 	cp browser_launcher.vim browser_launcher_vim9.vim ${tmpdir}/pack/cjr/start/HTML
 	cp MangleImageTag.vim MangleImageTag_vim9.vim ${tmpdir}/pack/cjr/start/HTML
 	cp HTML.txt tags ${tmpdir}/pack/cjr/start/HTML/doc
+	chmod -R a+rX ${tmpdir}
 	cd ${tmpdir}; zip -9mr ${savecwd}/HTML.zip *
 	rmdir ${tmpdir}
 	chmod a+r HTML.zip
@@ -83,6 +84,7 @@ HTML.html: HTML.txt tags
 
 tags: HTML.txt
 	vim -c "helptags ." -c "qa" > /dev/null 2> /dev/null
+	chmod a+r tags
 
 %.bmp: %.xpm
 	convert $< -background '#c0c0c0' -flatten -colors 16 PPM:- | ppmtobmp > $@
