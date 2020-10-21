@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Oct 12
+		Last change: 2020 Oct 20
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -163,8 +163,8 @@ must be set before HTML.vim is sourced.  e.g.: >
 	:let g:no_html_map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin.  If you
-call the |HTMLmap()| function elsewhere you will still get a warning message
-when there's an already existing mapping and the mapping will still be
+call the |HTMLfunctions#Map()| function elsewhere you will still get a warning
+message when there's an already existing mapping and the mapping will still be
 overridden.
 
 *g:no_html_maps* *b:no_html_maps*
@@ -178,9 +178,10 @@ tags: >
 	:let g:no_html_maps = '^\(;ah\|;im\|;H\d\)$'
 
 This only applies to the mappings defined internally to the plugin.  If you
-call the |HTMLmap()| function elsewhere the mapping will be defined even if it
-matches this regular expression.  This is useful if you wish to define custom
-variants of some of the plugin's mappings without getting warning messages.
+call the |HTMLfunctions#Map()| function elsewhere the mapping will be defined
+even if it matches this regular expression.  This is useful if you wish to
+define custom variants of some of the plugin's mappings without getting
+warning messages.
 
 *g:no_html_tab_mapping*
 Set this variable to a nonzero value if you do not want the tab key to be
@@ -235,7 +236,7 @@ internal template.
 The default for these variables are empty strings.
 
 *g:html_authoremail_encoded*
-This variable will be set using |HTMLencodeString()| if your
+This variable will be set using |HTMLfunctions#EncodeString()| if your
 |g:html_authoremail| variable is set.  (Do not set this variable yourself, it
 will be overwritten when the template macro is used.)
 
@@ -361,8 +362,8 @@ You would get something like: >
 	would want to be able to type literal ";", "&" and tab characters
 	without interference.  (Also see |;;|, |;&| and |;<Tab>|)
 
-	Note that all of the mappings defined by calling |HTMLmap()| or
-	|HTMLmapo()|--including all of the mappings defined by this
+	Note that all of the mappings defined by calling |HTMLfunctions#Map()| or
+	|HTMLfunctions#Mapo()|--including all of the mappings defined by this
 	script--are disabled/enabled when this command is used, regardless of
 	what |g:html_map_leader| is set to.
 
@@ -1062,7 +1063,7 @@ characters into the HTML buffer.  These are known as characters entities.
 	become "%66%6F%6F%20%62%61%72". (|n_;|)
 
 	(Note that this will not touch Unicode characters.  See
-	|HTMLencodeString()|)
+	|HTMLfunctions#EncodeString()|)
 
 Note: Previously the ;& and ;% normal mode mappings did not require a motion
 and operated on the character "under" the cursor.  This was changed for
@@ -1325,7 +1326,7 @@ Name:			HTML:		Macro: ~
 You can use a browser to preview your current HTML document.
 
 Note that many of these mappings will not be defined if the
-|browser_launcher.vim| script is not installed.
+|BrowserLauncher.vim| script is not installed.
 
 Also note that support for more browsers will probably not be added as many
 browsers use the same rendering engines as either Firefox or Google Chrome.
@@ -1334,7 +1335,7 @@ browsers use the same rendering engines as either Firefox or Google Chrome.
 For Mac OS X:				*browser-control-macos*
 
 The following mappings are only defined if you have properly installed the
-|browser_launcher.vim| script.
+|BrowserLauncher.vim| script.
 
 Opening new tabs and windows depends on the built-in Graphic User Interface
 Scripting architecture of Mac OS X which comes disabled by default. You can
@@ -1367,7 +1368,7 @@ devices" in the Universal Access preference pane.
 For Unix:				*browser-control-unix*
 
 The following mappings, aside from |;db-unix| are only defined if you have
-properly installed the |browser_launcher.vim|.
+properly installed the |BrowserLauncher.vim|.
 
 								*n_;db-unix*
 ;db	Call the default browser on the current file. This requires "xdg-open"
@@ -1409,7 +1410,7 @@ properly installed the |browser_launcher.vim|.
 For Windows (and Cygwin):		*browser-control-windows*
 
 The following mappings, aside from |;db-windows| are only defined if you have
-properly installed the |browser_launcher.vim| script.
+properly installed the |BrowserLauncher.vim| script.
 
 								*n_;db-windows*
 ;db	Call the default browser on the current file.
@@ -1436,7 +1437,7 @@ properly installed the |browser_launcher.vim| script.
 								*n_;toa-windows*
 ;toa	Same as |;noa|, but open a new tab.
 
-							*browser_launcher.vim*
+							*BrowserLauncher.vim*
 This script handles the complex logic of figure out what commands to run under
 the various operating systems, and--where possible--determines if the various
 browsers are installed.
@@ -1452,13 +1453,13 @@ available.
 
 
 :SetIfUnset {variable} {value}				*:SetIfUnset*
-	This command calls |SetIfUnset()|.
+	This command calls |HTMLfunctions#SetIfUnset()|.
 
 
-Functions used by the HTML mappings:			*html-functions*
-------------------------------------
+Some of the functions used by the HTML mappings:	*html-functions*
+------------------------------------------------
 
-HTMLencodeString({string} [, {...}])			*HTMLencodeString()*
+HTMLfunctions#EncodeString({string} [, {...}])	*HTMLfunctions#EncodeString()*
 	Returns {string} encoded into HTML entities, or decode HTML encoded
 	strings.
 
@@ -1481,16 +1482,17 @@ HTMLencodeString({string} [, {...}])			*HTMLencodeString()*
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 
-HTMLdecodeSymbol({symbol})				*HTMLdecodeSymbol()*
+HTMLfunctions#DecodeSymbol({symbol})		*HTMLfunctions#DecodeSymbol()*
 	Returns the character representation of {symbol}, if it is in &#...;
-	or %XX format.  This function is typically used by |HTMLencodeString()|
-	to decode strings.
+	or %XX format.  This function is typically used by
+	|HTMLfunctions#EncodeString()| to decode strings.
 
-HTMLgenerateTable()					*HTMLgenerateTable()*
+HTMLfunctions#GenerateTable()			*HTMLfunctions#GenerateTable()*
 	This is normally called by the normal mapping |;tA|, but it works the
 	same if called any other way.
 
-HTMLmap({maptype}, {lhs}, {rhs} [, {re-indent}])	*HTMLmap()*
+						*HTMLfunctions#Map()*
+HTMLfunctions#Map({maptype}, {lhs}, {rhs} [, {re-indent}])
 	This function defines a mapping, local to the buffer and silent.
 	{maptype} is any map command.  {lhs} and {rhs} are equivalent to :map
 	arguments, see |map.txt|.  This is useful for autocommands and HTML
@@ -1519,27 +1521,27 @@ HTMLmap({maptype}, {lhs}, {rhs} [, {re-indent}])	*HTMLmap()*
 	Note that more "magic" than what's documented here gets applied to the
 	mappings depending on their mode, the value of {re-indent} and so on.
 
-HTMLmapo({map}, {insert})				*HTMLmapo()*
+HTMLfunctions#Mapo({map}, {insert})		*HTMLfunctions#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
 	visual mapping by the same name.  {insert} is a boolean value (0 or 1)
 	that indicates whether to end in insert mode.
 
-HTMLnextInsertPoint([{mode}])				*HTMLnextInsertPoint()*
+HTMLfunctions#NextInsertPoint([{mode}])		*HTMLfunctions#NextInsertPoint()*
 	This is normally called by the |;<Tab>| mapping, but it works the same
 	if called any other way.  The {mode} argument is either 'i' or 'n'
 	(default) which means |Insert| or |Normal|.  In insert mode, if the
 	cursor is on the start of a closing tag it places the cursor after the
 	tag.
 
-HTMLtemplate()						*HTMLtemplate()*
+HTMLfunctions#Template()			*HTMLfunctions#Template()*
 	This is normally called by the normal mapping |;html|, but it works
 	the same if called any other way.
 
-SetIfUnset({variable}, {value})				*SetIfUnset()*
+HTMLfunctions#SetIfUnset({variable}, {value})	*HTMLfunctions#SetIfUnset()*
 	This function sets {variable} to {value} if the variable is not
 	already set.  A {value} of "-" makes sure the variable is set with an
-	empty string.  This function will not work for function-local
-	variables. (|l:var|)
+	empty string.  Be sure to eclose the variable name in quotes.  This
+	function will not work for function-local variables. (|l:var|)
 
 
 Author's notes:						*html-author-notes*

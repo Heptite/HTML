@@ -48,10 +48,31 @@ vim9script
 #
 #  * On Windows (and Cygwin) there's no reliable way to detect which
 #    browsers are installed so a few are defined automatically.
+#
+# Requirements:
+#       Vim 9 or later
+#
+# Copyright (C) 2004-2020 Christian J. Robinson <heptite@gmail.com>
+#
+# This program is free software; you can  redistribute  it  and/or  modify  it
+# under the terms of the GNU General Public License as published by  the  Free
+# Software Foundation; either version 2 of the License, or  (at  your  option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but  WITHOUT
+# ANY WARRANTY; without  even  the  implied  warranty  of  MERCHANTABILITY  or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General  Public  License  for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place - Suite 330, Boston, MA 02111-1307, USA.
 
-# if v:version < 900
-#   finish
-# endif
+scriptencoding utf8
+
+if v:versionlong < 8021860
+  finish
+endif
 
 command! -nargs=+ BRCWARN :echohl WarningMsg | echomsg <q-args> | echohl None
 command! -nargs=+ BRCERROR :echohl ErrorMsg | echomsg <q-args> | echohl None
@@ -64,10 +85,6 @@ var BrowsersExist: string
 var TextmodeBrowsers = 'lw'
 
 if has('mac') || has('macunix')  # {{{1
-  if exists("*g:OpenInMacApp")
-    finish
-  endif
-
   # The following code is provided by Israel Chauca Fuentes
   # <israelvarios()fastmail!fm>:
 
@@ -86,7 +103,11 @@ if has('mac') || has('macunix')  # {{{1
        "to UI elements enabled' 2>/dev/null") ==? "true\n" ? 1 : 0
   enddef # }}}
 
-  def g:OpenInMacApp(app: string, new: number = 0): bool # {{{
+  def g:BrowserLauncher#OpenInMacApp(app: string, new: number = 0): bool # {{{
+    if app == 'test' && new == 0
+      return true
+    endif
+
     if (! s:MacAppExists(app) && app !=? 'default')
       execute 'BRCERROR ' .. app .. " not found"
       return 0
@@ -224,7 +245,7 @@ if has('mac') || has('macunix')  # {{{1
       command = "open -a " .. app .. " " .. shellescape(file)
     endif
 
-    call system(command .. " 2>&1 >/dev/null")
+    system(command .. " 2>&1 >/dev/null")
   enddef # }}}
 
   finish
@@ -292,14 +313,10 @@ else # {{{1
 
 endif # }}}1
 
-if exists("*g:LaunchBrowser")
-  finish
-endif
-
-# LaunchBrowser() {{{1
+# g:BrowserLauncher#Launch() {{{1
 #
 # Usage:
-#  :call LaunchBrowser([{.../default}], [{0/1/2}], [url])
+#  :call BrowserLauncher#Launch([{.../default}], [{0/1/2}], [url])
 #    The first argument is which browser to launch, by letter, see the
 #    dictionary defined above to see which ones are available, or:
 #      default - This launches the first browser that was actually found.
@@ -320,7 +337,7 @@ endif
 #
 #  A special case of no arguments returns a character list of what browsers
 #  are available.
-def g:LaunchBrowser(browser: string = '', new: number = 0, url: string = ''): any
+def g:BrowserLauncher#Launch(browser: string = '', new: number = 0, url: string = ''): any
   if browser == '' && new == 0 && url == ''
     return BrowsersExist
   endif
@@ -438,7 +455,7 @@ def g:LaunchBrowser(browser: string = '', new: number = 0, url: string = ''): an
       command = command->substitute('^start', 'cygstart', '')
     endif
 
-    call system(command)
+    system(command)
 
     if v:shell_error
       execute 'BRCERROR Command failed: ' .. command
