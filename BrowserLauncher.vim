@@ -70,7 +70,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021860
+if v:versionlong < 8021883
   finish
 endif
 
@@ -473,4 +473,5 @@ def s:Cap(arg: string): string
   return arg->substitute('\<.', '\U&', 'g')
 enddef
 
-# vim: set ts=2 sw=0 et ai nu tw=75 fo=croq2 fdm=marker fdc=4 cms=\ #\ %s:
+# vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
+# vim:foldmethod=marker:foldcolumn=4:comments=b\:#:commentstring=\ #\ %s:

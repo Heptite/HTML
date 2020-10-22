@@ -4,8 +4,8 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: October 20, 2020
-# Version:     1.0.0
+# Last Change: October 22, 2020
+# Version:     1.0.1
 # Original Concept: Doug Renze
 #
 #
@@ -60,8 +60,8 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021860
-  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1860'
+if v:versionlong < 8021883
+  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1883'
   sleep 2
   finish
 endif
@@ -81,6 +81,10 @@ if ! exists("g:did_html_commands") || ! g:did_html_commands
   command! -nargs=1 HTMLmappings g:HTMLfunctions#MappingsControl(<f-args>)
   if exists(":HTML") != 2
     command! -nargs=1 HTML g:HTMLfunctions#MappingsControl(<f-args>)
+  endif
+  command! -nargs=? ColorSelect g:HTMLfunctions#ShowColors(<f-args>)
+  if exists(":CS") != 2
+    command! -nargs=? CS g:HTMLfunctions#ShowColors(<f-args>)
   endif
   command! -nargs=+ HTMLmenu g:HTMLfunctions#LeadMenu(<f-args>)
   command! -nargs=+ HTMLemenu g:HTMLfunctions#EntityMenu(<f-args>)
@@ -241,7 +245,12 @@ endif
 g:HTMLfunctions#Map('nnoremap', '<lead>mi', ':eval MangleImageTag#Mangle()<CR>')
 g:HTMLfunctions#Map('inoremap', '<lead>mi', '<C-O>:eval MangleImageTag#Mangle()<CR>')
 
+# Insert an HTML template:
 g:HTMLfunctions#Map('nnoremap', '<lead>html', ':if g:HTMLfunctions#Template() \| startinsert \| endif<CR>')
+
+# Show a color selection buffer:
+g:HTMLfunctions#Map('nnoremap', '<lead>3', ":ColorSelect<CR>")
+g:HTMLfunctions#Map('inoremap', '<lead>3', "<C-O>:ColorSelect<CR>")
 
 # ----------------------------------------------------------------------------
 
@@ -270,9 +279,9 @@ g:HTMLfunctions#Map("imap", '<lead>5', "<C-O>" .. g:html_map_leader .. "5")
 g:HTMLfunctions#Map('inoremap', '<lead>ct', '<[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=<C-R>=g:HTMLfunctions#DetectCharset()<CR>" />')
 
 #       Comment Tag
-g:HTMLfunctions#Map('inoremap', '<lead>cm', "<C-R>=g:HTMLfunctions#Tag('comment', 'i')<CR>")
+g:HTMLfunctions#Map('inoremap', '<lead>cm', "<C-R>=g:HTMLfunctions#SmartTag('comment', 'i')<CR>")
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>cm', "<C-C>:execute \"normal \" .. g:HTMLfunctions#Tag('comment', 'v')<CR>", 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>cm', "<C-C>:execute \"normal \" .. g:HTMLfunctions#SmartTag('comment', 'v')<CR>", 2)
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>cm', 0)
 
@@ -357,9 +366,9 @@ g:HTMLfunctions#Map('vnoremap', '<lead>au', '<ESC>`>a<CR></[{AUDIO}]><C-O>`<<[{A
 g:HTMLfunctions#Mapo('<lead>au', 0)
 
 #       B       Boldfaced Text          HTML 2.0
-g:HTMLfunctions#Map('inoremap', '<lead>bo', "<C-R>=g:HTMLfunctions#Tag('b', 'i')<CR>")
+g:HTMLfunctions#Map('inoremap', '<lead>bo', "<C-R>=g:HTMLfunctions#SmartTag('b', 'i')<CR>")
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>bo', "<C-C>:execute \"normal \" .. g:HTMLfunctions#Tag('b', 'v')<CR>", 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>bo', "<C-C>:execute \"normal \" .. g:HTMLfunctions#SmartTag('b', 'v')<CR>", 2)
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>bo', 0)
 
@@ -483,16 +492,23 @@ g:HTMLfunctions#Map('vnoremap', '<lead>dv', '<ESC>`>a<CR></[{DIV}]><C-O>`<<[{DIV
 g:HTMLfunctions#Mapo('<lead>dv', 0)
 
 #       SPAN    Delimit Arbitrary Text  HTML 4.0
-g:HTMLfunctions#Map('inoremap', '<lead>sn', '<[{SPAN></SPAN}]><C-O>F<')
+#       with CLASS attribute:
+g:HTMLfunctions#Map('inoremap', '<lead>sn', '<[{SPAN CLASS=""></SPAN}]><C-O>F"')
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>sn', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN}]><ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>sn', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN CLASS}]=""><ESC>F"i', 0)
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>sn', 0)
+#       with STYLE attribute:
+g:HTMLfunctions#Map('inoremap', '<lead>ss', '<[{SPAN STYLE=""></SPAN}]><C-O>F"')
+# Visual mapping:
+g:HTMLfunctions#Map('vnoremap', '<lead>ss', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]=""><ESC>F"i', 0)
+# Motion mapping:
+g:HTMLfunctions#Mapo('<lead>ss', 0)
 
 #       EM      Emphasize               HTML 2.0
-g:HTMLfunctions#Map('inoremap', '<lead>em', "<C-R>=g:HTMLfunctions#Tag('em', 'i')<CR>")
+g:HTMLfunctions#Map('inoremap', '<lead>em', "<C-R>=g:HTMLfunctions#SmartTag('em', 'i')<CR>")
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>em', "<C-C>:execute \"normal \" .. g:HTMLfunctions#Tag('em', 'v')<CR>", 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>em', "<C-C>:execute \"normal \" .. g:HTMLfunctions#SmartTag('em', 'v')<CR>", 2)
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>em', 0)
 
@@ -601,9 +617,9 @@ endif
 g:HTMLfunctions#Mapo('<lead>ht', 0)
 
 #       I       Italicized Text         HTML 2.0
-g:HTMLfunctions#Map('inoremap', '<lead>it', "<C-R>=g:HTMLfunctions#Tag('i', 'i')<CR>")
+g:HTMLfunctions#Map('inoremap', '<lead>it', "<C-R>=g:HTMLfunctions#SmartTag('i', 'i')<CR>")
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>it', "<C-C>:execute \"normal \" .. g:HTMLfunctions#Tag('i', 'v')<CR>", 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>it', "<C-C>:execute \"normal \" .. g:HTMLfunctions#SmartTag('i', 'v')<CR>", 2)
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>it', 0)
 
@@ -758,9 +774,9 @@ g:HTMLfunctions#Map('vnoremap', '<lead>sm', '<ESC>`>a</[{SMALL}]><C-O>`<<[{SMALL
 g:HTMLfunctions#Mapo('<lead>sm', 0)
 
 #       STRONG  Bold Text               HTML 2.0
-g:HTMLfunctions#Map('inoremap', '<lead>st', "<C-R>=g:HTMLfunctions#Tag('strong', 'i')<CR>")
+g:HTMLfunctions#Map('inoremap', '<lead>st', "<C-R>=g:HTMLfunctions#SmartTag('strong', 'i')<CR>")
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>st', "<C-C>:execute \"normal \" .. g:HTMLfunctions#Tag('strong', 'v')<CR>", 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>st', "<C-C>:execute \"normal \" .. g:HTMLfunctions#SmartTag('strong', 'v')<CR>", 2)
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>st', 0)
 
@@ -815,9 +831,9 @@ g:HTMLfunctions#Map('vnoremap', '<lead>tt', '<ESC>`>a</[{TT}]><C-O>`<<[{TT}]><ES
 g:HTMLfunctions#Mapo('<lead>tt', 0)
 
 #       U       Underlined Text         HTML 2.0
-g:HTMLfunctions#Map('inoremap', '<lead>un', "<C-R>=g:HTMLfunctions#Tag('u', 'i')<CR>")
+g:HTMLfunctions#Map('inoremap', '<lead>un', "<C-R>=g:HTMLfunctions#SmartTag('u', 'i')<CR>")
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>un', "<C-C>:execute \"normal \" .. g:HTMLfunctions#Tag('u', 'v')<CR>", 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>un', "<C-C>:execute \"normal \" .. g:HTMLfunctions#SmartTag('u', 'v')<CR>", 2)
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>un', 0)
 
@@ -1565,7 +1581,6 @@ cnoremenu 1.92 PopUp.Select\ &Inner\ Ta&g <C-C>vit
 
 augroup HTMLmenu
 au!
-  # autocmd BufLeave * g:HTMLfunctions#MenuControl()
   autocmd BufEnter,WinEnter * g:HTMLfunctions#MenuControl() | g:HTMLfunctions#ToggleClipboard(2)
 augroup END
 
@@ -1874,18 +1889,8 @@ HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..o-slash     o/ ø
 
 # Colors menu:   {{{2
 
-if (has('gui_running') || &termguicolors)
-  command! -nargs=? ColorSelect g:HTMLfunctions#ShowColors(<f-args>)
-  if exists(":CS") != 2
-    command! -nargs=? CS g:HTMLfunctions#ShowColors(<f-args>)
-  endif
-
-  g:HTMLfunctions#Map('nnoremap', '<lead>3', ":ColorSelect<CR>")
-  g:HTMLfunctions#Map('inoremap', '<lead>3', "<C-O>:ColorSelect<CR>")
-
-  HTMLmenu amenu - HTML.&Colors.Display\ All\ &&\ Select 3
-  amenu HTML.Colors.-sep1- <nul>
-endif
+HTMLmenu amenu - HTML.&Colors.Display\ All\ &&\ Select 3
+amenu HTML.Colors.-sep1- <nul>
 
 HTMLcmenu AliceBlue            #F0F8FF
 HTMLcmenu AntiqueWhite         #FAEBD7
@@ -2417,9 +2422,9 @@ HTMLmenu nmenu - HTML.&More\.\.\..Quoted\ Text              qu i
 HTMLmenu imenu - HTML.&More\.\.\..SPAN                      sn
 HTMLmenu vmenu - HTML.&More\.\.\..SPAN                      sn
 HTMLmenu nmenu - HTML.&More\.\.\..SPAN                      sn i
-HTMLmenu imenu - HTML.&More\.\.\..STYLE\ (Inline\ CSS\)     cs
-HTMLmenu vmenu - HTML.&More\.\.\..STYLE\ (Inline\ CSS\)     cs
-HTMLmenu nmenu - HTML.&More\.\.\..STYLE\ (Inline\ CSS\)     cs i
+HTMLmenu imenu - HTML.&More\.\.\..STYLE\ (Internal\ CSS\)   cs
+HTMLmenu vmenu - HTML.&More\.\.\..STYLE\ (Internal\ CSS\)   cs
+HTMLmenu nmenu - HTML.&More\.\.\..STYLE\ (Internal\ CSS\)   cs i
 HTMLmenu imenu - HTML.&More\.\.\..Linked\ CSS               ls
 HTMLmenu vmenu - HTML.&More\.\.\..Linked\ CSS               ls
 HTMLmenu nmenu - HTML.&More\.\.\..Linked\ CSS               ls i
@@ -2436,7 +2441,6 @@ g:doing_internal_html_mappings = false
 if ! exists('g:did_html_plugin_warning_check')
   g:did_html_plugin_warning_check = true
   var pluginfiles: list<string>
-  pluginfiles = []
   pluginfiles = 'ftplugin/html/HTML.vim'->findfile(&rtp, -1)
   if pluginfiles->len() > 1
     var pluginfilesmatched: list<string>

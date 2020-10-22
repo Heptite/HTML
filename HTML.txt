@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Oct 20
+		Last change: 2020 Oct 22
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -122,6 +122,8 @@ variable must be set before HTML.vim is sourced for the current buffer.  You
 can also set this on a per-buffer basis by using b:do_xhtml_mappings instead.
 e.g.: >
 	:let g:do_xhtml_mappings = 'yes'
+(However, XHTML is out of date and this mode is not recommended, and is only
+supported for historical reasons.)
 
 *g:html_tag_case* *b:html_tag_case*
 This variable can be set to "l" / "lower" / "lowercase" or "u" / "upper" /
@@ -207,7 +209,7 @@ variable must be set before HTML.vim is sourced.  e.g.: >
 
 *g:force_html_menu*
 Set this variable to a nonzero value if you want the menu items to be defined
-even if you're not in the GUI.  This is useful if you want to use the menus in
+even if you're not in the |GUI|.  This is useful if you want to use the menus in
 the console (see |console-menus|).  This variable is ignored if
 |g:no_html_menu| is set.  This variable must be set before HTML.vim is
 sourced.  e.g.: >
@@ -362,37 +364,38 @@ You would get something like: >
 	would want to be able to type literal ";", "&" and tab characters
 	without interference.  (Also see |;;|, |;&| and |;<Tab>|)
 
-	Note that all of the mappings defined by calling |HTMLfunctions#Map()| or
-	|HTMLfunctions#Mapo()|--including all of the mappings defined by this
-	script--are disabled/enabled when this command is used, regardless of
-	what |g:html_map_leader| is set to.
-
 	You may also use this command to switch the mappings into HTML or
 	XHTML mode.
 
 	Finally, you can use the :HTMLmappings command to reload the entire
 	HTML macros script.
 
-	Note that this does not reload the HTML menu or toolbar.
-
 	The argument to this command can be abbreviated to the first character
 	rather than the full word, and the command can be abbreviated to
 	:HTML.
+
+	Note that all of the mappings defined by calling |HTMLfunctions#Map()| or
+	|HTMLfunctions#Mapo()|--including all of the mappings defined by this
+	script--are disabled/enabled when this command is used, regardless of
+	what |g:html_map_leader| is set to.
+
+	Also note that this does not reload the HTML menu or toolbar.
+
 
 							*:ColorSelect* *:CS*
 :ColorSelect
 :CS
 	Open a window with all the colors that are defined in the HTML.Colors
-	menu displayed and highlighted with their respective color.  From this
-	window you can slect a color to be inserted in the buffer from which
-	the window was opened.  This command fails if you're not in an HTML
-	buffer or the colors menu was not defined.  {only in the GUI or in a
-	truecolor capable terminal with the menu enabled, see |termguiclors|}
-							*n_;3* *i_;3*
-;3	A shortcut mapping to call |:ColorSelect|.  {only in the GUI or in a
-	truecolor capable terminal with the menu enabled, see |termguiclors|}
+	menu displayed and highlighted with their respective color.  (Note
+	that the highlighting only works in the |GUI| or a truecolor capable
+	terminal.)  From this window you can select a color to be inserted in
+	the buffer from which the window was opened.  This command fails if
+	you're not in an HTML buffer or the colors menu was not defined.
+	(See |g:force_html_menu|)
 
-See |g:force_html_menu|.
+							*n_;3* *i_;3*
+;3	A shortcut mapping to call |:ColorSelect|.
+
 
 ==============================================================================
 4. Mappings for Normal <> Tags				*html-tags*
@@ -405,12 +408,13 @@ examples--the rest of the mappings that work in visual mode are similar.)
 
 						*html-operator-mappings*
 						*html-motion-mappings* *n_;*
-The noted (|n_;|) normal mode ;-mappings take a {motion} operator.  These
+The noted (with |n_;|) normal mode ;-mappings take a {motion} operator.  These
 mappings function as if you had visually highlighted the text covered by the
 motion and invoked the corresponding visual mapping.
 
 If you are editing an XHTML file (see |g:do_xhtml_mappings|) the tags will be
-compatible with XHTML.
+compatible with XHTML.  (However, XHTML is out of date and this mode is not
+recommended, and is only supported for historical reasons.)
 
 Note that you can change the leader character for these mappings from ';' to
 another character of your preference.  See |g:html_map_leader|.
@@ -666,7 +670,7 @@ another character of your preference.  See |g:html_map_leader|.
 							*i_;H6* *v_;H6* *n_;H6*
 ;H1 through ;H6
 	Headings, levels 1-6, centered: >
-	<H_ STYLE="text-align= center;"></H_>
+	<H_ STYLE="text-align: center;"></H_>
 <	(|n_;|)
 							*i_;he* *v_;he* *n_;he*
 ;he	Head: >
@@ -800,6 +804,15 @@ another character of your preference.  See |g:html_map_leader|.
 ;qu	Quoted text: >
 	<Q></Q>
 <	(|n_;|)
+							*i_;sa* *v_;sa* *n_;sa*
+;sa	Sample text: >
+	<SAMP></SAMP>
+<	(|n_;|)
+							*i_;sc* *v_;sc* *n_;sc*
+;sc	Page section: >
+	<SECTION>
+	</SECTION>
+<	(|n_;|)
 							*i_;sk* *v_;sk* *n_;sk*
 ;sk	Strike-through: >
 	<STRIKE></STRIKE>
@@ -810,23 +823,21 @@ another character of your preference.  See |g:html_map_leader|.
 <	(|n_;|)
 							*i_;sn* *v_;sn* *n_;sn*
 ;sn	Span: >
-	<SPAN></SPAN>
-<	(|n_;|)
-							*i_;sa* *v_;sa* *n_;sa*
-;sa	Sample text: >
-	<SAMP></SAMP>
-<	(|n_;|)
-							*i_;sc* *v_;sc* *n_;sc*
-;sc	Page section: >
-	<SECTION>
-	</SECTION>
-<	(|n_;|)
+	<SPAN CLASS=""></SPAN>
+<	Visual mode puts the selected text <SPAN CLASS="">here</SPAN>. (|n_;|)
+	(See the note on |;ss|)
+							*i_;ss* *v_;ss* *n_;ss*
+;ss	Span: >
+	<SPAN STYLE=""></SPAN>
+<	Visual mode puts the selected text <SPAN STYLE="">here</SPAN>. (|n_;|)
+	(Note that it is assumed that a SPAN tag will require a CLASS or a
+	STYLE to be useful, so there is no mapping for just <SPAN></SPAN>.)
 							*i_;st* *v_;st* *n_;st*
 ;st	Strong text: >
 	<STRONG></STRONG>
 <	(|html-smart-tag|) (|n_;|)
 							*i_;cs* *v_;cs* *n_;cs*
-;cs	Inline CSS Style: >
+;cs	Internal CSS Style: >
 	<STYLE TYPE="text/css">
 	<!--
 
@@ -1395,13 +1406,13 @@ properly installed the |BrowserLauncher.vim|.
 ;toa	Same as |;noa|, but open a new tab.
 								*n_;ly*
 ;ly	Use lynx to view the current file.  This behaves like |;nly| if the Vim
-	GUI is running.
+	|GUI| is running.
 								*n_;nly*
 ;nly	Same as |;ly|, but in a new xterm.  This behaves like |;ly| if there
 	is no DISPLAY environmental variable.
 								*n_;w3*
 ;w3	Use w3m to view the current file.  This behaves like |;nw3| if the Vim
-	GUI is running.
+	|GUI| is running.
 								*n_;nw3*
 ;nw3	Same as |;w3|, but in a new xterm.  This behaves like |;w3| if there
 	is no DISPLAY environmental variable.

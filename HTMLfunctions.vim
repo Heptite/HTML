@@ -23,7 +23,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021860
+if v:versionlong < 8021883
     finish
 endif
 
@@ -230,14 +230,14 @@ enddef
 #                 2: re-selects the region and re-indents.
 #                 (Don't use these two arguments for maps that enter insert
 #                 mode!)
-var modes = {
+var modes = {  # {{{
       'n': 'normal',
       'v': 'visual',
       'o': 'operator-pending',
       'i': 'insert',
       'c': 'command-line',
       'l': 'langmap',
-    }
+    }  # }}}
 
 def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -999)
   var mode = cmd->strpart(0, 1)
@@ -689,7 +689,7 @@ def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
   &showcmd = saveshowcmd
 enddef
 
-# g:HTMLfunctions#Tag()  {{{1
+# g:HTMLfunctions#SmartTag()  {{{1
 #
 # Causes certain tags (such as bold, italic, underline) to be closed then
 # opened rather than opened then closed where appropriate, if syntax
@@ -775,10 +775,9 @@ smarttags['comment'] = {
         'o': "`>a -->\<C-O>`<<!-- ",
         'c': "`>a<!-- \<C-O>`< -->",
       }
-    }
-# }}}
+    } # }}}
 
-def g:HTMLfunctions#Tag(tag: string, mode: string): string
+def g:HTMLfunctions#SmartTag(tag: string, mode: string): string
   var attr = synID(line('.'), col('.') - 1, 1)->synIDattr('name')
   var ret: string
 
@@ -813,7 +812,7 @@ enddef
 #  The value for the Content-Type charset based on 'fileencoding' or
 #  'encoding'.
 
-# TODO: This table needs to be expanded:
+# TODO: This table needs to be expanded:  {{{
 var s:charsets: dict<string>
 s:charsets['latin1'] = 'iso-8859-1'
 s:charsets['utf_8'] = 'UTF-8'
@@ -822,6 +821,7 @@ s:charsets['shift_jis'] = 'Shift_JIS'
 s:charsets['euc_jp'] = 'EUC-JP'
 s:charsets['cp950'] = 'Big5'
 s:charsets['big5'] = 'Big5'
+# }}}
 
 def g:HTMLfunctions#DetectCharset(): string
   var enc: string
@@ -1033,7 +1033,7 @@ enddef
 # Create a window to display the HTML colors, highlighted
 #
 # Arguments:
-#  None
+#  1 - String: Default is "i", how to insert the selection
 # Return Value:
 #  None
 def g:HTMLfunctions#ShowColors(str: string='')
@@ -1109,20 +1109,24 @@ def g:HTMLfunctions#ShowColors(str: string='')
   noremap <silent> <buffer> <tab> :eval search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
   inoremap <silent> <buffer> <tab> <C-o>:eval search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
 
-  var ext = ''
+  var ins = ''
   if str != ''
-    ext = ', "' .. str->escape('"') .. '"'
+    ins = ', "' .. str->escape('"') .. '"'
   endif
 
-  execute 'noremap <silent> <buffer> <cr> :eval <SID>ColorSelect(' .. curbuf .. ext .. ')<CR>'
-  execute 'inoremap <silent> <buffer> <cr> <C-o>:eval <SID>ColorSelect(' .. curbuf .. ext .. ')<CR>'
-  execute 'noremap <silent> <buffer> <2-leftmouse> :eval <SID>ColorSelect(' .. curbuf .. ext .. ')<CR>'
-  execute 'inoremap <silent> <buffer> <2-leftmouse> <C-o>:eval <SID>ColorSelect(' .. curbuf .. ext .. ')<CR>'
+  execute 'noremap <silent> <buffer> <cr> :eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
+  execute 'inoremap <silent> <buffer> <cr> <C-o>:eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
+  execute 'noremap <silent> <buffer> <2-leftmouse> :eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
+  execute 'inoremap <silent> <buffer> <2-leftmouse> <C-o>:eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
 
   stopinsert
 enddef
 
-def s:ColorSelect(bufnr: number, ext: string = '')
+# s:ColorSelect()  {{{1
+# Arguments:
+#  1 - Number: Buffer to insert into
+#  2 - String: Optional, default "i", how to insert the color code
+def s:ColorSelect(bufnr: number, which: string = 'i')
   var line  = getline('.')
   var col   = col('.')
   var color = line->substitute('.\{-\}\%<' .. (col + 1) .. 'c\([A-Za-z][A-Za-z ]\+ = #\x\{6\}\)\%>' .. col .. 'c.*', '\1', '')
@@ -1138,11 +1142,6 @@ def s:ColorSelect(bufnr: number, ext: string = '')
     execute ':buffer ' .. bufnr
   else
     execute ':' .. bufnr->bufwinnr() .. 'wincmd w'
-  endif
-
-  var which = 'i'
-  if ext != ''
-    which = ext
   endif
 
   execute 'normal ' .. which .. colora[1]
@@ -1325,7 +1324,7 @@ enddef
 #  2 - String: The color hex code
 # Return Value:
 #  None
-var colors_sort = {
+var colors_sort = {  # {{{
       'A': 'A',   'B': 'B',   'C': 'C',
       'D': 'D',   'E': 'E-G', 'F': 'E-G',
       'G': 'E-G', 'H': 'H-K', 'I': 'H-K',
@@ -1335,7 +1334,7 @@ var colors_sort = {
       'S': 'S',   'T': 'T-Z', 'U': 'T-Z',
       'V': 'T-Z', 'W': 'T-Z', 'X': 'T-Z',
       'Y': 'T-Z', 'Z': 'T-Z',
-    }
+    }  # }}}
 
 def g:HTMLfunctions#ColorsMenu(name: string, color: string)
   var c = name->strpart(0, 1)->toupper()
@@ -1351,4 +1350,4 @@ enddef
 defcompile
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
-# vim:foldmethod=marker:foldcolumn=4:comments=b\:#:commentstring=\ #\ %s:
+# vim:foldmethod=marker:foldcolumn=3:comments=b\:#:commentstring=\ #\ %s:
