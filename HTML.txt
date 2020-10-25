@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Oct 22
+		Last change: 2020 Oct 24
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -46,7 +46,7 @@ This can not be done on most tags due to its dependence on Vim's syntax
 highlighting rules.
 
 NOTE: Some tags are synonyms and Vim can not distinguish between them.  For
-example, if you're within <I></I> and type |;em| it will assume you want
+example, if you are within <I></I> and type |;em| it will assume you want
 </EM><EM> rather than <EM></EM>, which you should not be doing anyway.
 
 							*n_;;* *i_;;* *v_;;*
@@ -166,8 +166,8 @@ must be set before HTML.vim is sourced.  e.g.: >
 
 This only applies to the mappings defined internally to the plugin.  If you
 call the |HTMLfunctions#Map()| function elsewhere you will still get a warning
-message when there's an already existing mapping and the mapping will still be
-overridden.
+message when there is an already existing mapping and the mapping will still
+be overridden.
 
 *g:no_html_maps* *b:no_html_maps*
 Set this variable to a regular expression to match against mappings.  If a
@@ -209,8 +209,8 @@ variable must be set before HTML.vim is sourced.  e.g.: >
 
 *g:force_html_menu*
 Set this variable to a nonzero value if you want the menu items to be defined
-even if you're not in the |GUI|.  This is useful if you want to use the menus in
-the console (see |console-menus|).  This variable is ignored if
+even if you are not in the |GUI|.  This is useful if you want to use the menus
+in the console (see |console-menus|).  This variable is ignored if
 |g:no_html_menu| is set.  This variable must be set before HTML.vim is
 sourced.  e.g.: >
 	:let g:force_html_menu = 'yes'
@@ -387,11 +387,11 @@ You would get something like: >
 :CS
 	Open a window with all the colors that are defined in the HTML.Colors
 	menu displayed and highlighted with their respective color.  (Note
-	that the highlighting only works in the |GUI| or a truecolor capable
-	terminal.)  From this window you can select a color to be inserted in
-	the buffer from which the window was opened.  This command fails if
-	you're not in an HTML buffer or the colors menu was not defined.
-	(See |g:force_html_menu|)
+	that the highlighting only works in the |GUI| or a |'termguicolors'|
+	capable terminal.)  From this window you can select a color to be
+	inserted in the buffer from which the window was opened.  This command
+	fails if you are not in an HTML buffer or the colors menu was not
+	defined.  (See |g:force_html_menu|)
 
 							*n_;3* *i_;3*
 ;3	A shortcut mapping to call |:ColorSelect|.
@@ -1516,8 +1516,8 @@ HTMLfunctions#Map({maptype}, {lhs}, {rhs} [, {re-indent}])
 	contents of |g:html_map_entity_leader|.
 
 	Any text in {rhs} that is enclosed by [{}] will be converted to
-	uppercase/lowercase according to the |g:html_tag_case| variable, and
-	the [{}] markers will be removed.
+	uppercase/lowercase according to the |g:html_tag_case| or
+	|b:html_tag_case| variable, and the [{}] markers will be removed.
 
 	{re-indent} is optional, applies only to visual maps when filetype
 	indenting is enabled, and should not be used for maps that enter
@@ -1529,15 +1529,17 @@ HTMLfunctions#Map({maptype}, {lhs}, {rhs} [, {re-indent}])
 	and -1 tells the function not to add any special extra code to the
 	visual mapping.
 
-	Note that more "magic" than what's documented here gets applied to the
-	mappings depending on their mode, the value of {re-indent} and so on.
+	Note that more "magic" than what is documented here gets applied to
+	the mappings depending on their mode, the value of {re-indent} and so
+	on.
 
 HTMLfunctions#Mapo({map}, {insert})		*HTMLfunctions#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
-	visual mapping by the same name.  {insert} is a boolean value (0 or 1)
-	that indicates whether to end in insert mode.
+	visual mapping by the same name.  {insert} is a boolean value that
+	indicates whether to end in insert mode.
 
-HTMLfunctions#NextInsertPoint([{mode}])		*HTMLfunctions#NextInsertPoint()*
+					*HTMLfunctions#NextInsertPoint()*
+HTMLfunctions#NextInsertPoint([{mode}])
 	This is normally called by the |;<Tab>| mapping, but it works the same
 	if called any other way.  The {mode} argument is either 'i' or 'n'
 	(default) which means |Insert| or |Normal|.  In insert mode, if the
@@ -1550,9 +1552,11 @@ HTMLfunctions#Template()			*HTMLfunctions#Template()*
 
 HTMLfunctions#SetIfUnset({variable}, {value})	*HTMLfunctions#SetIfUnset()*
 	This function sets {variable} to {value} if the variable is not
-	already set.  A {value} of "-" makes sure the variable is set with an
-	empty string.  Be sure to eclose the variable name in quotes.  This
-	function will not work for function-local variables. (|l:var|)
+	already set.  A {value} of "" makes sure the variable is set with an
+	empty string, a {value} of [] initializes to an empty list, and a
+	value of {} initializes to an empty dictionary.  Be sure to enclose
+	the variable name in quotes.  This function will not work for
+	function-local variables. (|l:var|)
 
 
 Author's notes:						*html-author-notes*

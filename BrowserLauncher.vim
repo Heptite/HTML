@@ -4,10 +4,6 @@ vim9script
 #
 # Vim script to launch/control browsers
 #
-# Copyright ????-2020 Christian J. Robinson <heptite@gmail.com>
-#
-# Distributable under the terms of the GNU GPL.
-#
 # Currently supported browsers:
 # Unix:
 #  - Firefox  (remote [new window / new tab] / launch)
@@ -34,9 +30,8 @@ vim9script
 # TODO:
 #
 #  - Support more browsers, especially on MacOS
-#    Note: Various browsers such as Galeon, Nautilus, Phoenix, &c use the
-#    same HTML rendering engine as Firefox, so supporting them isn't as
-#    important. Others use the same engine as Chrome/Chromium (Opera?).
+#    Note: Various browsers  use the same HTML rendering engine as Firefox
+#    or Chrome, so supporting them isn't as important.
 #
 #  - Defaulting to Lynx/w3m if the the GUI isn't available on Unix may be
 #    undesirable.
@@ -70,7 +65,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021883
+if v:versionlong < 8021900
   finish
 endif
 

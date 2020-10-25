@@ -23,7 +23,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021883
+if v:versionlong < 8021900
     finish
 endif
 
@@ -33,20 +33,23 @@ endif
 #
 # Arguments:
 #  1       - String:  The variable name
-#  2 ... N - String:  The default value to use, "-" for the null string
+#  2 ... N - String:  The default value to use
 # Return Value:
 #  0  - The variable already existed
-#  1  - The variable didn't exist and was set
+#  1  - The variable didn't exist and was successfully set
 #  -1 - An error occurred
 def g:HTMLfunctions#SetIfUnset(variable: string, ...args: list<string>): number
   var val: string
   var newvariable = variable
 
-  if variable !~ '^[bgstvw]:'
+  if variable =~# '^l:'
+    execute "HTMLERROR Cannot set a local variable with " .. expand('<sfile>')
+    return -1
+  elseif variable !~# '^[bgstvw]:'
     newvariable = 'g:' .. variable
   endif
 
-  if (args->len() == 0)
+  if args->len() == 0
     execute "HTMLERROR E119: Not enough arguments for function: " .. expand('<sfile>')
     return -1
   else
@@ -57,8 +60,12 @@ def g:HTMLfunctions#SetIfUnset(variable: string, ...args: list<string>): number
     return 0
   endif
 
-  if val == "-"
+  if val == '""' || val == "''"
     execute newvariable .. ' = ""'
+  elseif val == '[]'
+    execute newvariable .. ' = []'
+  elseif val == '{}'
+    execute newvariable .. ' = {}'
   else
     execute newvariable .. " = '" .. val->escape("'\\") .. "'"
   endif
@@ -137,7 +144,7 @@ enddef
 #  2 - Integer: Optional, the number of lines to search before giving up 
 # Return Value:
 #  List:  Matching files
-def g:FilesWithMatch(files: list<string>, pat: string, max: number = -1): list<string>
+def g:HTMLfunctions#FilesWithMatch(files: list<string>, pat: string, max: number = -1): list<string>
   var inc: number
   var matched: list<string>
   matched = []
@@ -240,6 +247,16 @@ var modes = {  # {{{
     }  # }}}
 
 def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -999)
+  if exists('g:html_map_leader') == 0 && map =~? '^<lead>'
+    HTMLERROR g:html_map_leader is not set! No mapping defined.
+    return
+  endif
+
+  if exists('g:html_map_entity_leader') == 0 && map =~? '^<elead>'
+    HTMLERROR g:html_map_entity_leader is not set! No mapping defined.
+    return
+  endif
+
   var mode = cmd->strpart(0, 1)
   var newarg = arg
   var newmap = map->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), '')
@@ -298,6 +315,11 @@ enddef
 #               (A value greater than 1 tells the mapping not to move right one
 #               character.)
 def g:HTMLfunctions#Mapo(map: string, insert: bool)
+  if exists('g:html_map_leader') == 0 && map =~? '^<lead>'
+    HTMLERROR g:html_map_leader is not set! No mapping defined.
+    return
+  endif
+
   var newmap = map->substitute("^<lead>", g:html_map_leader, '')
 
   if newmap->s:MapCheck('o') >= 2
@@ -483,7 +505,11 @@ def g:HTMLfunctions#ToggleClipboard(i: number)
   endif
 
   if newi == 0
-    &clipboard = g:html_save_clipboard
+    if exists('g:html_save_clipboard') != 0
+      &clipboard = g:html_save_clipboard
+    else
+      HTMLERROR Somehow the HTML save clipboard global variable did not get set.
+    endif
   else
     if &clipboard !~? 'html'
       g:html_save_clipboard = &clipboard
@@ -907,11 +933,19 @@ enddef
 #                x/xhtml:         Reload the mapppings in XHTML mode
 # Return Value:
 #  None
+#
+# Note:
+#  This expects g:html_plugin_file to be set by the HTML plugin.
 var doing_extra_html_mappings = false
 var quiet_errors: bool
 def g:HTMLfunctions#MappingsControl(dowhat: string)
   if exists('b:did_html_mappings_init') == 0
     HTMLERROR The HTML mappings were not sourced for this buffer.
+    return
+  endif
+
+  if exists('g:html_plugin_file') == 0
+    HTMLERROR Somehow the HTML plugin reference global variable did not get set.
     return
   endif
 
@@ -1149,7 +1183,6 @@ def s:ColorSelect(bufnr: number, which: string = 'i')
   echo color
 enddef
 
-
 # g:HTMLfunctions#Template()  {{{1
 #
 # Determine whether to insert the HTML template.
@@ -1288,11 +1321,9 @@ enddef
 #  1 - String: The menu name
 #  2 - String: The item
 #  3 - String: The symbol it generates
-#  4 - String: Optional, normal mode command to execute before running the
-#              menu command
 # Return Value:
 #  None
-def g:HTMLfunctions#EntityMenu(name: string, item: string, symb: string = '', pre: string='')
+def g:HTMLfunctions#EntityMenu(name: string, item: string, symb: string = '')
   var newsymb = ''
 
   if symb != '-'
@@ -1307,11 +1338,15 @@ def g:HTMLfunctions#EntityMenu(name: string, item: string, symb: string = '', pr
 
   execute 'imenu ' .. newname .. newsymb->escape(' &<.|') .. '<tab>'
         .. g:html_map_entity_leader->escape('&\')
-        .. item->escape('&<') .. ' ' .. pre
+        .. item->escape('&<') .. ' '
         .. g:html_map_entity_leader .. item
   execute 'nmenu ' .. newname .. newsymb->escape(' &<.|') .. '<tab>'
         .. g:html_map_entity_leader->escape('&\')
-        .. item->escape('&<') .. ' ' .. pre .. 'i'
+        .. item->escape('&<') .. ' ' .. 'i'
+        .. g:html_map_entity_leader .. item .. '<esc>'
+  execute 'vmenu ' .. newname .. newsymb->escape(' &<.|') .. '<tab>'
+        .. g:html_map_entity_leader->escape('&\')
+        .. item->escape('&<') .. ' ' .. 's'
         .. g:html_map_entity_leader .. item .. '<esc>'
 enddef
 
@@ -1339,10 +1374,10 @@ var colors_sort = {  # {{{
 def g:HTMLfunctions#ColorsMenu(name: string, color: string)
   var c = name->strpart(0, 1)->toupper()
   var newname = name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
-  execute 'imenu HTML.&Colors.&' .. colors_sort[c] .. '.' .. newname->escape(' ')
-        .. '<tab>(' .. color .. ') ' .. color
-  execute 'nmenu HTML.&Colors.&' .. colors_sort[c] .. '.' .. newname->escape(' ')
-        .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
+  execute 'imenu HTML.&Colors.&' .. colors_sort[c] .. '.' ..
+        newname->escape(' ') .. '<tab>(' .. color .. ') ' .. color
+  execute 'nmenu HTML.&Colors.&' .. colors_sort[c] .. '.' ..
+        newname->escape(' ') .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
   # g:html_color_list[newname] = color
   g:html_color_list[name] = color
 enddef

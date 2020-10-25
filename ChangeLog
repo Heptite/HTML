@@ -1,3 +1,6 @@
+Thu, 22 Oct 2020 15:29:24 -0600 Christian J. Robinson
+ * Various tweaks and minor additions
+
 Wed, 21 Oct 2020 13:56:10 -0600 Christian J. Robinson
  * Massive Vim 9 refactor, including using Vim's function autoloading
    scheme to simplify the main script logic.

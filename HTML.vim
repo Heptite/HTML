@@ -4,7 +4,7 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: October 22, 2020
+# Last Change: October 23, 2020
 # Version:     1.0.1
 # Original Concept: Doug Renze
 #
@@ -60,20 +60,19 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021883
-  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1883'
+if v:versionlong < 8021900
+  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1900'
   sleep 2
   finish
 endif
-
-g:doing_internal_html_mappings = true
-g:html_plugin_file = expand('<sfile>:p')
 
 # ---- Commands: -------------------------------------------------------- {{{2
 
 if ! exists("g:did_html_commands") || ! g:did_html_commands 
   g:did_html_commands = true
 
+  # Define these commands before any functions are loaded, or there will be
+  # errors:
   command! -nargs=+ HTMLWARN echohl WarningMsg | echomsg <q-args> | echohl None
   command! -nargs=+ HTMLERROR echohl ErrorMsg | echomsg <q-args> | echohl None
   command! -nargs=+ HTMLMESG echohl Todo | echo <q-args> | echohl None
@@ -94,17 +93,10 @@ endif
 # ----------------------------------------------------------------------- }}}2
 
 if ! exists("b:did_html_mappings_init")
+  # This must be a number, not a boolean:
   b:did_html_mappings_init = 1
 
-  if ! exists('g:html_color_list')
-    g:html_color_list = {}
-  endif
-
-  g:HTMLfunctions#SetIfUnset('g:html_save_clipboard', &clipboard)
-
-  silent! setlocal clipboard+=html
-  setlocal matchpairs+=<:>
-
+  # User configurable variables:
   SetIfUnset g:html_bgcolor           #FFFFFF
   SetIfUnset g:html_textcolor         #000000
   SetIfUnset g:html_linkcolor         #0000EE
@@ -117,8 +109,19 @@ if ! exists("b:did_html_mappings_init")
   SetIfUnset g:html_default_charset   UTF-8
   # No way to know sensible defaults here so just make sure the
   # variables are set:
-  SetIfUnset g:html_authorname  -
-  SetIfUnset g:html_authoremail -
+  SetIfUnset g:html_authorname        ''
+  SetIfUnset g:html_authoremail       ''
+  # END user configurable variables
+
+  SetIfUnset g:html_color_list {}
+
+  # Always set this:
+  g:html_plugin_file = expand('<sfile>:p')
+
+  g:HTMLfunctions#SetIfUnset('g:html_save_clipboard', &clipboard)
+
+  silent! setlocal clipboard+=html
+  setlocal matchpairs+=<:>
 
   if g:html_map_entity_leader ==# g:html_map_leader
     HTMLERROR "g:html_map_entity_leader" and "g:html_map_leader" have the same value!
@@ -213,6 +216,8 @@ endif # ! exists("b:did_html_mappings_init")
 # ----------------------------------------------------------------------------
 
 # ---- Miscellaneous Mappings: ------------------------------------------ {{{1
+
+g:doing_internal_html_mappings = true
 
 if ! exists("b:did_html_mappings")
 b:did_html_mappings = true
@@ -497,13 +502,13 @@ g:HTMLfunctions#Map('inoremap', '<lead>sn', '<[{SPAN CLASS=""></SPAN}]><C-O>F"')
 # Visual mapping:
 g:HTMLfunctions#Map('vnoremap', '<lead>sn', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN CLASS}]=""><ESC>F"i', 0)
 # Motion mapping:
-g:HTMLfunctions#Mapo('<lead>sn', 0)
+g:HTMLfunctions#Mapo('<lead>sn', 1)
 #       with STYLE attribute:
 g:HTMLfunctions#Map('inoremap', '<lead>ss', '<[{SPAN STYLE=""></SPAN}]><C-O>F"')
 # Visual mapping:
 g:HTMLfunctions#Map('vnoremap', '<lead>ss', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]=""><ESC>F"i', 0)
 # Motion mapping:
-g:HTMLfunctions#Mapo('<lead>ss', 0)
+g:HTMLfunctions#Mapo('<lead>ss', 1)
 
 #       EM      Emphasize               HTML 2.0
 g:HTMLfunctions#Map('inoremap', '<lead>em', "<C-R>=g:HTMLfunctions#SmartTag('em', 'i')<CR>")

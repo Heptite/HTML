@@ -25,7 +25,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021883
+if v:versionlong < 8021900
     finish
 endif
 
