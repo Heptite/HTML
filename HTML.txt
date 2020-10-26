@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Oct 24
+		Last change: 2020 Oct 26
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -1052,6 +1052,29 @@ Note that frames (except IFRAME) are not supported by HTML 5.
 ;lA	The same as |;la| but puts the cursor <LABEL FOR="here"></LABEL> and
 	places the cursor on the < of </LABEL>. (|n_;|)
 
+							*SSI-includes*
+Server Side Include directives for Apache and other supported web servers.
+See: https://en.wikipedia.org/wiki/Server_Side_Includes
+
+							*i_;cf* *v_;cf* *n_;cf*
+;cf	<!--#config timefmt="" -->  (|n_;|)
+							*i_;ev* *v_;ev* *n_;ev*
+;ev	<!--#echo var="" -->  (|n_;|)
+							*i_;iv* *v_;iv* *n_;iv*
+;iv	<!--#include virtual="" -->  (|n_;|)
+							*i_;fl* *v_;fl* *n_;fl*
+;fl	<!--#flastmod virtual="" -->  (|n_;|)
+							*i_;fz* *v_;fz* *n_;fz*
+;fz	<!--#fsize file="" -->  (|n_;|)
+							*i_;ec* *v_;ec* *n_;ec*
+;ec	<!--#exec cmd="" -->  (|n_;|)
+							*i_;sv* *v_;sv* *n_;sv*
+;sv	<!--#set var="" value="" -->  (|n_;|)
+							*i_;ie* *v_;ie* *n_;ie*
+;ie	<!--#if expr="" -->
+	<!--#else -->
+	<!--#endif -->  (|n_;|)
+
 ==============================================================================
 5. Mappings for &...; Codes		*character-codes* *character-entities*
 
@@ -1432,6 +1455,13 @@ properly installed the |BrowserLauncher.vim| script.
 ;nff	Same as |;ff|, but start a new browser window.
 								*n_;tff-windows*
 ;tff	Same as |;nff|, but open a new tab.
+								*n_;ed-windows*
+;ed	Make Microsoft Edge view the current file, starting Edge if it is not
+	running.  You will get an error dialog if Edge is not installed.
+								*n_;ned-windows*
+;ned	Same as |;ed|, but start a new browser window.
+								*n_;ted-windows*
+;ted	Same as |;ned|, but open a new tab.
 								*n_;gc-windows*
 ;gc	Make Google Chrome view the current file, starting Chrome if it is not
 	running.  You will get an error dialog if Google Chrome is not

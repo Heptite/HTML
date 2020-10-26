@@ -464,9 +464,17 @@ def g:BrowserLauncher#Launch(browser: string = '', new: number = 0, url: string 
   return false
 enddef # }}}1
 
+# s:Cap()  {{{1
+#
+# Capitalize the first letter of every word in a string
+#
+# Args:
+#  1 - String: The words
+# Return value:
+#  String: The words capitalized
 def s:Cap(arg: string): string
   return arg->substitute('\<.', '\U&', 'g')
-enddef
+enddef # }}}1
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=4:comments=b\:#:commentstring=\ #\ %s:

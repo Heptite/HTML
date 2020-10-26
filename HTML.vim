@@ -4,8 +4,8 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: October 23, 2020
-# Version:     1.0.1
+# Last Change: October 25, 2020
+# Version:     1.0.2
 # Original Concept: Doug Renze
 #
 #
@@ -1008,6 +1008,34 @@ g:HTMLfunctions#Mapo('<lead>og', 0)
 g:HTMLfunctions#Mapo('<lead>tx', 0)
 g:HTMLfunctions#Mapo('<lead>la', 1)
 g:HTMLfunctions#Mapo('<lead>lA', 1)
+
+# Server Side Include (SSI) directives:
+g:HTMLfunctions#Map('inoremap', '<lead>cf', '<!--#config timefmt="" --><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>ev', '<!--#echo var="" --><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>iv', '<!--#include virtual="" --><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>fl', '<!--#flastmod virtual="" --><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>fz', '<!--#fsize virtual="" --><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>ec', '<!--#exec cmd="" --><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>sv', '<!--#set var="" value="" --><C-O>3F"')
+g:HTMLfunctions#Map('inoremap', '<lead>ie', '<!--#if expr="" --><CR><!--#else --><CR><!--#endif --><ESC>kk$F"i')
+# Visual mappings:
+g:HTMLfunctions#Map('vnoremap', '<lead>cf', '<ESC>`>a" --><C-O>`<<!--#config timefmt="<ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>ev', '<ESC>`>a" --><C-O>`<<!--#echo var="<ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>iv', '<ESC>`>a" --><C-O>`<<!--#include virtual="<ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>fl', '<ESC>`>a" --><C-O>`<<!--#flastmod virtual="<ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>fz', '<ESC>`>a" --><C-O>`<<!--#fsize virtual="<ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>ec', '<ESC>`>a" --><C-O>`<<!--#exec cmd="<ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>sv', '<ESC>`>a" --><C-O>`<<!--#set var="" value="<C-O>2F"', 0)
+g:HTMLfunctions#Map('vnoremap', '<lead>ie', '<ESC>`>a<CR><!--#else --><CR><!--#endif --><C-O>`<<!--#if expr="" --><CR><ESC>kf"a', 0)
+# Motion mappings:
+g:HTMLfunctions#Mapo('<lead>cf', 0)
+g:HTMLfunctions#Mapo('<lead>ev', 0)
+g:HTMLfunctions#Mapo('<lead>iv', 0)
+g:HTMLfunctions#Mapo('<lead>fl', 0)
+g:HTMLfunctions#Mapo('<lead>fz', 0)
+g:HTMLfunctions#Mapo('<lead>ec', 0)
+g:HTMLfunctions#Mapo('<lead>sv', 1)
+g:HTMLfunctions#Mapo('<lead>ie', 1)
 
 # ----------------------------------------------------------------------------
 
@@ -2324,6 +2352,34 @@ HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&TIME                   tm
 HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&TIME                   tm i
 HTMLmenu imenu - HTML.HTML\ &5\ Tags.&WBR                    wb
 HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&WBR                    wb i
+
+
+# SSI directives: {{{2
+
+HTMLmenu imenu - HTML.SSI\ Directi&ves.&config\ timefmt      cf
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.&config\ timefmt      cf
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.&config\ timefmt      cf i
+HTMLmenu imenu - HTML.SSI\ Directi&ves.&echo\ var            ev
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.&echo\ var            ev
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.&echo\ var            ev i
+HTMLmenu imenu - HTML.SSI\ Directi&ves.&include\ virtual     iv
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.&include\ virtual     iv
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.&include\ virtual     iv i
+HTMLmenu imenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fl
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fl
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fl i
+HTMLmenu imenu - HTML.SSI\ Directi&ves.fsi&ze\ virtual       fz
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.fsi&ze\ virtual       fz
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.fsi&ze\ virtual       fz i
+HTMLmenu imenu - HTML.SSI\ Directi&ves.e&xec\ cmd            ec
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.e&xec\ cmd            ec
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.e&xec\ cmd            ec i
+HTMLmenu imenu - HTML.SSI\ Directi&ves.&set\ var             sv
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.&set\ var             sv
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.&set\ var             sv i
+HTMLmenu imenu - HTML.SSI\ Directi&ves.if\ e&lse             ie
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.if\ e&lse             ie
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.if\ e&lse             ie i
 
 # }}}2
 
