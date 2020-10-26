@@ -760,14 +760,16 @@ another character of your preference.  See |g:html_map_leader|.
 <	Places the cursor on the second " of HTTP-EQUIV="".  Visual mode puts
 	the visually selected text <META HTTP-EQUIV="" CONTENT="here">.
 	(|n_;|)
-							*n_;mi* *i_;mi*
+							*i_;mi* *v_;mi* *n_;mi*
 ;mi	Automatically add or update the WIDTH and HEIGHT attributes of an
 	<IMG> tag.  If the <IMG> tag spans multiple lines the cursor must be
 	on the first line of the tag.
 
-	This mapping is only defined if MangleImageTag.vim is installed,
-	available with installation instructions here:
+	This mapping only works if MangleImageTag.vim is installed, available
+	with installation instructions here:
 	http://christianrobinson.name/vim/HTML/
+	(If you installed from the HTML.zip file this script should already be
+	available.)
 							*i_;na* *v_;na* *n_;na*
 ;na	Navigation links: >
 	<NAV>
@@ -955,6 +957,12 @@ Note that frames (except IFRAME) are not supported by HTML 5.
 	<FORM ACTION="">
 	</FORM>
 <	(|n_;|)
+							*i_;fd* *v_;fd* *n_;fd*
+;fd	Fieldset container with legend: >
+	<FIELDSET>
+	<LEGEND></LEGEND>
+	</FIELDSET>
+<	Visual mode puts the selected text after the LEGEND.  (|n_;|)
 							*i_;bu* *v_;bu* *n_;bu*
 ;bu	Form button: >
 	<INPUT TYPE="BUTTON" NAME="" VALUE="">
@@ -963,10 +971,22 @@ Note that frames (except IFRAME) are not supported by HTML 5.
 ;ch	Form check box: >
 	<INPUT TYPE="CHECKBOX" NAME="" VALUE="">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*i_;cl* *v_;cl* *n_;cl*
+;cl	Form date input field: >
+	<INPUT TYPE="DATE" NAME="">
+<	Visual mode puts the selected text NAME="here". (|n_;|)
+							*i_;nt* *v_;nt* *n_;nt*
+;nt	Form time input field: >
+	<INPUT TYPE="TIME" NAME="">
+<	Visual mode puts the selected text NAME="here". (|n_;|)
 							*i_;ra* *v_;ra* *n_;ra*
 ;ra	Form radio button: >
 	<INPUT TYPE="RADIO" NAME="" VALUE="">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*i_;rn* *v_;rn* *n_;rn*
+;rn	Range slider: >
+	<INPUT TYPE="RANGE" NAME="" MIN="" MAX="">
+<	Visual mode puts the selected text NAME="here". (|n_;|)
 							*i_;hi* *v_;hi* *n_;hi*
 ;hi	Hidden form data: >
 	<INPUT TYPE="HIDDEN" NAME="" VALUE="">
@@ -979,6 +999,14 @@ Note that frames (except IFRAME) are not supported by HTML 5.
 ;te	Form text input field: >
 	<INPUT TYPE="TEXT" NAME="" VALUE="" SIZE="20">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*i_;da* *v_;da* *n_;da*
+;da	Form text input field with a datalist: >
+	<INPUT LIST="">
+	<DATALIST ID="">
+	</DATALIST>
+	</INPUT>
+<	Visual mode puts the selected text in the LIST value and the ID value.
+	(|n_;|)
 							*i_;fi* *v_;fi* *n_;fi*
 ;fi	Form file input field: >
 	<INPUT TYPE="FILE" NAME="" VALUE="" SIZE="20">
@@ -1058,6 +1086,8 @@ See: https://en.wikipedia.org/wiki/Server_Side_Includes
 
 							*i_;cf* *v_;cf* *n_;cf*
 ;cf	<!--#config timefmt="" -->  (|n_;|)
+							*i_;cz* *v_;cz* *n_;cz*
+;cz	<!--#config sizefmt="" -->  (|n_;|)
 							*i_;ev* *v_;ev* *n_;ev*
 ;ev	<!--#echo var="" -->  (|n_;|)
 							*i_;iv* *v_;iv* *n_;iv*
@@ -1485,9 +1515,8 @@ browsers are installed.
 
 This script is available with installation instructions here:
 http://christianrobinson.name/vim/HTML/
-
-If you installed from the HTML.zip file this script should already be
-available.
+(If you installed from the HTML.zip file this script should already be
+available.)
 
 ==============================================================================
 7. Miscellaneous Extras					*html-misc*

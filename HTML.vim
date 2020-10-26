@@ -4,7 +4,7 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: October 25, 2020
+# Last Change: October 26, 2020
 # Version:     1.0.2
 # Original Concept: Doug Renze
 #
@@ -249,6 +249,7 @@ endif
 # Update an image tag's WIDTH & HEIGHT attributes:
 g:HTMLfunctions#Map('nnoremap', '<lead>mi', ':eval MangleImageTag#Mangle()<CR>')
 g:HTMLfunctions#Map('inoremap', '<lead>mi', '<C-O>:eval MangleImageTag#Mangle()<CR>')
+g:HTMLfunctions#Map('vnoremap', '<lead>mi', '<ESC>:eval MangleImageTag#Mangle()<CR>')
 
 # Insert an HTML template:
 g:HTMLfunctions#Map('nnoremap', '<lead>html', ':if g:HTMLfunctions#Template() \| startinsert \| endif<CR>')
@@ -949,9 +950,13 @@ g:HTMLfunctions#Mapo('<lead>if', 0)
 
 # Forms stuff:
 g:HTMLfunctions#Map('inoremap', '<lead>fm', '<[{FORM ACTION}]=""><CR></[{FORM}]><ESC>k$F"i')
+g:HTMLfunctions#Map('inoremap', '<lead>fd', '<[{FIELDSET}]><CR><[{LEGEND></LEGEND}]><CR></[{FIELDSET}]><ESC>k$F<i')
 g:HTMLfunctions#Map('inoremap', '<lead>bu', '<[{INPUT TYPE="BUTTON" NAME="" VALUE}]="" /><C-O>3F"')
 g:HTMLfunctions#Map('inoremap', '<lead>ch', '<[{INPUT TYPE="CHECKBOX" NAME="" VALUE}]="" /><C-O>3F"')
+g:HTMLfunctions#Map('inoremap', '<lead>cl', '<[{INPUT TYPE="DATE" NAME}]="" /><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>nt', '<[{INPUT TYPE="TIME" NAME}]="" /><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>ra', '<[{INPUT TYPE="RADIO" NAME="" VALUE}]="" /><C-O>3F"')
+g:HTMLfunctions#Map('inoremap', '<lead>rn', '<[{INPUT TYPE="RANGE" NAME="" MIN="" MAX}]="" /><C-O>5F"')
 g:HTMLfunctions#Map('inoremap', '<lead>hi', '<[{INPUT TYPE="HIDDEN" NAME="" VALUE}]="" /><C-O>3F"')
 g:HTMLfunctions#Map('inoremap', '<lead>pa', '<[{INPUT TYPE="PASSWORD" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
 g:HTMLfunctions#Map('inoremap', '<lead>te', '<[{INPUT TYPE="TEXT" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
@@ -968,11 +973,16 @@ g:HTMLfunctions#Map('inoremap', '<lead>tx', '<[{TEXTAREA NAME="" ROWS="10" COLS}
 g:HTMLfunctions#Map('inoremap', '<lead>su', '<[{INPUT TYPE="SUBMIT" VALUE}]="Submit" />')
 g:HTMLfunctions#Map('inoremap', '<lead>re', '<[{INPUT TYPE="RESET" VALUE}]="Reset" />')
 g:HTMLfunctions#Map('inoremap', '<lead>la', '<[{LABEL FOR=""></LABEL}]><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>da', '<[{INPUT LIST}]=""><CR><[{DATALIST ID}]=""><CR></[{DATALIST}]><CR></[{INPUT}]><ESC>kkk$F"i')
 # Visual mappings:
 g:HTMLfunctions#Map('vnoremap', '<lead>fm', '<ESC>`>a<CR></[{FORM}]><C-O>`<<[{FORM ACTION}]=""><CR><ESC>k$F"', 1)
+g:HTMLfunctions#Map('vnoremap', '<lead>fd', '<ESC>`>a<CR></[{FIELDSET}]><C-O>`<<[{FIELDSET}]><CR><[{LEGEND></LEGEND}]><CR><ESC>k$F<i', 0)
 g:HTMLfunctions#Map('vnoremap', '<lead>bu', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="BUTTON" NAME="" VALUE}]="<C-O>2F"', 0)
 g:HTMLfunctions#Map('vnoremap', '<lead>ch', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="CHECKBOX" NAME="" VALUE}]="<C-O>2F"', 0)
+g:HTMLfunctions#Map('vnoremap', '<lead>cl', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="DATE" NAME}]="<C-O>2F"', 0)
+g:HTMLfunctions#Map('vnoremap', '<lead>nt', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="TIME" NAME}]="<C-O>2F"', 0)
 g:HTMLfunctions#Map('vnoremap', '<lead>ra', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="RADIO" NAME="" VALUE}]="<C-O>2F"', 0)
+g:HTMLfunctions#Map('vnoremap', '<lead>rn', '<ESC>`>a" [{MIN="" MAX}]="" /><C-O>`<<[{INPUT TYPE="RANGE" NAME}]="<C-O>3f"', 0)
 g:HTMLfunctions#Map('vnoremap', '<lead>hi', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="HIDDEN" NAME="" VALUE}]="<C-O>2F"', 0)
 g:HTMLfunctions#Map('vnoremap', '<lead>pa', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="PASSWORD" NAME="" VALUE}]="<C-O>2F"', 0)
 g:HTMLfunctions#Map('vnoremap', '<lead>te', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="TEXT" NAME="" VALUE}]="<C-O>2F"', 0)
@@ -988,11 +998,16 @@ g:HTMLfunctions#Map('vnoremap', '<lead>og', '<ESC>`>a<CR></[{OPTGROUP}]><C-O>`<<
 g:HTMLfunctions#Map('vnoremap', '<lead>tx', '<ESC>`>a<CR></[{TEXTAREA}]><C-O>`<<[{TEXTAREA NAME="" ROWS="10" COLS}]="50"><CR><ESC>k$5F"', 1)
 g:HTMLfunctions#Map('vnoremap', '<lead>la', '<ESC>`>a</[{LABEL}]><C-O>`<<[{LABEL FOR}]=""><C-O>F"', 0)
 g:HTMLfunctions#Map('vnoremap', '<lead>lA', '<ESC>`>a"></[{LABEL}]><C-O>`<<[{LABEL FOR}]="<C-O>f<', 0)
+g:HTMLfunctions#Map('vnoremap', '<lead>da', 's<[{INPUT LIST}]="<C-R>""><CR><[{DATALIST ID}]="<C-R>""><CR></[{DATALIST}]><CR></[{INPUT}]><ESC>kO', 0)
 # Motion mappings:
 g:HTMLfunctions#Mapo('<lead>fm', 0)
+g:HTMLfunctions#Mapo('<lead>fd', 1)
 g:HTMLfunctions#Mapo('<lead>bu', 1)
 g:HTMLfunctions#Mapo('<lead>ch', 1)
+g:HTMLfunctions#Mapo('<lead>cl', 1)
+g:HTMLfunctions#Mapo('<lead>nt', 1)
 g:HTMLfunctions#Mapo('<lead>ra', 1)
+g:HTMLfunctions#Mapo('<lead>rn', 1)
 g:HTMLfunctions#Mapo('<lead>hi', 1)
 g:HTMLfunctions#Mapo('<lead>pa', 1)
 g:HTMLfunctions#Mapo('<lead>te', 1)
@@ -1008,9 +1023,11 @@ g:HTMLfunctions#Mapo('<lead>og', 0)
 g:HTMLfunctions#Mapo('<lead>tx', 0)
 g:HTMLfunctions#Mapo('<lead>la', 1)
 g:HTMLfunctions#Mapo('<lead>lA', 1)
+g:HTMLfunctions#Mapo('<lead>da', 1)
 
 # Server Side Include (SSI) directives:
 g:HTMLfunctions#Map('inoremap', '<lead>cf', '<!--#config timefmt="" --><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>cz', '<!--#config sizefmt="" --><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>ev', '<!--#echo var="" --><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>iv', '<!--#include virtual="" --><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>fl', '<!--#flastmod virtual="" --><C-O>F"')
@@ -1020,6 +1037,7 @@ g:HTMLfunctions#Map('inoremap', '<lead>sv', '<!--#set var="" value="" --><C-O>3F
 g:HTMLfunctions#Map('inoremap', '<lead>ie', '<!--#if expr="" --><CR><!--#else --><CR><!--#endif --><ESC>kk$F"i')
 # Visual mappings:
 g:HTMLfunctions#Map('vnoremap', '<lead>cf', '<ESC>`>a" --><C-O>`<<!--#config timefmt="<ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>cz', '<ESC>`>a" --><C-O>`<<!--#config sizefmt="<ESC>', 2)
 g:HTMLfunctions#Map('vnoremap', '<lead>ev', '<ESC>`>a" --><C-O>`<<!--#echo var="<ESC>', 2)
 g:HTMLfunctions#Map('vnoremap', '<lead>iv', '<ESC>`>a" --><C-O>`<<!--#include virtual="<ESC>', 2)
 g:HTMLfunctions#Map('vnoremap', '<lead>fl', '<ESC>`>a" --><C-O>`<<!--#flastmod virtual="<ESC>', 2)
@@ -1029,6 +1047,7 @@ g:HTMLfunctions#Map('vnoremap', '<lead>sv', '<ESC>`>a" --><C-O>`<<!--#set var=""
 g:HTMLfunctions#Map('vnoremap', '<lead>ie', '<ESC>`>a<CR><!--#else --><CR><!--#endif --><C-O>`<<!--#if expr="" --><CR><ESC>kf"a', 0)
 # Motion mappings:
 g:HTMLfunctions#Mapo('<lead>cf', 0)
+g:HTMLfunctions#Mapo('<lead>cz', 0)
 g:HTMLfunctions#Mapo('<lead>ev', 0)
 g:HTMLfunctions#Mapo('<lead>iv', 0)
 g:HTMLfunctions#Mapo('<lead>fl', 0)
@@ -2237,15 +2256,27 @@ HTMLmenu nmenu - HTML.&Tables.CAPTION                 ca i
 HTMLmenu imenu - HTML.F&orms.FORM             fm
 HTMLmenu vmenu - HTML.F&orms.FORM             fm
 HTMLmenu nmenu - HTML.F&orms.FORM             fm i
+HTMLmenu imenu - HTML.F&orms.FIELDSET         fd
+HTMLmenu vmenu - HTML.F&orms.FIELDSET         fd
+HTMLmenu nmenu - HTML.F&orms.FIELDSET         fd i
 HTMLmenu imenu - HTML.F&orms.BUTTON           bu
 HTMLmenu vmenu - HTML.F&orms.BUTTON           bu
 HTMLmenu nmenu - HTML.F&orms.BUTTON           bu i
 HTMLmenu imenu - HTML.F&orms.CHECKBOX         ch
 HTMLmenu vmenu - HTML.F&orms.CHECKBOX         ch
 HTMLmenu nmenu - HTML.F&orms.CHECKBOX         ch i
+HTMLmenu imenu - HTML.F&orms.DATALIST         da
+HTMLmenu vmenu - HTML.F&orms.DATALIST         da
+HTMLmenu nmenu - HTML.F&orms.DATALIST         da i
+HTMLmenu imenu - HTML.F&orms.DATE             cl
+HTMLmenu vmenu - HTML.F&orms.DATE             cl
+HTMLmenu nmenu - HTML.F&orms.DATE             cl i
 HTMLmenu imenu - HTML.F&orms.RADIO            ra
 HTMLmenu vmenu - HTML.F&orms.RADIO            ra
 HTMLmenu nmenu - HTML.F&orms.RADIO            ra i
+HTMLmenu imenu - HTML.F&orms.RANGE            rn
+HTMLmenu vmenu - HTML.F&orms.RANGE            rn
+HTMLmenu nmenu - HTML.F&orms.RANGE            rn i
 HTMLmenu imenu - HTML.F&orms.HIDDEN           hi
 HTMLmenu vmenu - HTML.F&orms.HIDDEN           hi
 HTMLmenu nmenu - HTML.F&orms.HIDDEN           hi i
@@ -2255,15 +2286,21 @@ HTMLmenu nmenu - HTML.F&orms.EMAIL            @ i
 HTMLmenu imenu - HTML.F&orms.NUMBER           nu
 HTMLmenu vmenu - HTML.F&orms.NUMBER           nu
 HTMLmenu nmenu - HTML.F&orms.NUMBER           nu i
+HTMLmenu imenu - HTML.F&orms.OPTION           op
+HTMLmenu vmenu - HTML.F&orms.OPTION           op
+HTMLmenu nmenu - HTML.F&orms.OPTION           op i
+HTMLmenu imenu - HTML.F&orms.OPTGROUP         og
+HTMLmenu vmenu - HTML.F&orms.OPTGROUP         og
+HTMLmenu nmenu - HTML.F&orms.OPTGROUP         og i
 HTMLmenu imenu - HTML.F&orms.PASSWORD         pa
 HTMLmenu vmenu - HTML.F&orms.PASSWORD         pa
 HTMLmenu nmenu - HTML.F&orms.PASSWORD         pa i
+HTMLmenu imenu - HTML.F&orms.TIME             nt
+HTMLmenu vmenu - HTML.F&orms.TIME             nt
+HTMLmenu nmenu - HTML.F&orms.TIME             nt i
 HTMLmenu imenu - HTML.F&orms.TEL              #
 HTMLmenu vmenu - HTML.F&orms.TEL              #
 HTMLmenu nmenu - HTML.F&orms.TEL              # i
-HTMLmenu imenu - HTML.F&orms.URL              ur
-HTMLmenu vmenu - HTML.F&orms.URL              ur
-HTMLmenu nmenu - HTML.F&orms.URL              ur i
 HTMLmenu imenu - HTML.F&orms.TEXT             te
 HTMLmenu vmenu - HTML.F&orms.TEXT             te
 HTMLmenu nmenu - HTML.F&orms.TEXT             te i
@@ -2276,15 +2313,12 @@ HTMLmenu nmenu - HTML.F&orms.SELECT           se i
 HTMLmenu imenu - HTML.F&orms.SELECT\ MULTIPLE ms
 HTMLmenu vmenu - HTML.F&orms.SELECT\ MULTIPLE ms
 HTMLmenu nmenu - HTML.F&orms.SELECT\ MULTIPLE ms i
-HTMLmenu imenu - HTML.F&orms.OPTION           op
-HTMLmenu vmenu - HTML.F&orms.OPTION           op
-HTMLmenu nmenu - HTML.F&orms.OPTION           op i
-HTMLmenu imenu - HTML.F&orms.OPTGROUP         og
-HTMLmenu vmenu - HTML.F&orms.OPTGROUP         og
-HTMLmenu nmenu - HTML.F&orms.OPTGROUP         og i
 HTMLmenu imenu - HTML.F&orms.TEXTAREA         tx
 HTMLmenu vmenu - HTML.F&orms.TEXTAREA         tx
 HTMLmenu nmenu - HTML.F&orms.TEXTAREA         tx i
+HTMLmenu imenu - HTML.F&orms.URL              ur
+HTMLmenu vmenu - HTML.F&orms.URL              ur
+HTMLmenu nmenu - HTML.F&orms.URL              ur i
 HTMLmenu imenu - HTML.F&orms.SUBMIT           su
 HTMLmenu nmenu - HTML.F&orms.SUBMIT           su i
 HTMLmenu imenu - HTML.F&orms.RESET            re
@@ -2359,6 +2393,9 @@ HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&WBR                    wb i
 HTMLmenu imenu - HTML.SSI\ Directi&ves.&config\ timefmt      cf
 HTMLmenu vmenu - HTML.SSI\ Directi&ves.&config\ timefmt      cf
 HTMLmenu nmenu - HTML.SSI\ Directi&ves.&config\ timefmt      cf i
+HTMLmenu imenu - HTML.SSI\ Directi&ves.config\ sizefmt       cz
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.config\ sizefmt       cz
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.config\ sizefmt       cz i
 HTMLmenu imenu - HTML.SSI\ Directi&ves.&echo\ var            ev
 HTMLmenu vmenu - HTML.SSI\ Directi&ves.&echo\ var            ev
 HTMLmenu nmenu - HTML.SSI\ Directi&ves.&echo\ var            ev i
@@ -2420,7 +2457,7 @@ HTMLmenu imenu - HTML.Inline\ Image    im
 HTMLmenu vmenu - HTML.Inline\ Image    im
 HTMLmenu nmenu - HTML.Inline\ Image    im i
 HTMLmenu imenu - HTML.Update\ Image\ Size\ Attributes mi
-HTMLmenu vmenu - HTML.Update\ Image\ Size\ Attributes mi <ESC>
+HTMLmenu vmenu - HTML.Update\ Image\ Size\ Attributes mi
 HTMLmenu nmenu - HTML.Update\ Image\ Size\ Attributes mi
 HTMLmenu imenu - HTML.Line\ Break        br
 HTMLmenu nmenu - HTML.Line\ Break        br i

@@ -361,11 +361,14 @@ i_;ce	HTML.txt	/*i_;ce*
 i_;cf	HTML.txt	/*i_;cf*
 i_;ch	HTML.txt	/*i_;ch*
 i_;ci	HTML.txt	/*i_;ci*
+i_;cl	HTML.txt	/*i_;cl*
 i_;cm	HTML.txt	/*i_;cm*
 i_;co	HTML.txt	/*i_;co*
 i_;cs	HTML.txt	/*i_;cs*
 i_;ct	HTML.txt	/*i_;ct*
 i_;cv	HTML.txt	/*i_;cv*
+i_;cz	HTML.txt	/*i_;cz*
+i_;da	HTML.txt	/*i_;da*
 i_;dd	HTML.txt	/*i_;dd*
 i_;de	HTML.txt	/*i_;de*
 i_;df	HTML.txt	/*i_;df*
@@ -378,6 +381,7 @@ i_;ec	HTML.txt	/*i_;ec*
 i_;em	HTML.txt	/*i_;em*
 i_;ev	HTML.txt	/*i_;ev*
 i_;fc	HTML.txt	/*i_;fc*
+i_;fd	HTML.txt	/*i_;fd*
 i_;fg	HTML.txt	/*i_;fg*
 i_;fi	HTML.txt	/*i_;fi*
 i_;fl	HTML.txt	/*i_;fl*
@@ -422,6 +426,7 @@ i_;mt	HTML.txt	/*i_;mt*
 i_;na	HTML.txt	/*i_;na*
 i_;nf	HTML.txt	/*i_;nf*
 i_;ns	HTML.txt	/*i_;ns*
+i_;nt	HTML.txt	/*i_;nt*
 i_;nu	HTML.txt	/*i_;nu*
 i_;ob	HTML.txt	/*i_;ob*
 i_;og	HTML.txt	/*i_;og*
@@ -435,6 +440,7 @@ i_;pr	HTML.txt	/*i_;pr*
 i_;qu	HTML.txt	/*i_;qu*
 i_;ra	HTML.txt	/*i_;ra*
 i_;re	HTML.txt	/*i_;re*
+i_;rn	HTML.txt	/*i_;rn*
 i_;s4	HTML.txt	/*i_;s4*
 i_;sa	HTML.txt	/*i_;sa*
 i_;sb	HTML.txt	/*i_;sb*
@@ -517,10 +523,13 @@ n_;ce	HTML.txt	/*n_;ce*
 n_;cf	HTML.txt	/*n_;cf*
 n_;ch	HTML.txt	/*n_;ch*
 n_;ci	HTML.txt	/*n_;ci*
+n_;cl	HTML.txt	/*n_;cl*
 n_;cm	HTML.txt	/*n_;cm*
 n_;co	HTML.txt	/*n_;co*
 n_;cs	HTML.txt	/*n_;cs*
 n_;cv	HTML.txt	/*n_;cv*
+n_;cz	HTML.txt	/*n_;cz*
+n_;da	HTML.txt	/*n_;da*
 n_;db-macos	HTML.txt	/*n_;db-macos*
 n_;db-unix	HTML.txt	/*n_;db-unix*
 n_;db-windows	HTML.txt	/*n_;db-windows*
@@ -537,6 +546,7 @@ n_;ed-windows	HTML.txt	/*n_;ed-windows*
 n_;em	HTML.txt	/*n_;em*
 n_;ev	HTML.txt	/*n_;ev*
 n_;fc	HTML.txt	/*n_;fc*
+n_;fd	HTML.txt	/*n_;fd*
 n_;ff-macos	HTML.txt	/*n_;ff-macos*
 n_;ff-unix	HTML.txt	/*n_;ff-unix*
 n_;ff-windows	HTML.txt	/*n_;ff-windows*
@@ -598,6 +608,7 @@ n_;noa-unix	HTML.txt	/*n_;noa-unix*
 n_;noa-windows	HTML.txt	/*n_;noa-windows*
 n_;ns	HTML.txt	/*n_;ns*
 n_;nsf	HTML.txt	/*n_;nsf*
+n_;nt	HTML.txt	/*n_;nt*
 n_;nu	HTML.txt	/*n_;nu*
 n_;nw3	HTML.txt	/*n_;nw3*
 n_;oa-macos	HTML.txt	/*n_;oa-macos*
@@ -614,6 +625,7 @@ n_;pp	HTML.txt	/*n_;pp*
 n_;pr	HTML.txt	/*n_;pr*
 n_;qu	HTML.txt	/*n_;qu*
 n_;ra	HTML.txt	/*n_;ra*
+n_;rn	HTML.txt	/*n_;rn*
 n_;s4	HTML.txt	/*n_;s4*
 n_;sa	HTML.txt	/*n_;sa*
 n_;sb	HTML.txt	/*n_;sb*
@@ -699,10 +711,13 @@ v_;ce	HTML.txt	/*v_;ce*
 v_;cf	HTML.txt	/*v_;cf*
 v_;ch	HTML.txt	/*v_;ch*
 v_;ci	HTML.txt	/*v_;ci*
+v_;cl	HTML.txt	/*v_;cl*
 v_;cm	HTML.txt	/*v_;cm*
 v_;co	HTML.txt	/*v_;co*
 v_;cs	HTML.txt	/*v_;cs*
 v_;cv	HTML.txt	/*v_;cv*
+v_;cz	HTML.txt	/*v_;cz*
+v_;da	HTML.txt	/*v_;da*
 v_;dd	HTML.txt	/*v_;dd*
 v_;de	HTML.txt	/*v_;de*
 v_;df	HTML.txt	/*v_;df*
@@ -715,6 +730,7 @@ v_;ec	HTML.txt	/*v_;ec*
 v_;em	HTML.txt	/*v_;em*
 v_;ev	HTML.txt	/*v_;ev*
 v_;fc	HTML.txt	/*v_;fc*
+v_;fd	HTML.txt	/*v_;fd*
 v_;fg	HTML.txt	/*v_;fg*
 v_;fi	HTML.txt	/*v_;fi*
 v_;fl	HTML.txt	/*v_;fl*
@@ -751,12 +767,14 @@ v_;mE	HTML.txt	/*v_;mE*
 v_;ma	HTML.txt	/*v_;ma*
 v_;me	HTML.txt	/*v_;me*
 v_;mh	HTML.txt	/*v_;mh*
+v_;mi	HTML.txt	/*v_;mi*
 v_;mk	HTML.txt	/*v_;mk*
 v_;ms	HTML.txt	/*v_;ms*
 v_;mt	HTML.txt	/*v_;mt*
 v_;na	HTML.txt	/*v_;na*
 v_;nf	HTML.txt	/*v_;nf*
 v_;ns	HTML.txt	/*v_;ns*
+v_;nt	HTML.txt	/*v_;nt*
 v_;nu	HTML.txt	/*v_;nu*
 v_;ob	HTML.txt	/*v_;ob*
 v_;og	HTML.txt	/*v_;og*
@@ -769,6 +787,7 @@ v_;pp	HTML.txt	/*v_;pp*
 v_;pr	HTML.txt	/*v_;pr*
 v_;qu	HTML.txt	/*v_;qu*
 v_;ra	HTML.txt	/*v_;ra*
+v_;rn	HTML.txt	/*v_;rn*
 v_;sa	HTML.txt	/*v_;sa*
 v_;sb	HTML.txt	/*v_;sb*
 v_;sc	HTML.txt	/*v_;sc*
