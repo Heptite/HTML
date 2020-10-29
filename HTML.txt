@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Oct 26
+		Last change: 2020 Oct 28
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -35,6 +35,9 @@ and toolbar are active only for buffers the script was sourced from.
 This help file follows the Vim help file standards.  To see what modes a
 mapping works in see the tags between the **'s.  For example, the |;;| mapping
 below works in normal, insert mode and visual mode.
+
+I have tried to keep the tags in mostly alphabetical order, but related tags
+are grouped in various ways, which interferes with that ordering.
 
 							*html-smart-tag*
 Noted tags are "smart".  If syntax highlighting is enabled it can be used to
@@ -475,12 +478,6 @@ another character of your preference.  See |g:html_map_leader|.
 ;at	Like |;ah| but include TARGET="" in the tag. (|n_;|)
 							*i_;aT* *v_;aT* *n_;aT*
 ;aT	Like |;aH| but include TARGET="" in the tag. (|n_;|)
-							*i_;an* *v_;an* *n_;an*
-							*i_;aN* *v_;aN* *n_;aN*
-;an and ;aN
-	Same as the |;ah| and |;aH| mappings, but uses NAME instead of HREF.
-	(Note this is not HTML 5 compatible, use ID attributes instead.)
-	(|n_;|)
 							*i_;ab* *v_;ab* *n_;ab*
 ;ab	Abbreviation: >
 	<ABBR TITLE=""></ABBR>
@@ -497,8 +494,8 @@ another character of your preference.  See |g:html_map_leader|.
 	Acronym: >
 	<ACRONYM TITLE=""></ACRONYM>
 <	Similar to the |;ab| and |;aB| mappings, but uses ACRONYM instead of
-	ABBR.  (Note this is not HTML 5 compatible, use ABBR instead.)
-	(|n_;|)
+	ABBR.  (Note this is no longer supported since it is not HTML 5
+	compatible, use ABBR instead.) (|n_;|)
 							*i_;ad* *v_;ad* *n_;ad*
 ;ad	Address: >
 	<ADDRESS></ADDRESS>
@@ -531,8 +528,8 @@ another character of your preference.  See |g:html_map_leader|.
 <	(|n_;|)
 							*i_;bi* *v_;bi* *n_;bi*
 ;bi	Bigger text: >
-	<BIG></BIG>
-<	(Note this is not HTML 5 compatible, use CSS instead.) (|n_;|)
+	<SPAN STYLE="font-size: larger;"></SPAN>
+<	(Note <BIG> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
 							*i_;bl* *v_;bl* *n_;bl*
 ;bl	Block quote: >
 	<BLOCKQUOTE>
@@ -556,8 +553,8 @@ another character of your preference.  See |g:html_map_leader|.
 <	If you want a form button, see |n_;bu|. (|n_;|)
 							*i_;ce* *v_;ce* *n_;ce*
 ;ce	Center: >
-	<CENTER></CENTER>
-<	(Note this is not HTML 5 compatible, use CSS instead.) (|n_;|)
+	<DIV STYLE="text-align: center;"></DIV>
+<	(Note <CENTER> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
 							*i_;ci* *v_;ci* *n_;ci*
 ;ci	Citation: >
 	<CITE></CITE>
@@ -625,19 +622,19 @@ another character of your preference.  See |g:html_map_leader|.
 <	(|html-smart-tag|) (|n_;|)
 							*i_;fo* *v_;fo* *n_;fo*
 ;fo	Font size: >
-	<FONT SIZE=""></FONT>
-<	(Note this is not HTML 5 compatible, use CSS instead.) (|n_;|)
+	<SPAN STYLE="font-size: ;"></SPAN>
+<	(Note <FONT> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
 							*i_;fc* *v_;fc* *n_;fc*
 ;fc	Font color: >
-	<FONT COLOR=""></FONT>
-<	(Note this is not HTML 5 compatible, use CSS instead.) (|n_;|)
+	<SPAN STYLE="color: ;"></SPAN>
+<	(Note <FONT> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
 							*i_;fg* *v_;fg* *n_;fg*
 ;fg	Figure element: >
 	<FIGURE>
 	</FIGURE>
 <	(|n_;|)
 							*i_;fp* *v_;fp* *n_;fp*
-;fg	Figure caption: >
+;fp	Figure caption: >
 	<FIGCAPTION></FIGCAPTION>
 <	(|n_;|)
 							*i_;ft* *v_;ft* *n_;ft*
@@ -688,10 +685,11 @@ another character of your preference.  See |g:html_map_leader|.
 	<HTML>
 	</HTML>
 <	(|n_;|)
-							*i_;it* *v_;it* *n_;it*
-;it	Italicized text: >
-	<I></I>
-<	(|html-smart-tag|) (|n_;|)
+							*i_;if* *v_;if* *n_;if*
+;if	Inline frame: >
+	<IFRAME SRC="">
+	</IFRAME>
+<	(|n_;|)
 							*i_;im* *v_;im* *n_;im*
 ;im	Image: >
 	<IMG SRC="" ALT="">
@@ -707,6 +705,10 @@ another character of your preference.  See |g:html_map_leader|.
 ;in	Inserted text: >
 	<INS></INS>
 <	(|n_;|)
+							*i_;it* *v_;it* *n_;it*
+;it	Italicized text: >
+	<I></I>
+<	(|html-smart-tag|) (|n_;|)
 							*i_;js*
 ;js	Inline Javascript: >
 	<SCRIPT TYPE="text/javascript" LANGUAGE="javascript">
@@ -815,14 +817,10 @@ another character of your preference.  See |g:html_map_leader|.
 	<SECTION>
 	</SECTION>
 <	(|n_;|)
-							*i_;sk* *v_;sk* *n_;sk*
-;sk	Strike-through: >
-	<STRIKE></STRIKE>
-<	(Note this is not HTML 5 compatible, use DEL |n_;de| instead.) (|n_;|)
 							*i_;sm* *v_;sm* *n_;sm*
 ;sm	Small text: >
-	<SMALL></SMALL>
-<	(|n_;|)
+	<SPAN STYLE="font-size: smaller;"></SPAN>
+<	(Note <SMALL> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
 							*i_;sn* *v_;sn* *n_;sn*
 ;sn	Span: >
 	<SPAN CLASS=""></SPAN>
@@ -868,8 +866,8 @@ another character of your preference.  See |g:html_map_leader|.
 <	(|n_;|)
 							*i_;tt* *v_;tt* *n_;tt*
 ;tt	Teletype Text (monospaced): >
-	<TT></TT>
-<	(Note this is not HTML 5 compatible, use CSS instead.) (|n_;|)
+	<SPAN STYLE="font-family: monospace;"></SPAN>
+<	(Note <TT> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
 							*i_;un* *v_;un* *n_;un*
 ;un	Underlined text: >
 	<U></U>
@@ -928,41 +926,12 @@ another character of your preference.  See |g:html_map_leader|.
 	<TH></TH>
 <	(|n_;|)
 
-							*html-frames*
-Note that frames (except IFRAME) are not supported by HTML 5.
-
-							*i_;fs* *v_;fs* *n_;fs*
-;fs	Frame layout: >
-	<FRAMESET ROWS="" COLS="">
-	</FRAMESET>
-<	(|n_;|)
-							*i_;fr* *v_;fr* *n_;fr*
-;fr	Frame source: >
-	<FRAME SRC="">
-<	(|n_;|)
-							*i_;nf* *v_;nf* *n_;nf*
-;nf	Text to display if for a browser that can not display frames: >
-	<NOFRAMES>
-	</NOFRAMES>
-<	(|n_;|)
-							*i_;if* *v_;if* *n_;if*
-;if	Inline frame: >
-	<IFRAME SRC="">
-	</IFRAME>
-<	(|n_;|)
-
 							*html-forms*
 							*i_;fm* *v_;fm* *n_;fm*
 ;fm	Form container: >
 	<FORM ACTION="">
 	</FORM>
 <	(|n_;|)
-							*i_;fd* *v_;fd* *n_;fd*
-;fd	Fieldset container with legend: >
-	<FIELDSET>
-	<LEGEND></LEGEND>
-	</FIELDSET>
-<	Visual mode puts the selected text after the LEGEND.  (|n_;|)
 							*i_;bu* *v_;bu* *n_;bu*
 ;bu	Form button: >
 	<INPUT TYPE="BUTTON" NAME="" VALUE="">
@@ -975,30 +944,6 @@ Note that frames (except IFRAME) are not supported by HTML 5.
 ;cl	Form date input field: >
 	<INPUT TYPE="DATE" NAME="">
 <	Visual mode puts the selected text NAME="here". (|n_;|)
-							*i_;nt* *v_;nt* *n_;nt*
-;nt	Form time input field: >
-	<INPUT TYPE="TIME" NAME="">
-<	Visual mode puts the selected text NAME="here". (|n_;|)
-							*i_;ra* *v_;ra* *n_;ra*
-;ra	Form radio button: >
-	<INPUT TYPE="RADIO" NAME="" VALUE="">
-<	Visual mode puts the selected text VALUE="here". (|n_;|)
-							*i_;rn* *v_;rn* *n_;rn*
-;rn	Range slider: >
-	<INPUT TYPE="RANGE" NAME="" MIN="" MAX="">
-<	Visual mode puts the selected text NAME="here". (|n_;|)
-							*i_;hi* *v_;hi* *n_;hi*
-;hi	Hidden form data: >
-	<INPUT TYPE="HIDDEN" NAME="" VALUE="">
-<	Visual mode puts the selected text VALUE="here". (|n_;|)
-							*i_;pa* *v_;pa* *n_;pa*
-;pa	Form password input field: >
-	<INPUT TYPE="PASSWORD" NAME="" VALUE="" SIZE="20">
-<	Visual mode puts the selected text VALUE="here". (|n_;|)
-							*i_;te* *v_;te* *n_;te*
-;te	Form text input field: >
-	<INPUT TYPE="TEXT" NAME="" VALUE="" SIZE="20">
-<	Visual mode puts the selected text VALUE="here". (|n_;|)
 							*i_;da* *v_;da* *n_;da*
 ;da	Form text input field with a datalist: >
 	<INPUT LIST="">
@@ -1007,9 +952,39 @@ Note that frames (except IFRAME) are not supported by HTML 5.
 	</INPUT>
 <	Visual mode puts the selected text in the LIST value and the ID value.
 	(|n_;|)
+							*i_;fd* *v_;fd* *n_;fd*
+;fd	Fieldset container with legend: >
+	<FIELDSET>
+	<LEGEND></LEGEND>
+	</FIELDSET>
+<	Visual mode puts the selected text after the LEGEND.  (|n_;|)
 							*i_;fi* *v_;fi* *n_;fi*
 ;fi	Form file input field: >
 	<INPUT TYPE="FILE" NAME="" VALUE="" SIZE="20">
+<	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*i_;hi* *v_;hi* *n_;hi*
+;hi	Hidden form data: >
+	<INPUT TYPE="HIDDEN" NAME="" VALUE="">
+<	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*i_;nt* *v_;nt* *n_;nt*
+;nt	Form time input field: >
+	<INPUT TYPE="TIME" NAME="">
+<	Visual mode puts the selected text NAME="here". (|n_;|)
+							*i_;pa* *v_;pa* *n_;pa*
+;pa	Form password input field: >
+	<INPUT TYPE="PASSWORD" NAME="" VALUE="" SIZE="20">
+<	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*i_;ra* *v_;ra* *n_;ra*
+;ra	Form radio button: >
+	<INPUT TYPE="RADIO" NAME="" VALUE="">
+<	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*i_;rn* *v_;rn* *n_;rn*
+;rn	Range slider: >
+	<INPUT TYPE="RANGE" NAME="" MIN="" MAX="">
+<	Visual mode puts the selected text NAME="here". (|n_;|)
+							*i_;te* *v_;te* *n_;te*
+;te	Form text input field: >
+	<INPUT TYPE="TEXT" NAME="" VALUE="" SIZE="20">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
 							*i_;@* *v_;@* *n_;@*
 ;@	Form email input field: >
@@ -1093,9 +1068,9 @@ See: https://en.wikipedia.org/wiki/Server_Side_Includes
 							*i_;iv* *v_;iv* *n_;iv*
 ;iv	<!--#include virtual="" -->  (|n_;|)
 							*i_;fl* *v_;fl* *n_;fl*
-;fl	<!--#flastmod virtual="" -->  (|n_;|)
+;fv	<!--#flastmod virtual="" -->  (|n_;|)
 							*i_;fz* *v_;fz* *n_;fz*
-;fz	<!--#fsize file="" -->  (|n_;|)
+;fz	<!--#fsize virtual="" -->  (|n_;|)
 							*i_;ec* *v_;ec* *n_;ec*
 ;ec	<!--#exec cmd="" -->  (|n_;|)
 							*i_;sv* *v_;sv* *n_;sv*

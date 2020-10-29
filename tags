@@ -78,7 +78,6 @@ html-configuration	HTML.txt	/*html-configuration*
 html-customization	HTML.txt	/*html-customization*
 html-definition-lists	HTML.txt	/*html-definition-lists*
 html-forms	HTML.txt	/*html-forms*
-html-frames	HTML.txt	/*html-frames*
 html-functions	HTML.txt	/*html-functions*
 html-headings	HTML.txt	/*html-headings*
 html-intro	HTML.txt	/*html-intro*
@@ -336,13 +335,11 @@ i_;Hr	HTML.txt	/*i_;Hr*
 i_;aB	HTML.txt	/*i_;aB*
 i_;aC	HTML.txt	/*i_;aC*
 i_;aH	HTML.txt	/*i_;aH*
-i_;aN	HTML.txt	/*i_;aN*
 i_;aT	HTML.txt	/*i_;aT*
 i_;ab	HTML.txt	/*i_;ab*
 i_;ac	HTML.txt	/*i_;ac*
 i_;ad	HTML.txt	/*i_;ad*
 i_;ah	HTML.txt	/*i_;ah*
-i_;an	HTML.txt	/*i_;an*
 i_;ar	HTML.txt	/*i_;ar*
 i_;as	HTML.txt	/*i_;as*
 i_;at	HTML.txt	/*i_;at*
@@ -388,8 +385,6 @@ i_;fl	HTML.txt	/*i_;fl*
 i_;fm	HTML.txt	/*i_;fm*
 i_;fo	HTML.txt	/*i_;fo*
 i_;fp	HTML.txt	/*i_;fp*
-i_;fr	HTML.txt	/*i_;fr*
-i_;fs	HTML.txt	/*i_;fs*
 i_;ft	HTML.txt	/*i_;ft*
 i_;fz	HTML.txt	/*i_;fz*
 i_;h1	HTML.txt	/*i_;h1*
@@ -424,7 +419,6 @@ i_;mk	HTML.txt	/*i_;mk*
 i_;ms	HTML.txt	/*i_;ms*
 i_;mt	HTML.txt	/*i_;mt*
 i_;na	HTML.txt	/*i_;na*
-i_;nf	HTML.txt	/*i_;nf*
 i_;ns	HTML.txt	/*i_;ns*
 i_;nt	HTML.txt	/*i_;nt*
 i_;nu	HTML.txt	/*i_;nu*
@@ -447,7 +441,6 @@ i_;sb	HTML.txt	/*i_;sb*
 i_;sc	HTML.txt	/*i_;sc*
 i_;se	HTML.txt	/*i_;se*
 i_;sj	HTML.txt	/*i_;sj*
-i_;sk	HTML.txt	/*i_;sk*
 i_;sm	HTML.txt	/*i_;sm*
 i_;sn	HTML.txt	/*i_;sn*
 i_;sp	HTML.txt	/*i_;sp*
@@ -499,13 +492,11 @@ n_;^	HTML.txt	/*n_;^*
 n_;aB	HTML.txt	/*n_;aB*
 n_;aC	HTML.txt	/*n_;aC*
 n_;aH	HTML.txt	/*n_;aH*
-n_;aN	HTML.txt	/*n_;aN*
 n_;aT	HTML.txt	/*n_;aT*
 n_;ab	HTML.txt	/*n_;ab*
 n_;ac	HTML.txt	/*n_;ac*
 n_;ad	HTML.txt	/*n_;ad*
 n_;ah	HTML.txt	/*n_;ah*
-n_;an	HTML.txt	/*n_;an*
 n_;ar	HTML.txt	/*n_;ar*
 n_;as	HTML.txt	/*n_;as*
 n_;at	HTML.txt	/*n_;at*
@@ -556,8 +547,6 @@ n_;fl	HTML.txt	/*n_;fl*
 n_;fm	HTML.txt	/*n_;fm*
 n_;fo	HTML.txt	/*n_;fo*
 n_;fp	HTML.txt	/*n_;fp*
-n_;fr	HTML.txt	/*n_;fr*
-n_;fs	HTML.txt	/*n_;fs*
 n_;ft	HTML.txt	/*n_;ft*
 n_;fz	HTML.txt	/*n_;fz*
 n_;gc-unix	HTML.txt	/*n_;gc-unix*
@@ -596,7 +585,6 @@ n_;ms	HTML.txt	/*n_;ms*
 n_;mt	HTML.txt	/*n_;mt*
 n_;na	HTML.txt	/*n_;na*
 n_;ned-windows	HTML.txt	/*n_;ned-windows*
-n_;nf	HTML.txt	/*n_;nf*
 n_;nff-macos	HTML.txt	/*n_;nff-macos*
 n_;nff-unix	HTML.txt	/*n_;nff-unix*
 n_;nff-windows	HTML.txt	/*n_;nff-windows*
@@ -632,7 +620,6 @@ n_;sb	HTML.txt	/*n_;sb*
 n_;sc	HTML.txt	/*n_;sc*
 n_;se	HTML.txt	/*n_;se*
 n_;sf	HTML.txt	/*n_;sf*
-n_;sk	HTML.txt	/*n_;sk*
 n_;sm	HTML.txt	/*n_;sm*
 n_;sn	HTML.txt	/*n_;sn*
 n_;sp	HTML.txt	/*n_;sp*
@@ -687,13 +674,11 @@ v_;^	HTML.txt	/*v_;^*
 v_;aB	HTML.txt	/*v_;aB*
 v_;aC	HTML.txt	/*v_;aC*
 v_;aH	HTML.txt	/*v_;aH*
-v_;aN	HTML.txt	/*v_;aN*
 v_;aT	HTML.txt	/*v_;aT*
 v_;ab	HTML.txt	/*v_;ab*
 v_;ac	HTML.txt	/*v_;ac*
 v_;ad	HTML.txt	/*v_;ad*
 v_;ah	HTML.txt	/*v_;ah*
-v_;an	HTML.txt	/*v_;an*
 v_;ar	HTML.txt	/*v_;ar*
 v_;as	HTML.txt	/*v_;as*
 v_;at	HTML.txt	/*v_;at*
@@ -737,8 +722,6 @@ v_;fl	HTML.txt	/*v_;fl*
 v_;fm	HTML.txt	/*v_;fm*
 v_;fo	HTML.txt	/*v_;fo*
 v_;fp	HTML.txt	/*v_;fp*
-v_;fr	HTML.txt	/*v_;fr*
-v_;fs	HTML.txt	/*v_;fs*
 v_;ft	HTML.txt	/*v_;ft*
 v_;fz	HTML.txt	/*v_;fz*
 v_;h1	HTML.txt	/*v_;h1*
@@ -772,7 +755,6 @@ v_;mk	HTML.txt	/*v_;mk*
 v_;ms	HTML.txt	/*v_;ms*
 v_;mt	HTML.txt	/*v_;mt*
 v_;na	HTML.txt	/*v_;na*
-v_;nf	HTML.txt	/*v_;nf*
 v_;ns	HTML.txt	/*v_;ns*
 v_;nt	HTML.txt	/*v_;nt*
 v_;nu	HTML.txt	/*v_;nu*
@@ -792,7 +774,6 @@ v_;sa	HTML.txt	/*v_;sa*
 v_;sb	HTML.txt	/*v_;sb*
 v_;sc	HTML.txt	/*v_;sc*
 v_;se	HTML.txt	/*v_;se*
-v_;sk	HTML.txt	/*v_;sk*
 v_;sm	HTML.txt	/*v_;sm*
 v_;sn	HTML.txt	/*v_;sn*
 v_;sp	HTML.txt	/*v_;sp*

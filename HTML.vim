@@ -4,8 +4,8 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: October 26, 2020
-# Version:     1.0.2
+# Last Change: October 29, 2020
+# Version:     1.0.3
 # Original Concept: Doug Renze
 #
 #
@@ -60,8 +60,8 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021900
-  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1900'
+if v:version < 802 || v:versionlong < 8021920
+  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1920'
   sleep 2
   finish
 endif
@@ -313,14 +313,14 @@ g:HTMLfunctions#Mapo('<lead>aT', 1)
 
 #       A NAME  Named Anchor            HTML 2.0
 #       (note this is not HTML 5 compatible, use ID attributes instead)
-g:HTMLfunctions#Map('inoremap', '<lead>an', '<[{A NAME=""></A}]><C-O>F"')
-g:HTMLfunctions#Map('inoremap', '<lead>aN', '<[{A NAME="<C-R>*"></A}]><C-O>F<')
+# g:HTMLfunctions#Map('inoremap', '<lead>an', '<[{A NAME=""></A}]><C-O>F"')
+# g:HTMLfunctions#Map('inoremap', '<lead>aN', '<[{A NAME="<C-R>*"></A}]><C-O>F<')
 # Visual mappings:
-g:HTMLfunctions#Map('vnoremap', '<lead>an', '<ESC>`>a</[{A}]><C-O>`<<[{A NAME}]=""><C-O>F"', 0)
-g:HTMLfunctions#Map('vnoremap', '<lead>aN', '<ESC>`>a"></[{A}]><C-O>`<<[{A NAME}]="<C-O>f<', 0)
+# g:HTMLfunctions#Map('vnoremap', '<lead>an', '<ESC>`>a</[{A}]><C-O>`<<[{A NAME}]=""><C-O>F"', 0)
+# g:HTMLfunctions#Map('vnoremap', '<lead>aN', '<ESC>`>a"></[{A}]><C-O>`<<[{A NAME}]="<C-O>f<', 0)
 # Motion mappings:
-g:HTMLfunctions#Mapo('<lead>an', 1)
-g:HTMLfunctions#Mapo('<lead>aN', 1)
+# g:HTMLfunctions#Mapo('<lead>an', 1)
+# g:HTMLfunctions#Mapo('<lead>aN', 1)
 
 #       ABBR  Abbreviation              HTML 4.0
 g:HTMLfunctions#Map('inoremap', '<lead>ab', '<[{ABBR TITLE=""></ABBR}]><C-O>F"')
@@ -334,14 +334,14 @@ g:HTMLfunctions#Mapo('<lead>aB', 1)
 
 #       ACRONYM                         HTML 4.0
 #       (note this is not HTML 5 compatible, use ABBR instead)
-g:HTMLfunctions#Map('inoremap', '<lead>ac', '<[{ACRONYM TITLE=""></ACRONYM}]><C-O>F"')
-g:HTMLfunctions#Map('inoremap', '<lead>aC', '<[{ACRONYM TITLE="<C-R>*"></ACRONYM}]><C-O>F<')
+# g:HTMLfunctions#Map('inoremap', '<lead>ac', '<[{ACRONYM TITLE=""></ACRONYM}]><C-O>F"')
+# g:HTMLfunctions#Map('inoremap', '<lead>aC', '<[{ACRONYM TITLE="<C-R>*"></ACRONYM}]><C-O>F<')
 # Visual mappings:
-g:HTMLfunctions#Map('vnoremap', '<lead>ac', '<ESC>`>a</[{ACRONYM}]><C-O>`<<[{ACRONYM TITLE}]=""><C-O>F"', 0)
-g:HTMLfunctions#Map('vnoremap', '<lead>aC', '<ESC>`>a"></[{ACRONYM}]><C-O>`<<[{ACRONYM TITLE}]="<C-O>f<', 0)
+# g:HTMLfunctions#Map('vnoremap', '<lead>ac', '<ESC>`>a</[{ACRONYM}]><C-O>`<<[{ACRONYM TITLE}]=""><C-O>F"', 0)
+# g:HTMLfunctions#Map('vnoremap', '<lead>aC', '<ESC>`>a"></[{ACRONYM}]><C-O>`<<[{ACRONYM TITLE}]="<C-O>f<', 0)
 # Motion mappings:
-g:HTMLfunctions#Mapo('<lead>ac', 1)
-g:HTMLfunctions#Mapo('<lead>aC', 1)
+# g:HTMLfunctions#Mapo('<lead>ac', 1)
+# g:HTMLfunctions#Mapo('<lead>aC', 1)
 
 #       ADDRESS                         HTML 2.0
 g:HTMLfunctions#Map('inoremap', '<lead>ad', '<[{ADDRESS></ADDRESS}]><C-O>F<')
@@ -393,10 +393,12 @@ g:HTMLfunctions#Map('vnoremap', '<lead>bt', '<ESC>`>a" /><C-O>`<<[{BASE TARGET}]
 g:HTMLfunctions#Mapo('<lead>bt', 0)
 
 #       BIG                             HTML 3.0
-#       (note this is not HTML 5 compatible, use CSS instead)
-g:HTMLfunctions#Map('inoremap', '<lead>bi', '<[{BIG></BIG}]><C-O>F<')
+#       (<BIG> is not HTML 5 compatible, so we use CSS instead)
+# g:HTMLfunctions#Map('inoremap', '<lead>bi', '<[{BIG></BIG}]><C-O>F<')
+g:HTMLfunctions#Map('inoremap', '<lead>bi', '<[{SPAN STYLE}]="font-size: larger;"></[{SPAN}]><C-O>F<')
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>bi', '<ESC>`>a</[{BIG}]><C-O>`<<[{BIG}]><ESC>')
+# g:HTMLfunctions#Map('vnoremap', '<lead>bi', '<ESC>`>a</[{BIG}]><C-O>`<<[{BIG}]><ESC>')
+g:HTMLfunctions#Map('vnoremap', '<lead>bi', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-size: larger;"><ESC>')
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>bi', 0)
 
@@ -432,10 +434,12 @@ g:HTMLfunctions#Map('vnoremap', '<lead>cv', '<ESC>`>a</[{CANVAS}]><C-O>`<<[{CANV
 g:HTMLfunctions#Mapo('<lead>cv', 1)
 
 #       CENTER                          NETSCAPE
-#       (note this is not HTML 5 compatible, use CSS instead)
-g:HTMLfunctions#Map('inoremap', '<lead>ce', '<[{CENTER></CENTER}]><C-O>F<')
+#       (<CENTER> is not HTML 5 compatible, so we use CSS instead)
+# g:HTMLfunctions#Map('inoremap', '<lead>ce', '<[{CENTER></CENTER}]><C-O>F<')
+g:HTMLfunctions#Map('inoremap', '<lead>ce', '<[{DIV STYLE}]="text-align: center;"></[{DIV}]><C-O>F<')
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>ce', '<ESC>`>a</[{CENTER}]><C-O>`<<[{CENTER}]><ESC>', 2)
+# g:HTMLfunctions#Map('vnoremap', '<lead>ce', '<ESC>`>a</[{CENTER}]><C-O>`<<[{CENTER}]><ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>ce', '<ESC>`>a</[{DIV}]><C-O>`<<[{DIV STYLE}]="text-align: center;"><ESC>', 2)
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>ce', 0)
 
@@ -519,12 +523,16 @@ g:HTMLfunctions#Map('vnoremap', '<lead>em', "<C-C>:execute \"normal \" .. g:HTML
 g:HTMLfunctions#Mapo('<lead>em', 0)
 
 #       FONT                            NETSCAPE
-#       (note this is not HTML 5 compatible, use CSS instead)
-g:HTMLfunctions#Map('inoremap', '<lead>fo', '<[{FONT SIZE=""></FONT}]><C-O>F"')
-g:HTMLfunctions#Map('inoremap', '<lead>fc', '<[{FONT COLOR=""></FONT}]><C-O>F"')
+#       (<FONT> is not HTML 5 compatible, so we use CSS instead)
+# g:HTMLfunctions#Map('inoremap', '<lead>fo', '<[{FONT SIZE=""></FONT}]><C-O>F"')
+# g:HTMLfunctions#Map('inoremap', '<lead>fc', '<[{FONT COLOR=""></FONT}]><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>fo', '<[{SPAN STYLE}]="font-size: ;"></[{SPAN}]><C-O>F;')
+g:HTMLfunctions#Map('inoremap', '<lead>fc', '<[{SPAN STYLE}]="color: ;"></[{SPAN}]><C-O>F;')
 # Visual mappings:
-g:HTMLfunctions#Map('vnoremap', '<lead>fo', '<ESC>`>a</[{FONT}]><C-O>`<<[{FONT SIZE}]=""><C-O>F"', 0)
-g:HTMLfunctions#Map('vnoremap', '<lead>fc', '<ESC>`>a</[{FONT}]><C-O>`<<[{FONT COLOR}]=""><C-O>F"', 0)
+# g:HTMLfunctions#Map('vnoremap', '<lead>fo', '<ESC>`>a</[{FONT}]><C-O>`<<[{FONT SIZE}]=""><C-O>F"', 0)
+# g:HTMLfunctions#Map('vnoremap', '<lead>fc', '<ESC>`>a</[{FONT}]><C-O>`<<[{FONT COLOR}]=""><C-O>F"', 0)
+g:HTMLfunctions#Map('vnoremap', '<lead>fo', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-size: ;"><C-O>F;', 0)
+g:HTMLfunctions#Map('vnoremap', '<lead>fc', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="color: ;"><C-O>F;', 0)
 # Motion mappings:
 g:HTMLfunctions#Mapo('<lead>fo', 1)
 g:HTMLfunctions#Mapo('<lead>fc', 1)
@@ -752,11 +760,11 @@ g:HTMLfunctions#Mapo('<lead>qu', 0)
 
 #       STRIKE  Strikethrough           HTML 3.0
 #       (note this is not HTML 5 compatible, use DEL instead)
-g:HTMLfunctions#Map('inoremap', '<lead>sk', '<[{STRIKE></STRIKE}]><C-O>F<')
+# g:HTMLfunctions#Map('inoremap', '<lead>sk', '<[{STRIKE></STRIKE}]><C-O>F<')
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>sk', '<ESC>`>a</[{STRIKE}]><C-O>`<<[{STRIKE}]><ESC>', 2)
+# g:HTMLfunctions#Map('vnoremap', '<lead>sk', '<ESC>`>a</[{STRIKE}]><C-O>`<<[{STRIKE}]><ESC>', 2)
 # Motion mapping:
-g:HTMLfunctions#Mapo('<lead>sk', 0)
+# g:HTMLfunctions#Mapo('<lead>sk', 0)
 
 #       SAMP    Sample Text             HTML 2.0
 g:HTMLfunctions#Map('inoremap', '<lead>sa', '<[{SAMP></SAMP}]><C-O>F<')
@@ -773,9 +781,12 @@ g:HTMLfunctions#Map('vnoremap', '<lead>sc', '<ESC>`>a<CR></[{SECTION}]><C-O>`<<[
 g:HTMLfunctions#Mapo('<lead>sc', 1)
 
 #       SMALL   Small Text              HTML 3.0
-g:HTMLfunctions#Map('inoremap', '<lead>sm', '<[{SMALL></SMALL}]><C-O>F<')
+#       (<SMALL> is not HTML 5 compatible, so we use CSS instead)
+# g:HTMLfunctions#Map('inoremap', '<lead>sm', '<[{SMALL></SMALL}]><C-O>F<')
+g:HTMLfunctions#Map('inoremap', '<lead>sm', '<[{SPAN STYLE}]="font-size: smaller;"></[{SPAN}]><C-O>F<')
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>sm', '<ESC>`>a</[{SMALL}]><C-O>`<<[{SMALL}]><ESC>')
+# g:HTMLfunctions#Map('vnoremap', '<lead>sm', '<ESC>`>a</[{SMALL}]><C-O>`<<[{SMALL}]><ESC>')
+g:HTMLfunctions#Map('vnoremap', '<lead>sm', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-size: smaller;"><ESC>')
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>sm', 0)
 
@@ -829,10 +840,12 @@ g:HTMLfunctions#Map('vnoremap', '<lead>tm', '<ESC>`>a</[{TIME}]><C-O>`<<[{TIME D
 g:HTMLfunctions#Mapo('<lead>tm', 1)
 
 #       TT      Teletype Text (monospaced)      HTML 2.0
-#       (note this is not HTML 5 compatible, use CSS instead)
-g:HTMLfunctions#Map('inoremap', '<lead>tt', '<[{TT></TT}]><C-O>F<')
+#       (<TT> is not HTML 5 compatible, so we use CSS instead)
+# g:HTMLfunctions#Map('inoremap', '<lead>tt', '<[{TT></TT}]><C-O>F<')
+g:HTMLfunctions#Map('inoremap', '<lead>tt', '<[{SPAN STYLE}]="font-family: monospace;"></[{SPAN}]><C-O>F<')
 # Visual mapping:
-g:HTMLfunctions#Map('vnoremap', '<lead>tt', '<ESC>`>a</[{TT}]><C-O>`<<[{TT}]><ESC>', 2)
+# g:HTMLfunctions#Map('vnoremap', '<lead>tt', '<ESC>`>a</[{TT}]><C-O>`<<[{TT}]><ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>tt', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-family: monospace;"><ESC>', 2)
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>tt', 0)
 
@@ -929,17 +942,17 @@ g:HTMLfunctions#Map('nnoremap', '<lead>tA', ':eval g:HTMLfunctions#GenerateTable
 
 # Frames stuff:
 #       (note this is not HTML 5 compatible)
-g:HTMLfunctions#Map('inoremap', '<lead>fs', '<[{FRAMESET ROWS="" COLS}]=""><CR></[{FRAMESET}]><ESC>k$3F"i')
-g:HTMLfunctions#Map('inoremap', '<lead>fr', '<[{FRAME SRC}]="" /><C-O>F"')
-g:HTMLfunctions#Map('inoremap', '<lead>nf', '<[{NOFRAMES}]><CR></[{NOFRAMES}]><ESC>O')
+# g:HTMLfunctions#Map('inoremap', '<lead>fs', '<[{FRAMESET ROWS="" COLS}]=""><CR></[{FRAMESET}]><ESC>k$3F"i')
+# g:HTMLfunctions#Map('inoremap', '<lead>fr', '<[{FRAME SRC}]="" /><C-O>F"')
+# g:HTMLfunctions#Map('inoremap', '<lead>nf', '<[{NOFRAMES}]><CR></[{NOFRAMES}]><ESC>O')
 # Visual mappings:
-g:HTMLfunctions#Map('vnoremap', '<lead>fs', '<ESC>`>a<CR></[{FRAMESET}]><C-O>`<<[{FRAMESET ROWS="" COLS}]=""><CR><ESC>k$3F"', 1)
-g:HTMLfunctions#Map('vnoremap', '<lead>fr', '<ESC>`>a" /><C-O>`<<[{FRAME SRC}]="<ESC>')
-g:HTMLfunctions#Map('vnoremap', '<lead>nf', '<ESC>`>a<CR></[{NOFRAMES}]><C-O>`<<[{NOFRAMES}]><CR><ESC>', 1)
+# g:HTMLfunctions#Map('vnoremap', '<lead>fs', '<ESC>`>a<CR></[{FRAMESET}]><C-O>`<<[{FRAMESET ROWS="" COLS}]=""><CR><ESC>k$3F"', 1)
+# g:HTMLfunctions#Map('vnoremap', '<lead>fr', '<ESC>`>a" /><C-O>`<<[{FRAME SRC}]="<ESC>')
+# g:HTMLfunctions#Map('vnoremap', '<lead>nf', '<ESC>`>a<CR></[{NOFRAMES}]><C-O>`<<[{NOFRAMES}]><CR><ESC>', 1)
 # Motion mappings:
-g:HTMLfunctions#Mapo('<lead>fs', 0)
-g:HTMLfunctions#Mapo('<lead>fr', 0)
-g:HTMLfunctions#Mapo('<lead>nf', 0)
+# g:HTMLfunctions#Mapo('<lead>fs', 0)
+# g:HTMLfunctions#Mapo('<lead>fr', 0)
+# g:HTMLfunctions#Mapo('<lead>nf', 0)
 
 #       IFRAME  Inline Frame            HTML 4.0
 g:HTMLfunctions#Map('inoremap', '<lead>if', '<[{IFRAME SRC="" WIDTH="" HEIGHT}]=""><CR></[{IFRAME}]><ESC>k$5F"i')
@@ -1030,7 +1043,7 @@ g:HTMLfunctions#Map('inoremap', '<lead>cf', '<!--#config timefmt="" --><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>cz', '<!--#config sizefmt="" --><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>ev', '<!--#echo var="" --><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>iv', '<!--#include virtual="" --><C-O>F"')
-g:HTMLfunctions#Map('inoremap', '<lead>fl', '<!--#flastmod virtual="" --><C-O>F"')
+g:HTMLfunctions#Map('inoremap', '<lead>fv', '<!--#flastmod virtual="" --><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>fz', '<!--#fsize virtual="" --><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>ec', '<!--#exec cmd="" --><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>sv', '<!--#set var="" value="" --><C-O>3F"')
@@ -1040,7 +1053,7 @@ g:HTMLfunctions#Map('vnoremap', '<lead>cf', '<ESC>`>a" --><C-O>`<<!--#config tim
 g:HTMLfunctions#Map('vnoremap', '<lead>cz', '<ESC>`>a" --><C-O>`<<!--#config sizefmt="<ESC>', 2)
 g:HTMLfunctions#Map('vnoremap', '<lead>ev', '<ESC>`>a" --><C-O>`<<!--#echo var="<ESC>', 2)
 g:HTMLfunctions#Map('vnoremap', '<lead>iv', '<ESC>`>a" --><C-O>`<<!--#include virtual="<ESC>', 2)
-g:HTMLfunctions#Map('vnoremap', '<lead>fl', '<ESC>`>a" --><C-O>`<<!--#flastmod virtual="<ESC>', 2)
+g:HTMLfunctions#Map('vnoremap', '<lead>fv', '<ESC>`>a" --><C-O>`<<!--#flastmod virtual="<ESC>', 2)
 g:HTMLfunctions#Map('vnoremap', '<lead>fz', '<ESC>`>a" --><C-O>`<<!--#fsize virtual="<ESC>', 2)
 g:HTMLfunctions#Map('vnoremap', '<lead>ec', '<ESC>`>a" --><C-O>`<<!--#exec cmd="<ESC>', 2)
 g:HTMLfunctions#Map('vnoremap', '<lead>sv', '<ESC>`>a" --><C-O>`<<!--#set var="" value="<C-O>2F"', 0)
@@ -1050,7 +1063,7 @@ g:HTMLfunctions#Mapo('<lead>cf', 0)
 g:HTMLfunctions#Mapo('<lead>cz', 0)
 g:HTMLfunctions#Mapo('<lead>ev', 0)
 g:HTMLfunctions#Mapo('<lead>iv', 0)
-g:HTMLfunctions#Mapo('<lead>fl', 0)
+g:HTMLfunctions#Mapo('<lead>fv', 0)
 g:HTMLfunctions#Mapo('<lead>fz', 0)
 g:HTMLfunctions#Mapo('<lead>ec', 0)
 g:HTMLfunctions#Mapo('<lead>sv', 1)
@@ -2144,9 +2157,9 @@ HTMLmenu nmenu - HTML.Font\ &Styles.Keyboard\ Text kb i
 HTMLmenu imenu - HTML.Font\ &Styles.Sample\ Text   sa
 HTMLmenu vmenu - HTML.Font\ &Styles.Sample\ Text   sa
 HTMLmenu nmenu - HTML.Font\ &Styles.Sample\ Text   sa i
-HTMLmenu imenu - HTML.Font\ &Styles.Strikethrough  sk
-HTMLmenu vmenu - HTML.Font\ &Styles.Strikethrough  sk
-HTMLmenu nmenu - HTML.Font\ &Styles.Strikethrough  sk i
+# HTMLmenu imenu - HTML.Font\ &Styles.Strikethrough  sk
+# HTMLmenu vmenu - HTML.Font\ &Styles.Strikethrough  sk
+# HTMLmenu nmenu - HTML.Font\ &Styles.Strikethrough  sk i
 HTMLmenu imenu - HTML.Font\ &Styles.STRONG         st
 HTMLmenu vmenu - HTML.Font\ &Styles.STRONG         st
 HTMLmenu nmenu - HTML.Font\ &Styles.STRONG         st i
@@ -2166,18 +2179,17 @@ HTMLmenu nmenu - HTML.Font\ &Styles.Variable       va i
 
 # Frames menu:   {{{2
 
-HTMLmenu imenu - HTML.&Frames.FRAMESET fs
-HTMLmenu vmenu - HTML.&Frames.FRAMESET fs
-HTMLmenu nmenu - HTML.&Frames.FRAMESET fs i
-HTMLmenu imenu - HTML.&Frames.FRAME    fr
-HTMLmenu vmenu - HTML.&Frames.FRAME    fr
-HTMLmenu nmenu - HTML.&Frames.FRAME    fr i
-HTMLmenu imenu - HTML.&Frames.NOFRAMES nf
-HTMLmenu vmenu - HTML.&Frames.NOFRAMES nf
-HTMLmenu nmenu - HTML.&Frames.NOFRAMES nf i
-HTMLmenu imenu - HTML.&Frames.IFRAME   if
-HTMLmenu vmenu - HTML.&Frames.IFRAME   if
-HTMLmenu nmenu - HTML.&Frames.IFRAME   if i
+# HTMLmenu imenu - HTML.&Frames.FRAMESET fs
+# HTMLmenu vmenu - HTML.&Frames.FRAMESET fs
+# HTMLmenu nmenu - HTML.&Frames.FRAMESET fs i
+# HTMLmenu imenu - HTML.&Frames.FRAME    fr
+# HTMLmenu vmenu - HTML.&Frames.FRAME    fr
+# HTMLmenu nmenu - HTML.&Frames.FRAME    fr i
+# HTMLmenu imenu - HTML.&Frames.NOFRAMES nf
+# HTMLmenu vmenu - HTML.&Frames.NOFRAMES nf
+# HTMLmenu nmenu - HTML.&Frames.NOFRAMES nf i
+#
+# IFRAME menu item has been moved
 
 
 # Headings menu:   {{{2
@@ -2402,9 +2414,9 @@ HTMLmenu nmenu - HTML.SSI\ Directi&ves.&echo\ var            ev i
 HTMLmenu imenu - HTML.SSI\ Directi&ves.&include\ virtual     iv
 HTMLmenu vmenu - HTML.SSI\ Directi&ves.&include\ virtual     iv
 HTMLmenu nmenu - HTML.SSI\ Directi&ves.&include\ virtual     iv i
-HTMLmenu imenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fl
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fl
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fl i
+HTMLmenu imenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fv
+HTMLmenu vmenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fv
+HTMLmenu nmenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fv i
 HTMLmenu imenu - HTML.SSI\ Directi&ves.fsi&ze\ virtual       fz
 HTMLmenu vmenu - HTML.SSI\ Directi&ves.fsi&ze\ virtual       fz
 HTMLmenu nmenu - HTML.SSI\ Directi&ves.fsi&ze\ virtual       fz i
@@ -2430,40 +2442,40 @@ HTMLmenu nmenu - HTML.Content-Type                   ct i
 
  menu HTML.-sep7- <nul>
 
-HTMLmenu imenu - HTML.BODY             bd
-HTMLmenu vmenu - HTML.BODY             bd
-HTMLmenu nmenu - HTML.BODY             bd i
-HTMLmenu imenu - HTML.BUTTON           bn
-HTMLmenu vmenu - HTML.BUTTON           bn
-HTMLmenu nmenu - HTML.BUTTON           bn i
-HTMLmenu imenu - HTML.CENTER           ce
-HTMLmenu vmenu - HTML.CENTER           ce
-HTMLmenu nmenu - HTML.CENTER           ce i
-HTMLmenu imenu - HTML.Comment          cm
-HTMLmenu vmenu - HTML.Comment          cm
-HTMLmenu nmenu - HTML.Comment          cm i
-HTMLmenu imenu - HTML.HEAD             he
-HTMLmenu vmenu - HTML.HEAD             he
-HTMLmenu nmenu - HTML.HEAD             he i
-HTMLmenu imenu - HTML.Horizontal\ Rule hr
-HTMLmenu nmenu - HTML.Horizontal\ Rule hr i
-HTMLmenu imenu - HTML.HTML             ht
-HTMLmenu vmenu - HTML.HTML             ht
-HTMLmenu nmenu - HTML.HTML             ht i
-HTMLmenu imenu - HTML.Hyperlink        ah
-HTMLmenu vmenu - HTML.Hyperlink        ah
-HTMLmenu nmenu - HTML.Hyperlink        ah i
-HTMLmenu imenu - HTML.Inline\ Image    im
-HTMLmenu vmenu - HTML.Inline\ Image    im
-HTMLmenu nmenu - HTML.Inline\ Image    im i
+HTMLmenu imenu - HTML.BODY               bd
+HTMLmenu vmenu - HTML.BODY               bd
+HTMLmenu nmenu - HTML.BODY               bd i
+HTMLmenu imenu - HTML.BUTTON             bn
+HTMLmenu vmenu - HTML.BUTTON             bn
+HTMLmenu nmenu - HTML.BUTTON             bn i
+HTMLmenu imenu - HTML.CENTER             ce
+HTMLmenu vmenu - HTML.CENTER             ce
+HTMLmenu nmenu - HTML.CENTER             ce i
+HTMLmenu imenu - HTML.Comment            cm
+HTMLmenu vmenu - HTML.Comment            cm
+HTMLmenu nmenu - HTML.Comment            cm i
+HTMLmenu imenu - HTML.HEAD               he
+HTMLmenu vmenu - HTML.HEAD               he
+HTMLmenu nmenu - HTML.HEAD               he i
+HTMLmenu imenu - HTML.Horizontal\ Rule   hr
+HTMLmenu nmenu - HTML.Horizontal\ Rule   hr i
+HTMLmenu imenu - HTML.HTML               ht
+HTMLmenu vmenu - HTML.HTML               ht
+HTMLmenu nmenu - HTML.HTML               ht i
+HTMLmenu imenu - HTML.Hyperlink          ah
+HTMLmenu vmenu - HTML.Hyperlink          ah
+HTMLmenu nmenu - HTML.Hyperlink          ah i
+HTMLmenu imenu - HTML.Inline\ Image      im
+HTMLmenu vmenu - HTML.Inline\ Image      im
+HTMLmenu nmenu - HTML.Inline\ Image      im i
 HTMLmenu imenu - HTML.Update\ Image\ Size\ Attributes mi
 HTMLmenu vmenu - HTML.Update\ Image\ Size\ Attributes mi
 HTMLmenu nmenu - HTML.Update\ Image\ Size\ Attributes mi
 HTMLmenu imenu - HTML.Line\ Break        br
 HTMLmenu nmenu - HTML.Line\ Break        br i
-HTMLmenu imenu - HTML.Named\ Anchor      an
-HTMLmenu vmenu - HTML.Named\ Anchor      an
-HTMLmenu nmenu - HTML.Named\ Anchor      an i
+# HTMLmenu imenu - HTML.Named\ Anchor      an
+# HTMLmenu vmenu - HTML.Named\ Anchor      an
+# HTMLmenu nmenu - HTML.Named\ Anchor      an i
 HTMLmenu imenu - HTML.Paragraph          pp
 HTMLmenu vmenu - HTML.Paragraph          pp
 HTMLmenu nmenu - HTML.Paragraph          pp i
@@ -2492,6 +2504,9 @@ HTMLmenu nmenu - HTML.&More\.\.\..Defining\ Instance        df i
 HTMLmenu imenu - HTML.&More\.\.\..Document\ Division        dv
 HTMLmenu vmenu - HTML.&More\.\.\..Document\ Division        dv
 HTMLmenu nmenu - HTML.&More\.\.\..Document\ Division        dv i
+HTMLmenu imenu - HTML.&More\.\.\..Inline\ Frame             if
+HTMLmenu vmenu - HTML.&More\.\.\..Inline\ Frame             if
+HTMLmenu nmenu - HTML.&More\.\.\..Inline\ Frame             if i
 HTMLmenu imenu - HTML.&More\.\.\..JavaScript                js
 HTMLmenu nmenu - HTML.&More\.\.\..JavaScript                js i
 HTMLmenu imenu - HTML.&More\.\.\..Sourced\ JavaScript       sj

@@ -147,14 +147,12 @@ rsync scp:
 install: HTML.vim HTML.txt tags BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim
 	cp -f HTML.vim ~/.vim/pack/cjr/start/HTML/ftplugin/html/
 	cp -f HTML.txt tags ~/.vim/pack/cjr/start/HTML/doc/
-	cp -f BrowserLauncher.vim ~/.vim/pack/cjr/start/HTML/autoload/
-	cp -f MangleImageTag.vim ~/.vim/pack/cjr/start/HTML/autoload/
-	cp -f HTMLfunctions.vim ~/.vim/pack/cjr/start/HTML/autoload/
+	cp -f BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim \
+		~/.vim/pack/cjr/start/HTML/autoload/
 	cp -f HTML.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/ftplugin/html/
 	cp -f HTML.txt tags ~/Dropbox/vimfiles/pack/cjr/start/HTML/doc/
-	cp -f BrowserLauncher.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/autoload/
-	cp -f MangleImageTag.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/autoload/
-	cp -f HTMLfunctions.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/autoload/
+	cp -f BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim \
+		~/Dropbox/vimfiles/pack/cjr/start/HTML/autoload/
 
 
 #faq FAQ: $(textfaq)
