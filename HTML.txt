@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Oct 28
+		Last change: 2020 Nov 01
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -230,7 +230,7 @@ Within the internal template, html_authorname is inserted inside >
 	<META NAME="Author" CONTENT="...">
 <g:html_authoremail is converted to |g:html_authoremail_encoded| and inserted
 inside >
-	<LINK REV="made" HREF="mailto:...">
+	<LINK REL="made" HREF="mailto:...">
 <	e.g.: >
 	:let g:html_authorname  = 'John Smith'
 	:let g:html_authoremail = 'jsmith@example.com'
@@ -308,16 +308,18 @@ This is replaced by a string that is automatically detected based on the
 |g:html_default_charset| and |g:html_charset|.  (Also see |html-author-notes|)
 
 %vimversion%					*%vimversion%*
-The current version of Vim, based on |v:version|.  For example, if v:version
-was "701" the %vimversion% token would contain "7.1".
+The current version of Vim, based on |v:version| and |v:versionlong|.  For
+example, if v:version was "802" and v:versionlong was "8020220" the
+%vimversion% token would be replaced by "8.2.220".
 
 So if you had the template: >
- <HTML>
+ <!DOCTYPE html>
+ <HTML LANG="en">
   <HEAD>
    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=%charset%">
    <META NAME="Author" CONTENT="%authorname%">
    <META NAME="Copyright" CONTENT="Copyright (C) %date% %authorname%">
-   <LINK REV="made" HREF="mailto:%authoremail%">
+   <LINK REL="made" HREF="mailto:%authoremail%">
    <STYLE TYPE="text/css">
     <!--
     BODY {background: %bgcolor%; color: %textcolor%;}
@@ -327,17 +329,20 @@ So if you had the template: >
     -->
    </STYLE>
   </HEAD>
-  <BODY BGCOLOR="%bgcolor%" TEXT="%textcolor%" LINK="%linkcolor%" ALINK="%alinkcolor%" VLINK="%vlinkcolor%">
+  <BODY>
+   <P>
+   </P>
   </BODY>
  </HTML>
 <
 You would get something like: >
- <HTML>
+ <!DOCTYPE html>
+ <HTML LANG="en">
   <HEAD>
    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
    <META NAME="Author" CONTENT="John Smith">
-   <META NAME="Copyright" CONTENT="Copyright (C) March 16, 2004 John Smith">
-   <LINK REV="made" HREF="mailto:jsmith@example.com">
+   <META NAME="Copyright" CONTENT="Copyright (C) March 16, 2018 John Smith">
+   <LINK REL="made" HREF="mailto:jsmith@example.com">
     <STYLE TYPE="text/css">
      <!--
      BODY {background: #FFFFFF; color: #000000;}
@@ -347,7 +352,9 @@ You would get something like: >
      -->
     </STYLE>
   </HEAD>
-  <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000EE" ALINK="#FF0000" VLINK="#990066">
+  <BODY>
+   <P>
+   </P>
   </BODY>
  </HTML>
 <
@@ -488,14 +495,6 @@ another character of your preference.  See |g:html_map_leader|.
 	and places the cursor on the < of </ABBREV>.  If this is used in
 	insert mode rather than visual mode, the contents of the |clipboard| are
 	placed between the quotes. (|n_;|)
-							*i_;ac* *v_;ac* *n_;ac*
-							*i_;aC* *v_;aC* *n_;aC*
-;ac and ;aC
-	Acronym: >
-	<ACRONYM TITLE=""></ACRONYM>
-<	Similar to the |;ab| and |;aB| mappings, but uses ACRONYM instead of
-	ABBR.  (Note this is no longer supported since it is not HTML 5
-	compatible, use ABBR instead.) (|n_;|)
 							*i_;ad* *v_;ad* *n_;ad*
 ;ad	Address: >
 	<ADDRESS></ADDRESS>
@@ -668,6 +667,11 @@ another character of your preference.  See |g:html_map_leader|.
 ;H1 through ;H6
 	Headings, levels 1-6, centered: >
 	<H_ STYLE="text-align: center;"></H_>
+<	(|n_;|)
+							*i_;hg* *v_;hg* *n_;hg*
+;hg	Header grouping: >
+	<HGROUP>
+	</HGROUP>
 <	(|n_;|)
 							*i_;he* *v_;he* *n_;he*
 ;he	Head: >

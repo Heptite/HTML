@@ -4,8 +4,8 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: October 29, 2020
-# Version:     1.0.3
+# Last Change: November 02, 2020
+# Version:     1.0.4
 # Original Concept: Doug Renze
 #
 #
@@ -19,13 +19,18 @@ vim9script
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
-# Software Foundation; either version 2 of the License, or  (at  your  option)
+# Software Foundation; either version 3 of the License, or  (at  your  option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but  WITHOUT
 # ANY WARRANTY; without  even  the  implied  warranty  of  MERCHANTABILITY  or
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General  Public  License  for
 # more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
+# https://www.gnu.org/licenses/licenses.html#GPL
 #
 # ---- Original Author's Notes: ----------------------------------------------
 #
@@ -164,46 +169,45 @@ if ! exists("b:did_html_mappings_init")
 
   # Template Creation: {{{2
 
-  var internal_html_template =
-    " <[{HEAD}]>\n\n" ..
-    "  <[{TITLE></TITLE}]>\n\n" ..
-    "  <[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=%charset%\" />\n" ..
-    "  <[{META NAME}]=\"Generator\" [{CONTENT}]=\"Vim %vimversion% (Vi IMproved editor; http://www.vim.org/)\" />\n" ..
-    "  <[{META NAME}]=\"Author\" [{CONTENT}]=\"%authorname%\" />\n" ..
-    "  <[{META NAME}]=\"Copyright\" [{CONTENT}]=\"Copyright (C) %date% %authorname%\" />\n" ..
-    "  <[{LINK REL}]=\"made\" [{HREF}]=\"mailto:%authoremail%\" />\n\n" ..
-    "  <[{STYLE TYPE}]=\"text/css\">\n" ..
-    "   <!--\n" ..
-    "   [{BODY}] {background: %bgcolor%; color: %textcolor%;}\n" ..
-    "   [{A}]:link {color: %linkcolor%;}\n" ..
-    "   [{A}]:visited {color: %vlinkcolor%;}\n" ..
-    "   [{A}]:hover, [{A}]:active, [{A}]:focus {color: %alinkcolor%;}\n" ..
-    "   -->\n" ..
-    "  </[{STYLE}]>\n\n" ..
-    " </[{HEAD}]>\n" ..
-    " <[{BODY}]>\n\n" ..
-    "  <[{H1 STYLE}]=\"text-align: center;\"></[{H1}]>\n\n" ..
-    "  <[{P}]>\n" ..
-    "  </[{P}]>\n\n" ..
-    "  <[{HR STYLE}]=\"width: 75%;\" />\n\n" ..
-    "  <[{P}]>\n" ..
-    "  Last Modified: <[{I}]>%date%</[{I}]>\n" ..
-    "  </[{P}]>\n\n" ..
-    "  <[{ADDRESS}]>\n" ..
-    "   <[{A HREF}]=\"mailto:%authoremail%\">%authorname% &lt;%authoremail%&gt;</[{A}]>\n" ..
-    "  </[{ADDRESS}]>\n" ..
-    " </[{BODY}]>\n" ..
-    "</[{HTML}]>"
+  var internal_html_template = " <[{HEAD}]>\n\n"
+    .. "  <[{TITLE></TITLE}]>\n\n"
+    .. "  <[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=%charset%\" />\n"
+    .. "  <[{META NAME}]=\"Generator\" [{CONTENT}]=\"Vim %vimversion% (Vi IMproved editor; http://www.vim.org/)\" />\n"
+    .. "  <[{META NAME}]=\"Author\" [{CONTENT}]=\"%authorname%\" />\n"
+    .. "  <[{META NAME}]=\"Copyright\" [{CONTENT}]=\"Copyright (C) %date% %authorname%\" />\n"
+    .. "  <[{LINK REL}]=\"made\" [{HREF}]=\"mailto:%authoremail%\" />\n\n"
+    .. "  <[{STYLE TYPE}]=\"text/css\">\n"
+    .. "   <!--\n"
+    .. "   [{BODY}] {background: %bgcolor%; color: %textcolor%;}\n"
+    .. "   [{A}]:link {color: %linkcolor%;}\n"
+    .. "   [{A}]:visited {color: %vlinkcolor%;}\n"
+    .. "   [{A}]:hover, [{A}]:active, [{A}]:focus {color: %alinkcolor%;}\n"
+    .. "   -->\n"
+    .. "  </[{STYLE}]>\n\n"
+    .. " </[{HEAD}]>\n"
+    .. " <[{BODY}]>\n\n"
+    .. "  <[{H1 STYLE}]=\"text-align: center;\"></[{H1}]>\n\n"
+    .. "  <[{P}]>\n"
+    .. "  </[{P}]>\n\n"
+    .. "  <[{HR STYLE}]=\"width: 75%;\" />\n\n"
+    .. "  <[{P}]>\n"
+    .. "  Last Modified: <[{I}]>%date%</[{I}]>\n"
+    .. "  </[{P}]>\n\n"
+    .. "  <[{ADDRESS}]>\n"
+    .. "   <[{A HREF}]=\"mailto:%authoremail%\">%authorname% &lt;%authoremail%&gt;</[{A}]>\n"
+    .. "  </[{ADDRESS}]>\n"
+    .. " </[{BODY}]>\n"
+    .. "</[{HTML}]>"
 
   if g:HTMLfunctions#BoolVar('b:do_xhtml_mappings')
-    b:internal_html_template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" ..
-          " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" ..
-          "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" ..
-          internal_html_template
+    b:internal_html_template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
+          .. " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+          .. "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+          .. internal_html_template
   else
-    b:internal_html_template = "<!DOCTYPE html>\n" ..
-          "<[{HTML}]>\n" ..
-          internal_html_template
+    b:internal_html_template = "<!DOCTYPE html>\n"
+          .. "<[{HTML}]>\n"
+          .. internal_html_template
     b:internal_html_template = b:internal_html_template->substitute(' />', '>', 'g')
   endif
 
@@ -605,6 +609,13 @@ g:HTMLfunctions#Mapo('<lead>H4', 0)
 g:HTMLfunctions#Mapo('<lead>H5', 0)
 g:HTMLfunctions#Mapo('<lead>H6', 0)
 
+#       HGROUP  Group headings             HTML 5
+g:HTMLfunctions#Map('inoremap', '<lead>hg', '<[{HGROUP}]><CR></[{HGROUP}]><C-O>O')
+# Visual mapping:
+g:HTMLfunctions#Map('vnoremap', '<lead>hg', '<ESC>`>a<CR></[{HGROUP}]><C-O>`<<[{HGROUP}]><CR><ESC>', 1)
+# Motion mapping:
+g:HTMLfunctions#Mapo('<lead>hg', 0)
+
 #       HEAD                            HTML 2.0
 g:HTMLfunctions#Map('inoremap', '<lead>he', '<[{HEAD}]><CR></[{HEAD}]><ESC>O')
 # Visual mapping:
@@ -612,9 +623,8 @@ g:HTMLfunctions#Map('vnoremap', '<lead>he', '<ESC>`>a<CR></[{HEAD}]><C-O>`<<[{HE
 # Motion mapping:
 g:HTMLfunctions#Mapo('<lead>he', 0)
 
-#       HR      Horizontal Rule         HTML 2.0 W/NETSCAPISM
+#       HR      Horizontal Rule         HTML 2.0
 g:HTMLfunctions#Map('inoremap', '<lead>hr', '<[{HR}] />')
-#       HR      Horizontal Rule         HTML 2.0 W/NETSCAPISM
 g:HTMLfunctions#Map('inoremap', '<lead>Hr', '<[{HR STYLE}]="width: 75%;" />')
 
 #       HTML
@@ -1588,36 +1598,37 @@ if ! g:HTMLfunctions#BoolVar('g:no_html_toolbar') && has("toolbar")
     HTMLmenu amenu 1.510 ToolBar.Browser db
   endif
 
-  if exists("*g:BrowserLauncher#Launch")
-    silent! var s:browsersexist = BrowserLauncher#Launch()
+  if maparg(g:html_map_leader .. 'ff', 'n') != ''
+    tmenu           1.520 ToolBar.Firefox   Launch Firefox on Current File
+    HTMLmenu amenu  1.520 ToolBar.Firefox   ff
+  endif
 
-    if s:browsersexist =~ 'f'
-      tmenu           1.520 ToolBar.Firefox   Launch Firefox on Current File
-      HTMLmenu amenu  1.520 ToolBar.Firefox   ff
-    endif
+  if maparg(g:html_map_leader .. 'gc', 'n') != ''
+    tmenu           1.530 ToolBar.Chrome    Launch Chrome on Current File
+    HTMLmenu amenu  1.530 ToolBar.Chrome    gc
+  endif
 
-    if s:browsersexist =~ 'c'
-      tmenu           1.530 ToolBar.Chrome    Launch Chrome on Current File
-      HTMLmenu amenu  1.530 ToolBar.Chrome    gc
-    endif
+  if maparg(g:html_map_leader .. 'ed', 'n') != ''
+    tmenu           1.540 ToolBar.Edge      Launch Edge on Current File
+    HTMLmenu amenu  1.540 ToolBar.Edge      ed
+  endif
 
-    if s:browsersexist =~ 'e'
-      tmenu           1.540 ToolBar.Edge      Launch Edge on Current File
-      HTMLmenu amenu  1.540 ToolBar.Edge      ed
-    endif
+  if maparg(g:html_map_leader .. 'oa', 'n') != ''
+    tmenu           1.550 ToolBar.Opera     Launch Opera on Current File
+    HTMLmenu amenu  1.550 ToolBar.Opera     oa
+  endif
 
-    if s:browsersexist =~ 'o'
-      tmenu           1.550 ToolBar.Opera     Launch Opera on Current File
-      HTMLmenu amenu  1.550 ToolBar.Opera     oa
-    endif
+  if maparg(g:html_map_leader .. 'sf', 'n') != ''
+    tmenu           1.560 ToolBar.Safari    Launch Safari on Current File
+    HTMLmenu amenu  1.560 ToolBar.Safari    sf
+  endif
 
-    if s:browsersexist =~ 'w'
-      tmenu           1.560 ToolBar.w3m       Launch w3m on Current File
-      HTMLmenu amenu  1.560 ToolBar.w3m       w3
-    elseif s:browsersexist =~ 'l'
-      tmenu           1.560 ToolBar.Lynx      Launch Lynx on Current File
-      HTMLmenu amenu  1.560 ToolBar.Lynx      ly
-    endif
+  if maparg(g:html_map_leader .. 'w3', 'n') != ''
+    tmenu           1.570 ToolBar.w3m       Launch w3m on Current File
+    HTMLmenu amenu  1.570 ToolBar.w3m       w3
+  elseif maparg(g:html_map_leader .. 'ly', 'n') != ''
+    tmenu           1.570 ToolBar.Lynx      Launch Lynx on Current File
+    HTMLmenu amenu  1.570 ToolBar.Lynx      ly
   endif
 
    menu 1.998 ToolBar.-sep99- <nul>
@@ -2212,6 +2223,9 @@ HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 3 h3 i
 HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 4 h4 i
 HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 5 h5 i
 HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 6 h6 i
+HTMLmenu imenu - HTML.&Headings.Heading\ Grouping hg
+HTMLmenu vmenu - HTML.&Headings.Heading\ Grouping hg
+HTMLmenu nmenu - HTML.&Headings.Heading\ Grouping hg i
 
 
 # Lists menu:   {{{2
@@ -2357,9 +2371,9 @@ HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&Video\ with\ controls  vi i
 HTMLmenu imenu - HTML.HTML\ &5\ Tags.&CANVAS                 cv
 HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&CANVAS                 cv
 HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&CANVAS                 cv i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&DETAILS\ with\ summary ds
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&DETAILS\ with\ summary ds
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&DETAILS\ with\ summary ds i
+HTMLmenu imenu - HTML.HTML\ &5\ Tags.&DETAILS\ with\ SUMMARY ds
+HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&DETAILS\ with\ SUMMARY ds
+HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&DETAILS\ with\ SUMMARY ds i
 HTMLmenu imenu - HTML.HTML\ &5\ Tags.&EMBED                  eb
 HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&EMBED                  eb
 HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&EMBED                  eb i
@@ -2451,9 +2465,6 @@ HTMLmenu nmenu - HTML.BUTTON             bn i
 HTMLmenu imenu - HTML.CENTER             ce
 HTMLmenu vmenu - HTML.CENTER             ce
 HTMLmenu nmenu - HTML.CENTER             ce i
-HTMLmenu imenu - HTML.Comment            cm
-HTMLmenu vmenu - HTML.Comment            cm
-HTMLmenu nmenu - HTML.Comment            cm i
 HTMLmenu imenu - HTML.HEAD               he
 HTMLmenu vmenu - HTML.HEAD               he
 HTMLmenu nmenu - HTML.HEAD               he i
@@ -2498,6 +2509,9 @@ HTMLmenu nmenu - HTML.&More\.\.\..BASE\ TARGET              bt i
 HTMLmenu imenu - HTML.&More\.\.\..BLOCKQUTE                 bl
 HTMLmenu vmenu - HTML.&More\.\.\..BLOCKQUTE                 bl
 HTMLmenu nmenu - HTML.&More\.\.\..BLOCKQUTE                 bl i
+HTMLmenu imenu - HTML.&More\.\.\..Comment                   cm
+HTMLmenu vmenu - HTML.&More\.\.\..Comment                   cm
+HTMLmenu nmenu - HTML.&More\.\.\..Comment                   cm i
 HTMLmenu imenu - HTML.&More\.\.\..Defining\ Instance        df
 HTMLmenu vmenu - HTML.&More\.\.\..Defining\ Instance        df
 HTMLmenu nmenu - HTML.&More\.\.\..Defining\ Instance        df i
@@ -2559,9 +2573,9 @@ if ! exists('g:did_html_plugin_warning_check')
     var pluginfilesmatched: list<string>
     pluginfilesmatched = pluginfiles->g:HTMLfunctions#FilesWithMatch('http://christianrobinson.name/\(programming/\)\?vim/HTML/', 15)
     if pluginfilesmatched->len() > 1
-      var pluginfileline = "Multiple versions of the HTML.vim filetype plugin are installed.\n" ..
-        "Locations:\n   " .. pluginfilesmatched->join("\n   ") ..
-        "\n(Don't forget about browser_launcher.vim and MangleImageTag.vim)"
+      var pluginfileline = "Multiple versions of the HTML.vim filetype plugin are installed.\n"
+        .. "Locations:\n   " .. pluginfilesmatched->join("\n   ")
+        .. "\n(Don't forget about browser_launcher.vim and MangleImageTag.vim)"
       eval pluginfileline->confirm('&Dismiss', 1, 'Warning')
     endif
   endif
