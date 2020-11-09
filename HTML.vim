@@ -4,8 +4,8 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: November 02, 2020
-# Version:     1.0.4
+# Last Change: November 08, 2020
+# Version:     1.0.5
 # Original Concept: Doug Renze
 #
 #
@@ -65,8 +65,8 @@ vim9script
 
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8021920
-  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1920'
+if v:version < 802 || v:versionlong < 8021968
+  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1968'
   sleep 2
   finish
 endif
@@ -1442,7 +1442,12 @@ elseif exists("g:did_html_menus")
   g:HTMLfunctions#MenuControl()
 elseif ! g:HTMLfunctions#BoolVar('g:no_html_menu')
 
-if ! g:HTMLfunctions#BoolVar('g:no_html_toolbar') && has("toolbar")
+# Solve a race condition:
+if ! exists('g:did_install_default_menus')
+  source $VIMRUNTIME/menu.vim
+endif
+
+if ! g:HTMLfunctions#BoolVar('g:no_html_toolbar') && has('toolbar')
 
   if ((has("win32") || has('win64')) && findfile('bitmaps/Browser.bmp', &rtp) == '')
       || findfile('bitmaps/Browser.xpm', &rtp) == ''
@@ -1480,8 +1485,6 @@ if ! g:HTMLfunctions#BoolVar('g:no_html_toolbar') && has("toolbar")
 
   set guioptions+=T
 
-  # Unfortunately a race condition in using the :gui command prevents this
-  # from working correctly--no workaround is possible, that I know of:
   silent! unmenu ToolBar
   silent! unmenu! ToolBar
 

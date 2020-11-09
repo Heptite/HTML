@@ -24,7 +24,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021920
+if v:versionlong < 8021968
     finish
 endif
 
@@ -633,18 +633,11 @@ enddef
 #                 Default is 'n'.
 # Return Value:
 #  None.
-# Known problems:
-#  Due to the necessity of running the search twice (why doesn't Vim support
-#  cursor offset positioning in search()?) this function
-#    a) won't ever position the cursor on an "empty" tag that starts on the
-#       first character of the first line of the buffer
-#    b) won't let the cursor "escape" from an "empty" tag that it can match on
-#       the first line of the buffer when the cursor is on the first line and
-#       tab is successively pressed
+# Known Limitations:
+#  It is impossible to cycle through all of the unfilled tags in a file; the
+#  cursor will just jump back to the nearest unfilled tag if it is on the same
+#  line as the cursor when the function is invoked.
 def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
-  var saveerrmsg  = v:errmsg | v:errmsg = ''
-  var saveruler   = &ruler   | &ruler   = 0
-  var saveshowcmd = &showcmd | &showcmd = 0
   var byteoffset  = g:HTMLfunctions#ByteOffset()
   var done: bool
 
@@ -668,20 +661,17 @@ def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
         normal! l
       endif
 
-      v:errmsg = saveerrmsg
-      &ruler   = saveruler
-      &showcmd = saveshowcmd
-
       return
     endif
   endif
 
+  # Move to the end of the previous line, if possible, to allow the search()
+  # to work as intended:
   normal! 0
+  silent! execute "go " .. (g:HTMLfunctions#ByteOffset() - 1)
 
-  # Running the search twice is inefficient, but it squelches error
-  # messages and the second search puts the cursor where it's needed...
-
-  if '<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->'->search('w') == 0
+  if '<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->'->search('wz') == 0
+    # Nothing matched, so move the cursor back where it was:
     if byteoffset < 1
       go 1
     else
@@ -691,13 +681,11 @@ def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
       endif
     endif
   else
-    normal! 0
-    var tmp = g:HTMLfunctions#ByteOffset() - 1
-    execute 'go ' .. (tmp < 1 ? 1 : tmp)
-    execute 'silent! keeppatterns normal! /<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->/;/>\_s*<\|""\|<!--\_s*-->/e' .. "\<CR>"
+    # There was a match, so position the cursor appropriately:
+    eval '>\_s*<\|""\|<!--\_s*-->'->search('e')
 
-    # Handle cursor positioning for comments and/or open+close tags spanning
-    # multiple lines:
+    # ...and handle cursor positioning for comments or open+close tags
+    # spanning multiple lines:
     if getline('.') =~ '<!-- \+-->'
       execute "normal! F\<space>"
     elseif getline('.') =~ '^ *-->' && getline(line('.') - 1) =~ '<!-- *$'
@@ -708,12 +696,7 @@ def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
     elseif getline('.') =~ '^ *<\/[^<>]\+>' && getline(line('.') - 1) =~ '^ *$'
       normal! k$
     endif
-
   endif
-
-  v:errmsg = saveerrmsg
-  &ruler   = saveruler
-  &showcmd = saveshowcmd
 enddef
 
 # g:HTMLfunctions#SmartTag()  {{{1

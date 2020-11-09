@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Nov 01
+		Last change: 2020 Nov 08
 		Author: Christian J. Robinson
 
 						*HTML.vim* *HTML-macros*
@@ -68,17 +68,17 @@ example, if you are within <I></I> and type |;em| it will assume you want
 				*html-<Tab>* *html-tab* *html-CTRL-I*
 				*i_html-<Tab>* *i_html-tab* *i_html-CTRL-I*
 				*v_html-<Tab>* *v_html-tab* *v_html-CTRL-I*
-<Tab>	If the cursor is on a closing tag the tab key jumps the cursor after
-	the tag.  Otherwise the tab key will jump the cursor to an unfilled
+<Tab>	If the cursor is on a closing tag the <Tab> key jumps the cursor after
+	the tag.  Otherwise the <Tab> key will jump the cursor to an unfilled
 	tag somewhere in the file.  For example, if you had the tag:
 >
 	 <A HREF=""></A>
 <
-	And you hit tab, your cursor would be placed on the second " so you
-	could insert text easily.  Next time you hit tab it would be placed on
-	the < character of </A>.  And the third time you hit tab the cursor
-	would be placed on the > of </A>, and so on.  This works for tags
-	split across lines, such as:
+	And you hit <Tab>, your cursor would be placed on the second " so you
+	could insert text easily.  After filling in some text, the next time
+	you hit <Tab> it would be placed on the < character of </A>.  And the
+	third time you hit <Tab> the cursor would be placed on the > of </A>,
+	and so on.  This works for tags split across lines, such as:
 >
 	 <TABLE>
 	 </TABLE>
@@ -217,6 +217,7 @@ in the console (see |console-menus|).  This variable is ignored if
 |g:no_html_menu| is set.  This variable must be set before HTML.vim is
 sourced.  e.g.: >
 	:let g:force_html_menu = 'yes'
+Note: Setting this variable will also force the system menu.vim to load.
 
 *g:html_template* *b:html_template*
 Set this variable to the location of your template file to be used by the
