@@ -4,6 +4,8 @@ vim9script
 #
 # Vim script to launch/control browsers
 #
+# Last Change: November 08, 2020
+#
 # Currently supported browsers:
 # Unix:
 #  - Firefox  (remote [new window / new tab] / launch)

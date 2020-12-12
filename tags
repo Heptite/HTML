@@ -24,6 +24,7 @@ HTML-reload-macros	HTML.txt	/*HTML-reload-macros*
 HTML-reload-mappings	HTML.txt	/*HTML-reload-mappings*
 HTML.txt	HTML.txt	/*HTML.txt*
 HTML.vim	HTML.txt	/*HTML.vim*
+HTML.zip	HTML.txt	/*HTML.zip*
 HTMLfunctions#DecodeSymbol()	HTML.txt	/*HTMLfunctions#DecodeSymbol()*
 HTMLfunctions#EncodeString()	HTML.txt	/*HTMLfunctions#EncodeString()*
 HTMLfunctions#GenerateTable()	HTML.txt	/*HTMLfunctions#GenerateTable()*
@@ -660,6 +661,7 @@ reload-HTML-mappings	HTML.txt	/*reload-HTML-mappings*
 v_;#	HTML.txt	/*v_;#*
 v_;%	HTML.txt	/*v_;%*
 v_;&	HTML.txt	/*v_;&*
+v_;3	HTML.txt	/*v_;3*
 v_;;	HTML.txt	/*v_;;*
 v_;@	HTML.txt	/*v_;@*
 v_;H1	HTML.txt	/*v_;H1*

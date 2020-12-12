@@ -2,6 +2,8 @@ vim9script
 
 # Various functions for the HTML.vim filetype plugin.
 #
+# Last Change: November 14, 2020
+#
 # Requirements:
 #       Vim 9 or later
 #
@@ -24,8 +26,8 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021968
-    finish
+if v:versionlong < 8021978
+  finish
 endif
 
 # g:HTMLfunctions#SetIfUnset()  {{{1
@@ -44,14 +46,14 @@ def g:HTMLfunctions#SetIfUnset(variable: string, ...args: list<string>): number
   var newvariable = variable
 
   if variable =~# '^l:'
-    execute "HTMLERROR Cannot set a local variable with " .. expand('<sfile>')
+    execute 'HTMLERROR Cannot set a local variable with ' .. expand('<sfile>')
     return -1
   elseif variable !~# '^[bgstvw]:'
     newvariable = 'g:' .. variable
   endif
 
   if args->len() == 0
-    execute "HTMLERROR E119: Not enough arguments for function: " .. expand('<sfile>')
+    execute 'HTMLERROR E119: Not enough arguments for ' .. expand('<sfile>')
     return -1
   else
     val = args->join(' ')
@@ -97,7 +99,7 @@ def g:HTMLfunctions#BoolVar(variable: string): bool
   if newvariable->s:IsSet()
     # Unfortunately this is a suboptimal way to do this, but Vim9script
     # doesn't allow me to do it any other way:
-    execute "g:tmpvarval = " .. newvariable
+    execute 'g:tmpvarval = ' .. newvariable
     var varval = g:tmpvarval .. ''
     unlet g:tmpvarval
     return varval->s:Bool()
@@ -238,7 +240,7 @@ enddef
 #                 2: re-selects the region and re-indents.
 #                 (Don't use these two arguments for maps that enter insert
 #                 mode!)
-var modes = {  # {{{
+const MODES = {  # {{{
       'n': 'normal',
       'v': 'visual',
       'o': 'operator-pending',
@@ -263,7 +265,7 @@ def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -
   var newmap = map->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), '')
   newmap = newmap->substitute('^<elead>\c', g:html_map_entity_leader->escape('&~\'), '')
 
-  if modes->has_key(mode) && newmap->s:MapCheck(mode) >= 2
+  if MODES->has_key(mode) && newmap->s:MapCheck(mode) >= 2
     return
   endif
 
@@ -294,7 +296,7 @@ def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -
     execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
   endif
 
-  if modes->has_key(mode)
+  if MODES->has_key(mode)
     b:HTMLclearMappings ..= ':' .. mode .. "unmap <buffer> " .. newmap .. "\<CR>"
   else
     b:HTMLclearMappings ..= ":unmap <buffer> " .. newmap .. "\<CR>"
@@ -356,11 +358,11 @@ def s:MapCheck(map: string, mode: string): number
         ( (exists('g:no_html_maps') && map =~# g:no_html_maps) ||
           (exists('b:no_html_maps') && map =~# b:no_html_maps) )
     return 3
-  elseif modes->has_key(mode) && map->maparg(mode) != ''
+  elseif MODES->has_key(mode) && map->maparg(mode) != ''
     if g:HTMLfunctions#BoolVar('g:no_html_map_override') && g:doing_internal_html_mappings
       return 2
     else
-      execute "HTMLWARN WARNING: A mapping to \"" .. map .. "\" for " .. modes[mode] .. " mode has been overridden for this buffer."
+      execute "HTMLWARN WARNING: A mapping to \"" .. map .. "\" for " .. MODES[mode] .. " mode has been overridden for this buffer."
       return 1
     endif
   endif
@@ -509,7 +511,7 @@ def g:HTMLfunctions#ToggleClipboard(i: number)
     if exists('g:html_save_clipboard') != 0
       &clipboard = g:html_save_clipboard
     else
-      HTMLERROR Somehow the HTML save clipboard global variable did not get set.
+      HTMLERROR Somehow the html_save_clipboard global variable did not get set.
     endif
   else
     if &clipboard !~? 'html'
@@ -609,16 +611,30 @@ def g:HTMLfunctions#ReIndent(first: number, last: number, extraline: number)
   execute ':' .. firstline .. ',' .. lastline .. 'norm =='
 enddef
 
-# g:HTMLfunctions#ByteOffset()  {{{1
+# s:ByteOffset()  {{{1
 #
 # Return the byte number of the current position.
 #
-# Arguments:
-#  None
+# Arguments (optional):
+#  Either:
+#   1 - Mark: The mark name to convert to offset, preceded by a ' (single
+#             quote character)
+#  Or:
+#   1 - Number: The line to get the byte offset from
+#   2 - Number: The column of the specified line to get the byte offset from
 # Return Value:
-#  The byte offset
-def g:HTMLfunctions#ByteOffset(): number
-  return line('.')->line2byte() + col('.') - 1
+#  The byte offset, a negative value means the specified mark is not set.
+def s:ByteOffset(lineormark: any = -1, column: number = -1): number
+  if type(lineormark) == 1 && lineormark =~ "^'.$"
+    return lineormark->line()->line2byte() + lineormark->col() - 1
+  elseif type(lineormark) == 0 && lineormark < 0 && column < 0
+    return line('.')->line2byte() + col('.') - 1
+  elseif type(lineormark) == 0 && lineormark > 0 && column > 0
+    return lineormark->line2byte() + column - 1
+  else
+    execute 'HTMLERROR Invalid argument(s) for ' .. expand('<sfile>')
+    return -1
+  endif
 enddef
 
 # g:HTMLfunctions#NextInsertPoint()  {{{1
@@ -638,7 +654,7 @@ enddef
 #  cursor will just jump back to the nearest unfilled tag if it is on the same
 #  line as the cursor when the function is invoked.
 def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
-  var byteoffset  = g:HTMLfunctions#ByteOffset()
+  var byteoffset = s:ByteOffset()
   var done: bool
 
   # Tab in insert mode on the beginning of a closing tag jumps us to
@@ -668,7 +684,7 @@ def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
   # Move to the end of the previous line, if possible, to allow the search()
   # to work as intended:
   normal! 0
-  silent! execute "go " .. (g:HTMLfunctions#ByteOffset() - 1)
+  silent! execute "go " .. (s:ByteOffset() - 1)
 
   if '<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->'->search('wz') == 0
     # Nothing matched, so move the cursor back where it was:
@@ -713,79 +729,80 @@ enddef
 # Return Value:
 #  The string to be executed to insert the tag.
 
-# smarttags[tag][mode][open/close] = keystrokes  {{{
+# SMARTTAGS[tag][mode][open/close] = keystrokes  {{{
 #  tag        - The literal tag, without the <>'s
 #  mode       - i = insert, v = visual
 #               (no "o", because o-mappings invoke visual mode)
 #  open/close - c = When inside an equivalent tag, close then open it
 #               o = When not inside an equivalent tag
 #  keystrokes - The mapping keystrokes to execute
-var smarttags: dict<dict<dict<string>>>
-smarttags['i'] = {
-      'i': {
-        'o': "<[{I></I}]>\<C-O>F<",
-        'c': "<[{/I><I}]>\<C-O>F<",
-      },
-      'v': {
-        'o': "`>a</[{I}]>\<C-O>`<<[{I}]>",
-        'c': "`>a<[{I}]>\<C-O>`<</[{I}]>",
-      }
+const SMARTTAGS = {
+  'i': {
+    'i': {
+      'o': "<[{I></I}]>\<C-O>F<",
+      'c': "<[{/I><I}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{I}]>\<C-O>`<<[{I}]>",
+      'c': "`>a<[{I}]>\<C-O>`<</[{I}]>",
     }
+  },
 
-smarttags['em'] = {
-      'i': {
-        'o': "<[{EM></EM}]>\<C-O>F<",
-        'c': "<[{/EM><EM}]>\<C-O>F<",
-      },
-      'v': {
-        'o': "`>a</[{EM}]>\<C-O>`<<[{EM}]>",
-        'c': "`>a<[{EM}]>\<C-O>`<</[{EM}]>",
-      }
+  'em': {
+    'i': {
+      'o': "<[{EM></EM}]>\<C-O>F<",
+      'c': "<[{/EM><EM}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{EM}]>\<C-O>`<<[{EM}]>",
+      'c': "`>a<[{EM}]>\<C-O>`<</[{EM}]>",
     }
+  },
 
-smarttags['b'] = {
-      'i': {
-        'o': "<[{B></B}]>\<C-O>F<",
-        'c': "<[{/B><B}]>\<C-O>F<",
-      },
-      'v': {
-        'o': "`>a</[{B}]>\<C-O>`<<[{B}]>",
-        'c': "`>a<[{B}]>\<C-O>`<</[{B}]>",
-      }
+  'b': {
+    'i': {
+      'o': "<[{B></B}]>\<C-O>F<",
+      'c': "<[{/B><B}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{B}]>\<C-O>`<<[{B}]>",
+      'c': "`>a<[{B}]>\<C-O>`<</[{B}]>",
     }
+  },
 
-smarttags['strong'] = {
-      'i': {
-        'o': "<[{STRONG></STRONG}]>\<C-O>F<",
-        'c': "<[{/STRONG><STRONG}]>\<C-O>F<",
-      },
-      'v': {
-        'o': "`>a</[{STRONG}]>\<C-O>`<<[{STRONG}]>",
-        'c': "`>a<[{STRONG}]>\<C-O>`<</[{STRONG}]>",
-      }
+  'strong': {
+    'i': {
+      'o': "<[{STRONG></STRONG}]>\<C-O>F<",
+      'c': "<[{/STRONG><STRONG}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{STRONG}]>\<C-O>`<<[{STRONG}]>",
+      'c': "`>a<[{STRONG}]>\<C-O>`<</[{STRONG}]>",
     }
+  },
 
-smarttags['u'] = {
-      'i': {
-        'o': "<[{U></U}]>\<C-O>F<",
-        'c': "<[{/U><U}]>\<C-O>F<",
-      },
-      'v': {
-        'o': "`>a</[{U}]>\<C-O>`<<[{U}]>",
-        'c': "`>a<[{U}]>\<C-O>`<</[{U}]>",
-      }
+  'u': {
+    'i': {
+      'o': "<[{U></U}]>\<C-O>F<",
+      'c': "<[{/U><U}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{U}]>\<C-O>`<<[{U}]>",
+      'c': "`>a<[{U}]>\<C-O>`<</[{U}]>",
     }
+  },
 
-smarttags['comment'] = {
-      'i': {
-        'o': "<!--  -->\<C-O>F ",
-        'c': " --><!-- \<C-O>F<",
-      },
-      'v': {
-        'o': "`>a -->\<C-O>`<<!-- ",
-        'c': "`>a<!-- \<C-O>`< -->",
-      }
-    } # }}}
+  'comment': {
+    'i': {
+      'o': "<!--  -->\<C-O>F ",
+      'c': " --><!-- \<C-O>F<",
+    },
+    'v': {
+      'o': "`>a -->\<C-O>`<<!-- ",
+      'c': "`>a<!-- \<C-O>`< -->",
+    }
+  }
+} # }}}
 
 def g:HTMLfunctions#SmartTag(tag: string, mode: string): string
   var attr = synID(line('.'), col('.') - 1, 1)->synIDattr('name')
@@ -797,9 +814,9 @@ def g:HTMLfunctions#SmartTag(tag: string, mode: string): string
         || ( tag == 'strong' && attr =~? 'bold' )
         || ( tag == 'u' && attr =~? 'underline' )
         || ( tag == 'comment' && attr =~? 'comment' )
-    ret = smarttags[tag][mode]['c']->g:HTMLfunctions#ConvertCase()
+    ret = SMARTTAGS[tag][mode]['c']->g:HTMLfunctions#ConvertCase()
   else
-    ret = smarttags[tag][mode]['o']->g:HTMLfunctions#ConvertCase()
+    ret = SMARTTAGS[tag][mode]['o']->g:HTMLfunctions#ConvertCase()
   endif
 
   if mode == 'v'
@@ -823,15 +840,15 @@ enddef
 #  'encoding'.
 
 # TODO: This table needs to be expanded:  {{{
-var s:charsets: dict<string>
-s:charsets['latin1'] = 'iso-8859-1'
-s:charsets['utf_8'] = 'UTF-8'
-s:charsets['utf_16'] = 'UTF-16'
-s:charsets['shift_jis'] = 'Shift_JIS'
-s:charsets['euc_jp'] = 'EUC-JP'
-s:charsets['cp950'] = 'Big5'
-s:charsets['big5'] = 'Big5'
-# }}}
+const CHARSETS = {
+  'latin1':    'iso-8859-1',
+  'utf_8':     'UTF-8',
+  'utf_16':    'UTF-16',
+  'shift_jis': 'Shift_JIS',
+  'euc_jp':    'EUC-JP',
+  'cp950':     'Big5',
+  'big5':      'Big5',
+} # }}}
 
 def g:HTMLfunctions#DetectCharset(): string
   var enc: string
@@ -853,8 +870,8 @@ def g:HTMLfunctions#DetectCharset(): string
 
   enc = enc->substitute('\W', '_', 'g')
 
-  if s:charsets[enc] != ''
-    return s:charsets[enc]
+  if CHARSETS[enc] != ''
+    return CHARSETS[enc]
   endif
 
   return g:html_default_charset
@@ -869,7 +886,7 @@ enddef
 # Return Value:
 #  None
 def g:HTMLfunctions#GenerateTable()
-  var byteoffset = g:HTMLfunctions#ByteOffset()
+  var byteoffset = s:ByteOffset()
   var rows       = inputdialog("Number of rows: ")->str2nr()
   var columns    = inputdialog("Number of columns: ")->str2nr()
 
@@ -1343,17 +1360,17 @@ enddef
 #  2 - String: The color hex code
 # Return Value:
 #  None
-var colors_sort = {  # {{{
-      'A': 'A',   'B': 'B',   'C': 'C',
-      'D': 'D',   'E': 'E-G', 'F': 'E-G',
-      'G': 'E-G', 'H': 'H-K', 'I': 'H-K',
-      'J': 'H-K', 'K': 'H-K', 'L': 'L',
-      'M': 'M',   'N': 'N-O', 'O': 'N-O',
-      'P': 'P',   'Q': 'Q-R', 'R': 'Q-R',
-      'S': 'S',   'T': 'T-Z', 'U': 'T-Z',
-      'V': 'T-Z', 'W': 'T-Z', 'X': 'T-Z',
-      'Y': 'T-Z', 'Z': 'T-Z',
-    }  # }}}
+const colors_sort = {  # {{{
+  'A': 'A',   'B': 'B',   'C': 'C',
+  'D': 'D',   'E': 'E-G', 'F': 'E-G',
+  'G': 'E-G', 'H': 'H-K', 'I': 'H-K',
+  'J': 'H-K', 'K': 'H-K', 'L': 'L',
+  'M': 'M',   'N': 'N-O', 'O': 'N-O',
+  'P': 'P',   'Q': 'Q-R', 'R': 'Q-R',
+  'S': 'S',   'T': 'T-Z', 'U': 'T-Z',
+  'V': 'T-Z', 'W': 'T-Z', 'X': 'T-Z',
+  'Y': 'T-Z', 'Z': 'T-Z',
+}  # }}}
 
 def g:HTMLfunctions#ColorsMenu(name: string, color: string)
   var c = name->strpart(0, 1)->toupper()

@@ -4,7 +4,7 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: November 08, 2020
+# Last Change: December 11, 2020
 # Version:     1.0.5
 # Original Concept: Doug Renze
 #
@@ -65,8 +65,8 @@ vim9script
 
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8021968
-  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1968'
+if v:version < 802 || v:versionlong < 8021978
+  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1978'
   sleep 2
   finish
 endif
@@ -97,7 +97,7 @@ endif
 
 # ----------------------------------------------------------------------- }}}2
 
-if ! exists("b:did_html_mappings_init")
+if ! exists('b:did_html_mappings_init')
   # This must be a number, not a boolean:
   b:did_html_mappings_init = 1
 
@@ -215,7 +215,7 @@ if ! exists("b:did_html_mappings_init")
 
   # }}}2
 
-endif # ! exists("b:did_html_mappings_init")
+endif # ! exists('b:did_html_mappings_init')
 
 # ----------------------------------------------------------------------------
 
@@ -241,26 +241,27 @@ if ! g:HTMLfunctions#BoolVar('g:no_html_tab_mapping')
   g:HTMLfunctions#Map('nnoremap', '<lead><tab>', '<tab>')
 
   # Tab takes us to a (hopefully) reasonable next insert point:
-  g:HTMLfunctions#Map('inoremap', "<tab>", "<C-O>:eval g:HTMLfunctions#NextInsertPoint('i')<CR>")
-  g:HTMLfunctions#Map('nnoremap', "<tab>", ":eval g:HTMLfunctions#NextInsertPoint('n')<CR>")
-  g:HTMLfunctions#Map('vnoremap', "<tab>", "<C-C>:eval g:HTMLfunctions#NextInsertPoint('n')<CR>", -1)
+  g:HTMLfunctions#Map('inoremap', "<tab>", "<Cmd>eval g:HTMLfunctions#NextInsertPoint('i')<CR>")
+  g:HTMLfunctions#Map('nnoremap', "<tab>", "<Cmd>eval g:HTMLfunctions#NextInsertPoint('n')<CR>")
+  g:HTMLfunctions#Map('vnoremap', "<tab>", "<Cmd>eval g:HTMLfunctions#NextInsertPoint('n')<CR>", -1)
 else
-  g:HTMLfunctions#Map('inoremap', '<lead><tab>', "<C-O>:eval g:HTMLfunctions#NextInsertPoint('i')<CR>")
-  g:HTMLfunctions#Map('nnoremap', '<lead><tab>', ":eval g:HTMLfunctions#NextInsertPoint('n')<CR>")
-  g:HTMLfunctions#Map('vnoremap', '<lead><tab>', "<C-C>:eval g:HTMLfunctions#NextInsertPoint('n')<CR>", -1)
+  g:HTMLfunctions#Map('inoremap', '<lead><tab>', "<Cmd>eval g:HTMLfunctions#NextInsertPoint('i')<CR>")
+  g:HTMLfunctions#Map('nnoremap', '<lead><tab>', "<Cmd>eval g:HTMLfunctions#NextInsertPoint('n')<CR>")
+  g:HTMLfunctions#Map('vnoremap', '<lead><tab>', "<Cmd>eval g:HTMLfunctions#NextInsertPoint('n')<CR>", -1)
 endif
 
 # Update an image tag's WIDTH & HEIGHT attributes:
-g:HTMLfunctions#Map('nnoremap', '<lead>mi', ':eval MangleImageTag#Mangle()<CR>')
-g:HTMLfunctions#Map('inoremap', '<lead>mi', '<C-O>:eval MangleImageTag#Mangle()<CR>')
+g:HTMLfunctions#Map('nnoremap', '<lead>mi', '<Cmd>eval MangleImageTag#Mangle()<CR>')
+g:HTMLfunctions#Map('inoremap', '<lead>mi', '<Cmd>eval MangleImageTag#Mangle()<CR>')
 g:HTMLfunctions#Map('vnoremap', '<lead>mi', '<ESC>:eval MangleImageTag#Mangle()<CR>')
 
 # Insert an HTML template:
-g:HTMLfunctions#Map('nnoremap', '<lead>html', ':if g:HTMLfunctions#Template() \| startinsert \| endif<CR>')
+g:HTMLfunctions#Map('nnoremap', '<lead>html', '<Cmd>if g:HTMLfunctions#Template() \| startinsert \| endif<CR>')
 
 # Show a color selection buffer:
-g:HTMLfunctions#Map('nnoremap', '<lead>3', ":ColorSelect<CR>")
-g:HTMLfunctions#Map('inoremap', '<lead>3', "<C-O>:ColorSelect<CR>")
+g:HTMLfunctions#Map('nnoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
+g:HTMLfunctions#Map('inoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
+g:HTMLfunctions#Map('vnoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
 
 # ----------------------------------------------------------------------------
 
@@ -269,20 +270,20 @@ g:HTMLfunctions#Map('inoremap', '<lead>3', "<C-O>:ColorSelect<CR>")
 #       SGML Doctype Command
 if ! g:HTMLfunctions#BoolVar('b:do_xhtml_mappings')
   # Transitional HTML (Looser):
-  g:HTMLfunctions#Map('nnoremap', '<lead>4', ":eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/loose.dtd\">')<CR>")
+  g:HTMLfunctions#Map('nnoremap', '<lead>4', "<Cmd>eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/loose.dtd\">')<CR>")
   # Strict HTML:
-  g:HTMLfunctions#Map('nnoremap', '<lead>s4', ":eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
+  g:HTMLfunctions#Map('nnoremap', '<lead>s4', "<Cmd>eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
 else
   # Transitional XHTML (Looser):
-  g:HTMLfunctions#Map('nnoremap', '<lead>4', ":eval append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">')<CR>")
+  g:HTMLfunctions#Map('nnoremap', '<lead>4', "<Cmd>eval append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">')<CR>")
   # Strict XHTML:
-  g:HTMLfunctions#Map('nnoremap', '<lead>s4', ":eval append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">')<CR>")
+  g:HTMLfunctions#Map('nnoremap', '<lead>s4', "<Cmd>eval append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">')<CR>")
 endif
 g:HTMLfunctions#Map("imap", '<lead>4', "<C-O>" .. g:html_map_leader .. "4")
 g:HTMLfunctions#Map("imap", '<lead>s4', "<C-O>" .. g:html_map_leader .. "s4")
 
 #       HTML5 Doctype Command           HTML 5
-g:HTMLfunctions#Map('nnoremap', '<lead>5', ":eval append(0, '<!DOCTYPE html>')<CR>")
+g:HTMLfunctions#Map('nnoremap', '<lead>5', "<Cmd>eval append(0, '<!DOCTYPE html>')<CR>")
 g:HTMLfunctions#Map("imap", '<lead>5', "<C-O>" .. g:html_map_leader .. "5")
 
 #       Content-Type META tag
@@ -1293,7 +1294,7 @@ g:HTMLfunctions#Map('inoremap', '<elead>ua', '&uarr;')
 g:HTMLfunctions#Map('inoremap', '<elead>ra', '&rarr;')
 g:HTMLfunctions#Map('inoremap', '<elead>da', '&darr;')
 g:HTMLfunctions#Map('inoremap', '<elead>ha', '&harr;')
-# eval HTMLmap('inoremap', '<elead>ca', '&crarr;')
+# g:HTMLfunctions#Map('inoremap', '<elead>ca', '&crarr;')
 # double-line arrows:
 g:HTMLfunctions#Map('inoremap', '<elead>lA', '&lArr;')
 g:HTMLfunctions#Map('inoremap', '<elead>uA', '&uArr;')
@@ -1436,7 +1437,7 @@ endif # ! exists("b:did_html_mappings")
 if ! has("gui_running") && ! g:HTMLfunctions#BoolVar('g:force_html_menu')
   augroup HTMLplugin
   au!
-  execute 'autocmd GUIEnter * source ' .. g:html_plugin_file .. ' | autocmd! HTMLplugin GUIEnter *'
+  execute 'autocmd GUIEnter * ++once source ' .. g:html_plugin_file
   augroup END
 elseif exists("g:did_html_menus")
   g:HTMLfunctions#MenuControl()
@@ -1455,17 +1456,18 @@ if ! g:HTMLfunctions#BoolVar('g:no_html_toolbar') && has('toolbar')
           .. g:html_plugin_file->fnamemodify(':t') .. " plugin. "
           .. "See: http://christianrobinson.name/vim/HTML/#files\n"
           .. 'Or see ":help g:no_html_toolbar".'
+    var tmpret: number
     if has('win32') || has('win64') || has('unix')
-      tmp = tmp->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
+      tmpret = tmp->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
     else
-      tmp = tmp->confirm("&Dismiss\nView &Help", 1, 'Warning')
+      tmpret = tmp->confirm("&Dismiss\nView &Help", 1, 'Warning')
     endif
 
-    if tmp == 2
+    if tmpret == 2
       help g:no_html_toolbar
       # Go to the previous window or everything gets messy:
       wincmd p
-    elseif tmp == 3
+    elseif tmpret == 3
       if has('win32') || has('win64')
         execute '!start RunDll32.exe shell32.dll,ShellExec_RunDLL http://christianrobinson.name/vim/HTML/\#files'
       else
@@ -2576,10 +2578,10 @@ if ! exists('g:did_html_plugin_warning_check')
     var pluginfilesmatched: list<string>
     pluginfilesmatched = pluginfiles->g:HTMLfunctions#FilesWithMatch('http://christianrobinson.name/\(programming/\)\?vim/HTML/', 15)
     if pluginfilesmatched->len() > 1
-      var pluginfileline = "Multiple versions of the HTML.vim filetype plugin are installed.\n"
+      var pluginmessage = "Multiple versions of the HTML.vim filetype plugin are installed.\n"
         .. "Locations:\n   " .. pluginfilesmatched->join("\n   ")
         .. "\n(Don't forget about browser_launcher.vim and MangleImageTag.vim)"
-      eval pluginfileline->confirm('&Dismiss', 1, 'Warning')
+      eval pluginmessage->confirm('&Dismiss', 1, 'Warning')
     endif
   endif
 endif

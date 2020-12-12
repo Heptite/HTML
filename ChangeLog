@@ -1,3 +1,6 @@
+Sun, 8 Nov 2020 18:00:24 -0700 Christian J. Robinson
+ * Solve a race condition. Simplify NextInsertPoint function.
+
 Wed, 4 Nov 2020 17:28:36 -0700 Christian J. Robinson
  * Support a couple more HTML 5 tags, other minor changes
 

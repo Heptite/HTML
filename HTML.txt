@@ -1,9 +1,9 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Nov 08
+		Last change: 2020 Nov 15
 		Author: Christian J. Robinson
 
-						*HTML.vim* *HTML-macros*
-						*XHTML-macros*
+						*HTML.vim*	*HTML.zip*
+						*HTML-macros*	*XHTML-macros*
 
 This is a set of HTML/XHTML macros, menus, and toolbar buttons to make editing
 HTML files easier.  The original Copyright goes to Doug Renze, although nearly
@@ -404,7 +404,7 @@ You would get something like: >
 	fails if you are not in an HTML buffer or the colors menu was not
 	defined.  (See |g:force_html_menu|)
 
-							*n_;3* *i_;3*
+							*n_;3* *i_;3* *v_;3*
 ;3	A shortcut mapping to call |:ColorSelect|.
 
 
