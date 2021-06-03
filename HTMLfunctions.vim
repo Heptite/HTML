@@ -2,7 +2,7 @@ vim9script
 
 # Various functions for the HTML.vim filetype plugin.
 #
-# Last Change: November 14, 2020
+# Last Change: January 10, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -26,7 +26,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021978
+if v:versionlong < 8022324
   finish
 endif
 
@@ -438,7 +438,7 @@ enddef
 # Arguments:
 #  1 - Boolean: false - Turn options off.
 #               true  - Turn options back on, if they were on before.
-var savesm: number
+var savesm: bool
 var saveinde: string
 var savefo: string
 var visualmode_save: string
@@ -454,7 +454,7 @@ def g:HTMLfunctions#TO(which: bool)
       visualmode_save = ''
     endif
   else
-    savesm = &l:sm | &l:sm = 0
+    savesm = &l:sm | &l:sm = false
     saveinde = &l:inde | &l:inde = ''
     savefo = &l:fo | &l:fo = ''
 
@@ -886,9 +886,9 @@ enddef
 # Return Value:
 #  None
 def g:HTMLfunctions#GenerateTable()
-  var byteoffset = s:ByteOffset()
-  var rows       = inputdialog("Number of rows: ")->str2nr()
-  var columns    = inputdialog("Number of columns: ")->str2nr()
+  var charpos = getcharpos('.')
+  var rows    = inputdialog("Number of rows: ")->str2nr()
+  var columns = inputdialog("Number of columns: ")->str2nr()
 
   if (rows < 1 || columns < 1)
     HTMLERROR Rows and columns must be positive, non-zero integers.
@@ -915,7 +915,7 @@ def g:HTMLfunctions#GenerateTable()
 
   execute g:HTMLfunctions#ConvertCase("normal o</[{TABLE}]>\<ESC>")
 
-  execute "go " .. (byteoffset < 1 ? 1 : byteoffset)
+  setcharpos(charpos)
 
   normal jjj$F<
 enddef

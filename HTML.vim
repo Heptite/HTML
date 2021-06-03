@@ -4,8 +4,8 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: December 11, 2020
-# Version:     1.0.5
+# Last Change: February 03, 2021
+# Version:     1.0.6
 # Original Concept: Doug Renze
 #
 #
@@ -65,8 +65,8 @@ vim9script
 
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8021978
-  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.1978'
+if v:version < 802 || v:versionlong < 8022324
+  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.2324'
   sleep 2
   finish
 endif

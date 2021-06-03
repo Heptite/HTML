@@ -1,3 +1,6 @@
+Fri, 11 Dec 2020 19:30:18 -0700 Christian J. Robinson
+ * Various tweaks
+
 Sun, 8 Nov 2020 18:00:24 -0700 Christian J. Robinson
  * Solve a race condition. Simplify NextInsertPoint function.
 

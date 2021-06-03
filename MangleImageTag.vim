@@ -2,7 +2,7 @@ vim9script
 
 # MangleImageTag() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: November 08, 2020
+# Last Change: January 06, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -28,7 +28,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8021968
+if v:versionlong < 8022305
     finish
 endif
 
