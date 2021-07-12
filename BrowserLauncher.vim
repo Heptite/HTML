@@ -4,7 +4,7 @@ vim9script
 #
 # Vim script to launch/control browsers
 #
-# Last Change: January 06, 2021
+# Last Change: July 11, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -32,7 +32,7 @@ vim9script
 # TODO:
 #
 #  - Support more browsers, especially on MacOS
-#    Note: Various browsers  use the same HTML rendering engine as Firefox
+#    Note: Various browsers use the same HTML rendering engine as Firefox
 #    or Chrome, so supporting them isn't as important.
 #
 #  - Defaulting to Lynx/w3m if the the GUI isn't available on Unix may be
@@ -356,7 +356,7 @@ def g:BrowserLauncher#Launch(browser: string = '', new: number = 0, url: string 
     # prefix:
     file = 'file://' ..
         (has('win32unix') && which !~# '[' .. TextmodeBrowsers .. ']' ?
-           system('cygpath -w ' .. expand('%:p')->shellescape())->substitute("\n$", '', '') :
+           system('cygpath -w ' .. expand('%:p')->shellescape())->trim() :
            expand('%:p'))
   endif
 
@@ -386,7 +386,7 @@ def g:BrowserLauncher#Launch(browser: string = '', new: number = 0, url: string 
   if which =~# '[' .. TextmodeBrowsers .. ']'
     execute "BRCMESG Launching " .. Browsers[which][0] .. "..."
 
-    var xterm = system("which xterm")->substitute("\n$", '', '')
+    var xterm = system("which xterm")->trim()
     if v:shell_error != 0
       xterm = ''
     endif
@@ -463,7 +463,7 @@ def g:BrowserLauncher#Launch(browser: string = '', new: number = 0, url: string 
     return true
   endif
 
-  BRCERROR Something went wrong, we should not ever get here...
+  BRCERROR Something went wrong, we should never get here...
   return false
 enddef # }}}1
 

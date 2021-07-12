@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2020 Nov 15
+		Last change: 2021 Jul 12
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -1036,6 +1036,8 @@ another character of your preference.  See |g:html_map_leader|.
 <	here >
 	</OPTGROUP>.
 <	(|n_;|)
+							*i_;ou* *v_;ou* *n_;ou*
+;ou	Form output (<OUTPUT NAME=""></OUTPUT>). (|n_;|)
 							*i_;tx* *v_;tx* *n_;tx*
 ;tx	Form text input area: >
 	<TEXTAREA NAME="" ROWS="10" COLS="50">

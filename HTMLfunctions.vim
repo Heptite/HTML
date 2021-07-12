@@ -2,7 +2,7 @@ vim9script
 
 # Various functions for the HTML.vim filetype plugin.
 #
-# Last Change: January 10, 2021
+# Last Change: July 12, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -283,13 +283,13 @@ def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -
     if extra < 0 && extra != -999
       execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
     elseif extra >= 1
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-C>:eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <Cmd>eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
         .. ":eval g:HTMLfunctions#TO(v:true)<CR>m':eval g:HTMLfunctions#ReIndent(line(\"'<\"), line(\"'>\"), " .. extra .. ")<CR>``"
     elseif extra == 0
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-C>:eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <Cmd>eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
         .. "<C-O>:eval g:HTMLfunctions#TO(v:true)<CR>"
     else
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-C>:eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <Cmd>eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
         .. ":eval g:HTMLfunctions#TO(v:true)<CR>"
     endif
   else
@@ -409,9 +409,6 @@ def g:HTMLfunctions#WR(type: string)
     endif
     startinsert
   endif
-
-  # Leave these set so .-repeating of operator mappings works:
-  # unlet b:htmltagaction b:htmltaginsert
 enddef
 
 # s:ExtraMappingsAdd()  {{{1
@@ -915,7 +912,7 @@ def g:HTMLfunctions#GenerateTable()
 
   execute g:HTMLfunctions#ConvertCase("normal o</[{TABLE}]>\<ESC>")
 
-  setcharpos(charpos)
+  setcharpos('.', charpos)
 
   normal jjj$F<
 enddef
@@ -1141,18 +1138,18 @@ def g:HTMLfunctions#ShowColors(str: string='')
   inoremap <silent> <buffer> <space> <C-o><C-f>
   noremap <silent> <buffer> b <C-b>
   inoremap <silent> <buffer> b <C-o><C-b>
-  noremap <silent> <buffer> <tab> :eval search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
-  inoremap <silent> <buffer> <tab> <C-o>:eval search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
+  noremap <silent> <buffer> <tab> <Cmd>eval search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
+  inoremap <silent> <buffer> <tab> <Cmd>eval search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
 
   var ins = ''
   if str != ''
     ins = ', "' .. str->escape('"') .. '"'
   endif
 
-  execute 'noremap <silent> <buffer> <cr> :eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
-  execute 'inoremap <silent> <buffer> <cr> <C-o>:eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
-  execute 'noremap <silent> <buffer> <2-leftmouse> :eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
-  execute 'inoremap <silent> <buffer> <2-leftmouse> <C-o>:eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
+  execute 'noremap <silent> <buffer> <cr> <Cmd>eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
+  execute 'inoremap <silent> <buffer> <cr> <Cmd>eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
+  execute 'noremap <silent> <buffer> <2-leftmouse> <Cmd>eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
+  execute 'inoremap <silent> <buffer> <2-leftmouse> <Cmd>eval <SID>ColorSelect(' .. curbuf .. ins .. ')<CR>'
 
   stopinsert
 enddef

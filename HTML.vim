@@ -4,8 +4,8 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: February 03, 2021
-# Version:     1.0.6
+# Last Change: July 12, 2021
+# Version:     1.0.7
 # Original Concept: Doug Renze
 #
 #
@@ -51,7 +51,6 @@ vim9script
 # ---- TODO: ------------------------------------------------------------ {{{1
 #
 # - Add more HTML 5 tags:
-#   https://www.w3schools.com/html/html5_new_elements.asp
 #   https://www.w3.org/wiki/HTML/New_HTML5_Elements
 # - Find a way to make "gv", after executing a visual mapping, re-select the
 #   right text.  (Currently my extra code that wraps around the visual
@@ -67,7 +66,7 @@ scriptencoding utf8
 
 if v:version < 802 || v:versionlong < 8022324
   echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.2324'
-  sleep 2
+  sleep 3
   finish
 endif
 
@@ -241,9 +240,9 @@ if ! g:HTMLfunctions#BoolVar('g:no_html_tab_mapping')
   g:HTMLfunctions#Map('nnoremap', '<lead><tab>', '<tab>')
 
   # Tab takes us to a (hopefully) reasonable next insert point:
-  g:HTMLfunctions#Map('inoremap', "<tab>", "<Cmd>eval g:HTMLfunctions#NextInsertPoint('i')<CR>")
-  g:HTMLfunctions#Map('nnoremap', "<tab>", "<Cmd>eval g:HTMLfunctions#NextInsertPoint('n')<CR>")
-  g:HTMLfunctions#Map('vnoremap', "<tab>", "<Cmd>eval g:HTMLfunctions#NextInsertPoint('n')<CR>", -1)
+  g:HTMLfunctions#Map('inoremap', '<tab>', "<Cmd>eval g:HTMLfunctions#NextInsertPoint('i')<CR>")
+  g:HTMLfunctions#Map('nnoremap', '<tab>', "<Cmd>eval g:HTMLfunctions#NextInsertPoint('n')<CR>")
+  g:HTMLfunctions#Map('vnoremap', '<tab>', "<Cmd>eval g:HTMLfunctions#NextInsertPoint('n')<CR>", -1)
 else
   g:HTMLfunctions#Map('inoremap', '<lead><tab>', "<Cmd>eval g:HTMLfunctions#NextInsertPoint('i')<CR>")
   g:HTMLfunctions#Map('nnoremap', '<lead><tab>', "<Cmd>eval g:HTMLfunctions#NextInsertPoint('n')<CR>")
@@ -261,7 +260,7 @@ g:HTMLfunctions#Map('nnoremap', '<lead>html', '<Cmd>if g:HTMLfunctions#Template(
 # Show a color selection buffer:
 g:HTMLfunctions#Map('nnoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
 g:HTMLfunctions#Map('inoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
-g:HTMLfunctions#Map('vnoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
+g:HTMLfunctions#Map('vnoremap', '<lead>3', "<ESC>:ColorSelect<CR>")
 
 # ----------------------------------------------------------------------------
 
@@ -993,6 +992,7 @@ g:HTMLfunctions#Map('inoremap', '<lead>se', '<[{SELECT NAME}]=""><CR></[{SELECT}
 g:HTMLfunctions#Map('inoremap', '<lead>ms', '<[{SELECT NAME="" MULTIPLE}]><CR></[{SELECT}]><ESC>O')
 g:HTMLfunctions#Map('inoremap', '<lead>op', '<[{OPTION></OPTION}]><C-O>F<')
 g:HTMLfunctions#Map('inoremap', '<lead>og', '<[{OPTGROUP LABEL}]=""><CR></[{OPTGROUP}]><ESC>k$F"i')
+g:HTMLfunctions#Map('inoremap', '<lead>ou', '<[{OUTPUT NAME}]=""></[{OUTPUT}]><C-O>F"')
 g:HTMLfunctions#Map('inoremap', '<lead>tx', '<[{TEXTAREA NAME="" ROWS="10" COLS}]="50"><CR></[{TEXTAREA}]><ESC>k$5F"i')
 g:HTMLfunctions#Map('inoremap', '<lead>su', '<[{INPUT TYPE="SUBMIT" VALUE}]="Submit" />')
 g:HTMLfunctions#Map('inoremap', '<lead>re', '<[{INPUT TYPE="RESET" VALUE}]="Reset" />')
@@ -1019,6 +1019,8 @@ g:HTMLfunctions#Map('vnoremap', '<lead>se', '<ESC>`>a<CR></[{SELECT}]><C-O>`<<[{
 g:HTMLfunctions#Map('vnoremap', '<lead>ms', '<ESC>`>a<CR></[{SELECT}]><C-O>`<<[{SELECT NAME="" MULTIPLE}]><CR><ESC>k$F"', 1)
 g:HTMLfunctions#Map('vnoremap', '<lead>op', '<ESC>`>a</[{OPTION}]><C-O>`<<[{OPTION}]><ESC>', 2)
 g:HTMLfunctions#Map('vnoremap', '<lead>og', '<ESC>`>a<CR></[{OPTGROUP}]><C-O>`<<[{OPTGROUP LABEL}]=""><CR><ESC>k$F"', 1)
+g:HTMLfunctions#Map('vnoremap', '<lead>ou', '<ESC>`>a</[{OUTPUT}]><C-O>`<<[{OUTPUT NAME}]=""><C-O>F"', 0)
+g:HTMLfunctions#Map('vnoremap', '<lead>oU', '<ESC>`>a"></[{OUTPUT}]><C-O>`<<[{OUTPUT NAME}]="<C-O>f<', 0)
 g:HTMLfunctions#Map('vnoremap', '<lead>tx', '<ESC>`>a<CR></[{TEXTAREA}]><C-O>`<<[{TEXTAREA NAME="" ROWS="10" COLS}]="50"><CR><ESC>k$5F"', 1)
 g:HTMLfunctions#Map('vnoremap', '<lead>la', '<ESC>`>a</[{LABEL}]><C-O>`<<[{LABEL FOR}]=""><C-O>F"', 0)
 g:HTMLfunctions#Map('vnoremap', '<lead>lA', '<ESC>`>a"></[{LABEL}]><C-O>`<<[{LABEL FOR}]="<C-O>f<', 0)
@@ -1044,6 +1046,8 @@ g:HTMLfunctions#Mapo('<lead>se', 0)
 g:HTMLfunctions#Mapo('<lead>ms', 0)
 g:HTMLfunctions#Mapo('<lead>op', 0)
 g:HTMLfunctions#Mapo('<lead>og', 0)
+g:HTMLfunctions#Mapo('<lead>ou', 1)
+g:HTMLfunctions#Mapo('<lead>oU', 1)
 g:HTMLfunctions#Mapo('<lead>tx', 0)
 g:HTMLfunctions#Mapo('<lead>la', 1)
 g:HTMLfunctions#Mapo('<lead>lA', 1)
