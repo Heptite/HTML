@@ -4,7 +4,7 @@ vim9script
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 11, 2021
+# Last Change: July 17, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -27,6 +27,7 @@ vim9script
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
 #  - Chrome   (remote [new window / new tab] / launch)
+#  - Edge     (remote [new window / new tab] / launch)
 #  - Plus lynx & w3m on Cygwin if they can be found.
 #
 # TODO:
@@ -44,7 +45,7 @@ vim9script
 #    so execution errors aren't actually seen.
 #
 #  * On Windows (and Cygwin) there's no reliable way to detect which
-#    browsers are installed so a few are defined automatically.
+#    browsers are installed so the most common install locations are checked.
 #
 # Requirements:
 #       Vim 9 or later
@@ -68,7 +69,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8022305
+if v:versionlong < 8023171
   finish
 endif
 
@@ -79,8 +80,7 @@ command! -nargs=+ BRCMESG :echohl Todo | echo <q-args> | echohl None
 # Allow auto-scoping to work properly for Vim 9,
 # initialize these variables here:
 var Browsers: dict<list<any>>
-var BrowsersExist: string
-var TextmodeBrowsers = 'lw'
+var TextmodeBrowsers = ['lynx', 'w3m']
 
 if has('mac') || has('macunix')  # {{{1
   # The following code is provided by Israel Chauca Fuentes
@@ -251,55 +251,61 @@ if has('mac') || has('macunix')  # {{{1
 elseif has('unix') && ! has('win32unix') # {{{1
 
   # Set this manually, since the first in the list is the default:
-  BrowsersExist = 'fcolw'
-  Browsers['f'] = [['firefox', 'iceweasel'],               '', '', '--new-tab', '--new-window']
-  Browsers['c'] = [['google-chrome', 'chromium-browser'],  '', '', '',          '--new-window']
-  Browsers['o'] = ['opera',                                '', '', '',          '--new-window']
-  Browsers['l'] = ['lynx',                                 '', '', '',          '']
-  Browsers['w'] = ['w3m',                                  '', '', '',          '']
+  Browsers['firefox'] = [['firefox', 'iceweasel'],               '', '', '--new-tab', '--new-window']
+  Browsers['chrome']  = [['google-chrome', 'chromium-browser'],  '', '', '',          '--new-window']
+  Browsers['opera']   = ['opera',                                '', '', '',          '--new-window']
+  Browsers['lynx']    = ['lynx',                                 '', '', '',          '']
+  Browsers['w3m']     = ['w3m',                                  '', '', '',          '']
 
-  var temp1: string
-  var temp2: string
-  var temp3: string
+  var tempkey: string
+  var tempname: string
+  var temppath: string
 
-  for temp1 in keys(Browsers)
-    for temp2 in (type(Browsers[temp1][0]) == type([]) ? Browsers[temp1][0] : [Browsers[temp1][0]])
-      temp3 = system("which " .. temp2)->substitute("\n$", '', '')
+  for tempkey in keys(Browsers)
+    for tempname in (type(Browsers[tempkey][0]) == type([]) ? Browsers[tempkey][0] : [Browsers[tempkey][0]])
+      temppath = system('which ' .. tempname)->substitute("\n$", '', '')
       if v:shell_error == 0
         break
       endif
     endfor
 
     if v:shell_error == 0
-      Browsers[s:temp1][0] = temp2
-      Browsers[s:temp1][1] = temp3
-    else
-      BrowsersExist = BrowsersExist->substitute(temp1, '', 'g')
+      Browsers[tempkey][0] = tempname
+      Browsers[tempkey][1] = temppath
     endif
   endfor
 
 elseif has('win32') || has('win64') || has('win32unix')  # {{{1
 
-  # No reliably scriptable way to detect installed browsers, so just add
-  # support for a few and let the Windows system complain if a browser
-  # doesn't exist:
-  BrowsersExist = 'fcoe'
-  Browsers['f'] = ['firefox', '', '', '--new-tab', '--new-window']
-  Browsers['c'] = ['chrome',  '', '', '',          '--new-window']
-  Browsers['o'] = ['opera',   '', '', '',          '--new-window']
-  Browsers['e'] = ['msedge',  '', '', '',          '--new-window']
+  # These applications _could_ be installed elsewhere, but there's no reliable
+  # way to find them if they are, so just assume they would be in a standard
+  # location:
+  if filereadable('C:\Program Files\Mozilla Firefox\firefox.exe')
+    || filereadable('C:\Program Files (x86)\Mozilla Firefox\firefox.exe')
+    Browsers['firefox'] = ['firefox', '', '', '--new-tab', '--new-window']
+  endif
+  if filereadable('C:\Program Files\Google\Chrome\Application\chrome.exe')
+    || filereadable('C:\Program Files (x86)\Google\Chrome\Application\chrome.exe')
+    Browsers['chrome'] = ['chrome',  '', '', '',          '--new-window']
+  endif
+  if filereadable('C:\Program Files\Opera\launcher.exe')
+    || filereadable('C:\Program Files (x86)\Opera\launcher.exe')
+    Browsers['opera'] = ['opera',   '', '', '',          '--new-window']
+  endif
+  if filereadable('C:\Program Files\Microsoft\Edge\Application\msedge.exe')
+    || filereadable('C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe')
+    Browsers['edge'] = ['msedge',  '', '', '',          '--new-window']
+  endif
 
   if has('win32unix')
     var temp: string
-    temp = system("which lynx")->substitute("\n$", '', '')
+    temp = system('which lynx')->substitute("\n$", '', '')
     if v:shell_error == 0
-      BrowsersExist ..= 'l'
-      Browsers['l'] = ['lynx', temp, '', '', '']
+      Browsers['lynx'] = ['lynx', temp, '', '', '']
     endif
-    temp = system("which w3m")->substitute("\n$", '', '')
+    temp = system('which w3m')->substitute("\n$", '', '')
     if v:shell_error == 0
-      BrowsersExist ..= 'w'
-      Browsers['w'] = ['w3m', temp, '', '', '']
+      Browsers['w3m'] = ['w3m', temp, '', '', '']
     endif
   endif
 
@@ -307,22 +313,36 @@ else # {{{1
 
   BRCWARN Your OS is not recognized, browser controls will not work.
 
-  finish
+  Browsers = {}
 
 endif # }}}1
+
+# g:BrowserLauncher#Exists() {{{1
+#
+# Usage:
+#  :echo BrowserLauncher#Exists([browser])
+# Return value:
+#  With an argument: True or False - Whether the browser was found (exists)
+#  Without an argument: list - The names of the browsers that were found
+def g:BrowserLauncher#Exists(browser: string = ''): any
+  if browser == ''
+    return keys(Browsers)
+  else
+    #return keys(Browsers)->match('^\c\V' .. browser .. '\$') >= 0 ? true : false
+    return exists('Browsers["' .. browser->escape('"\\') .. '"]') ? true : false
+  endif
+enddef
 
 # g:BrowserLauncher#Launch() {{{1
 #
 # Usage:
-#  :call BrowserLauncher#Launch([{.../default}], [{0/1/2}], [url])
-#    The first argument is which browser to launch, by letter, see the
-#    dictionary defined above to see which ones are available, or:
-#      default - This launches the first browser that was actually found.
-#                (This isn't actually used, and may go away in the future.)
+#  :call BrowserLauncher#Launch({...}, [{0/1/2}], [url])
+#    The first argument is which browser to launch, by name (not executable).
+#    Use g:BrowserLauncher#Exists() to see which ones are available.
 #
-#    The second argument is whether to launch a new window:
-#      0 - No
-#      1 - Yes
+#    The optional second argument is whether to launch a new window:
+#      0 - No (default -- in modern brosers this tends to open a new tab)
+#      1 - Yes (some modern browsers don't actually provide a way to do this)
 #      2 - New Tab (or new window if the browser doesn't provide a way to
 #                   open a new tab)
 #
@@ -331,62 +351,47 @@ endif # }}}1
 #
 # Return value:
 #  false - Failure (No browser was launched/controlled.)
-#  true  - Success
-#
-#  A special case of no arguments returns a character list of what browsers
-#  are available.
-def g:BrowserLauncher#Launch(browser: string = '', new: number = 0, url: string = ''): any
-  if browser == '' && new == 0 && url == ''
-    return BrowsersExist
-  endif
-
+#  true  - Success (The specified browser was launched/controlled.)
+def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): bool
   var which = browser
-  var command = ''
-  var file = ''
+  var command: string
+  var file: string
 
-  if which ==? 'default' || which == ''
-    which = BrowsersExist->strpart(0, 1)
+  if !exists('Browsers["' .. which->escape('"\\') .. '"]')
+    execute 'BRCERROR Unknown browser ID: ' .. which
+    return false
   endif
 
   if url != ''
     file = url
-  else
+  elseif expand('%') != ''
     # If we're on Cygwin and not using lynx or w3m, translate the file path
     # to a Windows native path for later use, otherwise just add the file://
     # prefix:
     file = 'file://' ..
-        (has('win32unix') && which !~# '[' .. TextmodeBrowsers .. ']' ?
+        (has('win32unix') && TextmodeBrowsers->match('^\c\V' .. which .. '\$') < 0 ?
            system('cygpath -w ' .. expand('%:p')->shellescape())->trim() :
            expand('%:p'))
-  endif
-
-  if BrowsersExist !~# which
-    if exists('Browsers["' .. which .. '"]')
-      execute 'BRCERROR '
-            .. (Browsers[which][0]->type() == type([]) ? Browsers[which][0][0] : Browsers[which][0])
-            .. ' not found'
-    else
-      execute 'BRCERROR Unknown browser ID: ' .. which
-    endif
-
+  else
+    BRCERROR No file is loaded in the current buffer and no URL was specified.
     return false
   endif
 
   if has('unix') == 1 && $DISPLAY == '' && has('win32unix') == 0
-    if exists('Browsers["l"]')
-      which = 'l'
-    elseif exists('Browsers["w"]')
-      which = 'w'
+    if TextmodeBrowsers->match('^lynx$') >= 0
+      which = 'lynx'
+    elseif TextmodeBrowsers->match('^w3m$') >= 0
+      which = 'w3m'
     else
-      BRCERROR $DISPLAY is not set and Lynx and w3m are not found, no browser launched.
+      BRCERROR $DISPLAY is not set and Lynx or w3m are not found, no browser launched.
       return false
     endif
   endif
 
-  if which =~# '[' .. TextmodeBrowsers .. ']'
+  if TextmodeBrowsers->match('^\c\V' .. which .. '\$') >= 0 
     execute "BRCMESG Launching " .. Browsers[which][0] .. "..."
 
-    var xterm = system("which xterm")->trim()
+    var xterm = system('which xterm')->trim()
     if v:shell_error != 0
       xterm = ''
     endif
@@ -465,9 +470,9 @@ def g:BrowserLauncher#Launch(browser: string = '', new: number = 0, url: string 
 
   BRCERROR Something went wrong, we should never get here...
   return false
-enddef # }}}1
+enddef
 
-# s:Cap()  {{{1
+# s:Cap() {{{1
 #
 # Capitalize the first letter of every word in a string
 #
@@ -478,6 +483,11 @@ enddef # }}}1
 def s:Cap(arg: string): string
   return arg->substitute('\<.', '\U&', 'g')
 enddef # }}}1
+
+defcompile
+
+if !exists('g:html_function_files') | g:html_function_files = [] | endif
+add(g:html_function_files, expand('<sfile>:p'))->sort()->uniq()
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=4:comments=b\:#:commentstring=\ #\ %s:

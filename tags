@@ -6,13 +6,15 @@
 %vimversion%	HTML.txt	/*%vimversion%*
 :CS	HTML.txt	/*:CS*
 :ColorSelect	HTML.txt	/*:ColorSelect*
+:HTMLReloadFunctions	HTML.txt	/*:HTMLReloadFunctions*
 :HTMLmappings	HTML.txt	/*:HTMLmappings*
 :SetIfUnset	HTML.txt	/*:SetIfUnset*
-BrowserLauncher.vim	HTML.txt	/*BrowserLauncher.vim*
+GPL	gpl-3.0.txt	/*GPL*
 HTML-disable-macros	HTML.txt	/*HTML-disable-macros*
 HTML-disable-mappings	HTML.txt	/*HTML-disable-mappings*
 HTML-enable-macros	HTML.txt	/*HTML-enable-macros*
 HTML-enable-mappings	HTML.txt	/*HTML-enable-mappings*
+HTML-functions-reload	HTML.txt	/*HTML-functions-reload*
 HTML-macros	HTML.txt	/*HTML-macros*
 HTML-macros-disable	HTML.txt	/*HTML-macros-disable*
 HTML-macros-enable	HTML.txt	/*HTML-macros-enable*
@@ -20,6 +22,7 @@ HTML-macros-reload	HTML.txt	/*HTML-macros-reload*
 HTML-mappings-disable	HTML.txt	/*HTML-mappings-disable*
 HTML-mappings-enable	HTML.txt	/*HTML-mappings-enable*
 HTML-mappings-reload	HTML.txt	/*HTML-mappings-reload*
+HTML-reload-functions	HTML.txt	/*HTML-reload-functions*
 HTML-reload-macros	HTML.txt	/*HTML-reload-macros*
 HTML-reload-mappings	HTML.txt	/*HTML-reload-mappings*
 HTML.txt	HTML.txt	/*HTML.txt*
@@ -658,6 +661,7 @@ n_;ur	HTML.txt	/*n_;ur*
 n_;va	HTML.txt	/*n_;va*
 n_;vi	HTML.txt	/*n_;vi*
 n_;w3	HTML.txt	/*n_;w3*
+reload-HTML-functions	HTML.txt	/*reload-HTML-functions*
 reload-HTML-macros	HTML.txt	/*reload-HTML-macros*
 reload-HTML-mappings	HTML.txt	/*reload-HTML-mappings*
 v_;#	HTML.txt	/*v_;#*

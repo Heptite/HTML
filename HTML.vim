@@ -4,8 +4,8 @@ vim9script
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         http://christianrobinson.name/vim/HTML/
-# Last Change: July 12, 2021
-# Version:     1.0.7
+# Last Change: July 17, 2021
+# Version:     1.0.8
 # Original Concept: Doug Renze
 #
 #
@@ -64,8 +64,8 @@ vim9script
 
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8022324
-  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.2324'
+if v:version < 802 || v:versionlong < 8023171
+  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.3171'
   sleep 3
   finish
 endif
@@ -82,6 +82,7 @@ if ! exists("g:did_html_commands") || ! g:did_html_commands
   command! -nargs=+ HTMLMESG echohl Todo | echo <q-args> | echohl None
   command! -nargs=+ SetIfUnset g:HTMLfunctions#SetIfUnset(<f-args>)
   command! -nargs=1 HTMLmappings g:HTMLfunctions#MappingsControl(<f-args>)
+  command! -nargs=1 HTMLMappings g:HTMLfunctions#MappingsControl(<f-args>)
   if exists(":HTML") != 2
     command! -nargs=1 HTML g:HTMLfunctions#MappingsControl(<f-args>)
   endif
@@ -92,12 +93,21 @@ if ! exists("g:did_html_commands") || ! g:did_html_commands
   command! -nargs=+ HTMLmenu g:HTMLfunctions#LeadMenu(<f-args>)
   command! -nargs=+ HTMLemenu g:HTMLfunctions#EntityMenu(<f-args>)
   command! -nargs=+ HTMLcmenu g:HTMLfunctions#ColorsMenu(<f-args>)
+  command! HTMLReloadFunctions if exists('g:html_function_files')
+    |   for f in copy(g:html_function_files)
+    |     exe 'HTMLMESG Reloading: ' .. fnamemodify(f, ':t')
+    |     exe 'source ' .. f
+    |   endfor
+    | else
+    |   HTMLERROR Somehow the global variable describing the sourced function files is non-existent.
+    | endif
 endif
 
 # ----------------------------------------------------------------------- }}}2
 
 if ! exists('b:did_html_mappings_init')
-  # This must be a number, not a boolean:
+  # This must be a number, not a boolean, because a -1 special case is used by
+  # one of the functions:
   b:did_html_mappings_init = 1
 
   # User configurable variables:
@@ -118,10 +128,13 @@ if ! exists('b:did_html_mappings_init')
   # END user configurable variables
 
   SetIfUnset g:html_color_list {}
+  SetIfUnset g:html_function_files []
 
-  # Always set this:
+  # Always set this, even if it was already set:
   g:html_plugin_file = expand('<sfile>:p')
 
+  # Need to inerpolate the value, which the command form of SetIfUnset doesn't
+  # do:
   g:HTMLfunctions#SetIfUnset('g:html_save_clipboard', &clipboard)
 
   silent! setlocal clipboard+=html
@@ -130,7 +143,7 @@ if ! exists('b:did_html_mappings_init')
   if g:html_map_entity_leader ==# g:html_map_leader
     HTMLERROR "g:html_map_entity_leader" and "g:html_map_leader" have the same value!
     HTMLERROR Resetting "g:html_map_entity_leader" to "&".
-    sleep 2
+    sleep 3
     g:html_map_entity_leader = '&'
   endif
 
@@ -225,7 +238,7 @@ g:doing_internal_html_mappings = true
 if ! exists("b:did_html_mappings")
 b:did_html_mappings = true
 
-b:HTMLclearMappings = 'normal '
+b:HTMLclearMappings = []
 
 # Make it easy to use a ; (or whatever the map leader is) as normal:
 g:HTMLfunctions#Map('inoremap', '<lead>' .. g:html_map_leader, g:html_map_leader)
@@ -1383,53 +1396,50 @@ elseif has('win32') || has('win64') # {{{2
   g:HTMLfunctions#Map('nnoremap', '<lead>db', ":eval system('start RunDll32.exe shell32.dll,ShellExec_RunDLL ' .. expand('%:p')->shellescape())<CR>")
 endif # }}}2
 
-var s:browsersexist = ''
-silent! s:browsersexist = BrowserLauncher#Launch()
-if s:browsersexist != '' # {{{2
-
-  if s:browsersexist =~ 'f'
+if BrowserLauncher#Exists() != [] # {{{2
+  if BrowserLauncher#Exists('firefox')
     # Firefox: View current file, starting Firefox if it's not running:
-    g:HTMLfunctions#Map('nnoremap', '<lead>ff', ":eval BrowserLauncher#Launch('f', 0)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>ff', ":eval BrowserLauncher#Launch('firefox', 0)<CR>")
     # Firefox: Open a new window, and view the current file:
-    g:HTMLfunctions#Map('nnoremap', '<lead>nff', ":eval BrowserLauncher#Launch('f', 1)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>nff', ":eval BrowserLauncher#Launch('firefox', 1)<CR>")
     # Firefox: Open a new tab, and view the current file:
-    g:HTMLfunctions#Map('nnoremap', '<lead>tff', ":eval BrowserLauncher#Launch('f', 2)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>tff', ":eval BrowserLauncher#Launch('firefox', 2)<CR>")
   endif
-  if s:browsersexist =~ 'c'
+  if BrowserLauncher#Exists('chrome')
     # Chrome: View current file, starting Chrome if it's not running:
-    g:HTMLfunctions#Map('nnoremap', '<lead>gc', ":eval BrowserLauncher#Launch('c', 0)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>gc', ":eval BrowserLauncher#Launch('chrome', 0)<CR>")
     # Chrome: Open a new window, and view the current file:
-    g:HTMLfunctions#Map('nnoremap', '<lead>ngc', ":eval BrowserLauncher#Launch('c', 1)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>ngc', ":eval BrowserLauncher#Launch('chrome', 1)<CR>")
     # Chrome: Open a new tab, and view the current file:
-    g:HTMLfunctions#Map('nnoremap', '<lead>tgc', ":eval BrowserLauncher#Launch('c', 2)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>tgc', ":eval BrowserLauncher#Launch('chrome', 2)<CR>")
   endif
-  if s:browsersexist =~ 'e'
+  if BrowserLauncher#Exists('edge')
     # Edge: View current file, starting Microsoft Edge if it's not running:
-    g:HTMLfunctions#Map('nnoremap', '<lead>ed', ":eval BrowserLauncher#Launch('e', 0)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>ed', ":eval BrowserLauncher#Launch('edge', 0)<CR>")
     # Edge: Open a new window, and view the current file:
-    g:HTMLfunctions#Map('nnoremap', '<lead>ned', ":eval BrowserLauncher#Launch('e', 1)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>ned', ":eval BrowserLauncher#Launch('edge', 1)<CR>")
     # Edge: Open a new tab, and view the current file:
-    g:HTMLfunctions#Map('nnoremap', '<lead>ted', ":eval BrowserLauncher#Launch('e', 2)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>ted', ":eval BrowserLauncher#Launch('edge', 2)<CR>")
   endif
-  if s:browsersexist =~ 'o'
+  if BrowserLauncher#Exists('opera')
     # Opera: View current file, starting Opera if it's not running:
-    g:HTMLfunctions#Map('nnoremap', '<lead>oa', ":eval BrowserLauncher#Launch('o', 0)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>oa', ":eval BrowserLauncher#Launch('opera', 0)<CR>")
     # Opera: View current file in a new window, starting Opera if it's not running:
-    g:HTMLfunctions#Map('nnoremap', '<lead>noa', ":eval BrowserLauncher#Launch('o', 1)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>noa', ":eval BrowserLauncher#Launch('opera', 1)<CR>")
     # Opera: Open a new tab, and view the current file:
-    g:HTMLfunctions#Map('nnoremap', '<lead>toa', ":eval BrowserLauncher#Launch('o', 2)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>toa', ":eval BrowserLauncher#Launch('opera', 2)<CR>")
   endif
-  if s:browsersexist =~ 'l'
+  if BrowserLauncher#Exists('lynx')
     # Lynx:  (This happens anyway if there's no DISPLAY environmental variable.)
-    g:HTMLfunctions#Map('nnoremap', '<lead>ly', ":eval BrowserLauncher#Launch('l', 0)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>ly', ":eval BrowserLauncher#Launch('lynx', 0)<CR>")
     # Lynx in an xterm:  (This happens regardless in the Vim GUI.)
-    g:HTMLfunctions#Map('nnoremap', '<lead>nly', ":eval BrowserLauncher#Launch('l', 1)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>nly', ":eval BrowserLauncher#Launch('lynx', 1)<CR>")
   endif
-  if s:browsersexist =~ 'w'
+  if BrowserLauncher#Exists('w3m')
     # w3m:
-    g:HTMLfunctions#Map('nnoremap', '<lead>w3', ":eval BrowserLauncher#Launch('w', 0)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>w3', ":eval BrowserLauncher#Launch('w3m', 0)<CR>")
     # w3m in an xterm:  (This happens regardless in the Vim GUI.)
-    g:HTMLfunctions#Map('nnoremap', '<lead>nw3', ":eval BrowserLauncher#Launch('w', 1)<CR>")
+    g:HTMLfunctions#Map('nnoremap', '<lead>nw3', ":eval BrowserLauncher#Launch('w3m', 1)<CR>")
   endif
 endif # }}}2
 
@@ -1478,9 +1488,16 @@ if ! g:HTMLfunctions#BoolVar('g:no_html_toolbar') && has('toolbar')
         system("which xdg-open")
         if v:shell_error == 0
           # Run the default Unix browser:
-          system('xdg-open ' .. shellescape('http://christianrobinson.name/vim/HTML/#files') .. ' 2>&1 >/dev/null &')
-        elseif exists('*g:BrowserLauncher#Launch')
-          BrowserLauncher#Launch('default', 2, 'http://christianrobinson.name/vim/HTML/#files')
+          system('xdg-open ' .. shellescape('http://christianrobinson.name/vim/HTML/#files'))
+          if v:shell_error != 0 && exists('*g:BrowserLauncher#Launch') && BrowserLauncher#Exists() != []
+            # Fall back to randomly launching one of the browsers that was
+            # found--possibly undesirable but we can't determine which is the
+            # user default at this point:
+            BrowserLauncher#Launch(BrowserLauncher#Exists()[0], 2, 'http://christianrobinson.name/vim/HTML/#files')
+          endif
+        elseif exists('*g:BrowserLauncher#Launch') && BrowserLauncher#Exists() != []
+          # As above, fall back...
+          BrowserLauncher#Launch(BrowserLauncher#Exists()[0], 2, 'http://christianrobinson.name/vim/HTML/#files')
         else
           HTMLERROR Can't launch browser -- OS not recognized?
         endif
@@ -1603,40 +1620,40 @@ if ! g:HTMLfunctions#BoolVar('g:no_html_toolbar') && has('toolbar')
    menu 1.500 ToolBar.-sep50- <nul>
 
   if maparg(g:html_map_leader .. 'db', 'n') != ''
-    tmenu          1.510 ToolBar.Browser Launch Default Browser on Current File
+    tmenu          1.510 ToolBar.Browser Launch Default Browser on the Current File
     HTMLmenu amenu 1.510 ToolBar.Browser db
   endif
 
   if maparg(g:html_map_leader .. 'ff', 'n') != ''
-    tmenu           1.520 ToolBar.Firefox   Launch Firefox on Current File
+    tmenu           1.520 ToolBar.Firefox   Launch Firefox on the Current File
     HTMLmenu amenu  1.520 ToolBar.Firefox   ff
   endif
 
   if maparg(g:html_map_leader .. 'gc', 'n') != ''
-    tmenu           1.530 ToolBar.Chrome    Launch Chrome on Current File
+    tmenu           1.530 ToolBar.Chrome    Launch Chrome on the Current File
     HTMLmenu amenu  1.530 ToolBar.Chrome    gc
   endif
 
   if maparg(g:html_map_leader .. 'ed', 'n') != ''
-    tmenu           1.540 ToolBar.Edge      Launch Edge on Current File
+    tmenu           1.540 ToolBar.Edge      Launch Edge on the Current File
     HTMLmenu amenu  1.540 ToolBar.Edge      ed
   endif
 
   if maparg(g:html_map_leader .. 'oa', 'n') != ''
-    tmenu           1.550 ToolBar.Opera     Launch Opera on Current File
+    tmenu           1.550 ToolBar.Opera     Launch Opera on the Current File
     HTMLmenu amenu  1.550 ToolBar.Opera     oa
   endif
 
   if maparg(g:html_map_leader .. 'sf', 'n') != ''
-    tmenu           1.560 ToolBar.Safari    Launch Safari on Current File
+    tmenu           1.560 ToolBar.Safari    Launch Safari on the Current File
     HTMLmenu amenu  1.560 ToolBar.Safari    sf
   endif
 
   if maparg(g:html_map_leader .. 'w3', 'n') != ''
-    tmenu           1.570 ToolBar.w3m       Launch w3m on Current File
+    tmenu           1.570 ToolBar.w3m       Launch w3m on the Current File
     HTMLmenu amenu  1.570 ToolBar.w3m       w3
   elseif maparg(g:html_map_leader .. 'ly', 'n') != ''
-    tmenu           1.570 ToolBar.Lynx      Launch Lynx on Current File
+    tmenu           1.570 ToolBar.Lynx      Launch Lynx on the Current File
     HTMLmenu amenu  1.570 ToolBar.Lynx      ly
   endif
 

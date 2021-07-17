@@ -69,7 +69,7 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) tags
 	cp ${bitmaps}/* ${tmpdir}/pack/cjr/start/HTML/bitmaps/
 	cp HTML.vim ${tmpdir}/pack/cjr/start/HTML/ftplugin/html/
 	cp BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim ${tmpdir}/pack/cjr/start/HTML/autoload/
-	cp HTML.txt tags ${tmpdir}/pack/cjr/start/HTML/doc/
+	cp HTML.txt tags gpl-3.0.html gpl-3.0.txt ${tmpdir}/pack/cjr/start/HTML/doc/
 	chmod -R a+rX ${tmpdir}
 	cd ${tmpdir}; zip -9mr ${savecwd}/HTML.zip *
 	rmdir ${tmpdir}
@@ -83,7 +83,7 @@ HTML.html: HTML.txt tags
 	perl -p -i -e 's#<link rel="stylesheet" href="([^"]+)" type="text/css">#open(F,$$1); join("", "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<style type=\"text/css\">\n<!--\n", <F>, "-->\n</style>")#e && unlink $$1' HTML.html
 	chmod a+r HTML.html
 
-tags: HTML.txt
+tags: HTML.txt gpl-3.0.txt
 	vim -c "helptags ." -c "qa" > /dev/null 2> /dev/null
 	chmod a+r tags
 

@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2021 Jul 12
+		Last change: 2021 Jul 16
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -111,8 +111,8 @@ example, if you are within <I></I> and type |;em| it will assume you want
 					*html-customization*
 
 You can set the following global Vim variables to control the behavior of the
-macros.  It is recommended you set these variables in your .vimrc--some of
-them are only effective if they are set before HTML.vim is sourced.
+macros.  It is recommended you set these variables in your vimrc; some of them
+are only effective if they are set before HTML.vim is sourced.
 
 Note that "nonzero" means anything besides "no", "false", 0, or "" (empty
 value), case insensitive.
@@ -379,7 +379,7 @@ You would get something like: >
 	XHTML mode.
 
 	Finally, you can use the :HTMLmappings command to reload the entire
-	HTML macros script.
+	HTML macros plugin.
 
 	The argument to this command can be abbreviated to the first character
 	rather than the full word, and the command can be abbreviated to
@@ -390,8 +390,11 @@ You would get something like: >
 	script--are disabled/enabled when this command is used, regardless of
 	what |g:html_map_leader| is set to.
 
-	Also note that this does not reload the HTML menu or toolbar.
-
+	*reload-HTML-functions*	*HTML-reload-functions*	*HTML-functions-reload*	
+							*:HTMLReloadFunctions*
+:HTMLReloadFunctions
+	This command reloads all the previously loaded functions for this
+	plugin. This is normally called by |:HTMLmappings|.
 
 							*:ColorSelect* *:CS*
 :ColorSelect
@@ -771,12 +774,6 @@ another character of your preference.  See |g:html_map_leader|.
 ;mi	Automatically add or update the WIDTH and HEIGHT attributes of an
 	<IMG> tag.  If the <IMG> tag spans multiple lines the cursor must be
 	on the first line of the tag.
-
-	This mapping only works if MangleImageTag.vim is installed, available
-	with installation instructions here:
-	http://christianrobinson.name/vim/HTML/
-	(If you installed from the HTML.zip file this script should already be
-	available.)
 							*i_;na* *v_;na* *n_;na*
 ;na	Navigation links: >
 	<NAV>
@@ -1371,17 +1368,11 @@ Name:			HTML:		Macro: ~
 
 You can use a browser to preview your current HTML document.
 
-Note that many of these mappings will not be defined if the
-|BrowserLauncher.vim| script is not installed.
-
-Also note that support for more browsers will probably not be added as many
+Note that support for more browsers will probably not be added as many
 browsers use the same rendering engines as either Firefox or Google Chrome.
 
 
 For Mac OS X:				*browser-control-macos*
-
-The following mappings are only defined if you have properly installed the
-|BrowserLauncher.vim| script.
 
 Opening new tabs and windows depends on the built-in Graphic User Interface
 Scripting architecture of Mac OS X which comes disabled by default. You can
@@ -1414,7 +1405,7 @@ devices" in the Universal Access preference pane.
 For Unix:				*browser-control-unix*
 
 The following mappings, aside from |;db-unix| are only defined if you have
-properly installed the |BrowserLauncher.vim|.
+installed the corresponding browsers.
 
 								*n_;db-unix*
 ;db	Call the default browser on the current file. This requires "xdg-open"
@@ -1455,9 +1446,6 @@ properly installed the |BrowserLauncher.vim|.
 
 For Windows (and Cygwin):		*browser-control-windows*
 
-The following mappings, aside from |;db-windows| are only defined if you have
-properly installed the |BrowserLauncher.vim| script.
-
 								*n_;db-windows*
 ;db	Call the default browser on the current file.
 								*n_;ff-windows*
@@ -1489,16 +1477,6 @@ properly installed the |BrowserLauncher.vim| script.
 ;noa	Same as |;oa|, but start a new browser window.
 								*n_;toa-windows*
 ;toa	Same as |;noa|, but open a new tab.
-
-							*BrowserLauncher.vim*
-This script handles the complex logic of figure out what commands to run under
-the various operating systems, and--where possible--determines if the various
-browsers are installed.
-
-This script is available with installation instructions here:
-http://christianrobinson.name/vim/HTML/
-(If you installed from the HTML.zip file this script should already be
-available.)
 
 ==============================================================================
 7. Miscellaneous Extras					*html-misc*

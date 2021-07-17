@@ -2,7 +2,7 @@ vim9script
 
 # Various functions for the HTML.vim filetype plugin.
 #
-# Last Change: July 12, 2021
+# Last Change: July 16, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -26,7 +26,7 @@ vim9script
 
 scriptencoding utf8
 
-if v:versionlong < 8022324
+if v:versionlong < 8023171
   finish
 endif
 
@@ -280,16 +280,18 @@ def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -
     # behave slightly differently:
     newarg = newarg->substitute("`>a\\C", "`>i<C-R>=g:HTMLfunctions#VI()<CR>", 'g')
 
+    # Note that <C-c>:-command is necessary instead of just <Cmd> because
+    # <Cmd> doesn't update visual marks, which the mappings rely on:
     if extra < 0 && extra != -999
       execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
     elseif extra >= 1
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <Cmd>eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
         .. ":eval g:HTMLfunctions#TO(v:true)<CR>m':eval g:HTMLfunctions#ReIndent(line(\"'<\"), line(\"'>\"), " .. extra .. ")<CR>``"
     elseif extra == 0
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <Cmd>eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
         .. "<C-O>:eval g:HTMLfunctions#TO(v:true)<CR>"
     else
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <Cmd>eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
         .. ":eval g:HTMLfunctions#TO(v:true)<CR>"
     endif
   else
@@ -297,9 +299,9 @@ def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -
   endif
 
   if MODES->has_key(mode)
-    b:HTMLclearMappings ..= ':' .. mode .. "unmap <buffer> " .. newmap .. "\<CR>"
+    add(b:HTMLclearMappings, ':' .. mode .. "unmap <buffer> " .. newmap)
   else
-    b:HTMLclearMappings ..= ":unmap <buffer> " .. newmap .. "\<CR>"
+    add(b:HTMLclearMappings, ":unmap <buffer> " .. newmap)
   endif
 
   # Save extra mappings so they can be restored if we need to later:
@@ -309,8 +311,8 @@ enddef
 
 # g:HTMLfunctions#Mapo()  {{{1
 #
-# Define a map that takes an operator to its corresponding visual mode
-# mapping.
+# Define a normal mode map that takes an operator and assign it to its
+# corresponding visual mode mapping.
 #
 # Arguments:
 #  1 - String:  The mapping.
@@ -334,7 +336,7 @@ def g:HTMLfunctions#Mapo(map: string, insert: bool)
     .. ":let b:htmltaginsert=" .. insert .. "<CR>"
     .. ':set operatorfunc=g:HTMLfunctions#WR<CR>g@'
 
-  b:HTMLclearMappings = b:HTMLclearMappings .. ":nunmap <buffer> " .. newmap .. "\<CR>"
+  add(b:HTMLclearMappings, ":nunmap <buffer> " .. newmap)
   s:ExtraMappingsAdd(':eval g:HTMLfunctions#Mapo("' .. map->escape('"\') .. '", ' .. insert .. ')')
 enddef
 
@@ -407,7 +409,7 @@ def g:HTMLfunctions#WR(type: string)
     if b:htmltaginsert < 2
       execute "normal \<Right>"
     endif
-    startinsert
+    silent startinsert
   endif
 enddef
 
@@ -420,9 +422,9 @@ enddef
 def s:ExtraMappingsAdd(arg: string)
   if ! g:doing_internal_html_mappings && ! doing_extra_html_mappings
     if ! exists('b:HTMLextraMappings')
-      b:HTMLextraMappings = ''
+      b:HTMLextraMappings = []
     endif
-    b:HTMLextraMappings = b:HTMLextraMappings .. arg .. ' |'
+    add(b:HTMLextraMappings, arg)
   endif
 enddef
 
@@ -917,6 +919,41 @@ def g:HTMLfunctions#GenerateTable()
   normal jjj$F<
 enddef
 
+# s:ClearMappings() {{{1
+#
+# Iterate over all the commands to clear the mappings.  This used to be just
+# one long single command but that had drawbacks, so now it's a List that must
+# be looped over:
+#
+# Arguments:
+#  None
+# Return Value:
+#  None
+def s:ClearMappings()
+  for mapping in b:HTMLclearMappings
+    silent! exe mapping
+  endfor
+  b:HTMLclearMappings = []
+  unlet b:did_html_mappings
+enddef
+
+# s:DoExtraMappings() {{{1
+#
+# Iterate over all the commands to define extra mappings (those that weren't
+# defined by the plugin):
+#
+# Arguments:
+#  None
+# Return Value:
+#  None
+def s:DoExtraMappings()
+  doing_extra_html_mappings = true
+  for mapping in b:HTMLextraMappings
+    silent! exe mapping
+  endfor
+  doing_extra_html_mappings = false
+enddef
+
 # g:HTMLfunctions#MappingsControl()  {{{1
 #
 # Disable/enable all the mappings defined by
@@ -953,32 +990,32 @@ def g:HTMLfunctions#MappingsControl(dowhat: string)
 
   if dowhat =~? '^d\(isable\)\=\|off$'
     if exists('b:did_html_mappings') == 1
-      silent execute b:HTMLclearMappings
-      unlet b:did_html_mappings
+      s:ClearMappings()
       if exists("g:did_html_menus") == 1
         g:HTMLfunctions#MenuControl('disable')
       endif
     elseif quiet_errors
-      HTMLERROR "The HTML mappings are already disabled."
+      HTMLERROR The HTML mappings are already disabled.
     endif
   elseif dowhat =~? '^e\(nable\)\=\|on$'
     if exists('b:did_html_mappings') == 1
-      HTMLERROR "The HTML mappings are already enabled."
+      HTMLERROR The HTML mappings are already enabled.
     else
       execute "source " .. g:html_plugin_file
       if exists('b:HTMLextraMappings') == 1
-        doing_extra_html_mappings = true
-        silent execute b:HTMLextraMappings
+        s:DoExtraMappings()
       endif
     endif
   elseif dowhat =~? '^r\(eload\|einit\)\=$'
+    exe 'HTMLMESG Reloading: ' .. fnamemodify(g:html_plugin_file, ':t')
     quiet_errors = true
     HTMLmappings off
     b:did_html_mappings_init = -1
-    silent! unlet g:did_html_menus g:did_html_toolbar g:did_html_functions
+    silent! unlet g:did_html_menus g:did_html_toolbar g:did_html_commands
     silent! unmenu HTML
     silent! unmenu! HTML
     HTMLmappings on
+    autocmd SafeState * ++once HTMLReloadFunctions
     quiet_errors = false
   elseif dowhat =~? '^h\(tml\)\=$'
     if exists('b:html_tag_case_save') == 1
@@ -1373,14 +1410,16 @@ def g:HTMLfunctions#ColorsMenu(name: string, color: string)
   var c = name->strpart(0, 1)->toupper()
   var newname = name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
   execute 'imenu HTML.&Colors.&' .. colors_sort[c] .. '.' ..
-        newname->escape(' ') .. '<tab>(' .. color .. ') ' .. color
+    newname->escape(' ') .. '<tab>(' .. color .. ') ' .. color
   execute 'nmenu HTML.&Colors.&' .. colors_sort[c] .. '.' ..
-        newname->escape(' ') .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
-  # g:html_color_list[newname] = color
+    newname->escape(' ') .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
   g:html_color_list[name] = color
 enddef
 
 defcompile
+
+if !exists('g:html_function_files') | g:html_function_files = [] | endif
+add(g:html_function_files, expand('<sfile>:p'))->sort()->uniq()
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=3:comments=b\:#:commentstring=\ #\ %s:
