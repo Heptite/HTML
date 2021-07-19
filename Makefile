@@ -1,19 +1,16 @@
 VIM       = $(shell zsh -c 'whence vim9 || whence vim')
 TMPDIR   ?= /usr/tmp
-bitmaps  := bitmaps
+bitmaps  := cjr/start/HTML/bitmaps
 allxpm   := $(wildcard $(bitmaps)/*.xpm)
 allbmp   := $(allxpm:.xpm=.bmp)
-#faq      := $(HOME)/html/web_page/vim/HTML/faq.shtml
+#faq      := $(HOME)/www/programming/vim/HTML/faq.shtml
 #textfaq  := $(faq:%shtml=%)txt
 tmpdir   := $(shell mktemp -du $(TMPDIR)/make-tmp.XXXXXX)
 savecwd  := $(shell pwd)
 vim2html := $(shell find $(HOME)/share/vim -name vim2html.pl | tail -1)
 vim2html := $(or $(vim2html),false)
 
-#RCS_FILES_IN = $(wildcard RCS/*,v)
-#RCS_FILES = $(RCS_FILES_IN:RCS/%,v=%)
-
-PLUGIN_FILES = HTML.txt HTML.vim BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim
+PLUGIN_FILES = cjr/start/HTML/doc/HTML.txt cjr/start/HTML/ftplugin/html/HTML.vim cjr/start/HTML/autoload/BrowserLauncher.vim cjr/start/HTML/autoload/MangleImageTag.vim cjr/start/HTML/autoload/HTML.vim
 
 .PHONY : default debug all force html.zip html.html bitmaps pixmaps changelog
 
@@ -46,30 +43,27 @@ debug:
 	@echo "\$${tmpdir}        = ${tmpdir}"
 	@echo "\$${savecwd}       = ${savecwd}"
 	@echo "\$${vim2html}      = ${vim2html}"
-#	@echo "\$$(RCS_FILES)     = $(RCS_FILES)"
 	@echo "\$$(PLUGIN_FILES)  = $(PLUGIN_FILES)"
 
 all: ChangeLog ChangeLog.html HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
 
-# $(RCS_FILES):
-# 	co $@
-
-version: HTML.vim
+version: cjr/start/HTML/ftplugin/html/HTML.vim
 	rm -f version
-	fgrep 'Version: ' HTML.vim | awk '{ORS=""; print $$3}' > version
+	fgrep 'Version: ' cjr/start/HTML/ftplugin/html/HTML.vim | awk '{ORS=""; print $$3}' > version
 	chmod a+r version
 
 zip html.zip: HTML.zip
 
-#HTML.zip: $(RCS_FILES) $(allxpm) $(allbmp)
 HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) tags
 	rm -f HTML.zip
 	mkdir -p ${tmpdir}/pack/cjr/start/HTML/bitmaps ${tmpdir}/pack/cjr/start/HTML/ftplugin/html \
 		${tmpdir}/pack/cjr/start/HTML/doc ${tmpdir}/pack/cjr/start/HTML/autoload
 	cp ${bitmaps}/* ${tmpdir}/pack/cjr/start/HTML/bitmaps/
-	cp HTML.vim ${tmpdir}/pack/cjr/start/HTML/ftplugin/html/
-	cp BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim ${tmpdir}/pack/cjr/start/HTML/autoload/
-	cp HTML.txt tags gpl-3.0.html gpl-3.0.txt ${tmpdir}/pack/cjr/start/HTML/doc/
+	cp cjr/start/HTML/ftplugin/html/HTML.vim ${tmpdir}/pack/cjr/start/HTML/ftplugin/html/
+	cp cjr/start/HTML/autoload/BrowserLauncher.vim cjr/start/HTML/autoload/MangleImageTag.vim \
+		cjr/start/HTML/autoload/HTML.vim ${tmpdir}/pack/cjr/start/HTML/autoload/
+	cp cjr/start/HTML/doc/HTML.txt cjr/start/HTML/doc/tags cjr/start/HTML/doc/gpl-3.0.html \
+		cjr/start/HTML/doc/gpl-3.0.txt ${tmpdir}/pack/cjr/start/HTML/doc/
 	chmod -R a+rX ${tmpdir}
 	cd ${tmpdir}; zip -9mr ${savecwd}/HTML.zip *
 	rmdir ${tmpdir}
@@ -77,15 +71,15 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) tags
 
 html HTML html.html: HTML.html
 
-HTML.html: HTML.txt tags
+HTML.html: cjr/start/HTML/doc/HTML.txt cjr/start/HTML/doc/tags
 	rm -f HTML.html
-	$(vim2html) tags HTML.txt
+	$(vim2html) cjr/start/HTML/doc/tags cjr/start/HTML/doc/HTML.txt
 	perl -p -i -e 's#<link rel="stylesheet" href="([^"]+)" type="text/css">#open(F,$$1); join("", "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<style type=\"text/css\">\n<!--\n", <F>, "-->\n</style>")#e && unlink $$1' HTML.html
 	chmod a+r HTML.html
 
-tags: HTML.txt gpl-3.0.txt
-	vim -c "helptags ." -c "qa" > /dev/null 2> /dev/null
-	chmod a+r tags
+tags: cjr/start/HTML/doc/HTML.txt cjr/start/HTML/doc/gpl-3.0.txt
+	vim -c "helptags cjr/start/HTML/doc/" -c "qa" > /dev/null 2> /dev/null
+	chmod a+r cjr/start/HTML/doc/tags
 
 %.bmp: %.xpm
 	convert $< -background '#c0c0c0' -flatten -colors 16 PPM:- | ppmtobmp > $@
@@ -105,15 +99,6 @@ vim-html-pixmaps.zip: $(allxpm) $(allbmp)
 	chmod a+r vim-html-pixmaps.zip
 
 changelog: ChangeLog
-
-#ChangeLog: $(RCS_FILES) ChangeLog-base
-#	rm -f ChangeLog
-#	rcs2log -R -u 'infynity	Christian J. Robinson	heptite at gmail dot com' \
-#		-u 'Heptite	Christian J. Robinson	heptite at gmail dot com' \
-#		| perl -ne 's/^\t/ /g; $$ate=0, print "\n" if $$ate && m/^\S/; if ($$eat) { $$eat = $$ate = 0; $$_ = "", $$ate=1 if m/^\s*$$/; } $$eat=1 if m/^ \* |^\s*$$/; print'\
-#		> ChangeLog
-#	cat ChangeLog-base >> ChangeLog
-#	chmod a+r ChangeLog
 
 ChangeLog: $(PLUGIN_FILES) ChangeLog-base
 	rm -f ChangeLog
@@ -139,20 +124,20 @@ rsync scp:
 	@echo "WARNING! This does NOT make sure the various files are updated, do \"make all\" first!"
 	@echo
 	rsync --verbose --archive --times --rsh=ssh --stats --progress \
-		bitmaps BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim \
+		cjr/start/HTML/bitmaps BrowserLauncher.vim MangleImageTag.vim HTML.vim \
 		HTML.vim HTML.txt HTML.html HTML.zip version ChangeLog ChangeLog.html \
 		toolbar-icons.png vim-html-pixmaps.zip \
 		pi@heptite.localnet:~/www/programming/vim/HTML/
 
-install: HTML.vim HTML.txt tags BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim
-	cp -f HTML.vim ~/.vim/pack/cjr/start/HTML/ftplugin/html/
-	cp -f HTML.txt tags ~/.vim/pack/cjr/start/HTML/doc/
-	cp -f BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim \
-		~/.vim/pack/cjr/start/HTML/autoload/
-	cp -f HTML.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/ftplugin/html/
-	cp -f HTML.txt tags ~/Dropbox/vimfiles/pack/cjr/start/HTML/doc/
-	cp -f BrowserLauncher.vim MangleImageTag.vim HTMLfunctions.vim \
-		~/Dropbox/vimfiles/pack/cjr/start/HTML/autoload/
+install: cjr/start/HTML/ftplugin/html/HTML.vim cjr/start/HTML/doc/HTML.txt cjr/start/HTML/doc/tags cjr/start/HTML/autoload/BrowserLauncher.vim cjr/start/HTML/autoload/MangleImageTag.vim cjr/start/HTML/autoload/HTML.vim
+	cp -f cjr/start/HTML/ftplugin/html/HTML.vim ~/.vim/pack/cjr/start/HTML/ftplugin/html/
+	cp -f cjr/start/HTML/doc/HTML.txt cjr/start/HTML/doc/tags ~/.vim/pack/cjr/start/HTML/doc/
+	cp -f cjr/start/HTML/autoload/BrowserLauncher.vim cjr/start/HTML/autoload/MangleImageTag.vim \
+		cjr/start/HTML/autoload/HTML.vim ~/.vim/pack/cjr/start/HTML/autoload/
+	cp -f cjr/start/HTML/ftplugin/html/HTML.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/ftplugin/html/
+	cp -f cjr/start/HTML/doc/HTML.txt cjr/start/HTML/doc/tags ~/Dropbox/vimfiles/pack/cjr/start/HTML/doc/
+	cp -f cjr/start/HTML/autoload/BrowserLauncher.vim cjr/start/HTML/autoload/MangleImageTag.vim \
+		cjr/start/HTML/autoload/HTML.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/autoload/
 
 
 #faq FAQ: $(textfaq)

@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML.vim filetype plugin.
 #
-# Last Change: July 18, 2021
+# Last Change: July 19, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -35,7 +35,7 @@ if exists(':HTMLWARN') != 2
   command! -nargs=+ HTMLMESG :echohl Todo | echo <q-args> | echohl None
 endif
 
-# g:HTMLfunctions#SetIfUnset()  {{{1
+# g:HTML#SetIfUnset()  {{{1
 #
 # Set a variable if it's not already set.
 #
@@ -46,7 +46,7 @@ endif
 #  0  - The variable already existed
 #  1  - The variable didn't exist and was successfully set
 #  -1 - An error occurred
-def g:HTMLfunctions#SetIfUnset(variable: string, ...args: list<string>): number
+def g:HTML#SetIfUnset(variable: string, ...args: list<string>): number
   var val: string
   var newvariable = variable
 
@@ -81,7 +81,7 @@ def g:HTMLfunctions#SetIfUnset(variable: string, ...args: list<string>): number
   return 1
 enddef
 
-# g:HTMLfunctions#BoolVar()  {{{1
+# g:HTML#BoolVar()  {{{1
 #
 # Given a string, test to see if a variable by that string name exists, and if
 # so, whether it's set to 1|true|yes / 0|false|no   (Actually, anything not
@@ -94,7 +94,7 @@ enddef
 #
 # Limitations:
 #  This /will not/ work on function-local variable names.
-def g:HTMLfunctions#BoolVar(variable: string): bool
+def g:HTML#BoolVar(variable: string): bool
   var newvariable = variable
 
   if variable !~ '^[bgstvw]:'
@@ -115,7 +115,7 @@ enddef
 
 # s:Bool() {{{1
 #
-# Helper to g:HTMLfunctions#BoolVar() -- Test the string passed to it and
+# Helper to g:HTML#BoolVar() -- Test the string passed to it and
 # return true/false based on that string.
 #
 # Arguments:
@@ -142,7 +142,7 @@ def s:IsSet(str: string): bool
   endif
 enddef
 
-# g:HTMLfunctions#FilesWithMatch()  {{{1
+# g:HTML#FilesWithMatch()  {{{1
 #
 # Create a list of files that have contents matching a pattern.
 #
@@ -152,7 +152,7 @@ enddef
 #  2 - Integer: Optional, the number of lines to search before giving up 
 # Return Value:
 #  List:  Matching files
-def g:HTMLfunctions#FilesWithMatch(files: list<string>, pat: string, max: number = -1): list<string>
+def g:HTML#FilesWithMatch(files: list<string>, pat: string, max: number = -1): list<string>
   var inc: number
   var matched: list<string>
   matched = []
@@ -174,7 +174,7 @@ def g:HTMLfunctions#FilesWithMatch(files: list<string>, pat: string, max: number
   return matched
 enddef
 
-# g:HTMLfunctions#EncodeString()  {{{1
+# g:HTML#EncodeString()  {{{1
 #
 # Encode the characters in a string to/from their HTML representations.
 #
@@ -189,7 +189,7 @@ enddef
 #               - other:    No change to the string
 # Return Value:
 #  String:  The encoded string.
-def g:HTMLfunctions#EncodeString(str: string, decode: string = ''): string
+def g:HTML#EncodeString(str: string, decode: string = ''): string
   var out = str
 
   if decode == ''
@@ -199,13 +199,13 @@ def g:HTMLfunctions#EncodeString(str: string, decode: string = ''): string
   elseif decode == '%'
     out = out->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
   elseif decode =~? '^d\(ecode\)\=$'
-    out = out->substitute('\(&#x\x\+;\|&#\d\+;\|%\x\x\)', '\=submatch(1)->g:HTMLfunctions#DecodeSymbol()', 'g')
+    out = out->substitute('\(&#x\x\+;\|&#\d\+;\|%\x\x\)', '\=submatch(1)->g:HTML#DecodeSymbol()', 'g')
   endif
 
   return out
 enddef
 
-# g:HTMLfunctions#DecodeSymbol()  {{{1
+# g:HTML#DecodeSymbol()  {{{1
 #
 # Decode the HTML symbol string to its literal character counterpart
 #
@@ -213,7 +213,7 @@ enddef
 #  1 - String:  The string to decode.
 # Return Value:
 #  Character:  The decoded character.
-def g:HTMLfunctions#DecodeSymbol(symbol: string): string
+def g:HTML#DecodeSymbol(symbol: string): string
   var char: string
 
   if symbol =~ '&#\(x\x\+\);'
@@ -229,7 +229,7 @@ def g:HTMLfunctions#DecodeSymbol(symbol: string): string
   return char
 enddef
 
-# g:HTMLfunctions#Map()  {{{1
+# g:HTML#Map()  {{{1
 #
 # Define the HTML mappings with the appropriate case, plus some extra stuff.
 #
@@ -254,7 +254,7 @@ const MODES = {  # {{{
       'l': 'langmap',
     }  # }}}
 
-def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -999)
+def g:HTML#Map(cmd: string, map: string, arg: string, extra: number = -999)
   if exists('g:html_map_leader') == 0 && map =~? '^<lead>'
     HTMLERROR g:html_map_leader is not set! No mapping defined.
     return
@@ -274,30 +274,30 @@ def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -
     return
   endif
 
-  newarg = newarg->g:HTMLfunctions#ConvertCase()
+  newarg = newarg->g:HTML#ConvertCase()
 
-  if g:HTMLfunctions#BoolVar('b:do_xhtml_mappings') == false
+  if g:HTML#BoolVar('b:do_xhtml_mappings') == false
     newarg = newarg->substitute(' \?/>', '>', 'g')
   endif
 
   if mode == 'v'
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
-    newarg = newarg->substitute("`>a\\C", "`>i<C-R>=g:HTMLfunctions#VI()<CR>", 'g')
+    newarg = newarg->substitute("`>a\\C", "`>i<C-R>=g:HTML#VI()<CR>", 'g')
 
     # Note that <C-c>:-command is necessary instead of just <Cmd> because
     # <Cmd> doesn't update visual marks, which the mappings rely on:
     if extra < 0 && extra != -999
       execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
     elseif extra >= 1
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
-        .. ":eval g:HTMLfunctions#TO(v:true)<CR>m':eval g:HTMLfunctions#ReIndent(line(\"'<\"), line(\"'>\"), " .. extra .. ")<CR>``"
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:eval g:HTML#TO(v:false)<CR>gv" .. newarg
+        .. ":eval g:HTML#TO(v:true)<CR>m':eval g:HTML#ReIndent(line(\"'<\"), line(\"'>\"), " .. extra .. ")<CR>``"
     elseif extra == 0
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
-        .. "<C-O>:eval g:HTMLfunctions#TO(v:true)<CR>"
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:eval g:HTML#TO(v:false)<CR>gv" .. newarg
+        .. "<C-O>:eval g:HTML#TO(v:true)<CR>"
     else
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:eval g:HTMLfunctions#TO(v:false)<CR>gv" .. newarg
-        .. ":eval g:HTMLfunctions#TO(v:true)<CR>"
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:eval g:HTML#TO(v:false)<CR>gv" .. newarg
+        .. ":eval g:HTML#TO(v:true)<CR>"
     endif
   else
     execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
@@ -310,11 +310,11 @@ def g:HTMLfunctions#Map(cmd: string, map: string, arg: string, extra: number = -
   endif
 
   # Save extra mappings so they can be restored if we need to later:
-  s:ExtraMappingsAdd(':eval g:HTMLfunctions#Map("' .. cmd .. '", "' .. map->escape('"\')
+  s:ExtraMappingsAdd(':eval g:HTML#Map("' .. cmd .. '", "' .. map->escape('"\')
         .. '", "' .. arg->escape('"\') .. (extra != -999 ? ('", ' .. extra) : '"' ) .. ')')
 enddef
 
-# g:HTMLfunctions#Mapo()  {{{1
+# g:HTML#Mapo()  {{{1
 #
 # Define a normal mode map that takes an operator and assign it to its
 # corresponding visual mode mapping.
@@ -324,7 +324,7 @@ enddef
 #  2 - Boolean: Whether to enter insert mode after the mapping has executed.
 #               (A value greater than 1 tells the mapping not to move right one
 #               character.)
-def g:HTMLfunctions#Mapo(map: string, insert: bool)
+def g:HTML#Mapo(map: string, insert: bool)
   if exists('g:html_map_leader') == 0 && map =~? '^<lead>'
     HTMLERROR g:html_map_leader is not set! No mapping defined.
     return
@@ -339,10 +339,10 @@ def g:HTMLfunctions#Mapo(map: string, insert: bool)
   execute 'nnoremap <buffer> <silent> ' .. newmap
     .. " :let b:htmltagaction='" .. newmap .. "'<CR>"
     .. ":let b:htmltaginsert=" .. insert .. "<CR>"
-    .. ':set operatorfunc=g:HTMLfunctions#WR<CR>g@'
+    .. ':set operatorfunc=g:HTML#WR<CR>g@'
 
   add(b:HTMLclearMappings, ":nunmap <buffer> " .. newmap)
-  s:ExtraMappingsAdd(':eval g:HTMLfunctions#Mapo("' .. map->escape('"\') .. '", ' .. insert .. ')')
+  s:ExtraMappingsAdd(':eval g:HTML#Mapo("' .. map->escape('"\') .. '", ' .. insert .. ')')
 enddef
 
 # s:MapCheck()  {{{1
@@ -366,7 +366,7 @@ def s:MapCheck(map: string, mode: string): number
           (exists('b:no_html_maps') && map =~# b:no_html_maps) )
     return 3
   elseif MODES->has_key(mode) && map->maparg(mode) != ''
-    if g:HTMLfunctions#BoolVar('g:no_html_map_override') && g:doing_internal_html_mappings
+    if g:HTML#BoolVar('g:no_html_map_override') && g:doing_internal_html_mappings
       return 2
     else
       execute "HTMLWARN WARNING: A mapping to \"" .. map .. "\" for " .. MODES[mode] .. " mode has been overridden for this buffer."
@@ -377,7 +377,7 @@ def s:MapCheck(map: string, mode: string): number
   return 0
 enddef
 
-# g:HTMLfunctions#SI()  {{{1
+# g:HTML#SI()  {{{1
 #
 # 'Escape' special characters with a control-v so Vim doesn't handle them as
 # special keys during insertion.  For use in <C-R>=... type calls in mappings.
@@ -390,13 +390,13 @@ enddef
 # Limitations:
 #  Null strings have to be left unescaped, due to a limitation in Vim itself.
 #  (VimL represents newline characters as nulls...ouch.)
-def g:HTMLfunctions#SI(str: string): string
+def g:HTML#SI(str: string): string
   return str->substitute('[^\x00\x20-\x7E]', '\="\x16" .. submatch(0)', 'g')
 enddef
 
-# g:HTMLfunctions#WR()  {{{1
+# g:HTML#WR()  {{{1
 # Function set in 'operatorfunc' for mappings that take an operator:
-def g:HTMLfunctions#WR(type: string)
+def g:HTML#WR(type: string)
   var sel_save = &selection
   &selection = "inclusive"
 
@@ -433,7 +433,7 @@ def s:ExtraMappingsAdd(arg: string)
   endif
 enddef
 
-# g:HTMLfunctions#TO()  {{{1
+# g:HTML#TO()  {{{1
 #
 # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
 # are off temporarily to prevent the visual mappings from causing a
@@ -446,7 +446,7 @@ var savesm: bool
 var saveinde: string
 var savefo: string
 var visualmode_save: string
-def g:HTMLfunctions#TO(which: bool)
+def g:HTML#TO(which: bool)
   if which
     &l:sm = savesm
     &l:inde = saveinde
@@ -472,7 +472,7 @@ def g:HTMLfunctions#TO(which: bool)
   endif
 enddef
 
-# g:HTMLfunctions#TC()  {{{1
+# g:HTML#TC()  {{{1
 #
 # Used to make sure the 'comments' option is off temporarily to prevent
 # certain mappings from inserting unwanted comment leaders.
@@ -481,7 +481,7 @@ enddef
 #  1 - Boolean: false - Turn option off.
 #               true  - Turn option back on, if they were on before.
 var savecom: string
-def g:HTMLfunctions#TC(s: bool)
+def g:HTML#TC(s: bool)
   if s
     &l:com = savecom
   else
@@ -489,7 +489,7 @@ def g:HTMLfunctions#TC(s: bool)
   endif
 enddef
 
-# g:HTMLfunctions#ToggleClipboard()  {{{1
+# g:HTML#ToggleClipboard()  {{{1
 #
 # Used to turn off/on the inclusion of "html" in the 'clipboard' option when
 # switching buffers.
@@ -500,7 +500,7 @@ enddef
 #               2 - Auto detect which to do.
 #
 # (Note that savecb is set by this script's initialization.)
-def g:HTMLfunctions#ToggleClipboard(i: number)
+def g:HTML#ToggleClipboard(i: number)
   var newi = i
 
   if newi == 2
@@ -525,16 +525,16 @@ def g:HTMLfunctions#ToggleClipboard(i: number)
   endif
 enddef
 
-# g:HTMLfunctions#VI()  {{{1
+# g:HTML#VI()  {{{1
 #
-# Used by g:HTMLfunctions#Map() to enter insert mode in Visual mappings in the
+# Used by g:HTML#Map() to enter insert mode in Visual mappings in the
 # right place, depending on what 'selection' is set to.
 #
 # Arguments:
 #   None
 # Return Value:
 #   The proper movement command based on the value of 'selection'.
-def g:HTMLfunctions#VI(): string
+def g:HTML#VI(): string
   if &selection == 'inclusive'
     return "\<right>"
   else
@@ -542,7 +542,7 @@ def g:HTMLfunctions#VI(): string
   endif
 enddef
 
-# g:HTMLfunctions#ConvertCase()  {{{1
+# g:HTML#ConvertCase()  {{{1
 #
 # Convert special regions in a string to the appropriate case determined by
 # b:html_tag_case.
@@ -551,7 +551,7 @@ enddef
 #  1 - String: The string with the regions to convert surrounded by [{...}].
 # Return Value:
 #  The converted string.
-def g:HTMLfunctions#ConvertCase(str: string): string
+def g:HTML#ConvertCase(str: string): string
   var newstr = str
 
   if ! exists('b:html_tag_case')
@@ -565,15 +565,15 @@ def g:HTMLfunctions#ConvertCase(str: string): string
   else
     execute "HTMLWARN WARNING: b:html_tag_case = '" .. b:html_tag_case .. "' invalid, overriding to 'lowercase'."
     b:html_tag_case = 'lowercase'
-    newstr = newstr->g:HTMLfunctions#ConvertCase()
+    newstr = newstr->g:HTML#ConvertCase()
   endif
 
   return newstr
 enddef
 
-# g:HTMLfunctions#ReIndent()  {{{1
+# g:HTML#ReIndent()  {{{1
 #
-# Re-indent a region.  (Usually called by g:HTMLfunctions#Map.)
+# Re-indent a region.  (Usually called by g:HTML#Map.)
 #  Nothing happens if filetype indenting isn't enabled or 'indentexpr' is
 #  unset.
 #
@@ -583,7 +583,7 @@ enddef
 #  3 - Integer: 1: Add an extra line below the region to re-indent.
 #               *: Don't add an extra line.
 var filetype_output: string
-def g:HTMLfunctions#ReIndent(first: number, last: number, extraline: number)
+def g:HTML#ReIndent(first: number, last: number, extraline: number)
   var firstline: number
   var lastline: number
 
@@ -641,7 +641,7 @@ def s:ByteOffset(lineormark: any = -1, column: number = -1): number
   endif
 enddef
 
-# g:HTMLfunctions#NextInsertPoint()  {{{1
+# g:HTML#NextInsertPoint()  {{{1
 #
 # Position the cursor at the next point in the file that needs data.
 #
@@ -657,7 +657,7 @@ enddef
 #  It is impossible to cycle through all of the unfilled tags in a file; the
 #  cursor will just jump back to the nearest unfilled tag if it is on the same
 #  line as the cursor when the function is invoked.
-def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
+def g:HTML#NextInsertPoint(mode: string = 'n')
   var byteoffset = s:ByteOffset()
   var done: bool
 
@@ -719,7 +719,7 @@ def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
   endif
 enddef
 
-# g:HTMLfunctions#SmartTag()  {{{1
+# g:HTML#SmartTag()  {{{1
 #
 # Causes certain tags (such as bold, italic, underline) to be closed then
 # opened rather than opened then closed where appropriate, if syntax
@@ -808,7 +808,7 @@ const SMARTTAGS = {
   }
 } # }}}
 
-def g:HTMLfunctions#SmartTag(tag: string, mode: string): string
+def g:HTML#SmartTag(tag: string, mode: string): string
   var attr = synID(line('.'), col('.') - 1, 1)->synIDattr('name')
   var ret: string
 
@@ -818,21 +818,21 @@ def g:HTMLfunctions#SmartTag(tag: string, mode: string): string
         || ( tag == 'strong' && attr =~? 'bold' )
         || ( tag == 'u' && attr =~? 'underline' )
         || ( tag == 'comment' && attr =~? 'comment' )
-    ret = SMARTTAGS[tag][mode]['c']->g:HTMLfunctions#ConvertCase()
+    ret = SMARTTAGS[tag][mode]['c']->g:HTML#ConvertCase()
   else
-    ret = SMARTTAGS[tag][mode]['o']->g:HTMLfunctions#ConvertCase()
+    ret = SMARTTAGS[tag][mode]['o']->g:HTML#ConvertCase()
   endif
 
   if mode == 'v'
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
-    ret = ret->substitute("`>a\\C", "`>i" .. g:HTMLfunctions#VI(), 'g')
+    ret = ret->substitute("`>a\\C", "`>i" .. g:HTML#VI(), 'g')
   endif
 
   return ret
 enddef
 
-# g:HTMLfunctions#DetectCharset()  {{{1
+# g:HTML#DetectCharset()  {{{1
 #
 # Detects the HTTP-EQUIV Content-Type charset based on Vim's current
 # encoding/fileencoding.
@@ -854,7 +854,7 @@ const CHARSETS = {
   'big5':      'Big5',
 } # }}}
 
-def g:HTMLfunctions#DetectCharset(): string
+def g:HTML#DetectCharset(): string
   var enc: string
 
   if exists("g:html_charset")
@@ -881,7 +881,7 @@ def g:HTMLfunctions#DetectCharset(): string
   return g:html_default_charset
 enddef
 
-# g:HTMLfunctions#GenerateTable()  {{{1
+# g:HTML#GenerateTable()  {{{1
 #
 # Interactively creates a table.
 #
@@ -889,7 +889,7 @@ enddef
 #  None
 # Return Value:
 #  None
-def g:HTMLfunctions#GenerateTable()
+def g:HTML#GenerateTable()
   var charpos = getcharpos('.')
   var rows    = inputdialog("Number of rows: ")->str2nr()
   var columns = inputdialog("Number of columns: ")->str2nr()
@@ -902,22 +902,22 @@ def g:HTMLfunctions#GenerateTable()
   var border = inputdialog("Border width of table [none]: ")->str2nr()
 
   if border
-    execute g:HTMLfunctions#ConvertCase("normal o<[{TABLE BORDER}]=" .. border .. ">\<ESC>")
+    execute g:HTML#ConvertCase("normal o<[{TABLE BORDER}]=" .. border .. ">\<ESC>")
   else
-    execute g:HTMLfunctions#ConvertCase("normal o<[{TABLE}]>\<ESC>")
+    execute g:HTML#ConvertCase("normal o<[{TABLE}]>\<ESC>")
   endif
 
   for r in rows->range()
-    execute g:HTMLfunctions#ConvertCase("normal o<[{TR}]>\<ESC>")
+    execute g:HTML#ConvertCase("normal o<[{TR}]>\<ESC>")
 
     for c in columns->range()
-      execute g:HTMLfunctions#ConvertCase("normal o<[{TD}]></[{TD}]>\<ESC>")
+      execute g:HTML#ConvertCase("normal o<[{TD}]></[{TD}]>\<ESC>")
     endfor
 
-    execute g:HTMLfunctions#ConvertCase("normal o</[{TR}]>\<ESC>")
+    execute g:HTML#ConvertCase("normal o</[{TR}]>\<ESC>")
   endfor
 
-  execute g:HTMLfunctions#ConvertCase("normal o</[{TABLE}]>\<ESC>")
+  execute g:HTML#ConvertCase("normal o</[{TABLE}]>\<ESC>")
 
   setcharpos('.', charpos)
 
@@ -959,10 +959,10 @@ def s:DoExtraMappings()
   doing_extra_html_mappings = false
 enddef
 
-# g:HTMLfunctions#MappingsControl()  {{{1
+# g:HTML#MappingsControl()  {{{1
 #
 # Disable/enable all the mappings defined by
-# g:HTMLfunctions#Map()/g:HTMLfunctions#Mapo().
+# g:HTML#Map()/g:HTML#Mapo().
 #
 # Arguments:
 #  1 - String:  Whether to disable or enable the mappings:
@@ -978,7 +978,7 @@ enddef
 #  This expects g:html_plugin_file to be set by the HTML plugin.
 var doing_extra_html_mappings = false
 var quiet_errors: bool
-def g:HTMLfunctions#MappingsControl(dowhat: string)
+def g:HTML#MappingsControl(dowhat: string)
   if exists('b:did_html_mappings_init') == 0
     HTMLERROR The HTML mappings were not sourced for this buffer.
     return
@@ -997,7 +997,7 @@ def g:HTMLfunctions#MappingsControl(dowhat: string)
     if exists('b:did_html_mappings') == 1
       s:ClearMappings()
       if exists("g:did_html_menus") == 1
-        g:HTMLfunctions#MenuControl('disable')
+        g:HTML#MenuControl('disable')
       endif
     elseif quiet_errors
       HTMLERROR The HTML mappings are already disabled.
@@ -1014,12 +1014,12 @@ def g:HTMLfunctions#MappingsControl(dowhat: string)
   elseif dowhat =~? '^r\(eload\|einit\)\=$'
     exe 'HTMLMESG Reloading: ' .. fnamemodify(g:html_plugin_file, ':t')
     quiet_errors = true
-    g:HTMLfunctions#MappingsControl('off')
+    g:HTML#MappingsControl('off')
     b:did_html_mappings_init = -1
     silent! unlet g:did_html_menus g:did_html_toolbar g:did_html_commands
     silent! unmenu HTML
     silent! unmenu! HTML
-    g:HTMLfunctions#MappingsControl('on')
+    g:HTML#MappingsControl('on')
     autocmd SafeState * ++once HTMLReloadFunctions
     quiet_errors = false
   elseif dowhat =~? '^h\(tml\)\=$'
@@ -1027,20 +1027,20 @@ def g:HTMLfunctions#MappingsControl(dowhat: string)
       b:html_tag_case = b:html_tag_case_save
     endif
     b:do_xhtml_mappings = false
-    g:HTMLfunctions#MappingsControl('on')
+    g:HTML#MappingsControl('on')
     b:did_html_mappings_init = -1
-    g:HTMLfunctions#MappingsControl('on')
+    g:HTML#MappingsControl('on')
   elseif dowhat =~? '^x\(html\)\=$'
     b:do_xhtml_mappings = true
-    g:HTMLfunctions#MappingsControl('on')
+    g:HTML#MappingsControl('on')
     b:did_html_mappings_init = -1
-    g:HTMLfunctions#MappingsControl('on')
+    g:HTML#MappingsControl('on')
   else
     execute "HTMLERROR Invalid argument: " .. dowhat
   endif
 enddef
 
-# g:HTMLfunctions#MenuControl()  {{{1
+# g:HTML#MenuControl()  {{{1
 #
 # Disable/enable the HTML menu and toolbar.
 #
@@ -1051,7 +1051,7 @@ enddef
 #                "enable": Enable the menu and toolbar
 # Return Value:
 #  None
-def g:HTMLfunctions#MenuControl(which: string="detect")
+def g:HTML#MenuControl(which: string="detect")
   if which !~? '^disable$\|^enable$\|^detect$'
     echoerr "Invalid argument: " .. which
     return
@@ -1085,7 +1085,7 @@ def g:HTMLfunctions#MenuControl(which: string="detect")
       amenu enable HTML.Control.*
       amenu disable HTML.Control.Enable\ Mappings
 
-      if g:HTMLfunctions#BoolVar('b:do_xhtml_mappings')
+      if g:HTML#BoolVar('b:do_xhtml_mappings')
         amenu disable HTML.Control.Switch\ to\ XHTML\ mode
         amenu enable  HTML.Control.Switch\ to\ HTML\ mode
       else
@@ -1102,7 +1102,7 @@ def g:HTMLfunctions#MenuControl(which: string="detect")
   endif
 enddef
 
-# g:HTMLfunctions#ShowColors()  {{{1
+# g:HTML#ShowColors()  {{{1
 #
 # Create a window to display the HTML colors, highlighted
 #
@@ -1110,7 +1110,7 @@ enddef
 #  1 - String: Default is "i", how to insert the selection
 # Return Value:
 #  None
-def g:HTMLfunctions#ShowColors(str: string='')
+def g:HTML#ShowColors(str: string='')
   if exists('g:did_html_menus') == 0
     HTMLERROR The HTML menu was not created, and it is necessary for color parsing.
     return
@@ -1223,7 +1223,7 @@ def s:ColorSelect(bufnr: number, which: string = 'i')
   echo color
 enddef
 
-# g:HTMLfunctions#Template()  {{{1
+# g:HTML#Template()  {{{1
 #
 # Determine whether to insert the HTML template.
 #
@@ -1232,7 +1232,7 @@ enddef
 # Return Value:
 #  0 - The cursor is not on an insert point.
 #  1 - The cursor is on an insert point.
-def g:HTMLfunctions#Template(): bool
+def g:HTML#Template(): bool
   var ret = false
   var save_ruler = &ruler
   var save_showcmd = &showcmd
@@ -1266,7 +1266,7 @@ enddef
 def s:Template2(): bool
 
   if g:html_authoremail != ''
-    g:html_authoremail_encoded = g:html_authoremail->g:HTMLfunctions#EncodeString()
+    g:html_authoremail_encoded = g:html_authoremail->g:HTML#EncodeString()
   else
     g:html_authoremail_encoded = ''
   endif
@@ -1312,12 +1312,12 @@ def s:Template2(): bool
   :silent! :%s/\C%time%/\=strftime('%r %Z')/g
   :silent! :%s/\C%time12%/\=strftime('%r %Z')/g
   :silent! :%s/\C%time24%/\=strftime('%T')/g
-  :silent! :%s/\C%charset%/\=g:HTMLfunctions#DetectCharset()/g
+  :silent! :%s/\C%charset%/\=g:HTML#DetectCharset()/g
   :silent! :%s#\C%vimversion%#\=(v:version / 100) .. '.' .. (v:version % 100) .. '.' .. (v:versionlong % 10000)#g
 
   go 1
 
-  g:HTMLfunctions#NextInsertPoint('n')
+  g:HTML#NextInsertPoint('n')
   if getline('.')[col('.') - 2] .. getline('.')[col('.') - 1] == '><'
         || (getline('.') =~ '^\s*$' && line('.') != 1)
     return true
@@ -1326,7 +1326,7 @@ def s:Template2(): bool
   endif
 enddef
 
-# g:HTMLfunctions#LeadMenu()  {{{1
+# g:HTML#LeadMenu()  {{{1
 #
 # Generate HTML menu items
 #
@@ -1338,7 +1338,7 @@ enddef
 #              menu command
 # Return Value:
 #  None
-def g:HTMLfunctions#LeadMenu(type: string, level: string, name: string, item: string, pre: string = '')
+def g:HTML#LeadMenu(type: string, level: string, name: string, item: string, pre: string = '')
   var newlevel: string
 
   if level == '-'
@@ -1353,7 +1353,7 @@ def g:HTMLfunctions#LeadMenu(type: string, level: string, name: string, item: st
       .. item .. ' ' .. pre .. g:html_map_leader .. item
 enddef
 
-# g:HTMLfunctions#EntityMenu()  {{{1
+# g:HTML#EntityMenu()  {{{1
 #
 # Generate HTML character entity menu items
 #
@@ -1363,7 +1363,7 @@ enddef
 #  3 - String: The symbol it generates
 # Return Value:
 #  None
-def g:HTMLfunctions#EntityMenu(name: string, item: string, symb: string = '')
+def g:HTML#EntityMenu(name: string, item: string, symb: string = '')
   var newsymb = ''
 
   if symb != '-'
@@ -1390,7 +1390,7 @@ def g:HTMLfunctions#EntityMenu(name: string, item: string, symb: string = '')
         .. g:html_map_entity_leader .. item .. '<esc>'
 enddef
 
-# g:HTMLfunctions#ColorsMenu()  {{{1
+# g:HTML#ColorsMenu()  {{{1
 #
 # Generate HTML colors menu items
 #
@@ -1411,7 +1411,7 @@ const colors_sort = {  # {{{
   'Y': 'T-Z', 'Z': 'T-Z',
 }  # }}}
 
-def g:HTMLfunctions#ColorsMenu(name: string, color: string)
+def g:HTML#ColorsMenu(name: string, color: string)
   var c = name->strpart(0, 1)->toupper()
   var newname = name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
   execute 'imenu HTML.&Colors.&' .. colors_sort[c] .. '.'

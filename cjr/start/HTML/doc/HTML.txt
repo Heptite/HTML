@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2021 Jul 18
+		Last change: 2021 Jul 19
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -169,9 +169,9 @@ must be set before HTML.vim is sourced.  e.g.: >
 	:let g:no_html_map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin.  If you
-call the |HTMLfunctions#Map()| function elsewhere you will still get a warning
-message when there is an already existing mapping and the mapping will still
-be overridden.
+call the |HTML#Map()| function elsewhere you will still get a warning message
+when there is an already existing mapping and the mapping will still be
+overridden.
 
 *g:no_html_maps* *b:no_html_maps*
 Set this variable to a regular expression to match against mappings.  If a
@@ -184,10 +184,10 @@ tags: >
 	:let g:no_html_maps = '^\(;ah\|;im\|;H\d\)$'
 
 This only applies to the mappings defined internally to the plugin.  If you
-call the |HTMLfunctions#Map()| function elsewhere the mapping will be defined
-even if it matches this regular expression.  This is useful if you wish to
-define custom variants of some of the plugin's mappings without getting
-warning messages.
+call the |HTML#Map()| function elsewhere the mapping will be defined even if
+it matches this regular expression.  This is useful if you wish to define
+custom variants of some of the plugin's mappings without getting warning
+messages.
 
 *g:no_html_tab_mapping*
 Set this variable to a nonzero value if you do not want the tab key to be
@@ -243,7 +243,7 @@ internal template.
 The default for these variables are empty strings.
 
 *g:html_authoremail_encoded*
-This variable will be set using |HTMLfunctions#EncodeString()| if your
+This variable will be set using |HTML#EncodeString()| if your
 |g:html_authoremail| variable is set.  (Do not set this variable yourself, it
 will be overwritten when the template macro is used.)
 
@@ -388,8 +388,8 @@ You would get something like: >
 	rather than the full word, and the command can be abbreviated to
 	:HTML.
 
-	Note that all of the mappings defined by calling |HTMLfunctions#Map()| or
-	|HTMLfunctions#Mapo()|--including all of the mappings defined by this
+	Note that all of the mappings defined by calling |HTML#Map()| or
+	|HTML#Mapo()|--including all of the mappings defined by this
 	script--are disabled/enabled when this command is used, regardless of
 	what |g:html_map_leader| is set to.
 
@@ -1110,7 +1110,7 @@ characters into the HTML buffer.  These are known as characters entities.
 	become "%66%6F%6F%20%62%61%72". (|n_;|)
 
 	(Note that this will not touch Unicode characters.  See
-	|HTMLfunctions#EncodeString()|)
+	|HTML#EncodeString()|)
 
 Note: Previously the ;& and ;% normal mode mappings did not require a motion
 and operated on the character "under" the cursor.  This was changed for
@@ -1487,13 +1487,13 @@ For Windows (and Cygwin):		*browser-control-windows*
 
 
 :SetIfUnset {variable} {value}				*:SetIfUnset*
-	This command calls |HTMLfunctions#SetIfUnset()|.
+	This command calls |HTML#SetIfUnset()|.
 
 
 Some of the functions used by the HTML mappings:	*html-functions*
 ------------------------------------------------
 
-HTMLfunctions#EncodeString({string} [, {...}])	*HTMLfunctions#EncodeString()*
+HTML#EncodeString({string} [, {...}])			*HTML#EncodeString()*
 	Returns {string} encoded into HTML entities, or decode HTML encoded
 	strings.
 
@@ -1517,17 +1517,16 @@ HTMLfunctions#EncodeString({string} [, {...}])	*HTMLfunctions#EncodeString()*
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 
-HTMLfunctions#DecodeSymbol({symbol})		*HTMLfunctions#DecodeSymbol()*
+HTML#DecodeSymbol({symbol})				*HTML#DecodeSymbol()*
 	Returns the character representation of {symbol}, if it is in &#...;
 	or %XX format.  This function is typically used by
-	|HTMLfunctions#EncodeString()| to decode strings.
+	|HTML#EncodeString()| to decode strings.
 
-HTMLfunctions#GenerateTable()			*HTMLfunctions#GenerateTable()*
+HTML#GenerateTable()					*HTML#GenerateTable()*
 	This is normally called by the normal mapping |;tA|, but it works the
 	same if called any other way.
 
-						*HTMLfunctions#Map()*
-HTMLfunctions#Map({maptype}, {lhs}, {rhs} [, {re-indent}])
+HTML#Map({maptype}, {lhs}, {rhs} [, {re-indent}])	*HTML#Map()*
 	This function defines a mapping, local to the buffer and silent.
 	{maptype} is any map command.  {lhs} and {rhs} are equivalent to :map
 	arguments, see |map.txt|.  This is useful for autocommands and HTML
@@ -1557,24 +1556,23 @@ HTMLfunctions#Map({maptype}, {lhs}, {rhs} [, {re-indent}])
 	the mappings depending on their mode, the value of {re-indent} and so
 	on.
 
-HTMLfunctions#Mapo({map}, {insert})		*HTMLfunctions#Mapo()*
+HTML#Mapo({map}, {insert})				*HTML#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
 	visual mapping by the same name.  {insert} is a boolean value that
 	indicates whether to end in insert mode.
 
-					*HTMLfunctions#NextInsertPoint()*
-HTMLfunctions#NextInsertPoint([{mode}])
+HTML#NextInsertPoint([{mode}])				*HTML#NextInsertPoint()*
 	This is normally called by the |;<Tab>| mapping, but it works the same
 	if called any other way.  The {mode} argument is either 'i' or 'n'
 	(default) which means |Insert| or |Normal|.  In insert mode, if the
 	cursor is on the start of a closing tag it places the cursor after the
 	tag.
 
-HTMLfunctions#Template()			*HTMLfunctions#Template()*
+HTML#Template()						*HTML#Template()*
 	This is normally called by the normal mapping |;html|, but it works
 	the same if called any other way.
 
-HTMLfunctions#SetIfUnset({variable}, {value})	*HTMLfunctions#SetIfUnset()*
+HTML#SetIfUnset({variable}, {value})			*HTML#SetIfUnset()*
 	This function sets {variable} to {value} if the variable is not
 	already set.  A {value} of "" makes sure the variable is set with an
 	empty string, a {value} of [] initializes to an empty list, and a

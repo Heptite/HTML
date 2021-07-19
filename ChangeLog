@@ -1,3 +1,6 @@
+Sun, 18 Jul 2021 22:46:57 -0600 Christian J. Robinson
+ * More refactoring. Bug squashing. Make the code more reliable and extensible.
+
 Sat, 17 Jul 2021 12:28:54 -0600 Christian J. Robinson
  * Some refactoring and logic changes, very little in the way of feature additions
 

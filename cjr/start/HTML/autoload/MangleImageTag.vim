@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: July 18, 2021
+# Last Change: July 19, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -85,7 +85,7 @@ def g:MangleImageTag#Mangle() # {{{1
     endif
   else
     echohl ErrorMsg
-    echomsg "Image src not specified in the tag."
+    echomsg "Image SRC not specified in the tag."
     echohl None
 
     return
@@ -96,7 +96,7 @@ def g:MangleImageTag#Mangle() # {{{1
       src = expand("%:p:h") .. '/' .. src
     else
       echohl ErrorMsg
-      echomsg "Can not find image file: " .. src
+      echomsg "Can not find image file (or it is not readable): " .. src
       echohl None
 
       return
