@@ -41,6 +41,7 @@ XHTML-macros	HTML.txt	/*XHTML-macros*
 b:do_xhtml_mappings	HTML.txt	/*b:do_xhtml_mappings*
 b:html_tag_case	HTML.txt	/*b:html_tag_case*
 b:html_template	HTML.txt	/*b:html_template*
+b:html_template	HTML.txt	/*b:html_template*
 b:no_html_maps	HTML.txt	/*b:no_html_maps*
 browser-control	HTML.txt	/*browser-control*
 browser-control-macos	HTML.txt	/*browser-control-macos*

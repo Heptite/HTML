@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
-		Last change: 2021 Jul 16
+		Last change: 2021 Jul 18
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -9,7 +9,7 @@ This is a set of HTML/XHTML macros, menus, and toolbar buttons to make editing
 HTML files easier.  The original Copyright goes to Doug Renze, although nearly
 all of his efforts have been modified in this implementation.  All the changes
 are Copyright Christian J. Robinson.  These macros and the supporting scripts
-are distributable under the terms of the GNU GPL version 2 or later.
+are distributable under the terms of the GNU |GPL| version 3 or later.
 
 ------------------------------------------------------------------------------
 
@@ -33,15 +33,17 @@ normally done automatically when editing an HTML type buffer), and the menu
 and toolbar are active only for buffers the script was sourced from.
 
 This help file follows the Vim help file standards.  To see what modes a
-mapping works in see the tags between the **'s.  For example, the |;;| mapping
-below works in normal, insert mode and visual mode.
+mapping works in see the tags above and to the right.  The notation is X_TT,
+where "X" means the mode, and "TT" means the tag. For example, the |;;|
+mapping below works in normal, insert mode and visual mode.  This plugin does
+not define any mappings for :-command mode.
 
 I have tried to keep the tags in mostly alphabetical order, but related tags
 are grouped in various ways, which interferes with that ordering.
 
 							*html-smart-tag*
-Noted tags are "smart".  If syntax highlighting is enabled it can be used to
-detect whether to close then open a tag instead of open then close the tag.
+The noted tags are "smart"; if syntax highlighting is enabled it can be used
+to detect whether to close then open a tag instead of open then close the tag.
 For example, if the cursor is in italicized text and you type |;it|, it will
 insert </I><I> instead of <I></I>.
 
@@ -50,7 +52,7 @@ highlighting rules.
 
 NOTE: Some tags are synonyms and Vim can not distinguish between them.  For
 example, if you are within <I></I> and type |;em| it will assume you want
-</EM><EM> rather than <EM></EM>, which you should not be doing anyway.
+</EM><EM> rather than <EM></EM>, which you should not be doing.
 
 							*n_;;* *i_;;* *v_;;*
 ;;	Most of the mappings start with ; so ;; is mapped to insert a single
@@ -83,9 +85,6 @@ example, if you are within <I></I> and type |;em| it will assume you want
 	 <TABLE>
 	 </TABLE>
 <
-	Currently using this mapping in visual mode clears the visual
-	selection.
-
 	See |g:no_html_tab_mapping| if you do not want these mappings to be
 	defined, in which case ;<Tab> will be used for the mappings instead.
 
@@ -131,8 +130,9 @@ supported for historical reasons.)
 *g:html_tag_case* *b:html_tag_case*
 This variable can be set to "l" / "lower" / "lowercase" or "u" / "upper" /
 "uppercase" to determine the case of the text in the HTML tags.  This variable
-must be set before HTML.vim is sourced for the current buffer.  The default is
-"lowercase".  You can also set this on a per-buffer basis by using
+must be set before HTML.vim is sourced for the current buffer (i.e. before the
+buffer is loaded).  The default is "lowercase".  You can also set this
+globally by setting g:html_tag_case or on a per-buffer basis by using
 b:html_tag_case instead.  This variable is ignored when editing XHTML files
 (see |g:do_xhtml_mappings|).  e.g: >
 	:let g:html_tag_case = 'lowercase'
@@ -142,7 +142,8 @@ Set this variable to a nonzero value if you want to automatically detect what
 the value of |b:html_tag_case| should be.  This is done by examining the file
 for both upper and lower case tags (tag attributes are not examined).  If only
 one type is found the tag case for the buffer is set to that value.  This
-variable is ignored if you have set |g:do_xhtml_mappings|.  e.g.: >
+variable is ignored if you have set |g:do_xhtml_mappings| or
+|b:do_xhtml_mappings|.  e.g.: >
 	:let g:html_tag_case_autodetect = 'yes'
 
 *g:html_map_leader*
@@ -269,9 +270,9 @@ should be left unset.
 ------------------------------------------------------------------------------
 					*html-template-tokens* *html-tokens*
 
-When you define a template file with the |g:html_template| variable, special
-tokens within the template will automatically replaced with their
-corresponding variable value:
+When you define a template file with the |g:html_template|  or
+*b:html_template* variable, special tokens within the template will
+automatically replaced with their corresponding variable value:
 
 Token:			Variable: 		Description: ~
 %authorname%		|g:html_authorname|
@@ -296,6 +297,8 @@ with backslashes. e.g.: >
 	(%date  \%!r\!  %)
 Would produce something like: >
 	(%05:59:34 PM!)
+See http://strftime.net/ for a list of tokens that may work on your system,
+but remember to use "!" in place of "%".
 
 %time% or %time12%				*%time%* *%time12%*
 This is replaced with the output of strftime("%r %Z") (e.g.: 05:59:34 PM MST)
@@ -313,7 +316,7 @@ The current version of Vim, based on |v:version| and |v:versionlong|.  For
 example, if v:version was "802" and v:versionlong was "8020220" the
 %vimversion% token would be replaced by "8.2.220".
 
-So if you had the template: >
+For example, if you had the template: >
  <!DOCTYPE html>
  <HTML LANG="en">
   <HEAD>
@@ -459,8 +462,8 @@ another character of your preference.  See |g:html_map_leader|.
 
 	The actual value of the charset is automatically detected based on the
 	'fileencoding' or 'encoding' option.  This can be overridden--see
-	|g:html_default_charset| and |g:html_charset|.
-	(See |html-author-notes|)
+	|g:html_default_charset| and |g:html_charset|.  (If this doesn't
+	insert the correct charset value, see |html-author-notes|.)
 							*i_;cm* *v_;cm* *n_;cm*
 ;cm	Comment tag: >
 	<!-- -->
@@ -557,7 +560,8 @@ another character of your preference.  See |g:html_map_leader|.
 							*i_;ce* *v_;ce* *n_;ce*
 ;ce	Center: >
 	<DIV STYLE="text-align: center;"></DIV>
-<	(Note <CENTER> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
+<	(Note <CENTER> is not HTML 5 compatible, so we use CSS instead.)
+	(|n_;|)
 							*i_;ci* *v_;ci* *n_;ci*
 ;ci	Citation: >
 	<CITE></CITE>
@@ -839,7 +843,7 @@ another character of your preference.  See |g:html_map_leader|.
 	<STRONG></STRONG>
 <	(|html-smart-tag|) (|n_;|)
 							*i_;cs* *v_;cs* *n_;cs*
-;cs	Internal CSS Style: >
+;cs	Inline CSS Style: >
 	<STYLE TYPE="text/css">
 	<!--
 
@@ -1114,7 +1118,7 @@ multiple reasons.  Type ;&l or ;%l to emulate the old behavior.
 
 							*n_;^* *v_;^*
 ;^	This mapping will decode the &#...; and %XX elements of the motion or
-	visually selected characters their actual characters. (|n_;|)
+	visually selected characters to their actual characters. (|n_;|)
 
 
 The following mappings work in insert mode only.
@@ -1508,7 +1512,8 @@ HTMLfunctions#EncodeString({string} [, {...}])	*HTMLfunctions#EncodeString()*
 	Notes:
 	- Unicode characters can not be safely converted to %XX hex strings
 	  for URIs due to a limit in the specification, so this function will
-	  leave them untouched.
+	  leave them untouched.  This limitation does not apply to encoding to
+	  or from &...; entities.
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 

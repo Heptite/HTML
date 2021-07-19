@@ -1,8 +1,13 @@
 vim9script
+scriptencoding utf8
+
+if v:versionlong < 8023182
+  finish
+endif
 
 # MangleImageTag() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: July 16, 2021
+# Last Change: July 18, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -26,11 +31,6 @@ vim9script
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-scriptencoding utf8
-
-if v:versionlong < 8023171
-    finish
-endif
 
 def g:MangleImageTag#Mangle() # {{{1
   var start_linenr = line('.')
@@ -40,7 +40,7 @@ def g:MangleImageTag#Mangle() # {{{1
 
   if line !~? '<img'
     echohl ErrorMsg
-    echomsg "The current line does not contain an image tag (see :help ;mi)."
+    echomsg "The current line does not contain an IMG tag (see :help ;mi)."
     echohl None
 
     return
@@ -68,7 +68,7 @@ def g:MangleImageTag#Mangle() # {{{1
 
   if tag[0] != '<' || col > strlen(savestart .. tag) - 1
     echohl ErrorMsg
-    echomsg "Cursor is not on an IMG tag."
+    echomsg "The cursor is not on an IMG tag."
     echohl None
 
     return
@@ -151,6 +151,8 @@ def s:ImageSize(image: string): list<number> # {{{1
   endif
 
   if filereadable(image) == 1
+    # Note that the 1024 here is not bytes, but lines,
+    # whereas below the 1024 IS bytes:
     var buf = readfile(image, 'b', 1024)
     var buf2: list<number>
 
@@ -159,7 +161,7 @@ def s:ImageSize(image: string): list<number> # {{{1
       var string = split(l, '\zs')
       for c in string
         var char = char2nr(c)
-        eval buf2->add((char == 10 ? 0 : char))
+        buf2->add((char == 10 ? 0 : char))
 
         # Keep the script from being too slow, but could cause a JPG
         # (and GIF/PNG?) to return as "malformed":
@@ -168,7 +170,7 @@ def s:ImageSize(image: string): list<number> # {{{1
           break
         endif
       endfor
-      eval buf2->add(10)
+      buf2->add(10)
     endfor
 
     if ext ==? 'png'

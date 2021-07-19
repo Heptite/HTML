@@ -1,10 +1,15 @@
 vim9script
+scriptencoding utf8
+
+if v:versionlong < 8023182
+  finish
+endif
 
 # --------------------------------------------------------------------------
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 17, 2021
+# Last Change: July 18, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -17,6 +22,8 @@ vim9script
 #              window if DISPLAY is set.)
 #  - w3m      (Under the current TTY if not running the GUI, or a new xterm
 #              window if DISPLAY is set.)
+#  - Default
+#
 # MacOS:
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
@@ -29,6 +36,7 @@ vim9script
 #  - Chrome   (remote [new window / new tab] / launch)
 #  - Edge     (remote [new window / new tab] / launch)
 #  - Plus lynx & w3m on Cygwin if they can be found.
+#  - Default
 #
 # TODO:
 #
@@ -67,15 +75,18 @@ vim9script
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-scriptencoding utf8
 
-if v:versionlong < 8023171
-  finish
+# Not ideal to do this at the beginning of the script instead of the end, but
+# this script could finish before it reaches the end:
+if !exists('g:html_function_files') | g:html_function_files = [] | endif
+add(g:html_function_files, expand('<sfile>:p'))->sort()->uniq()
+
+
+if exists(':HTMLWARN') != 2
+  command! -nargs=+ HTMLWARN :echohl WarningMsg | echomsg <q-args> | echohl None
+  command! -nargs=+ HTMLERROR :echohl ErrorMsg | echomsg <q-args> | echohl None
+  command! -nargs=+ HTMLMESG :echohl Todo | echo <q-args> | echohl None
 endif
-
-command! -nargs=+ BRCWARN :echohl WarningMsg | echomsg <q-args> | echohl None
-command! -nargs=+ BRCERROR :echohl ErrorMsg | echomsg <q-args> | echohl None
-command! -nargs=+ BRCMESG :echohl Todo | echo <q-args> | echohl None
 
 # Allow auto-scoping to work properly for Vim 9,
 # initialize these variables here:
@@ -87,8 +98,8 @@ if has('mac') || has('macunix')  # {{{1
   # <israelvarios()fastmail!fm>:
 
   def s:MacAppExists(app: string): bool # {{{
-    silent! call system("/usr/bin/osascript -e 'get id of application \"" ..
-        app .. "\"' 2>&1 >/dev/null")
+    silent! call system("/usr/bin/osascript -e 'get id of application \""
+      .. app .. "\"' 2>&1 >/dev/null")
     if v:shell_error
       return 0
     endif
@@ -96,9 +107,9 @@ if has('mac') || has('macunix')  # {{{1
   enddef # }}}
 
   def s:UseAppleScript(): string # {{{
-    return system("/usr/bin/osascript -e " ..
-       "'tell application \"System Events\" to set UI_enabled " ..
-       "to UI elements enabled' 2>/dev/null") ==? "true\n" ? 1 : 0
+    return system("/usr/bin/osascript -e "
+      .. "'tell application \"System Events\" to set UI_enabled "
+      .. "to UI elements enabled' 2>/dev/null") ==? "true\n" ? 1 : 0
   enddef # }}}
 
   def g:BrowserLauncher#OpenInMacApp(app: string, new: number = 0): bool # {{{
@@ -107,7 +118,7 @@ if has('mac') || has('macunix')  # {{{1
     endif
 
     if (! s:MacAppExists(app) && app !=? 'default')
-      execute 'BRCERROR ' .. app .. " not found"
+      execute 'HTMLERROR ' .. app .. ' not found'
       return 0
     endif
 
@@ -117,11 +128,11 @@ if has('mac') || has('macunix')  # {{{1
     var use_AS = s:UseAppleScript()
 
     # Why we can't open new tabs and windows:
-    var as_msg = "This feature utilizes the built-in Graphic User " ..
-        "Interface Scripting architecture of Mac OS X which is " ..
-        "currently disabled. You can activate GUI Scripting by " ..
-        "selecting the checkbox \"Enable access for assistive " ..
-        "devices\" in the Universal Access preference pane."
+    var as_msg = 'This feature utilizes the built-in Graphic User '
+      .. 'Interface Scripting architecture of Mac OS X which is '
+      .. 'currently disabled. You can activate GUI Scripting by '
+      .. 'selecting the checkbox "Enable access for assistive '
+      .. 'devices" in the Universal Access preference pane.'
 
     var torn: string
     var script: string
@@ -131,32 +142,32 @@ if has('mac') || has('macunix')  # {{{1
       if new != 0 && use_AS
         if new == 2
           torn = 't'
-          BRCMESG Opening file in new Safari tab...
+          HTMLMESG Opening file in new Safari tab...
         else
           torn = 'n'
-          BRCMESG Opening file in new Safari window...
+          HTMLMESG Opening file in new Safari window...
         endif
-        script = '-e "tell application \"safari\"" ' ..
-                 '-e "activate" ' ..
-                 '-e "tell application \"System Events\"" ' ..
-                 '-e "tell process \"safari\"" ' ..
-                 '-e "keystroke \"' .. torn .. '\" using {command down}" ' ..
-                 '-e "end tell" ' ..
-                 '-e "end tell" ' ..
-                 '-e "delay 0.3" ' ..
-                 '-e "tell window 1" ' ..
-                 '-e ' .. shellescape("set (URL of last tab) to \"" .. file .. "\"") .. ' ' ..
-                 '-e "end tell" ' ..
-                 '-e "end tell" '
+        script = '-e "tell application \"safari\"" '
+                 .. '-e "activate" '
+                 .. '-e "tell application \"System Events\"" '
+                 .. '-e "tell process \"safari\"" '
+                 .. '-e "keystroke \"' .. torn .. '\" using {command down}" '
+                 .. '-e "end tell" '
+                 .. '-e "end tell" '
+                 .. '-e "delay 0.3" '
+                 .. '-e "tell window 1" '
+                 .. '-e ' .. shellescape("set (URL of last tab) to \"" .. file .. "\"") .. ' '
+                 .. '-e "end tell" '
+                 .. '-e "end tell" '
 
         command = "/usr/bin/osascript " .. script
 
       else
         if new != 0
           # Let the user know what's going on:
-          execute 'BRCERROR ' .. as_msg
+          execute 'HTMLERROR ' .. as_msg
         endif
-        BRCMESG Opening file in Safari...
+        HTMLMESG Opening file in Safari...
         command = "/usr/bin/open -a safari " .. shellescape(file)
       endif
     endif "}}}
@@ -166,34 +177,34 @@ if has('mac') || has('macunix')  # {{{1
         if new == 2
 
           torn = 't'
-          BRCMESG Opening file in new Firefox tab...
+          HTMLMESG Opening file in new Firefox tab...
         else
 
           torn = 'n'
-          BRCMESG Opening file in new Firefox window...
+          HTMLMESG Opening file in new Firefox window...
         endif
-        script = '-e "tell application \"firefox\"" ' ..
-                 '-e "activate" ' ..
-                 '-e "tell application \"System Events\"" ' ..
-                 '-e "tell process \"firefox\"" ' ..
-                 '-e "keystroke \"' .. torn .. '\" using {command down}" ' ..
-                 '-e "delay 0.8" ' ..
-                 '-e "keystroke \"l\" using {command down}" ' ..
-                 '-e "keystroke \"a\" using {command down}" ' ..
-                 '-e ' .. shellescape("keystroke \"" .. file .. "\" & return") .. " " ..
-                 '-e "end tell" ' ..
-                 '-e "end tell" ' ..
-                 '-e "end tell" '
+        script = '-e "tell application \"firefox\"" '
+                 .. '-e "activate" '
+                 .. '-e "tell application \"System Events\"" '
+                 .. '-e "tell process \"firefox\"" '
+                 .. '-e "keystroke \"' .. torn .. '\" using {command down}" '
+                 .. '-e "delay 0.8" '
+                 .. '-e "keystroke \"l\" using {command down}" '
+                 .. '-e "keystroke \"a\" using {command down}" '
+                 .. '-e ' .. shellescape("keystroke \"" .. file .. "\" & return") .. " "
+                 .. '-e "end tell" '
+                 .. '-e "end tell" '
+                 ..  '-e "end tell" '
 
         command = "/usr/bin/osascript " .. script
 
       else
         if new != 0
           # Let the user know wath's going on:
-          execute 'BRCERROR ' .. as_msg
+          execute 'HTMLERROR ' .. as_msg
 
         endif
-        BRCMESG Opening file in Firefox...
+        HTMLMESG Opening file in Firefox...
         command = "/usr/bin/open -a firefox " .. shellescape(file)
       endif
     endif # }}}
@@ -203,75 +214,83 @@ if has('mac') || has('macunix')  # {{{1
         if new == 2
 
           torn = 't'
-          BRCMESG Opening file in new Opera tab...
+          HTMLMESG Opening file in new Opera tab...
         else
 
           torn = 'n'
-          BRCMESG Opening file in new Opera window...
+          HTMLMESG Opening file in new Opera window...
         endif
-        script = '-e "tell application \"Opera\"" ' ..
-                 '-e "activate" ' ..
-                 '-e "tell application \"System Events\"" ' ..
-                 '-e "tell process \"opera\"" ' ..
-                 '-e "keystroke \"' .. torn .. '\" using {command down}" ' ..
-                 '-e "end tell" ' ..
-                 '-e "end tell" ' ..
-                 '-e "delay 0.5" ' ..
-                 '-e ' .. shellescape("set URL of front document to \"" .. file .. "\"") .. " " ..
-                 '-e "end tell" '
+        script = '-e "tell application \"Opera\"" '
+                 .. '-e "activate" '
+                 .. '-e "tell application \"System Events\"" '
+                 .. '-e "tell process \"opera\"" '
+                 .. '-e "keystroke \"' .. torn .. '\" using {command down}" '
+                 .. '-e "end tell" '
+                 .. '-e "end tell" '
+                 .. '-e "delay 0.5" '
+                 .. '-e ' .. shellescape("set URL of front document to \"" .. file .. "\"") .. " "
+                 .. '-e "end tell" '
 
         command = "/usr/bin/osascript " .. script
 
       else
         if new != 0
           # Let the user know what's going on:
-          execute 'BRCERROR ' .. as_msg
+          execute 'HTMLERROR ' .. as_msg
 
         endif
-        BRCMESG Opening file in Opera...
+        HTMLMESG Opening file in Opera...
         command = "/usr/bin/open -a opera " .. shellescape(file)
       endif
     endif # }}}
 
     if (app ==? 'default')
-      BRCMESG Opening file in default browser...
+      HTMLMESG Opening file in default browser...
       command = "/usr/bin/open " .. shellescape(file)
     endif
 
     if (command == '')
-      execute 'BRCMESG Opening ' .. app->substitute('^.', '\U&', '') .. '...'
+      execute 'HTMLMESG Opening ' .. app->substitute('^.', '\U&', '') .. '...'
       command = "open -a " .. app .. " " .. shellescape(file)
     endif
 
     system(command .. " 2>&1 >/dev/null")
   enddef # }}}
 
+  defcompile
+
   finish
 
 elseif has('unix') && ! has('win32unix') # {{{1
 
   # Set this manually, since the first in the list is the default:
-  Browsers['firefox'] = [['firefox', 'iceweasel'],               '', '', '--new-tab', '--new-window']
-  Browsers['chrome']  = [['google-chrome', 'chromium-browser'],  '', '', '',          '--new-window']
-  Browsers['opera']   = ['opera',                                '', '', '',          '--new-window']
-  Browsers['lynx']    = ['lynx',                                 '', '', '',          '']
-  Browsers['w3m']     = ['w3m',                                  '', '', '',          '']
+  Browsers['firefox'] = [['firefox', 'iceweasel'], 
+    '', '', '--new-tab', '--new-window']
+  Browsers['chrome']  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
+    '', '', '',          '--new-window']
+  Browsers['opera']   = ['opera',
+    '', '', '',          '--new-window']
+  Browsers['lynx']    = ['lynx',
+    '', '', '',          '']
+  Browsers['w3m']     = ['w3m',
+    '', '', '',          '']
+  Browsers['default'] = ['xdg-open',
+    '', '', '',          '']
 
-  var tempkey: string
-  var tempname: string
   var temppath: string
 
   for tempkey in keys(Browsers)
     for tempname in (type(Browsers[tempkey][0]) == type([]) ? Browsers[tempkey][0] : [Browsers[tempkey][0]])
       temppath = system('which ' .. tempname)->substitute("\n$", '', '')
       if v:shell_error == 0
+        Browsers[tempkey][0] = tempname
+        Browsers[tempkey][1] = temppath
         break
       endif
     endfor
 
-    if v:shell_error == 0
-      Browsers[tempkey][0] = tempname
-      Browsers[tempkey][1] = temppath
+    if v:shell_error != 0
+      remove(Browsers, tempkey)
     endif
   endfor
 
@@ -286,16 +305,18 @@ elseif has('win32') || has('win64') || has('win32unix')  # {{{1
   endif
   if filereadable('C:\Program Files\Google\Chrome\Application\chrome.exe')
     || filereadable('C:\Program Files (x86)\Google\Chrome\Application\chrome.exe')
-    Browsers['chrome'] = ['chrome',  '', '', '',          '--new-window']
+    Browsers['chrome'] = ['chrome', '', '', '', '--new-window']
   endif
   if filereadable('C:\Program Files\Opera\launcher.exe')
     || filereadable('C:\Program Files (x86)\Opera\launcher.exe')
-    Browsers['opera'] = ['opera',   '', '', '',          '--new-window']
+    Browsers['opera'] = ['opera', '', '', '', '--new-window']
   endif
   if filereadable('C:\Program Files\Microsoft\Edge\Application\msedge.exe')
     || filereadable('C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe')
-    Browsers['edge'] = ['msedge',  '', '', '',          '--new-window']
+    Browsers['edge'] = ['msedge', '', '', '', '--new-window']
   endif
+
+  Browsers['default'] = ['"RunDll32.exe shell32.dll,ShellExec_RunDLL"', '', '', '', '']
 
   if has('win32unix')
     var temp: string
@@ -307,11 +328,13 @@ elseif has('win32') || has('win64') || has('win32unix')  # {{{1
     if v:shell_error == 0
       Browsers['w3m'] = ['w3m', temp, '', '', '']
     endif
+
+    Browsers['default'] = ['RunDll32.exe shell32.dll,ShellExec_RunDLL', '', '', '', '']
   endif
 
-else # {{{1
+else # OS not recognized, can't do any browser control: {{{1
 
-  BRCWARN Your OS is not recognized, browser controls will not work.
+  HTMLWARN Your OS is not recognized, browser controls will not work.
 
   Browsers = {}
 
@@ -328,7 +351,6 @@ def g:BrowserLauncher#Exists(browser: string = ''): any
   if browser == ''
     return keys(Browsers)
   else
-    #return keys(Browsers)->match('^\c\V' .. browser .. '\$') >= 0 ? true : false
     return exists('Browsers["' .. browser->escape('"\\') .. '"]') ? true : false
   endif
 enddef
@@ -354,12 +376,17 @@ enddef
 #  true  - Success (The specified browser was launched/controlled.)
 def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): bool
   var which = browser
+  var donew = new
   var command: string
   var file: string
 
-  if !exists('Browsers["' .. which->escape('"\\') .. '"]')
-    execute 'BRCERROR Unknown browser ID: ' .. which
+  if !g:BrowserLauncher#Exists(which)
+    execute 'HTMLERROR Unknown browser ID: ' .. which
     return false
+  endif
+
+  if which == 'default'
+    donew = 0
   endif
 
   if url != ''
@@ -368,12 +395,11 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
     # If we're on Cygwin and not using lynx or w3m, translate the file path
     # to a Windows native path for later use, otherwise just add the file://
     # prefix:
-    file = 'file://' ..
-        (has('win32unix') && TextmodeBrowsers->match('^\c\V' .. which .. '\$') < 0 ?
-           system('cygpath -w ' .. expand('%:p')->shellescape())->trim() :
-           expand('%:p'))
+    file = 'file://'
+      .. (has('win32unix') && TextmodeBrowsers->match('^\c\V' .. which .. '\$') < 0 ?
+        system('cygpath -w ' .. expand('%:p')->shellescape())->trim() : expand('%:p'))
   else
-    BRCERROR No file is loaded in the current buffer and no URL was specified.
+    HTMLERROR No file is loaded in the current buffer and no URL was specified.
     return false
   endif
 
@@ -383,29 +409,29 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
     elseif TextmodeBrowsers->match('^w3m$') >= 0
       which = 'w3m'
     else
-      BRCERROR $DISPLAY is not set and Lynx or w3m are not found, no browser launched.
+      HTMLERROR $DISPLAY is not set and Lynx or w3m are not found, no browser launched.
       return false
     endif
   endif
 
   if TextmodeBrowsers->match('^\c\V' .. which .. '\$') >= 0 
-    execute "BRCMESG Launching " .. Browsers[which][0] .. "..."
+    execute "HTMLMESG Launching " .. Browsers[which][0] .. "..."
 
     var xterm = system('which xterm')->trim()
     if v:shell_error != 0
       xterm = ''
     endif
 
-    if has("gui_running") || new > 0
+    if has("gui_running") || donew > 0
       if $DISPLAY != '' && xterm != ''
-        command = xterm .. ' -T ' .. Browsers[which][0] .. ' -e ' ..
-          Browsers[which][1] .. ' ' .. shellescape(file) .. ' &'
+        command = xterm .. ' -T ' .. Browsers[which][0] .. ' -e '
+          .. Browsers[which][1] .. ' ' .. shellescape(file) .. ' &'
       elseif exists(':terminal') == 2
         execute 'terminal ++close ' .. Browsers[which][1] .. ' ' .. file
         return true
       else
-        execute "BRCERROR XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch " ..
-          Browsers[which][0] .. '.'
+        execute "HTMLERROR XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch "
+          ..  Browsers[which][0] .. '.'
         return false
       endif
     else
@@ -413,7 +439,7 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
       execute "!" .. Browsers[which][1] .. " " .. shellescape(file)
 
       if v:shell_error
-        execute "BRCERROR Unable to launch " .. Browsers[which][0] .. "."
+        execute "HTMLERROR Unable to launch " .. Browsers[which][0] .. "."
         return false
       endif
 
@@ -422,32 +448,37 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
   endif
 
   if command == ''
-    if new == 2
-      execute "BRCMESG Opening new " .. Browsers[which][0]->s:Cap() .. " tab..."
+    if donew == 2
+      execute 'HTMLMESG Opening new ' .. Browsers[which][0]->s:Cap() .. ' tab...'
       if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file) ..
-          ' ' .. Browsers[which][3] 
+        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file)
+          .. ' ' .. Browsers[which][3] 
       else
-        command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " " ..
-          shellescape(file) .. ' ' .. Browsers[which][3]  .. " &\""
+        command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " "
+          .. shellescape(file) .. ' ' .. Browsers[which][3]  .. ' &"'
       endif
-    elseif new > 0
-      execute "BRCMESG Opening new " .. Browsers[which][0]->s:Cap() .. " window..."
+    elseif donew > 0
+      execute 'HTMLMESG Opening new ' .. Browsers[which][0]->s:Cap() .. ' window...'
       if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file) ..
-          ' ' .. Browsers[which][4] 
+        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file)
+          .. ' ' .. Browsers[which][4] 
       else
-        command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " " ..
-          shellescape(file) .. ' ' .. Browsers[which][4]  .. " &\""
+        command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. ' '
+          .. shellescape(file) .. ' ' .. Browsers[which][4]  .. ' &"'
       endif
     else
-      execute "BRCMESG Sending remote command to " .. Browsers[which][0]->s:Cap() .. "..."
-      if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file) ..
-          ' ' .. Browsers[which][2] 
+      if which == 'default'
+        execute 'HTMLMESG Invoking system default browser...'
       else
-        command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " " ..
-          shellescape(file) .. ' ' .. Browsers[which][2]  .. " &\""
+        execute 'HTMLMESG Invoking ' .. Browsers[which][0]->s:Cap() .. "..."
+      endif
+
+      if has('win32') || has('win64') || has('win32unix')
+        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file)
+          .. ' ' .. Browsers[which][2] 
+      else
+        command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " "
+          .. shellescape(file) .. ' ' .. Browsers[which][2]  .. ' &"'
       endif
     endif
   endif
@@ -456,19 +487,22 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
 
     if has('win32unix')
       command = command->substitute('^start', 'cygstart', '')
+      if which == 'default'
+        command = command->substitute('file://', '', '')
+      endif
     endif
 
     system(command)
 
     if v:shell_error
-      execute 'BRCERROR Command failed: ' .. command
+      execute 'HTMLERROR Command failed: ' .. command
       return false
     endif
 
     return true
   endif
 
-  BRCERROR Something went wrong, we should never get here...
+  HTMLERROR Something went wrong, we should never get here...
   return false
 enddef
 
@@ -485,9 +519,6 @@ def s:Cap(arg: string): string
 enddef # }}}1
 
 defcompile
-
-if !exists('g:html_function_files') | g:html_function_files = [] | endif
-add(g:html_function_files, expand('<sfile>:p'))->sort()->uniq()
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=4:comments=b\:#:commentstring=\ #\ %s:

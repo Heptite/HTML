@@ -1,8 +1,13 @@
 vim9script
+scriptencoding utf8
+
+if v:versionlong < 8023182
+  finish
+endif
 
 # Various functions for the HTML.vim filetype plugin.
 #
-# Last Change: July 16, 2021
+# Last Change: July 18, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -24,10 +29,10 @@ vim9script
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-scriptencoding utf8
-
-if v:versionlong < 8023171
-  finish
+if exists(':HTMLWARN') != 2
+  command! -nargs=+ HTMLWARN :echohl WarningMsg | echomsg <q-args> | echohl None
+  command! -nargs=+ HTMLERROR :echohl ErrorMsg | echomsg <q-args> | echohl None
+  command! -nargs=+ HTMLMESG :echohl Todo | echo <q-args> | echohl None
 endif
 
 # g:HTMLfunctions#SetIfUnset()  {{{1
@@ -697,7 +702,7 @@ def g:HTMLfunctions#NextInsertPoint(mode: string = 'n')
     endif
   else
     # There was a match, so position the cursor appropriately:
-    eval '>\_s*<\|""\|<!--\_s*-->'->search('e')
+    '>\_s*<\|""\|<!--\_s*-->'->search('e')
 
     # ...and handle cursor positioning for comments or open+close tags
     # spanning multiple lines:
@@ -1009,12 +1014,12 @@ def g:HTMLfunctions#MappingsControl(dowhat: string)
   elseif dowhat =~? '^r\(eload\|einit\)\=$'
     exe 'HTMLMESG Reloading: ' .. fnamemodify(g:html_plugin_file, ':t')
     quiet_errors = true
-    HTMLmappings off
+    g:HTMLfunctions#MappingsControl('off')
     b:did_html_mappings_init = -1
     silent! unlet g:did_html_menus g:did_html_toolbar g:did_html_commands
     silent! unmenu HTML
     silent! unmenu! HTML
-    HTMLmappings on
+    g:HTMLfunctions#MappingsControl('on')
     autocmd SafeState * ++once HTMLReloadFunctions
     quiet_errors = false
   elseif dowhat =~? '^h\(tml\)\=$'
@@ -1022,14 +1027,14 @@ def g:HTMLfunctions#MappingsControl(dowhat: string)
       b:html_tag_case = b:html_tag_case_save
     endif
     b:do_xhtml_mappings = false
-    HTMLmappings off
+    g:HTMLfunctions#MappingsControl('on')
     b:did_html_mappings_init = -1
-    HTMLmappings on
+    g:HTMLfunctions#MappingsControl('on')
   elseif dowhat =~? '^x\(html\)\=$'
     b:do_xhtml_mappings = true
-    HTMLmappings off
+    g:HTMLfunctions#MappingsControl('on')
     b:did_html_mappings_init = -1
-    HTMLmappings on
+    g:HTMLfunctions#MappingsControl('on')
   else
     execute "HTMLERROR Invalid argument: " .. dowhat
   endif
@@ -1409,10 +1414,10 @@ const colors_sort = {  # {{{
 def g:HTMLfunctions#ColorsMenu(name: string, color: string)
   var c = name->strpart(0, 1)->toupper()
   var newname = name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
-  execute 'imenu HTML.&Colors.&' .. colors_sort[c] .. '.' ..
-    newname->escape(' ') .. '<tab>(' .. color .. ') ' .. color
-  execute 'nmenu HTML.&Colors.&' .. colors_sort[c] .. '.' ..
-    newname->escape(' ') .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
+  execute 'imenu HTML.&Colors.&' .. colors_sort[c] .. '.'
+    .. newname->escape(' ') .. '<tab>(' .. color .. ') ' .. color
+  execute 'nmenu HTML.&Colors.&' .. colors_sort[c] .. '.'
+    .. newname->escape(' ') .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
   g:html_color_list[name] = color
 enddef
 
