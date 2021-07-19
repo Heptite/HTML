@@ -6,9 +6,9 @@
 						*HTML-macros*	*XHTML-macros*
 
 This is a set of HTML/XHTML macros, menus, and toolbar buttons to make editing
-HTML files easier.  The original Copyright goes to Doug Renze, although nearly
-all of his efforts have been modified in this implementation.  All the changes
-are Copyright Christian J. Robinson.  These macros and the supporting scripts
+HTML files easier. The original Copyright goes to Doug Renze, although nearly
+all of his efforts have been modified in this implementation. All the changes
+are Copyright Christian J. Robinson. These macros and the supporting scripts
 are distributable under the terms of the GNU |GPL| version 3 or later.
 
 ------------------------------------------------------------------------------
@@ -32,10 +32,10 @@ The mappings are local to the buffer the script was sourced from (this is
 normally done automatically when editing an HTML type buffer), and the menu
 and toolbar are active only for buffers the script was sourced from.
 
-This help file follows the Vim help file standards.  To see what modes a
-mapping works in see the tags above and to the right.  The notation is X_TT,
-where "X" means the mode, and "TT" means the tag. For example, the |;;|
-mapping below works in normal, insert mode and visual mode.  This plugin does
+This help file follows the Vim help file standards. To see what modes a
+mapping works in see the tags above and to the right. The notation is X_TT,
+where "X" means the mode, and "TT" means the tag. For example, the |n_;;|
+mapping below works in normal, insert mode and visual mode. This plugin does
 not define any mappings for :-command mode.
 
 I have tried to keep the tags in mostly alphabetical order, but related tags
@@ -44,20 +44,20 @@ are grouped in various ways, which interferes with that ordering.
 							*html-smart-tag*
 The noted tags are "smart"; if syntax highlighting is enabled it can be used
 to detect whether to close then open a tag instead of open then close the tag.
-For example, if the cursor is in italicized text and you type |;it|, it will
+For example, if the cursor is in italicized text and you type ;it, it will
 insert </I><I> instead of <I></I>.
 
 This can not be done on most tags due to its dependence on Vim's syntax
 highlighting rules.
 
-NOTE: Some tags are synonyms and Vim can not distinguish between them.  For
-example, if you are within <I></I> and type |;em| it will assume you want
+NOTE: Some tags are synonyms and Vim can not distinguish between them. For
+example, if you are within <I></I> and type ;em it will assume you want
 </EM><EM> rather than <EM></EM>, which you should not be doing.
 
 							*n_;;* *i_;;* *v_;;*
 ;;	Most of the mappings start with ; so ;; is mapped to insert a single
 	; character in insert mode, behave like a single ; in normal mode,
-	etc.  (The semicolons in this mapping are changed to whatever
+	etc. (The semicolons in this mapping are changed to whatever
 	|g:html_map_leader| is set to.)
 
 							*i_;&*
@@ -71,16 +71,16 @@ example, if you are within <I></I> and type |;em| it will assume you want
 				*i_html-<Tab>* *i_html-tab* *i_html-CTRL-I*
 				*v_html-<Tab>* *v_html-tab* *v_html-CTRL-I*
 <Tab>	If the cursor is on a closing tag the <Tab> key jumps the cursor after
-	the tag.  Otherwise the <Tab> key will jump the cursor to an unfilled
-	tag somewhere in the file.  For example, if you had the tag:
+	the tag. Otherwise the <Tab> key will jump the cursor to an unfilled
+	tag somewhere in the file. For example, if you had the tag:
 >
 	 <A HREF=""></A>
 <
 	And you hit <Tab>, your cursor would be placed on the second " so you
-	could insert text easily.  After filling in some text, the next time
-	you hit <Tab> it would be placed on the < character of </A>.  And the
+	could insert text easily. After filling in some text, the next time
+	you hit <Tab> it would be placed on the < character of </A>. And the
 	third time you hit <Tab> the cursor would be placed on the > of </A>,
-	and so on.  This works for tags split across lines, such as:
+	and so on. This works for tags split across lines, such as:
 >
 	 <TABLE>
 	 </TABLE>
@@ -93,14 +93,14 @@ example, if you are within <I></I> and type |;em| it will assume you want
 
 					*i_;<Tab>* *i_;tab* *i_;CTRL-I*
 					*n_;<Tab>* *n_;tab* *n_;CTRL-I*
-;<Tab>	To insert a hard tab (; then the tab key).  If |g:no_html_tab_mapping|
+;<Tab>	To insert a hard tab (; then the tab key). If |g:no_html_tab_mapping|
 	is set this mapping replaces the normal |html-tab| mapping instead.
 	(See |g:html_map_leader|)
 
 								*n_;html*
-;html	This macro inserts a basic template at the top of the file.  If the
+;html	This macro inserts a basic template at the top of the file. If the
 	buffer already contains some text you are asked if you want to replace
-	it or add the template anyway.  (See |g:html_map_leader|)
+	it or add the template anyway. (See |g:html_map_leader|)
 
 	See |g:html_template| for information on how to customize the
 	template.
@@ -110,7 +110,7 @@ example, if you are within <I></I> and type |;em| it will assume you want
 					*html-customization*
 
 You can set the following global Vim variables to control the behavior of the
-macros.  It is recommended you set these variables in your vimrc; some of them
+macros. It is recommended you set these variables in your vimrc; some of them
 are only effective if they are set before HTML.vim is sourced.
 
 Note that "nonzero" means anything besides "no", "false", 0, or "" (empty
@@ -118,9 +118,9 @@ value), case insensitive.
 
 *g:do_xhtml_mappings* *b:do_xhtml_mappings*
 Set this variable to a nonzero value if you prefer XHTML compatible tags to be
-defined.  Setting this forces |b:html_tag_case| to "lowercase".  This is
-automatic if you are already editing a file that Vim detects as XHTML.  This
-variable must be set before HTML.vim is sourced for the current buffer.  You
+defined. Setting this forces |b:html_tag_case| to "lowercase". This is
+automatic if you are already editing a file that Vim detects as XHTML. This
+variable must be set before HTML.vim is sourced for the current buffer. You
 can also set this on a per-buffer basis by using b:do_xhtml_mappings instead.
 e.g.: >
 	:let g:do_xhtml_mappings = 'yes'
@@ -129,71 +129,71 @@ supported for historical reasons.)
 
 *g:html_tag_case* *b:html_tag_case*
 This variable can be set to "l" / "lower" / "lowercase" or "u" / "upper" /
-"uppercase" to determine the case of the text in the HTML tags.  This variable
+"uppercase" to determine the case of the text in the HTML tags. This variable
 must be set before HTML.vim is sourced for the current buffer (i.e. before the
-buffer is loaded).  The default is "lowercase".  You can also set this
+buffer is loaded). The default is "lowercase". You can also set this
 globally by setting g:html_tag_case or on a per-buffer basis by using
-b:html_tag_case instead.  This variable is ignored when editing XHTML files
-(see |g:do_xhtml_mappings|).  e.g: >
+b:html_tag_case instead. This variable is ignored when editing XHTML files
+(see |g:do_xhtml_mappings|). e.g: >
 	:let g:html_tag_case = 'lowercase'
 
 *g:html_tag_case_autodetect*
 Set this variable to a nonzero value if you want to automatically detect what
-the value of |b:html_tag_case| should be.  This is done by examining the file
-for both upper and lower case tags (tag attributes are not examined).  If only
-one type is found the tag case for the buffer is set to that value.  This
+the value of |b:html_tag_case| should be. This is done by examining the file
+for both upper and lower case tags (tag attributes are not examined). If only
+one type is found the tag case for the buffer is set to that value. This
 variable is ignored if you have set |g:do_xhtml_mappings| or
-|b:do_xhtml_mappings|.  e.g.: >
+|b:do_xhtml_mappings|. e.g.: >
 	:let g:html_tag_case_autodetect = 'yes'
 
 *g:html_map_leader*
 This variable can be set to the character you want for the leader of the
-mappings defined under |html-tags|, the default being ';'.  This variable must
-be set before HTML.vim is sourced.  You can set this to your |mapleader| or
-|maplocalleader|.  e.g.: >
+mappings defined under |html-tags|, the default being ';'. This variable must
+be set before HTML.vim is sourced. You can set this to your |mapleader| or
+|maplocalleader|. e.g.: >
 	:let g:html_map_leader = g:maplocalleader
 
 *g:html_map_entity_leader*
 This variable can be set to the character you want for the leader of the
 character entity insert mode mappings defined under |character-entities|, the
-default being '&'.  This variable must be set before HTML.vim is sourced.  If
+default being '&'. This variable must be set before HTML.vim is sourced. If
 you attempt to set this to the same value as |g:html_map_leader| you will get
-an error.  e.g.: >
+an error. e.g.: >
 	:let g:html_map_entity_leader = '\'
 
 *g:no_html_map_override*
 Set this variable to a nonzero value if you do not want this plugin to
-override mappings that already exist.  When this variable is not set you will
-get a warning message when this plugin overrides a mapping.  This variable
-must be set before HTML.vim is sourced.  e.g.: >
+override mappings that already exist. When this variable is not set you will
+get a warning message when this plugin overrides a mapping. This variable
+must be set before HTML.vim is sourced. e.g.: >
 	:let g:no_html_map_override = 'yes'
 
-This only applies to the mappings defined internally to the plugin.  If you
+This only applies to the mappings defined internally to the plugin. If you
 call the |HTML#Map()| function elsewhere you will still get a warning message
 when there is an already existing mapping and the mapping will still be
 overridden.
 
 *g:no_html_maps* *b:no_html_maps*
-Set this variable to a regular expression to match against mappings.  If a
+Set this variable to a regular expression to match against mappings. If a
 mapping to be defined matches this regular expression it will not be defined.
 You can also set this on a per-buffer basis by using b:no_html_maps instead.
 The patterns are case sensitive, will not undergo |g:html_map_leader| and
 |g:html_map_entity_leader| substitution, and must be set before HTML.vim is
-sourced.  e.g., to suppress the <A HREF>, <IMG SRC> and the centered headings
+sourced. e.g., to suppress the <A HREF>, <IMG SRC> and the centered headings
 tags: >
 	:let g:no_html_maps = '^\(;ah\|;im\|;H\d\)$'
 
-This only applies to the mappings defined internally to the plugin.  If you
+This only applies to the mappings defined internally to the plugin. If you
 call the |HTML#Map()| function elsewhere the mapping will be defined even if
-it matches this regular expression.  This is useful if you wish to define
+it matches this regular expression. This is useful if you wish to define
 custom variants of some of the plugin's mappings without getting warning
 messages.
 
 *g:no_html_tab_mapping*
 Set this variable to a nonzero value if you do not want the tab key to be
-mapped in normal, visual and insert mode.  ;<Tab> will be used instead.  See
-|html-tab| and |i_;tab|.  This variable must be set before HTML.vim is sourced
-for the current buffer.  e.g.: >
+mapped in normal, visual and insert mode. ;<Tab> will be used instead. See
+|html-tab| and |i_;tab|. This variable must be set before HTML.vim is sourced
+for the current buffer. e.g.: >
 	:let g:no_html_tab_mapping = 'yes'
 
 Note that you can suppress the defining of both <Tab> and ;<Tab> as a mapping
@@ -201,29 +201,29 @@ by adding "\t" to |g:no_html_maps| instead.
 
 *g:no_html_toolbar*
 Set this variable to a nonzero value if you do not want this plugin to modify
-the Vim toolbar and add "T" to 'guioptions'.  This variable must be set before
-HTML.vim is sourced.  e.g.: >
+the Vim toolbar and add "T" to 'guioptions'. This variable must be set before
+HTML.vim is sourced. e.g.: >
 	:let g:no_html_toolbar = 'yes'
 
 *g:no_html_menu*
 Set this variable to a nonzero value if you do not want the menu items to be
-defined at all.  This implies that |g:no_html_toolbar| is set as well.  This
-variable must be set before HTML.vim is sourced.  e.g.: >
+defined at all. This implies that |g:no_html_toolbar| is set as well. This
+variable must be set before HTML.vim is sourced. e.g.: >
 	:let g:no_html_menu = 'yes'
 
 *g:force_html_menu*
 Set this variable to a nonzero value if you want the menu items to be defined
-even if you are not in the |GUI|.  This is useful if you want to use the menus
-in the console (see |console-menus|).  This variable is ignored if
-|g:no_html_menu| is set.  This variable must be set before HTML.vim is
-sourced.  e.g.: >
+even if you are not in the |GUI|. This is useful if you want to use the menus
+in the console (see |console-menus|). This variable is ignored if
+|g:no_html_menu| is set. This variable must be set before HTML.vim is
+sourced. e.g.: >
 	:let g:force_html_menu = 'yes'
 Note: Setting this variable will also force the system menu.vim to load.
 
 *g:html_template* *b:html_template*
 Set this variable to the location of your template file to be used by the
-|;html| mapping.  You can also set this on a per-buffer basis by using
-b:html_template instead.  If unset, a basic internal template will be used.
+|n_;html| mapping. You can also set this on a per-buffer basis by using
+b:html_template instead. If unset, a basic internal template will be used.
 
 See |html-template-tokens| for special tokens you can use within the template.
 
@@ -244,13 +244,13 @@ The default for these variables are empty strings.
 
 *g:html_authoremail_encoded*
 This variable will be set using |HTML#EncodeString()| if your
-|g:html_authoremail| variable is set.  (Do not set this variable yourself, it
+|g:html_authoremail| variable is set. (Do not set this variable yourself, it
 will be overwritten when the template macro is used.)
 
 *g:html_bgcolor* *g:html_textcolor* *g:html_linkcolor*
 *g:html_alinkcolor* *g:html_vlinkcolor*
 These control the CSS in the internal template and can also be used as
-|html-tokens| in the user defined template.  They default to: >
+|html-tokens| in the user defined template. They default to: >
 	:let g:html_bgcolor     = '#FFFFFF'
 	:let g:html_textcolor   = '#000000'
 	:let g:html_linkcolor   = '#0000EE'
@@ -259,12 +259,12 @@ These control the CSS in the internal template and can also be used as
 
 *g:html_default_charset*
 This defaults to "UTF-8" and is the value used if a character set can not be
-detected by the 'fileencoding' or 'encoding' options.  See |;ct| and
-|html-tokens| for how this is used.  (Also see |html-author-notes|)
+detected by the 'fileencoding' or 'encoding' options. See |i_;ct| and
+|html-tokens| for how this is used. (Also see |html-author-notes|)
 
 *g:html_charset*
 If this variable is set it completely overrides the Content-Type charset
-detection for the |;ct| mapping and in the |html-tokens|.  Normally this
+detection for the |i_;ct| mapping and in the |html-tokens|. Normally this
 should be left unset.
 
 ------------------------------------------------------------------------------
@@ -286,7 +286,7 @@ Token:			Variable: 		Description: ~
 Special tokens: ~
 %date%						*%date%*
 This is replaced with the output of strftime("%B %d, %Y")  (e.g.: March 16,
-2004).  You can send custom fields to the |strftime()| call by embedding !...
+2004). You can send custom fields to the |strftime()| call by embedding !...
 (rather than %...) notation before the second "%" in the token. e.g.: >
 	%date!m/!d/!Y !l:!M !p !Z%
 Would produce something like: >
@@ -308,11 +308,11 @@ This is replaced with the output of strftime("%T %Z") (e.g.: 17:59:34 MST)
 
 %charset%					*%charset%*
 This is replaced by a string that is automatically detected based on the
-'fileencoding' or 'encoding' option.  This can be overridden, see
-|g:html_default_charset| and |g:html_charset|.  (Also see |html-author-notes|)
+'fileencoding' or 'encoding' option. This can be overridden, see
+|g:html_default_charset| and |g:html_charset|. (Also see |html-author-notes|)
 
 %vimversion%					*%vimversion%*
-The current version of Vim, based on |v:version| and |v:versionlong|.  For
+The current version of Vim, based on |v:version| and |v:versionlong|. For
 example, if v:version was "802" and v:versionlong was "8020220" the
 %vimversion% token would be replaced by "8.2.220".
 
@@ -376,7 +376,7 @@ You would get something like: >
 	This command allows the HTML macros to be disabled and re-enabled.
 	This is useful for editing inline PHP, JavaScript, etc. where you
 	would want to be able to type literal ";", "&" and tab characters
-	without interference.  (Also see |;;|, |;&| and |;<Tab>|)
+	without interference. (Also see |i_;;|, |i_;&| and |i_;<Tab>|)
 
 	You may also use this command to switch the mappings into HTML or
 	XHTML mode.
@@ -403,12 +403,12 @@ You would get something like: >
 :ColorSelect
 :CS
 	Open a window with all the colors that are defined in the HTML.Colors
-	menu displayed and highlighted with their respective color.  (Note
+	menu displayed and highlighted with their respective color. (Note
 	that the highlighting only works in the |GUI| or a |'termguicolors'|
 	capable terminal.)  From this window you can select a color to be
-	inserted in the buffer from which the window was opened.  This command
+	inserted in the buffer from which the window was opened. This command
 	fails if you are not in an HTML buffer or the colors menu was not
-	defined.  (See |g:force_html_menu|)
+	defined. (See |g:force_html_menu|)
 
 							*n_;3* *i_;3* *v_;3*
 ;3	A shortcut mapping to call |:ColorSelect|.
@@ -417,43 +417,43 @@ You would get something like: >
 ==============================================================================
 4. Mappings for Normal <> Tags				*html-tags*
 
-Most of these mappings are insert or visual mappings.  In insert mode the tag
+Most of these mappings are insert or visual mappings. In insert mode the tag
 is inserted and the cursor placed where you would likely want to insert text.
 In visual mode, the tag is wrapped around the visually selected text in a
-hopefully logical manner.  (See |i_;ah|, |v_;aH| and |i_;ab| for explicit
+hopefully logical manner. (See |i_;ah|, |v_;aH| and |i_;ab| for explicit
 examples--the rest of the mappings that work in visual mode are similar.)
 
 						*html-operator-mappings*
 						*html-motion-mappings* *n_;*
-The noted (with |n_;|) normal mode ;-mappings take a {motion} operator.  These
+The noted (with |n_;|) normal mode ;-mappings take a {motion} operator. These
 mappings function as if you had visually highlighted the text covered by the
 motion and invoked the corresponding visual mapping.
 
 If you are editing an XHTML file (see |g:do_xhtml_mappings|) the tags will be
-compatible with XHTML.  (However, XHTML is out of date and this mode is not
+compatible with XHTML. (However, XHTML is out of date and this mode is not
 recommended, and is only supported for historical reasons.)
 
 Note that you can change the leader character for these mappings from ';' to
-another character of your preference.  See |g:html_map_leader|.
+another character of your preference. See |g:html_map_leader|.
 
 
 							*n_;4* *i_;4*
 ;4	Inserts >
 	<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 	 "http://www.w3.org/TR/html4/loose.dtd">
-<	at the top of the file.  If the current buffer is XHTML, it will be >
+<	at the top of the file. If the current buffer is XHTML, it will be >
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <	(See |g:do_xhtml_mappings|)
 							*n_;s4* *i_;s4*
-;s4	Does the same as |;4|, but the document type is strict rather than
-	transitional.  (Note that these macros are meant for a transitional
+;s4	Does the same as |n_;4|, but the document type is strict rather than
+	transitional. (Note that these macros are meant for a transitional
 	document type and transitional tag mappings will always be defined, so
 	be careful.)
 							*n_;5* *i_;5*
 ;5	Inserts >
 	<!DOCTYPE html>
-<	at the top of the file, for HTML 5.  (Note there is no transitional or
+<	at the top of the file, for HTML 5. (Note there is no transitional or
 	strict version of this.)
 							*i_;ct*
 ;ct	Inserts >
@@ -461,8 +461,8 @@ another character of your preference.  See |g:html_map_leader|.
 <	at the current cursor position.
 
 	The actual value of the charset is automatically detected based on the
-	'fileencoding' or 'encoding' option.  This can be overridden--see
-	|g:html_default_charset| and |g:html_charset|.  (If this doesn't
+	'fileencoding' or 'encoding' option. This can be overridden--see
+	|g:html_default_charset| and |g:html_charset|. (If this doesn't
 	insert the correct charset value, see |html-author-notes|.)
 							*i_;cm* *v_;cm* *n_;cm*
 ;cm	Comment tag: >
@@ -474,8 +474,8 @@ another character of your preference.  See |g:html_map_leader|.
 <	Visual mode puts the visually selected text <A HREF="">here</A> and
 	positions the cursor on the second ". (|n_;|)
 							*i_;aH* *v_;aH* *n_;aH*
-;aH	Same as |;ah|, but puts the visually selected text <A HREF="here"> and
-	places the cursor on the < of </A>.  If this is used in insert mode
+;aH	Same as |i_;ah|, but puts the visually selected text <A HREF="here">
+	and places the cursor on the < of </A>. If this is used in insert mode
 	rather than visual mode, the contents of the |clipboard| are placed
 	between the quotes. (|n_;|)
 							*i_;ar* *v_;ar* *n_;ar*
@@ -489,17 +489,17 @@ another character of your preference.  See |g:html_map_leader|.
 	</ASIDE>
 <	(|n_;|)
 							*i_;at* *v_;at* *n_;at*
-;at	Like |;ah| but include TARGET="" in the tag. (|n_;|)
+;at	Like |i_;ah| but include TARGET="" in the tag. (|n_;|)
 							*i_;aT* *v_;aT* *n_;aT*
-;aT	Like |;aH| but include TARGET="" in the tag. (|n_;|)
+;aT	Like |i_;aH| but include TARGET="" in the tag. (|n_;|)
 							*i_;ab* *v_;ab* *n_;ab*
 ;ab	Abbreviation: >
 	<ABBR TITLE=""></ABBR>
 <	Visual mode puts the visually selected text <ABBR TITLE="">here</ABBR>
 	and positions the cursor on the second ". (|n_;|)
 							*i_;aB* *v_;aB* *n_;aB*
-;aB	Same as |;ab|, but puts the visually selected text <ABBR TITLE="here">
-	and places the cursor on the < of </ABBREV>.  If this is used in
+;aB	Same as |i_;ab|, but puts the visually selected text <ABBR TITLE="here">
+	and places the cursor on the < of </ABBREV>. If this is used in
 	insert mode rather than visual mode, the contents of the |clipboard| are
 	placed between the quotes. (|n_;|)
 							*i_;ad* *v_;ad* *n_;ad*
@@ -705,12 +705,12 @@ another character of your preference.  See |g:html_map_leader|.
 							*i_;im* *v_;im* *n_;im*
 ;im	Image: >
 	<IMG SRC="" ALT="">
-<	Places the cursor on the second " of the SRC="".  In visual mode it
+<	Places the cursor on the second " of the SRC="". In visual mode it
 	puts the visually selected text ALT="here" and places the cursor on
-	the second " of the SRC="".  (|n_;|) (see also |n_;mi|)
+	the second " of the SRC="". (|n_;|) (see also |n_;mi|)
 							*i_;iM* *v_;iM* *n_;iM*
-;iM	Same as |;im|, but puts the visually selected text <IMG SRC="here"
-	ALT=""> and places the cursor on the second " of ALT="".  If this is
+;iM	Same as |i_;im|, but puts the visually selected text <IMG SRC="here"
+	ALT=""> and places the cursor on the second " of ALT="". If this is
 	used in insert mode rather than visual mode, the contents of the
 	|clipboard| are placed between the quotes.   (|n_;|)
 							*i_;in* *v_;in* *n_;in*
@@ -760,23 +760,23 @@ another character of your preference.  See |g:html_map_leader|.
 							*i_;me* *v_;me* *n_;me*
 ;me	Meta information: >
 	<META NAME="" CONTENT="">
-<	Places the cursor on the second " of NAME="".  Visual mode puts the
+<	Places the cursor on the second " of NAME="". Visual mode puts the
 	visually selected text <META NAME="here" CONTENT=""> and places the
 	cursor on the second " of CONTENT="". (|n_;|)
 							*i_;mE* *v_;mE* *n_;mE*
-;mE	Same as |;me|, but puts the visually selected text <META NAME=""
-	CONTENT="here"> and places the cursor on the second " of NAME="".  If
+;mE	Same as |i_;me|, but puts the visually selected text <META NAME=""
+	CONTENT="here"> and places the cursor on the second " of NAME="". If
 	this is used in insert mode rather than visual mode, the contents of
 	the |clipboard| are placed between the quotes. (|n_;|)
 							*i_;mh* *v_;mh* *n_;mh*
 ;mh	Meta http-equiv: >
 	<META HTTP-EQUIV="" CONTENT="">
-<	Places the cursor on the second " of HTTP-EQUIV="".  Visual mode puts
+<	Places the cursor on the second " of HTTP-EQUIV="". Visual mode puts
 	the visually selected text <META HTTP-EQUIV="" CONTENT="here">.
 	(|n_;|)
 							*i_;mi* *v_;mi* *n_;mi*
 ;mi	Automatically add or update the WIDTH and HEIGHT attributes of an
-	<IMG> tag.  If the <IMG> tag spans multiple lines the cursor must be
+	<IMG> tag. If the <IMG> tag spans multiple lines the cursor must be
 	on the first line of the tag.
 							*i_;na* *v_;na* *n_;na*
 ;na	Navigation links: >
@@ -831,7 +831,7 @@ another character of your preference.  See |g:html_map_leader|.
 ;sn	Span: >
 	<SPAN CLASS=""></SPAN>
 <	Visual mode puts the selected text <SPAN CLASS="">here</SPAN>. (|n_;|)
-	(See the note on |;ss|)
+	(See the note on |i_;ss|)
 							*i_;ss* *v_;ss* *n_;ss*
 ;ss	Span: >
 	<SPAN STYLE=""></SPAN>
@@ -963,7 +963,7 @@ another character of your preference.  See |g:html_map_leader|.
 	<FIELDSET>
 	<LEGEND></LEGEND>
 	</FIELDSET>
-<	Visual mode puts the selected text after the LEGEND.  (|n_;|)
+<	Visual mode puts the selected text after the LEGEND. (|n_;|)
 							*i_;fi* *v_;fi* *n_;fi*
 ;fi	Form file input field: >
 	<INPUT TYPE="FILE" NAME="" VALUE="" SIZE="20">
@@ -1060,7 +1060,7 @@ another character of your preference.  See |g:html_map_leader|.
 <	Visual mode puts the visually selected text <LABEL FOR="">here</LABEL>
 	and positions the cursor on the second ". (|n_;|)
 							*v_;lA* *n_;lA*
-;lA	The same as |;la| but puts the cursor <LABEL FOR="here"></LABEL> and
+;lA	The same as |i_;la| but puts the cursor <LABEL FOR="here"></LABEL> and
 	places the cursor on the < of </LABEL>. (|n_;|)
 
 							*SSI-includes*
@@ -1092,12 +1092,12 @@ See: https://en.wikipedia.org/wiki/Server_Side_Includes
 5. Mappings for &...; Codes		*character-codes* *character-entities*
 
 A number of mappings have been defined to allow insertion of special
-characters into the HTML buffer.  These are known as characters entities.
+characters into the HTML buffer. These are known as characters entities.
 
 							*n_;&* *v_;&*
 ;&	This mapping converts the motion or visually selected characters to
 	their &#...; entities, where "..." is equivalent to the ASCII decimal
-	representation.  For example, "foo bar" would become
+	representation. For example, "foo bar" would become
 	"&#102;&#111;&#111;&#32;&#98;&#97;&#114;". (See |i_;&|) (|n_;|)
 
 	(Note that the "&" in this mapping is not translated to whatever
@@ -1106,15 +1106,15 @@ characters into the HTML buffer.  These are known as characters entities.
 ;*	Similar to |n_;&| / |v_;&| but encodes to hexadecimal versions instead.
 							*n_;%* *v_;%*
 ;%	This mapping converts the motion or visually selected characters to
-	their %XX hexadecimal string for URIs.  For example, "foo bar" would
+	their %XX hexadecimal string for URIs. For example, "foo bar" would
 	become "%66%6F%6F%20%62%61%72". (|n_;|)
 
-	(Note that this will not touch Unicode characters.  See
+	(Note that this will not touch Unicode characters. See
 	|HTML#EncodeString()|)
 
 Note: Previously the ;& and ;% normal mode mappings did not require a motion
-and operated on the character "under" the cursor.  This was changed for
-multiple reasons.  Type ;&l or ;%l to emulate the old behavior.
+and operated on the character "under" the cursor. This was changed for
+multiple reasons. Type ;&l or ;%l to emulate the old behavior.
 
 							*n_;^* *v_;^*
 ;^	This mapping will decode the &#...; and %XX elements of the motion or
@@ -1124,7 +1124,7 @@ multiple reasons.  Type ;&l or ;%l to emulate the old behavior.
 The following mappings work in insert mode only.
 
 Note that you can change the leader character for these mappings from '&' to
-another character of your preference.  See |g:html_map_entity_leader|.
+another character of your preference. See |g:html_map_entity_leader|.
 
 Name:			HTML:		Macro: ~
 --------------------------------------------------------------------
@@ -1376,111 +1376,77 @@ Note that support for more browsers will probably not be added as many
 browsers use the same rendering engines as either Firefox or Google Chrome.
 
 
-For Mac OS X:				*browser-control-macos*
+For Mac OS X:					*browser-control-macos*
 
 Opening new tabs and windows depends on the built-in Graphic User Interface
 Scripting architecture of Mac OS X which comes disabled by default. You can
 activate GUI Scripting by selecting the checkbox "Enable access for assistive
 devices" in the Universal Access preference pane.
 
-								*n_;db-macos*
-;db	Call the default browser on the current file.
-								*n_;ff-macos*
-;ff	Make Firefox view the current file, starting Firefox if it is not
-	running.
-								*n_;nff-macos*
-;nff	Same as |;ff|, but start a new browser window.
-								*n_;tff-macos*
-;tff	Same as |;nff|, but open a new tab.
-								*n_;oa-macos*
-;oa	Make Opera view the current file, starting Opera if it is not running.
-								*n_;noa-macos*
-;noa	Same as |;oa|, but start a new browser window.
-								*n_;toa-macos*
-;toa	Same as |;noa|, but open a new tab.
-								*n_;sf*
-;sf	Make Safari view the current file, starting Safari if it is not running.
-								*n_;nsf*
-;nsf	Same as |;sf|, but start a new browser window.
-								*n_;tsf*
-;tsf	Same as |;nsf|, but open a new tab.
+For Unix:					*browser-control-unix*
 
-
-For Unix:				*browser-control-unix*
-
-The following mappings, aside from |;db-unix| are only defined if you have
+The following mappings, aside from |n_;db| are only defined if you have
 installed the corresponding browsers.
 
-								*n_;db-unix*
-;db	Call the default browser on the current file. This requires "xdg-open"
-	to be installed.
-								*n_;ff-unix*
+For Windows (and Cygwin):			*browser-control-windows*
+
+The following mappings, aside from |n_;db| are only defined if you have
+installed the corresponding browsers in a standard location (i.e. on your C:\
+drive).
+
+								*n_;db*
+;db	Call the default browser on the current file. For Unix this requires
+	"xdg-open" to be installed.
+								*n_;ff*
 ;ff	Make Firefox view the current file, starting Firefox if it is not
-	running. (May behave the same as |;tff|.)
-								*n_;nff-unix*
-;nff	Same as |;ff|, but start a new browser window.
-								*n_;tff-unix*
-;tff	Same as |;nff|, but open a new tab.
-								*n_;gc-unix*
+	running.
+								*n_;nff*
+;nff	Same as |n_;ff|, but start a new browser window.
+								*n_;tff*
+;tff	Same as |n_;nff|, but open a new tab.
+								*n_;gc*
 ;gc	Make Google Chrome view the current file, starting Chrome if it is not
-	running. (May behave the same as |;tgc|.)
-								*n_;ngc-unix*
-;ngc	Same as |;gc|, but start a new browser window.
-								*n_;tgc-unix*
-;tgc	Same as |;ngc|, but open a new tab.
-								*n_;oa-unix*
+	running. (May behave the same as |n_;tgc|.) (Currently not available
+	on MacOS.  See |html-author-notes|.)
+								*n_;ngc*
+;ngc	Same as |n_;gc|, but start a new browser window. (Currently not
+	available on MacOS. See |html-author-notes|.)
+								*n_;tgc*
+;tgc	Same as |n_;ngc|, but open a new tab. (Currently not available on
+	MacOS. See |html-author-notes|.)
+								*n_;oa*
 ;oa	Make Opera view the current file, starting Opera if it is not running.
-								*n_;noa-unix*
-;noa	Same as |;oa|, but start a new browser window.
-								*n_;toa-unix*
-;toa	Same as |;noa|, but open a new tab.
+								*n_;noa*
+;noa	Same as |n_;oa|, but start a new browser window.
+								*n_;toa*
+;toa	Same as |n_;noa|, but open a new tab.
+								*n_;sf*
+;sf	Make Safari view the current file, starting Safari if it is not
+	running. (Only on MacOS.)
+								*n_;nsf*
+;nsf	Same as |n_;sf|, but start a new browser window. (Only on MacOS.)
+								*n_;tsf*
+;tsf	Same as |n_;nsf|, but open a new tab. (Only on MacOS.)
 								*n_;ly*
-;ly	Use lynx to view the current file.  This behaves like |;nly| if the Vim
-	|GUI| is running.
+;ly	Use lynx to view the current file. This behaves like |n_;nly| if the Vim
+	|GUI| is running. (Only on Unix and Cygwin.)
 								*n_;nly*
-;nly	Same as |;ly|, but in a new xterm.  This behaves like |;ly| if there
-	is no DISPLAY environmental variable.
+;nly	Same as |n_;ly|, but in a new xterm. This behaves like |n_;ly| if there
+	is no DISPLAY environmental variable. (Only on Unix and Cygwin.)
 								*n_;w3*
-;w3	Use w3m to view the current file.  This behaves like |;nw3| if the Vim
-	|GUI| is running.
+;w3	Use w3m to view the current file. This behaves like |n_;nw3| if the Vim
+	|GUI| is running. (Only on Unix and Cygwin.)
 								*n_;nw3*
-;nw3	Same as |;w3|, but in a new xterm.  This behaves like |;w3| if there
-	is no DISPLAY environmental variable.
-
-
-For Windows (and Cygwin):		*browser-control-windows*
-
-								*n_;db-windows*
-;db	Call the default browser on the current file.
-								*n_;ff-windows*
-;ff	Make Firefox view the current file, starting Firefox if it is not
-	running.  You will get an error dialog if Firefox is not installed.
-								*n_;nff-windows*
-;nff	Same as |;ff|, but start a new browser window.
-								*n_;tff-windows*
-;tff	Same as |;nff|, but open a new tab.
-								*n_;ed-windows*
+;nw3	Same as |n_;w3|, but in a new xterm. This behaves like |n_;w3| if there
+	is no DISPLAY environmental variable. (Only on Unix and Cygwin.)
+								*n_;ed*
 ;ed	Make Microsoft Edge view the current file, starting Edge if it is not
-	running.  You will get an error dialog if Edge is not installed.
-								*n_;ned-windows*
-;ned	Same as |;ed|, but start a new browser window.
-								*n_;ted-windows*
-;ted	Same as |;ned|, but open a new tab.
-								*n_;gc-windows*
-;gc	Make Google Chrome view the current file, starting Chrome if it is not
-	running.  You will get an error dialog if Google Chrome is not
-	installed.
-								*n_;ngc-windows*
-;ngc	Same as |;gc|, but start a new browser window.
-								*n_;tgc-windows*
-;tgc	Same as |;ngc|, but open a new tab.
-								*n_;oa-windows*
-;oa	Make Opera view the current file, starting Opera if it is not running.
-	You will get an error dialog if Opera is not installed.
-								*n_;noa-windows*
-;noa	Same as |;oa|, but start a new browser window.
-								*n_;toa-windows*
-;toa	Same as |;noa|, but open a new tab.
+	running. You will get an error dialog if Edge is not installed. (Only
+	on Windows.)
+								*n_;ned*
+;ned	Same as |n_;ed|, but start a new browser window. (Only on Windows.)
+								*n_;ted*
+;ted	Same as |n_;ned|, but open a new tab. (Only on Windows.)
 
 ==============================================================================
 7. Miscellaneous Extras					*html-misc*
@@ -1512,24 +1478,24 @@ HTML#EncodeString({string} [, {...}])			*HTML#EncodeString()*
 	Notes:
 	- Unicode characters can not be safely converted to %XX hex strings
 	  for URIs due to a limit in the specification, so this function will
-	  leave them untouched.  This limitation does not apply to encoding to
+	  leave them untouched. This limitation does not apply to encoding to
 	  or from &...; entities.
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 
 HTML#DecodeSymbol({symbol})				*HTML#DecodeSymbol()*
 	Returns the character representation of {symbol}, if it is in &#...;
-	or %XX format.  This function is typically used by
+	or %XX format. This function is typically used by
 	|HTML#EncodeString()| to decode strings.
 
 HTML#GenerateTable()					*HTML#GenerateTable()*
-	This is normally called by the normal mapping |;tA|, but it works the
-	same if called any other way.
+	This is normally called by the |n_;tA|, mapping but it works the same
+	if called any other way.
 
 HTML#Map({maptype}, {lhs}, {rhs} [, {re-indent}])	*HTML#Map()*
 	This function defines a mapping, local to the buffer and silent.
-	{maptype} is any map command.  {lhs} and {rhs} are equivalent to :map
-	arguments, see |map.txt|.  This is useful for autocommands and HTML
+	{maptype} is any map command. {lhs} and {rhs} are equivalent to :map
+	arguments, see |map.txt|. This is useful for autocommands and HTML
 	filetype plugins.
 
 	If {lhs} starts with "<lead>" that string will replaced with the
@@ -1544,8 +1510,8 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {re-indent}])	*HTML#Map()*
 
 	{re-indent} is optional, applies only to visual maps when filetype
 	indenting is enabled, and should not be used for maps that enter
-	insert mode.  If the value is 1, the visually selected area is
-	re-selected, plus one line below, and re-indented.  A value of 2 does
+	insert mode. If the value is 1, the visually selected area is
+	re-selected, plus one line below, and re-indented. A value of 2 does
 	the same without moving down a line.
 
 	The special cases of 0 means the visual mapping enters visual mode,
@@ -1558,26 +1524,26 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {re-indent}])	*HTML#Map()*
 
 HTML#Mapo({map}, {insert})				*HTML#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
-	visual mapping by the same name.  {insert} is a boolean value that
+	visual mapping by the same name. {insert} is a boolean value that
 	indicates whether to end in insert mode.
 
 HTML#NextInsertPoint([{mode}])				*HTML#NextInsertPoint()*
-	This is normally called by the |;<Tab>| mapping, but it works the same
-	if called any other way.  The {mode} argument is either 'i' or 'n'
-	(default) which means |Insert| or |Normal|.  In insert mode, if the
+	This is normally called by the |i_;<Tab>| mapping, but it works the
+	same if called any other way. The {mode} argument is either 'i' or 'n'
+	(default) which means |Insert| or |Normal|. In insert mode, if the
 	cursor is on the start of a closing tag it places the cursor after the
 	tag.
 
 HTML#Template()						*HTML#Template()*
-	This is normally called by the normal mapping |;html|, but it works
+	This is normally called by the |n_;html| mapping, but it works
 	the same if called any other way.
 
 HTML#SetIfUnset({variable}, {value})			*HTML#SetIfUnset()*
 	This function sets {variable} to {value} if the variable is not
-	already set.  A {value} of "" makes sure the variable is set with an
+	already set. A {value} of "" makes sure the variable is set with an
 	empty string, a {value} of [] initializes to an empty list, and a
-	value of {} initializes to an empty dictionary.  Be sure to enclose
-	the variable name in quotes.  This function will not work for
+	value of {} initializes to an empty dictionary. Be sure to enclose
+	the variable name in quotes. This function will not work for
 	function-local variables. (|l:var|)
 
 
@@ -1585,10 +1551,13 @@ Author's notes:						*html-author-notes*
 ---------------
 The Content-Type charset automatic detection value based on the 'fileencoding'
 / 'encoding' option has a very incomplete translation table from the possible
-values that Vim uses.  I could use help with this.
+values that Vim uses. I could use help with this.
+
+I need someone to help me update the BrowserLauncher code for MacOS, namely to
+test to make sure it still works, and add support for Google Chrome.
 
 I will never include mappings for certain tags, such as <BLINK></BLINK> and
-<MARQUEE></MARQUEE> (which were always nonstandard).  As far as I am concerned
+<MARQUEE></MARQUEE> (which were always nonstandard). As far as I am concerned
 these tags should never have existed.
 
  vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:
