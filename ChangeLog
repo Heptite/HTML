@@ -1,3 +1,18 @@
+Mon, 19 Jul 2021 12:52:41 -0600 Christian J. Robinson
+ * Fix directory heirarchy, create a README.md file
+
+Mon, 19 Jul 2021 12:43:29 -0600 Christian J. Robinson
+ * Fix directory heirarchy, create a README.md file
+
+Mon, 19 Jul 2021 12:13:31 -0600 Christian J. Robinson
+ * Update .gitignore
+
+Mon, 19 Jul 2021 12:11:54 -0600 Christian J. Robinson
+ * Update .gitignore
+
+Mon, 19 Jul 2021 12:06:32 -0600 Christian J. Robinson
+ * Make development directory heirarchy similar to the final to simplify things
+
 Sun, 18 Jul 2021 22:46:57 -0600 Christian J. Robinson
  * More refactoring. Bug squashing. Make the code more reliable and extensible.
 

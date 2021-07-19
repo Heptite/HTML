@@ -6,10 +6,12 @@ of macros. For example:
 * In normal mode, type ;html to insert a template
 * Use <Tab> to skip to unfilled parts of the template
 * Use insert mode ;-mappings to insert tags. For example:
-    * ;pp inserts <p><NL></p>
-    * ;im inserts <img src="" alt=""> and correctly positions the cursor
-    * ;br inserts <br>
-    * &< inserts &lt;, &> inserts &gt;
+    * ;pp inserts:
+        &lt;p&gt;
+        &lt;/p&gt;
+    * ;im inserts &lt;img src="" alt=""&gt; and correctly positions the cursor
+    * ;br inserts &lt;br&gt;
+    * &amp;&lt; inserts &amp;lt;, &amp;&gt; inserts &amp;gt;
     * and so on...
 * Commands are included to disable and re-enable the mappings, so it is easier
   to edit JavScript, PHP, etc.
