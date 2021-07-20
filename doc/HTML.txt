@@ -1397,6 +1397,14 @@ drive).
 								*n_;db*
 ;db	Call the default browser on the current file. For Unix this requires
 	"xdg-open" to be installed.
+								*n_;ed*
+;ed	Make Microsoft Edge view the current file, starting Edge if it is not
+	running. You will get an error dialog if Edge is not installed. (Only
+	on Windows.)
+								*n_;ned*
+;ned	Same as |n_;ed|, but start a new browser window. (Only on Windows.)
+								*n_;ted*
+;ted	Same as |n_;ned|, but open a new tab. (Only on Windows.)
 								*n_;ff*
 ;ff	Make Firefox view the current file, starting Firefox if it is not
 	running.
@@ -1428,25 +1436,27 @@ drive).
 								*n_;tsf*
 ;tsf	Same as |n_;nsf|, but open a new tab. (Only on MacOS.)
 								*n_;ly*
-;ly	Use lynx to view the current file. This behaves like |n_;nly| if the Vim
+;ly	Use Lynx to view the current file. This behaves like |n_;nly| if the Vim
 	|GUI| is running. (Only on Unix and Cygwin.)
 								*n_;nly*
 ;nly	Same as |n_;ly|, but in a new xterm. This behaves like |n_;ly| if there
-	is no DISPLAY environmental variable. (Only on Unix and Cygwin.)
+	is no DISPLAY environmental variable. (Note that this will fall back
+	to using |:terminal| if xterm is not found.) (Only on Unix and
+	Cygwin.)
+								*n_;tly*
+;tly	Same as |n_;ly|, but in a new Vim window, using |:terminal| .  (Only
+	on Unix and Cygwin.)
 								*n_;w3*
 ;w3	Use w3m to view the current file. This behaves like |n_;nw3| if the Vim
 	|GUI| is running. (Only on Unix and Cygwin.)
 								*n_;nw3*
 ;nw3	Same as |n_;w3|, but in a new xterm. This behaves like |n_;w3| if there
-	is no DISPLAY environmental variable. (Only on Unix and Cygwin.)
-								*n_;ed*
-;ed	Make Microsoft Edge view the current file, starting Edge if it is not
-	running. You will get an error dialog if Edge is not installed. (Only
-	on Windows.)
-								*n_;ned*
-;ned	Same as |n_;ed|, but start a new browser window. (Only on Windows.)
-								*n_;ted*
-;ted	Same as |n_;ned|, but open a new tab. (Only on Windows.)
+	is no DISPLAY environmental variable. (Note that this will fall back
+	to using |:terminal| if xterm is not found.) (Only on Unix and
+	Cygwin.)
+								*n_;tw3*
+;tw3	Same as |n_;w3|, but in a new Vim window, using |:terminal| .  (Only
+	on Unix and Cygwin.)
 
 ==============================================================================
 7. Miscellaneous Extras					*html-misc*

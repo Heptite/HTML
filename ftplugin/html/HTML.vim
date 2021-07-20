@@ -12,7 +12,7 @@ endif
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         https://christianrobinson.name/vim/HTML/
 # Last Change: July 19, 2021
-# Version:     1.0.10
+# Version:     1.0.11
 # Original Concept: Doug Renze
 #
 #
@@ -1546,6 +1546,12 @@ else # {{{2
         '<lead>nly',
         ":eval BrowserLauncher#Launch('lynx', 1)<CR>"
       )
+      # Lynx in a new Vim window, using :terminal:
+      g:HTML#Map(
+        'nnoremap',
+        '<lead>tly',
+        ":eval BrowserLauncher#Launch('lynx', 2)<CR>"
+      )
     endif
     if BrowserLauncher#Exists('w3m')
       # w3m:  (This may happen anyway if there's no GUI available.)
@@ -1559,6 +1565,12 @@ else # {{{2
         'nnoremap',
         '<lead>nw3',
         ":eval BrowserLauncher#Launch('w3m', 1)<CR>"
+      )
+      # w3m in a new Vim window, using :terminal:
+      g:HTML#Map(
+        'nnoremap',
+        '<lead>tw3',
+        ":eval BrowserLauncher#Launch('w3m', 2)<CR>"
       )
     endif
   endif
@@ -1714,11 +1726,11 @@ if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
     amenu 1.260 ToolBar.Replace :promptrepl<CR>
     vunmenu     ToolBar.Replace
     vmenu       ToolBar.Replace y:promptrepl <C-R>"<CR>
-  #else
-  #  amenu 1.250 ToolBar.Find    /
-  #  amenu 1.260 ToolBar.Replace :%s/
-  #  vunmenu     ToolBar.Replace
-  #  vmenu       ToolBar.Replace :s/
+  # else
+  #   amenu 1.250 ToolBar.Find    /
+  #   amenu 1.260 ToolBar.Replace :%s/
+  #   vunmenu     ToolBar.Replace
+  #   vmenu       ToolBar.Replace :s/
   endif
 
    menu 1.500 ToolBar.-sep50- <nul>

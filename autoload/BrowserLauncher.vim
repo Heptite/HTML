@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 18, 2021
+# Last Change: July 19, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -422,16 +422,23 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
       xterm = ''
     endif
 
+    # The logic here is a bit convoluted
     if has("gui_running") || donew > 0
-      if $DISPLAY != '' && xterm != ''
+      if $DISPLAY != '' && xterm != '' && donew == 1
         command = xterm .. ' -T ' .. Browsers[which][0] .. ' -e '
           .. Browsers[which][1] .. ' ' .. shellescape(file) .. ' &'
       elseif exists(':terminal') == 2
         execute 'terminal ++close ' .. Browsers[which][1] .. ' ' .. file
         return true
       else
-        execute "HTMLERROR XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch "
-          ..  Browsers[which][0] .. '.'
+        if donew == 1
+          execute "HTMLERROR XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch "
+            ..  Browsers[which][0] .. '.'
+        else
+          execute ":terminal is not compiled into this version of GVim. Can't launch "
+            ..  Browsers[which][0] .. '.'
+        endif
+
         return false
       endif
     else

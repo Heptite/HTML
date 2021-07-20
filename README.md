@@ -9,7 +9,9 @@ of macros. For example:
 * In normal mode, type ;html to insert a configurable template
 * Use &lt;Tab&gt; to skip to unfilled parts of the template
 * Use insert mode ;-mappings to insert tags. For example:
-    * ;pp inserts: &lt;p&gt;{newline}&lt;/p&gt;
+    * ;pp inserts:  
+      &lt;p&gt;  
+      &lt;/p&gt;
     * ;im inserts &lt;img src="" alt=""&gt; and correctly positions the cursor
     * ;br inserts &lt;br&gt;
     * &amp;&lt; inserts &amp;lt;, &amp;&gt; inserts &amp;gt;, &amp;&amp; inserts &amp;amp;
