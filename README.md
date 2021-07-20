@@ -7,18 +7,19 @@ This plugin allows the rapid development of HTML files primarily with the use
 of macros. For example:
 
 * In normal mode, type ;html to insert a configurable template
-* Use &lt;Tab&gt; to skip to unfilled parts of the template
+* Use `&lt;Tab&gt;` to skip to unfilled parts of the template
 * Use insert mode ;-mappings to insert tags. For example:
-    * ;pp inserts:  
+    * `;pp` inserts:  
       &lt;p&gt;  
       &lt;/p&gt;
-    * ;im inserts &lt;img src="" alt=""&gt; and correctly positions the cursor
-    * ;br inserts &lt;br&gt;
-    * &amp;&lt; inserts &amp;lt;, &amp;&gt; inserts &amp;gt;, &amp;&amp; inserts &amp;amp;
+    * `;im` inserts &lt;img src="" alt=""&gt; and correctly positions the cursor
+    * `;br` inserts &lt;br&gt;
+    * `&amp;&lt;` inserts &amp;lt;, `&amp;&gt;` inserts &amp;gt;, `&amp;&amp;` inserts &amp;amp;
+    * `;db` launches the default browser on the current buffer file
     * and so on...
 * Commands are included to disable and re-enable the mappings, so it is easier
   to edit JavScript, PHP, etc.
-* The map leaders (; and &amp;) are configurable, along with many other
+* The map leaders (`;` and `&amp;`) are configurable, along with many other
   configuration variables
 * A menu―including a modified toolbar―is included to allow for reference to
   tags and their corresponding mappings
