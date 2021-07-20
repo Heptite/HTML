@@ -1,3 +1,12 @@
+Mon, 19 Jul 2021 23:47:55 -0600 Christian J. Robinson
+ * Tinker with README.md
+
+Mon, 19 Jul 2021 18:20:21 -0600 Christian J. Robinson
+ * Allow lynx and w3m to be opened in a :terminal
+
+Mon, 19 Jul 2021 17:02:18 -0600 Christian J. Robinson
+ * Markdown fixes
+
 Mon, 19 Jul 2021 13:42:05 -0600 Christian J. Robinson
  * Fixed permissions. More information in the README.md file.
 

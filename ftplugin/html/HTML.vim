@@ -11,8 +11,8 @@ endif
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         https://christianrobinson.name/vim/HTML/
-# Last Change: July 19, 2021
-# Version:     1.0.11
+# Last Change: July 20, 2021
+# Version:     1.0.12
 # Original Concept: Doug Renze
 #
 #
@@ -1627,157 +1627,168 @@ if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
   silent! unmenu ToolBar
   silent! unmenu! ToolBar
 
-  tmenu 1.10      ToolBar.Open      Open file
   amenu 1.10      ToolBar.Open      :browse confirm e<CR>
-  tmenu 1.20      ToolBar.Save      Save current file
+  tmenu           ToolBar.Open      Open file
   amenu 1.20      ToolBar.Save      :if expand("%") == ""<Bar>browse confirm w<Bar>else<Bar>confirm w<Bar>endif<CR>
-  tmenu 1.30      ToolBar.SaveAll   Save all files
+  tmenu           ToolBar.Save      Save current file
   amenu 1.30      ToolBar.SaveAll   :browse confirm wa<CR>
+  tmenu           ToolBar.SaveAll   Save all files
 
    menu 1.50      ToolBar.-sep1-    <nul>
 
-  tmenu           1.60  ToolBar.Template   Insert Template
   HTMLmenu amenu  1.60  ToolBar.Template   html
+  tmenu                 ToolBar.Template   Insert Template
 
    menu           1.65  ToolBar.-sep2-     <nul>
 
-  tmenu           1.70  ToolBar.Paragraph  Create Paragraph
   HTMLmenu imenu  1.70  ToolBar.Paragraph  pp
   HTMLmenu vmenu  1.70  ToolBar.Paragraph  pp
   HTMLmenu nmenu  1.70  ToolBar.Paragraph  pp i
-  tmenu           1.80  ToolBar.Break      Line Break
+  tmenu                 ToolBar.Paragraph  Create Paragraph
   HTMLmenu imenu  1.80  ToolBar.Break      br
   HTMLmenu vmenu  1.80  ToolBar.Break      br
   HTMLmenu nmenu  1.80  ToolBar.Break      br i
+  tmenu                 ToolBar.Break      Line Break
 
    menu           1.85  ToolBar.-sep3-     <nul>
 
-  tmenu           1.90  ToolBar.Link       Create Hyperlink
   HTMLmenu imenu  1.90  ToolBar.Link       ah
   HTMLmenu vmenu  1.90  ToolBar.Link       ah
   HTMLmenu nmenu  1.90  ToolBar.Link       ah i
-  tmenu           1.110 ToolBar.Image      Insert Image
+  tmenu                 ToolBar.Link       Create Hyperlink
   HTMLmenu imenu  1.110 ToolBar.Image      im
   HTMLmenu vmenu  1.110 ToolBar.Image      im
   HTMLmenu nmenu  1.110 ToolBar.Image      im i
+  tmenu                 ToolBar.Image      Insert Image
 
    menu           1.115 ToolBar.-sep4-     <nul>
 
-  tmenu           1.120 ToolBar.Hline      Create Horizontal Rule
   HTMLmenu imenu  1.120 ToolBar.Hline      hr
   HTMLmenu nmenu  1.120 ToolBar.Hline      hr i
+  tmenu                 ToolBar.Hline      Create Horizontal Rule
 
    menu           1.125 ToolBar.-sep5-     <nul>
 
-  tmenu           1.130 ToolBar.Table      Create Table
   HTMLmenu imenu  1.130 ToolBar.Table     tA <ESC>
   HTMLmenu nmenu  1.130 ToolBar.Table     tA
+  tmenu                 ToolBar.Table      Create Table
 
    menu           1.135 ToolBar.-sep6-     <nul>
 
-  tmenu           1.140 ToolBar.Blist      Create Bullet List
   exe 'imenu      1.140 ToolBar.Blist'     g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
   exe 'vmenu      1.140 ToolBar.Blist'     g:html_map_leader .. 'uli' .. g:html_map_leader .. 'li<ESC>'
   exe 'nmenu      1.140 ToolBar.Blist'     'i' .. g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
-  tmenu           1.150 ToolBar.Nlist      Create Numbered List
+  tmenu                 ToolBar.Blist      Create Bullet List
   exe 'imenu      1.150 ToolBar.Nlist'     g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
   exe 'vmenu      1.150 ToolBar.Nlist'     g:html_map_leader .. 'oli' .. g:html_map_leader .. 'li<ESC>'
   exe 'nmenu      1.150 ToolBar.Nlist'     'i' .. g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
-  tmenu           1.160 ToolBar.Litem      Add List Item
+  tmenu                 ToolBar.Nlist      Create Numbered List
   HTMLmenu imenu  1.160 ToolBar.Litem      li
   HTMLmenu nmenu  1.160 ToolBar.Litem      li i
+  tmenu                 ToolBar.Litem      Add List Item
 
    menu           1.165 ToolBar.-sep7-     <nul>
 
-  tmenu           1.170 ToolBar.Bold       Bold
   HTMLmenu imenu  1.170 ToolBar.Bold       bo
   HTMLmenu vmenu  1.170 ToolBar.Bold       bo
   HTMLmenu nmenu  1.170 ToolBar.Bold       bo i
-  tmenu           1.180 ToolBar.Italic     Italic
+  tmenu                 ToolBar.Bold       Bold
   HTMLmenu imenu  1.180 ToolBar.Italic     it
   HTMLmenu vmenu  1.180 ToolBar.Italic     it
   HTMLmenu nmenu  1.180 ToolBar.Italic     it i
-  tmenu           1.190 ToolBar.Underline  Underline
+  tmenu                 ToolBar.Italic     Italic
   HTMLmenu imenu  1.190 ToolBar.Underline  un
   HTMLmenu vmenu  1.190 ToolBar.Underline  un
   HTMLmenu nmenu  1.190 ToolBar.Underline  un i
+  tmenu                 ToolBar.Underline  Underline
 
-   menu           1.195 ToolBar.-sep8-    <nul>
 
-  tmenu           1.200 ToolBar.Cut       Cut to clipboard
-  vmenu           1.200 ToolBar.Cut       "+x
-  tmenu           1.210 ToolBar.Copy      Copy to clipboard
-  vmenu           1.210 ToolBar.Copy      "+y
-  tmenu           1.220 ToolBar.Paste     Paste from Clipboard
-  nmenu           1.220 ToolBar.Paste     "+gP
-  cmenu           1.220 ToolBar.Paste     <C-R>+
-  imenu           1.220 ToolBar.Paste     <C-R>+
-  vmenu           1.220 ToolBar.Paste     "-xi<C-R>+<Esc>
+   menu	          1.195 ToolBar.-sep8-     <Nop>
 
-   menu           1.225 ToolBar.-sep9-    <nul>
+  anoremenu       1.200 ToolBar.Undo       u
+  tmenu                 ToolBar.Undo       Undo
+  anoremenu       1.210 ToolBar.Redo       <C-R>
+  tmenu                 ToolBar.Redo       Redo
 
-  tmenu           1.230 ToolBar.Find      Find...
-  tmenu           1.240 ToolBar.Replace   Find & Replace
+
+   menu           1.215 ToolBar.-sep9-    <nul>
+
+  vmenu           1.210 ToolBar.Cut       "+x
+  tmenu                 ToolBar.Cut       Cut to clipboard
+  vmenu           1.220 ToolBar.Copy      "+y
+  tmenu                 ToolBar.Copy      Copy to clipboard
+  nmenu           1.230 ToolBar.Paste     "+gP
+  cmenu           1.230 ToolBar.Paste     <C-R>+
+  imenu           1.230 ToolBar.Paste     <C-R>+
+  vmenu           1.230 ToolBar.Paste     "-xi<C-R>+<Esc>
+  tmenu                 ToolBar.Paste     Paste from Clipboard
+
+   menu           1.235 ToolBar.-sep10-    <nul>
+
 
   if !has("gui_athena")
-    amenu 1.250 ToolBar.Find    :promptfind<CR>
+    amenu 1.260 ToolBar.Find    :promptfind<CR>
     vunmenu     ToolBar.Find
     vmenu       ToolBar.Find    y:promptfind <C-R>"<CR>
-    amenu 1.260 ToolBar.Replace :promptrepl<CR>
+    tmenu       ToolBar.Find    Find...
+    amenu 1.270 ToolBar.Replace :promptrepl<CR>
     vunmenu     ToolBar.Replace
     vmenu       ToolBar.Replace y:promptrepl <C-R>"<CR>
+    tmenu       ToolBar.Replace Find & Replace
   # else
-  #   amenu 1.250 ToolBar.Find    /
-  #   amenu 1.260 ToolBar.Replace :%s/
+  #   amenu 1.260 ToolBar.Find    /
+  #   amenu 1.270 ToolBar.Replace :%s/
+  #   tmenu       ToolBar.Find      Find...
   #   vunmenu     ToolBar.Replace
   #   vmenu       ToolBar.Replace :s/
+  #   tmenu       ToolBar.Replace   Find & Replace
   endif
 
    menu 1.500 ToolBar.-sep50- <nul>
 
   if maparg(g:html_map_leader .. 'db', 'n') != ''
-    tmenu          1.510 ToolBar.Browser Launch Default Browser on the Current File
     HTMLmenu amenu 1.510 ToolBar.Browser db
+    tmenu                ToolBar.Browser Launch the Default Browser on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'ff', 'n') != ''
-    tmenu           1.520 ToolBar.Firefox   Launch Firefox on the Current File
     HTMLmenu amenu  1.520 ToolBar.Firefox   ff
+    tmenu                 ToolBar.Firefox   Launch Firefox on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'gc', 'n') != ''
-    tmenu           1.530 ToolBar.Chrome    Launch Chrome on the Current File
     HTMLmenu amenu  1.530 ToolBar.Chrome    gc
+    tmenu                 ToolBar.Chrome    Launch Chrome on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'ed', 'n') != ''
-    tmenu           1.540 ToolBar.Edge      Launch Edge on the Current File
     HTMLmenu amenu  1.540 ToolBar.Edge      ed
+    tmenu                 ToolBar.Edge      Launch Edge on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'oa', 'n') != ''
-    tmenu           1.550 ToolBar.Opera     Launch Opera on the Current File
     HTMLmenu amenu  1.550 ToolBar.Opera     oa
+    tmenu                 ToolBar.Opera     Launch Opera on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'sf', 'n') != ''
-    tmenu           1.560 ToolBar.Safari    Launch Safari on the Current File
     HTMLmenu amenu  1.560 ToolBar.Safari    sf
+    tmenu                 ToolBar.Safari    Launch Safari on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'w3', 'n') != ''
-    tmenu           1.570 ToolBar.w3m       Launch w3m on the Current File
     HTMLmenu amenu  1.570 ToolBar.w3m       w3
+    tmenu                 ToolBar.w3m       Launch w3m on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'ly', 'n') != ''
-    tmenu           1.570 ToolBar.Lynx      Launch Lynx on the Current File
     HTMLmenu amenu  1.570 ToolBar.Lynx      ly
+    tmenu                 ToolBar.Lynx      Launch Lynx on the Current File
   endif
 
    menu 1.998 ToolBar.-sep99- <nul>
-  tmenu 1.999 ToolBar.Help    HTML Help
   amenu 1.999 ToolBar.Help    :help HTML<CR>
+  tmenu       ToolBar.Help    HTML Help
 
   g:did_html_toolbar = true
 endif  # ! g:HTML#BoolVar('g:no_html_toolbar') && has("toolbar")
@@ -2715,7 +2726,7 @@ if ! exists('g:did_html_plugin_warning_check')
   pluginfiles = 'ftplugin/html/HTML.vim'->findfile(&rtp, -1)
   if pluginfiles->len() > 1
     var pluginfilesmatched: list<string>
-    pluginfilesmatched = pluginfiles->g:HTML#FilesWithMatch('https\?://christianrobinson.name/\(programming/\)\?vim/HTML/', 15)
+    pluginfilesmatched = pluginfiles->g:HTML#FilesWithMatch('https\?://christianrobinson.name/\(programming/\)\?vim/HTML/', 20)
     if pluginfilesmatched->len() > 1
       var pluginmessage = "Multiple versions of the HTML.vim filetype plugin are installed.\n"
         .. "Locations:\n   " .. pluginfilesmatched->join("\n   ")

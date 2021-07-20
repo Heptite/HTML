@@ -1,4 +1,4 @@
-*HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
+*HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
 		Last change: 2021 Jul 19
 		Author: Christian J. Robinson
 
@@ -6,10 +6,10 @@
 						*HTML-macros*	*XHTML-macros*
 
 This is a set of HTML/XHTML macros, menus, and toolbar buttons to make editing
-HTML files easier. The original Copyright goes to Doug Renze, although nearly
-all of his efforts have been modified in this implementation. All the changes
-are Copyright Christian J. Robinson. These macros and the supporting scripts
-are distributable under the terms of the GNU |GPL| version 3 or later.
+HTML files easier. The original Copyright goes to Doug Renze, although his
+efforts have been heavily modified in this implementation. All the changes are
+Copyright © 1998 - 2021 Christian J. Robinson. These macros and the supporting
+scripts are distributable under the terms of the GNU |GPL| version 3 or later.
 
 ------------------------------------------------------------------------------
 
@@ -1385,8 +1385,8 @@ devices" in the Universal Access preference pane.
 
 For Unix:					*browser-control-unix*
 
-The following mappings, aside from |n_;db| are only defined if you have
-installed the corresponding browsers.
+The following mappings are only defined if you have installed the
+corresponding browsers. |n_;db| is only defined if xdg-open is installed.
 
 For Windows (and Cygwin):			*browser-control-windows*
 
