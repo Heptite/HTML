@@ -11,8 +11,8 @@ endif
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         https://christianrobinson.name/vim/HTML/
-# Last Change: July 20, 2021
-# Version:     1.0.12
+# Last Change: July 21, 2021
+# Version:     1.0.13
 # Original Concept: Doug Renze
 #
 #
@@ -94,8 +94,8 @@ if ! exists("g:did_html_commands") || ! g:did_html_commands
   command! -nargs=+ HTMLcmenu g:HTML#ColorsMenu(<f-args>)
   command! HTMLReloadFunctions if exists('g:html_function_files')
     |   for f in copy(g:html_function_files)
-    |     exe 'HTMLMESG Reloading: ' .. fnamemodify(f, ':t')
-    |     exe 'source ' .. f
+    |     execute 'HTMLMESG Reloading: ' .. fnamemodify(f, ':t')
+    |     execute 'source ' .. f
     |   endfor
     | else
     |   HTMLERROR Somehow the global variable describing the sourced function files is non-existent.
@@ -1624,169 +1624,178 @@ if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
 
   set guioptions+=T
 
+  # Save some menu stuff from the global menu.vim so we can reuse them later:
+  var save_toolbar: dict<string>
+  save_toolbar['open']      = escape(menu_info('ToolBar.Open')['rhs'], '|')
+  save_toolbar['save']      = escape(menu_info('ToolBar.Save')['rhs'], '|')
+  save_toolbar['saveall']   = escape(menu_info('ToolBar.SaveAll')['rhs'], '|')
+  save_toolbar['replace']   = escape(menu_info('ToolBar.Replace')['rhs'], '|')
+  save_toolbar['replace_v'] = escape(menu_info('ToolBar.Replace', 'v')['rhs'], '|')
+  save_toolbar['cut_v']     = escape(menu_info('ToolBar.Cut', 'v')['rhs'], '|')
+  save_toolbar['copy_v']    = escape(menu_info('ToolBar.Copy', 'v')['rhs'], '|')
+  save_toolbar['paste_n']   = escape(menu_info('ToolBar.Paste', 'n')['rhs'], '|')
+  save_toolbar['paste_c']   = escape(menu_info('ToolBar.Paste', 'c')['rhs'], '|')
+  save_toolbar['paste_i']   = escape(menu_info('ToolBar.Paste', 'i')['rhs'], '|')
+  save_toolbar['paste_v']   = escape(menu_info('ToolBar.Paste', 'v')['rhs'], '|')
+
   silent! unmenu ToolBar
   silent! unmenu! ToolBar
 
-  amenu 1.10      ToolBar.Open      :browse confirm e<CR>
-  tmenu           ToolBar.Open      Open file
-  amenu 1.20      ToolBar.Save      :if expand("%") == ""<Bar>browse confirm w<Bar>else<Bar>confirm w<Bar>endif<CR>
-  tmenu           ToolBar.Save      Save current file
-  amenu 1.30      ToolBar.SaveAll   :browse confirm wa<CR>
-  tmenu           ToolBar.SaveAll   Save all files
+  # For some reason, the tmenu commands must come before the other menu
+  # commands for that menu item, or GTK versions of gVim don't show the
+  # icons properly.
 
-   menu 1.50      ToolBar.-sep1-    <nul>
+  tmenu           1.10  ToolBar.Open         Open File
+  execute 'amenu  1.10  ToolBar.Open ' ..    save_toolbar['open']
+  tmenu           1.20  ToolBar.Save         Save current file
+  execute 'amenu  1.20  ToolBar.Save ' ..    save_toolbar['save']
+  tmenu           1.30  ToolBar.SaveAll      Save all Files
+  execute 'amenu  1.30  ToolBar.SaveAll ' .. save_toolbar['saveall']
 
-  HTMLmenu amenu  1.60  ToolBar.Template   html
-  tmenu                 ToolBar.Template   Insert Template
+   menu           1.50  ToolBar.-sep1-       <Nop>
 
-   menu           1.65  ToolBar.-sep2-     <nul>
+  tmenu           1.60  ToolBar.Template     Insert Template
+  HTMLmenu amenu  1.60  ToolBar.Template     html
 
-  HTMLmenu imenu  1.70  ToolBar.Paragraph  pp
-  HTMLmenu vmenu  1.70  ToolBar.Paragraph  pp
-  HTMLmenu nmenu  1.70  ToolBar.Paragraph  pp i
-  tmenu                 ToolBar.Paragraph  Create Paragraph
-  HTMLmenu imenu  1.80  ToolBar.Break      br
-  HTMLmenu vmenu  1.80  ToolBar.Break      br
-  HTMLmenu nmenu  1.80  ToolBar.Break      br i
-  tmenu                 ToolBar.Break      Line Break
+   menu           1.65  ToolBar.-sep2-       <Nop>
 
-   menu           1.85  ToolBar.-sep3-     <nul>
+  tmenu           1.70  ToolBar.Paragraph    Create Paragraph
+  HTMLmenu imenu  1.70  ToolBar.Paragraph    pp
+  HTMLmenu vmenu  -     ToolBar.Paragraph    pp
+  HTMLmenu nmenu  -     ToolBar.Paragraph    pp i
+  tmenu           1.80  ToolBar.Break        Line Break
+  HTMLmenu imenu  1.80  ToolBar.Break        br
+  HTMLmenu vmenu  -     ToolBar.Break        br
+  HTMLmenu nmenu  -     ToolBar.Break        br i
 
-  HTMLmenu imenu  1.90  ToolBar.Link       ah
-  HTMLmenu vmenu  1.90  ToolBar.Link       ah
-  HTMLmenu nmenu  1.90  ToolBar.Link       ah i
-  tmenu                 ToolBar.Link       Create Hyperlink
-  HTMLmenu imenu  1.110 ToolBar.Image      im
-  HTMLmenu vmenu  1.110 ToolBar.Image      im
-  HTMLmenu nmenu  1.110 ToolBar.Image      im i
-  tmenu                 ToolBar.Image      Insert Image
+   menu           1.85  ToolBar.-sep3-       <Nop>
 
-   menu           1.115 ToolBar.-sep4-     <nul>
+  tmenu           1.90  ToolBar.Link         Create Hyperlink
+  HTMLmenu imenu  1.90  ToolBar.Link         ah
+  HTMLmenu vmenu  -     ToolBar.Link         ah
+  HTMLmenu nmenu  -     ToolBar.Link         ah i
+  tmenu           1.100 ToolBar.Image        Insert Image
+  HTMLmenu imenu  1.100 ToolBar.Image        im
+  HTMLmenu vmenu  -     ToolBar.Image        im
+  HTMLmenu nmenu  -     ToolBar.Image        im i
 
-  HTMLmenu imenu  1.120 ToolBar.Hline      hr
-  HTMLmenu nmenu  1.120 ToolBar.Hline      hr i
-  tmenu                 ToolBar.Hline      Create Horizontal Rule
+   menu           1.105 ToolBar.-sep4-       <Nop>
 
-   menu           1.125 ToolBar.-sep5-     <nul>
+  tmenu           1.110 ToolBar.Hline        Create Horizontal Rule
+  HTMLmenu imenu  1.110 ToolBar.Hline        hr
+  HTMLmenu nmenu  -     ToolBar.Hline        hr i
 
-  HTMLmenu imenu  1.130 ToolBar.Table     tA <ESC>
-  HTMLmenu nmenu  1.130 ToolBar.Table     tA
-  tmenu                 ToolBar.Table      Create Table
+   menu           1.115 ToolBar.-sep5-       <Nop>
 
-   menu           1.135 ToolBar.-sep6-     <nul>
+  tmenu           1.120 ToolBar.Table        Create Table
+  HTMLmenu imenu  1.120 ToolBar.Table        tA <ESC>
+  HTMLmenu nmenu  -     ToolBar.Table        tA
 
-  exe 'imenu      1.140 ToolBar.Blist'     g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
-  exe 'vmenu      1.140 ToolBar.Blist'     g:html_map_leader .. 'uli' .. g:html_map_leader .. 'li<ESC>'
-  exe 'nmenu      1.140 ToolBar.Blist'     'i' .. g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
-  tmenu                 ToolBar.Blist      Create Bullet List
-  exe 'imenu      1.150 ToolBar.Nlist'     g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
-  exe 'vmenu      1.150 ToolBar.Nlist'     g:html_map_leader .. 'oli' .. g:html_map_leader .. 'li<ESC>'
-  exe 'nmenu      1.150 ToolBar.Nlist'     'i' .. g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
-  tmenu                 ToolBar.Nlist      Create Numbered List
-  HTMLmenu imenu  1.160 ToolBar.Litem      li
-  HTMLmenu nmenu  1.160 ToolBar.Litem      li i
-  tmenu                 ToolBar.Litem      Add List Item
+   menu           1.125 ToolBar.-sep6-       <Nop>
 
-   menu           1.165 ToolBar.-sep7-     <nul>
+  tmenu           1.130 ToolBar.Blist        Create Bullet List
+  execute 'imenu  1.130 ToolBar.Blist'       g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
+  execute 'vmenu        ToolBar.Blist'       g:html_map_leader .. 'uli' .. g:html_map_leader .. 'li<ESC>'
+  execute 'nmenu        ToolBar.Blist'       'i' .. g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
+  tmenu           1.140 ToolBar.Nlist        Create Numbered List
+  execute 'imenu  1.140 ToolBar.Nlist'       g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
+  execute 'vmenu        ToolBar.Nlist'       g:html_map_leader .. 'oli' .. g:html_map_leader .. 'li<ESC>'
+  execute 'nmenu        ToolBar.Nlist'       'i' .. g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
+  tmenu           1.150 ToolBar.Litem        Add List Item
+  HTMLmenu imenu  1.150 ToolBar.Litem        li
+  HTMLmenu nmenu  -     ToolBar.Litem        li i
 
-  HTMLmenu imenu  1.170 ToolBar.Bold       bo
-  HTMLmenu vmenu  1.170 ToolBar.Bold       bo
-  HTMLmenu nmenu  1.170 ToolBar.Bold       bo i
-  tmenu                 ToolBar.Bold       Bold
-  HTMLmenu imenu  1.180 ToolBar.Italic     it
-  HTMLmenu vmenu  1.180 ToolBar.Italic     it
-  HTMLmenu nmenu  1.180 ToolBar.Italic     it i
-  tmenu                 ToolBar.Italic     Italic
-  HTMLmenu imenu  1.190 ToolBar.Underline  un
-  HTMLmenu vmenu  1.190 ToolBar.Underline  un
-  HTMLmenu nmenu  1.190 ToolBar.Underline  un i
-  tmenu                 ToolBar.Underline  Underline
+   menu           1.155 ToolBar.-sep7-       <Nop>
+
+  tmenu           1.160 ToolBar.Bold         Bold
+  HTMLmenu imenu  1.160 ToolBar.Bold         bo
+  HTMLmenu vmenu  -     ToolBar.Bold         bo
+  HTMLmenu nmenu  -     ToolBar.Bold         bo i
+  tmenu           1.170 ToolBar.Italic       Italic
+  HTMLmenu imenu  1.170 ToolBar.Italic       it
+  HTMLmenu vmenu  -     ToolBar.Italic       it
+  HTMLmenu nmenu  -     ToolBar.Italic       it i
+  tmenu           1.180 ToolBar.Underline    Underline
+  HTMLmenu imenu  1.180 ToolBar.Underline    un
+  HTMLmenu vmenu  -     ToolBar.Underline    un
+  HTMLmenu nmenu  -     ToolBar.Underline    un i
+
+   menu	          1.185 ToolBar.-sep8-       <Nop>
+
+  tmenu           1.190 ToolBar.Undo         Undo
+  anoremenu       1.190 ToolBar.Undo         u
+  tmenu           1.200 ToolBar.Redo         Redo
+  anoremenu       1.200 ToolBar.Redo         <C-R>
 
 
-   menu	          1.195 ToolBar.-sep8-     <Nop>
+   menu           1.205 ToolBar.-sep9-       <Nop>
 
-  anoremenu       1.200 ToolBar.Undo       u
-  tmenu                 ToolBar.Undo       Undo
-  anoremenu       1.210 ToolBar.Redo       <C-R>
-  tmenu                 ToolBar.Redo       Redo
+  tmenu           1.210 ToolBar.Cut          Cut to Clipboard
+  execute 'vmenu  1.210 ToolBar.Cut ' ..     save_toolbar['cut_v']
+  tmenu           1.220 ToolBar.Copy         Copy to Clipboard
+  execute 'vmenu  1.220 ToolBar.Copy ' ..    save_toolbar['copy_v']
+  tmenu           1.230 ToolBar.Paste        Paste from Clipboard
+  execute 'nmenu  1.230 ToolBar.Paste ' ..   save_toolbar['paste_n']
+  execute 'cmenu        ToolBar.Paste ' ..   save_toolbar['paste_c']
+  execute 'imenu        ToolBar.Paste ' ..   save_toolbar['paste_i']
+  execute 'vmenu        ToolBar.Paste ' ..   save_toolbar['paste_v']
 
-
-   menu           1.215 ToolBar.-sep9-    <nul>
-
-  vmenu           1.210 ToolBar.Cut       "+x
-  tmenu                 ToolBar.Cut       Cut to clipboard
-  vmenu           1.220 ToolBar.Copy      "+y
-  tmenu                 ToolBar.Copy      Copy to clipboard
-  nmenu           1.230 ToolBar.Paste     "+gP
-  cmenu           1.230 ToolBar.Paste     <C-R>+
-  imenu           1.230 ToolBar.Paste     <C-R>+
-  vmenu           1.230 ToolBar.Paste     "-xi<C-R>+<Esc>
-  tmenu                 ToolBar.Paste     Paste from Clipboard
-
-   menu           1.235 ToolBar.-sep10-    <nul>
-
+   menu           1.235 ToolBar.-sep10-      <Nop>
 
   if !has("gui_athena")
-    amenu 1.260 ToolBar.Find    :promptfind<CR>
-    vunmenu     ToolBar.Find
-    vmenu       ToolBar.Find    y:promptfind <C-R>"<CR>
-    tmenu       ToolBar.Find    Find...
-    amenu 1.270 ToolBar.Replace :promptrepl<CR>
-    vunmenu     ToolBar.Replace
-    vmenu       ToolBar.Replace y:promptrepl <C-R>"<CR>
-    tmenu       ToolBar.Replace Find & Replace
-  # else
-  #   amenu 1.260 ToolBar.Find    /
-  #   amenu 1.270 ToolBar.Replace :%s/
-  #   tmenu       ToolBar.Find      Find...
-  #   vunmenu     ToolBar.Replace
-  #   vmenu       ToolBar.Replace :s/
-  #   tmenu       ToolBar.Replace   Find & Replace
+    tmenu 1.240          ToolBar.Replace      Find / Replace
+    execute 'amenu 1.240 ToolBar.Replace ' .. save_toolbar['replace']
+    vunmenu              ToolBar.Replace
+    execute 'vmenu       ToolBar.Replace ' .. save_toolbar['replace_v']
+    tmenu 1.250          ToolBar.FindNext     Find Next
+    anoremenu 1.250      ToolBar.FindNext     n
+    tmenu 1.260          ToolBar.FindPrev     Find Previous
+    anoremenu 1.260      ToolBar.FindPrev     N
   endif
 
-   menu 1.500 ToolBar.-sep50- <nul>
+   menu 1.500 ToolBar.-sep50- <Nop>
 
   if maparg(g:html_map_leader .. 'db', 'n') != ''
+    tmenu          1.510 ToolBar.Browser Launch the Default Browser on the Current File
     HTMLmenu amenu 1.510 ToolBar.Browser db
-    tmenu                ToolBar.Browser Launch the Default Browser on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'ff', 'n') != ''
+    tmenu           1.520 ToolBar.Firefox   Launch Firefox on the Current File
     HTMLmenu amenu  1.520 ToolBar.Firefox   ff
-    tmenu                 ToolBar.Firefox   Launch Firefox on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'gc', 'n') != ''
+    tmenu           1.530 ToolBar.Chrome    Launch Chrome on the Current File
     HTMLmenu amenu  1.530 ToolBar.Chrome    gc
-    tmenu                 ToolBar.Chrome    Launch Chrome on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'ed', 'n') != ''
+    tmenu           1.540 ToolBar.Edge      Launch Edge on the Current File
     HTMLmenu amenu  1.540 ToolBar.Edge      ed
-    tmenu                 ToolBar.Edge      Launch Edge on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'oa', 'n') != ''
+    tmenu           1.550 ToolBar.Opera     Launch Opera on the Current File
     HTMLmenu amenu  1.550 ToolBar.Opera     oa
-    tmenu                 ToolBar.Opera     Launch Opera on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'sf', 'n') != ''
+    tmenu           1.560 ToolBar.Safari    Launch Safari on the Current File
     HTMLmenu amenu  1.560 ToolBar.Safari    sf
-    tmenu                 ToolBar.Safari    Launch Safari on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'w3', 'n') != ''
+    tmenu           1.570 ToolBar.w3m       Launch w3m on the Current File
     HTMLmenu amenu  1.570 ToolBar.w3m       w3
-    tmenu                 ToolBar.w3m       Launch w3m on the Current File
   endif
 
   if maparg(g:html_map_leader .. 'ly', 'n') != ''
-    HTMLmenu amenu  1.570 ToolBar.Lynx      ly
-    tmenu                 ToolBar.Lynx      Launch Lynx on the Current File
+    tmenu           1.580 ToolBar.Lynx      Launch Lynx on the Current File
+    HTMLmenu amenu  1.580 ToolBar.Lynx      ly
   endif
 
-   menu 1.998 ToolBar.-sep99- <nul>
+   menu 1.998 ToolBar.-sep99- <Nop>
   amenu 1.999 ToolBar.Help    :help HTML<CR>
   tmenu       ToolBar.Help    HTML Help
 
@@ -1798,16 +1807,16 @@ endif  # ! g:HTML#BoolVar('g:no_html_toolbar') && has("toolbar")
 
 # Add to the PopUp menu:   {{{2
 nnoremenu 1.91 PopUp.Select\ Ta&g vat
-onoremenu 1.91 PopUp.Select\ Ta&g at
-vnoremenu 1.91 PopUp.Select\ Ta&g <C-C>vat
-inoremenu 1.91 PopUp.Select\ Ta&g <C-O>vat
-cnoremenu 1.91 PopUp.Select\ Ta&g <C-C>vat
+onoremenu      PopUp.Select\ Ta&g at
+vnoremenu      PopUp.Select\ Ta&g <C-C>vat
+inoremenu      PopUp.Select\ Ta&g <C-O>vat
+cnoremenu      PopUp.Select\ Ta&g <C-C>vat
 
 nnoremenu 1.92 PopUp.Select\ &Inner\ Ta&g vit
-onoremenu 1.92 PopUp.Select\ &Inner\ Ta&g it
-vnoremenu 1.92 PopUp.Select\ &Inner\ Ta&g <C-C>vit
-inoremenu 1.92 PopUp.Select\ &Inner\ Ta&g <C-O>vit
-cnoremenu 1.92 PopUp.Select\ &Inner\ Ta&g <C-C>vit
+onoremenu      PopUp.Select\ &Inner\ Ta&g it
+vnoremenu      PopUp.Select\ &Inner\ Ta&g <C-C>vit
+inoremenu      PopUp.Select\ &Inner\ Ta&g <C-O>vit
+cnoremenu      PopUp.Select\ &Inner\ Ta&g <C-C>vit
 # }}}2
 
 augroup HTMLmenu
@@ -1816,15 +1825,15 @@ au!
 augroup END
 
 amenu HTM&L.HTML\ Help<TAB>:help\ HTML\.txt :help HTML.txt<CR>
- menu HTML.-sep1- <nul>
+ menu HTML.-sep1- <Nop>
 
 amenu HTML.Co&ntrol.&Disable\ Mappings<tab>:HTML\ disable     :HTMLmappings disable<CR>
 amenu HTML.Co&ntrol.&Enable\ Mappings<tab>:HTML\ enable       :HTMLmappings enable<CR>
 amenu disable HTML.Control.Enable\ Mappings
- menu HTML.Control.-sep1- <nul>
+ menu HTML.Control.-sep1- <Nop>
 amenu HTML.Co&ntrol.Switch\ to\ &HTML\ mode<tab>:HTML\ html   :HTMLmappings html<CR>
 amenu HTML.Co&ntrol.Switch\ to\ &XHTML\ mode<tab>:HTML\ xhtml :HTMLmappings xhtml<CR>
- menu HTML.Control.-sep2- <nul>
+ menu HTML.Control.-sep2- <Nop>
 amenu HTML.Co&ntrol.&Reload\ Mappings<tab>:HTML\ reload       :HTMLmappings reload<CR>
 
 if g:HTML#BoolVar('b:do_xhtml_mappings')
@@ -1877,35 +1886,33 @@ if maparg(g:html_map_leader .. 'w3', 'n') != ''
   HTMLmenu amenu - HTML.&Preview.w3m\ (New\ Window\)     nw3
 endif
 
- menu HTML.-sep4- <nul>
+ menu HTML.-sep4- <Nop>
 
 HTMLmenu amenu - HTML.Template html
 
- menu HTML.-sep5- <nul>
+ menu HTML.-sep5- <Nop>
 
 # Character Entities menu:   {{{2
 
 HTMLmenu vmenu - HTML.Character\ &Entities.Convert\ to\ Entity                &
-# HTMLmenu nmenu - HTML.Character\ &Entities.Convert\ to\ Entity                &l
 HTMLmenu vmenu - HTML.Character\ &Entities.Convert\ to\ %XX\ (URI\ Encode\)   %
-# HTMLmenu nmenu - HTML.Character\ &Entities.Convert\ to\ %XX\ (URI\ Encode\)   %l
 HTMLmenu vmenu - HTML.Character\ &Entities.Convert\ from\ Entities/%XX        ^
 
- menu HTML.Character\ Entities.-sep0- <nul>
+ menu HTML.Character\ Entities.-sep0- <Nop>
 HTMLemenu HTML.Character\ Entities.Ampersand            &
 HTMLemenu HTML.Character\ Entities.Greaterthan          >        >
 HTMLemenu HTML.Character\ Entities.Lessthan             <        <
 HTMLemenu HTML.Character\ Entities.Space                <space>  nonbreaking
- menu HTML.Character\ Entities.-sep1- <nul>
+ menu HTML.Character\ Entities.-sep1- <Nop>
 HTMLemenu HTML.Character\ Entities.Cent                 c\|      ¢
 HTMLemenu HTML.Character\ Entities.Pound                #        £
 HTMLemenu HTML.Character\ Entities.Euro                 E=       €
 HTMLemenu HTML.Character\ Entities.Yen                  Y=       ¥
- menu HTML.Character\ Entities.-sep2- <nul>
+ menu HTML.Character\ Entities.-sep2- <Nop>
 HTMLemenu HTML.Character\ Entities.Copyright            cO       ©
 HTMLemenu HTML.Character\ Entities.Registered           rO       ®
 HTMLemenu HTML.Character\ Entities.Trademark            tm       TM
- menu HTML.Character\ Entities.-sep3- <nul>
+ menu HTML.Character\ Entities.-sep3- <Nop>
 HTMLemenu HTML.Character\ Entities.Inverted\ Exlamation !        ¡
 HTMLemenu HTML.Character\ Entities.Inverted\ Question   ?        ¿
 HTMLemenu HTML.Character\ Entities.Paragraph            pa       ¶
@@ -1915,7 +1922,7 @@ HTMLemenu HTML.Character\ Entities.Bullet               *        •
 HTMLemenu HTML.Character\ Entities.En\ dash             n-       \-
 HTMLemenu HTML.Character\ Entities.Em\ dash             m-       --
 HTMLemenu HTML.Character\ Entities.Ellipsis             3\.      ...
- menu HTML.Character\ Entities.-sep5- <nul>
+ menu HTML.Character\ Entities.-sep5- <Nop>
 HTMLemenu HTML.Character\ Entities.Math.Multiply        x   ×
 HTMLemenu HTML.Character\ Entities.Math.Divide          /   ÷
 HTMLemenu HTML.Character\ Entities.Math.Degree          dg  °
@@ -1937,7 +1944,7 @@ HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 50   R50   �
 HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 100  R100  Ⅽ
 HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 500  R500  Ⅾ
 HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 1000 R1000 Ⅿ
- menu HTML.Character\ Entities.Math.Roman\ Numerals.-sep1- <nul>
+ menu HTML.Character\ Entities.Math.Roman\ Numerals.-sep1- <Nop>
 HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 1    r1    ⅰ
 HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 2    r2    ⅱ
 HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 3    r3    ⅲ
@@ -1964,7 +1971,7 @@ HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 6  6^  ⁶
 HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 7  7^  ⁷
 HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 8  8^  ⁸
 HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 9  9^  ⁹
- menu HTML.Character\ Entities.Math.Super/Subscript.-sep1- <nul>
+ menu HTML.Character\ Entities.Math.Super/Subscript.-sep1- <Nop>
 HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 0    0v  ₀
 HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 1    1v  ₁
 HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 2    2v  ₂
@@ -2096,7 +2103,7 @@ HTMLemenu HTML.Character\ Entities.A&rrows.Right\ single\ arrow       ra →
 HTMLemenu HTML.Character\ Entities.A&rrows.Up\ single\ arrow          ua ↑
 HTMLemenu HTML.Character\ Entities.A&rrows.Down\ single\ arrow        da ↓
 HTMLemenu HTML.Character\ Entities.A&rrows.Left-right\ single\ arrow  ha ↔
- menu HTML.Character\ Entities.Arrows.-sep1-                             <nul>
+ menu HTML.Character\ Entities.Arrows.-sep1- <Nop>
 HTMLemenu HTML.Character\ Entities.A&rrows.Left\ double\ arrow        lA ⇐
 HTMLemenu HTML.Character\ Entities.A&rrows.Right\ double\ arrow       rA ⇒
 HTMLemenu HTML.Character\ Entities.A&rrows.Up\ double\ arrow          uA ⇑
@@ -2121,7 +2128,7 @@ HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..o-slash     o/ ø
 # Colors menu:   {{{2
 
 HTMLmenu amenu - HTML.&Colors.Display\ All\ &&\ Select 3
-amenu HTML.Colors.-sep1- <nul>
+amenu HTML.Colors.-sep1- <Nop>
 
 HTMLcmenu AliceBlue            #F0F8FF
 HTMLcmenu AntiqueWhite         #FAEBD7
@@ -2294,14 +2301,14 @@ HTMLmenu nmenu - HTML.Font\ &Styles.Big       bi i
 HTMLmenu imenu - HTML.Font\ &Styles.Small     sm
 HTMLmenu vmenu - HTML.Font\ &Styles.Small     sm
 HTMLmenu nmenu - HTML.Font\ &Styles.Small     sm i
- menu HTML.Font\ Styles.-sep1- <nul>
+ menu HTML.Font\ Styles.-sep1- <Nop>
 HTMLmenu imenu - HTML.Font\ &Styles.Font\ Size  fo
 HTMLmenu vmenu - HTML.Font\ &Styles.Font\ Size  fo
 HTMLmenu nmenu - HTML.Font\ &Styles.Font\ Size  fo i
 HTMLmenu imenu - HTML.Font\ &Styles.Font\ Color fc
 HTMLmenu vmenu - HTML.Font\ &Styles.Font\ Color fc
 HTMLmenu nmenu - HTML.Font\ &Styles.Font\ Color fc i
- menu HTML.Font\ Styles.-sep2- <nul>
+ menu HTML.Font\ Styles.-sep2- <Nop>
 HTMLmenu imenu - HTML.Font\ &Styles.CITE           ci
 HTMLmenu vmenu - HTML.Font\ &Styles.CITE           ci
 HTMLmenu nmenu - HTML.Font\ &Styles.CITE           ci i
@@ -2394,7 +2401,7 @@ HTMLmenu nmenu - HTML.&Lists.Unordered\ List  ul i
 HTMLmenu imenu - HTML.&Lists.List\ Item       li
 HTMLmenu vmenu - HTML.&Lists.List\ Item       li
 HTMLmenu nmenu - HTML.&Lists.List\ Item       li i
- menu HTML.Lists.-sep1- <nul>
+ menu HTML.Lists.-sep1- <Nop>
 HTMLmenu imenu - HTML.&Lists.Definition\ List dl
 HTMLmenu vmenu - HTML.&Lists.Definition\ List dl
 HTMLmenu nmenu - HTML.&Lists.Definition\ List dl i
@@ -2601,7 +2608,7 @@ HTMLmenu nmenu - HTML.SSI\ Directi&ves.if\ e&lse             ie i
 
 # }}}2
 
- menu HTML.-sep6- <nul>
+ menu HTML.-sep6- <Nop>
 
 HTMLmenu nmenu - HTML.Doctype\ (4\.01\ transitional) 4
 HTMLmenu nmenu - HTML.Doctype\ (4\.01\ strict)       s4
@@ -2609,7 +2616,7 @@ HTMLmenu nmenu - HTML.Doctype\ (HTML\ 5)             5
 HTMLmenu imenu - HTML.Content-Type                   ct
 HTMLmenu nmenu - HTML.Content-Type                   ct i
 
- menu HTML.-sep7- <nul>
+ menu HTML.-sep7- <Nop>
 
 HTMLmenu imenu - HTML.BODY               bd
 HTMLmenu vmenu - HTML.BODY               bd

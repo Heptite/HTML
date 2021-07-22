@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML.vim filetype plugin.
 #
-# Last Change: July 19, 2021
+# Last Change: July 21, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -936,7 +936,7 @@ enddef
 #  None
 def s:ClearMappings()
   for mapping in b:HTMLclearMappings
-    silent! exe mapping
+    silent! execute mapping
   endfor
   b:HTMLclearMappings = []
   unlet b:did_html_mappings
@@ -954,7 +954,7 @@ enddef
 def s:DoExtraMappings()
   doing_extra_html_mappings = true
   for mapping in b:HTMLextraMappings
-    silent! exe mapping
+    silent! execute mapping
   endfor
   doing_extra_html_mappings = false
 enddef
@@ -993,7 +993,7 @@ def g:HTML#MappingsControl(dowhat: string)
     unlet b:did_html_mappings_init
   endif
 
-  if dowhat =~? '^d\(isable\)\=\|off$'
+  if dowhat =~? '^\(d\(isable\)\=\|off\)$'
     if exists('b:did_html_mappings') == 1
       s:ClearMappings()
       if exists("g:did_html_menus") == 1
@@ -1002,7 +1002,7 @@ def g:HTML#MappingsControl(dowhat: string)
     elseif quiet_errors
       HTMLERROR The HTML mappings are already disabled.
     endif
-  elseif dowhat =~? '^e\(nable\)\=\|on$'
+  elseif dowhat =~? '^\(e\(nable\)\=\|on\)$'
     if exists('b:did_html_mappings') == 1
       HTMLERROR The HTML mappings are already enabled.
     else
@@ -1011,8 +1011,8 @@ def g:HTML#MappingsControl(dowhat: string)
         s:DoExtraMappings()
       endif
     endif
-  elseif dowhat =~? '^r\(eload\|einit\)\=$'
-    exe 'HTMLMESG Reloading: ' .. fnamemodify(g:html_plugin_file, ':t')
+  elseif dowhat =~? '^\(r\(eload\|einit\)\=\)$'
+    execute 'HTMLMESG Reloading: ' .. fnamemodify(g:html_plugin_file, ':t')
     quiet_errors = true
     g:HTML#MappingsControl('off')
     b:did_html_mappings_init = -1
@@ -1027,12 +1027,12 @@ def g:HTML#MappingsControl(dowhat: string)
       b:html_tag_case = b:html_tag_case_save
     endif
     b:do_xhtml_mappings = false
-    g:HTML#MappingsControl('on')
+    g:HTML#MappingsControl('off')
     b:did_html_mappings_init = -1
     g:HTML#MappingsControl('on')
   elseif dowhat =~? '^x\(html\)\=$'
     b:do_xhtml_mappings = true
-    g:HTML#MappingsControl('on')
+    g:HTML#MappingsControl('off')
     b:did_html_mappings_init = -1
     g:HTML#MappingsControl('on')
   else
@@ -1065,11 +1065,14 @@ def g:HTML#MenuControl(which: string="detect")
       amenu enable ToolBar.Open
       amenu enable ToolBar.Save
       amenu enable ToolBar.SaveAll
+      amenu enable ToolBar.Undo
+      amenu enable ToolBar.Redo
       amenu enable ToolBar.Cut
       amenu enable ToolBar.Copy
       amenu enable ToolBar.Paste
-      amenu enable ToolBar.Find
       amenu enable ToolBar.Replace
+      amenu enable ToolBar.FindNext
+      amenu enable ToolBar.FindPrev
     endif
     if exists('b:did_html_mappings_init') == 1 && exists('b:did_html_mappings') == 0
       amenu enable HTML

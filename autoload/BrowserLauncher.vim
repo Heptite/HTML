@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 19, 2021
+# Last Change: July 21, 2021
 #
 # Currently supported browsers:
 # Unix:
