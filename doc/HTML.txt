@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Jul 19
+		Last change: 2021 Jul 23
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -1456,6 +1456,17 @@ drive).
 	Cygwin.)
 								*n_;tw3*
 ;tw3	Same as |n_;w3|, but in a new Vim window, using |:terminal| .  (Only
+	on Unix and Cygwin.)
+								*n_;ln*
+;ln	Use Links to view the current file. This behaves like |n_;nln| if the
+	Vim |GUI| is running. (Only on Unix and Cygwin.)
+								*n_;nln*
+;nln	Same as |n_;ln|, but in a new xterm. This behaves like |n_;ln| if there
+	is no DISPLAY environmental variable. (Note that this will fall back
+	to using |:terminal| if xterm is not found.) (Only on Unix and
+	Cygwin.)
+								*n_;tln*
+;tln	Same as |n_;ln|, but in a new Vim window, using |:terminal| .  (Only
 	on Unix and Cygwin.)
 
 ==============================================================================

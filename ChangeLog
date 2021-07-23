@@ -1,3 +1,6 @@
+Fri, 23 Jul 2021 14:55:50 -0600 Christian J. Robinson
+ * Support more text mode browsers. Bug fixes. Refactoring.
+
 Wed, 21 Jul 2021 19:05:29 -0600 Christian J. Robinson
  * Bug fixes.
 Make the ToolBar menu items use the system items where applicable.
