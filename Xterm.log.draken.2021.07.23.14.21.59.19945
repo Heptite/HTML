@@ -1,262 +1,0 @@
-[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[J]1;zsh: pty3  2:21 PM]2;draken: Heptite pty3  532[1;31m[1;33m[0mHeptite@draken ..Heptite/lib/vim/HTML % [K[14C..rs/Heptite/lib/vim/HTML[39D[?2004hxxterm --help[?2004l
-]1;xterm --help]2;Heptite@draken pty3  532  Command: xterm --helpxterm: bad command line option "--help"
-
-usage:  xterm [-/+132] [-C] [-Sccn] [-T string] [-/+ah] [-/+ai] [-/+aw]
-    [-b number] [-baudrate rate] [-/+bc] [-bcf milliseconds]
-    [-bcn milliseconds] [-bd color] [-/+bdc] [-bg color] [-bw number] [-/+cb]
-    [-cc classrange] [-/+cjk_width] [-class string] [-/+cm] [-/+cn] [-cr color]
-    [-/+cu] [-/+dc] [-display displayname] [-e command args ...] [-fa pattern]
-    [-fb fontname] [-/+fbb] [-/+fbx] [-fd pattern] [-fg color] [-fi fontname]
-    [-fn fontname] [-fs size] [-/+fullscreen] [-fw fontname] [-fwb fontname]
-    [-fx fontname] [#geom] [%geom] [-geometry geom] [-help] [-/+hf] [-/+hm]
-    [-/+hold] [-iconic] [-/+ie] [-/+im] [-into windowId] [-/+itc] [-/+j]
-    [-/+k8] [-kt keyboardtype] [-/+l] [-/+lc] [-lcc path] [-leftbar]
-    [-lf filename] [-/+ls] [-/+maximized] [-/+mb] [-mc milliseconds] [-/+mesg]
-    [-/+mk_width] [-ms color] [-n string] [-name string] [-nb number] [-/+nul]
-    [-/+pc] [-pf fontname] [-/+pob] [-report-charclass] [-report-colors]
-    [-report-fonts] [-report-icons] [-report-xres] [-rightbar] [-/+rv] [-/+rvc]
-    [-/+rw] [-/+s] [-/+samename] [-/+sb] [-selbg color] [-selfg color] [-/+sf]
-    [-sh number] [-/+si] [-/+sk] [-sl number] [-/+sm] [-/+sp] [-/+t] [-/+tb]
-    [-ti termid] [-title string] [-tm string] [-tn name] [-/+u8] [-/+uc]
-    [-/+ulc] [-/+ulit] [-/+ut] [-/+vb] [-version] [-/+wc] [-/+wf]
-    [-xrm resourcestring] [-ziconbeep percent]
-
-Type xterm -help for a full description.
-
-[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[J]1;zsh: pty3  2:22 PM]2;draken: Heptite pty3  533[1;31m1 [1;33m[0mHeptite@draken ..Heptite/lib/vim/HTML % [K[12C..rs/Heptite/lib/vim/HTML[37D[?2004hmman xterm[?2004l
-]1;man xterm]2;Heptite@draken pty3  533  Command: man xterm[?1049h[22;0;0t[?1h=
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-[H[2J[H[H[2J[HXTERM(1)                        X Window System                       XTERM(1)[m
-[m
-[1mNAME[0m[m
-       xterm - terminal emulator for X[m
-[m
-[1mSYNOPSIS[0m[m
-       [1mxterm [22m[-[4mtoolkitoption[24m ...] [-[4moption[24m ...] [[4mshell[24m][m
-[m
-[1mDESCRIPTION[0m[m
-       The [4mxterm[24m program is a terminal emulator for the X Window System.  It[m
-       provides DEC VT102/VT220 and selected features from higher-level[m
-       terminals such as VT320/VT420/VT520 (VT[4mxxx[24m).  It also provides[m
-       Tektronix 4014 emulation for programs that cannot use the window system[m
-       directly.  If the underlying operating system supports terminal[m
-       resizing capabilities (for example, the SIGWINCH signal in systems[m
-       derived from 4.3BSD), [4mxterm[24m will use the facilities to notify programs[m
-       running in the window whenever it is resized.[m
-[m
-       The VT[4mxxx[24m and Tektronix 4014 terminals each have their own window so[m
-       that you can edit text in one and look at graphics in the other at the[m
-       same time.  To maintain the correct aspect ratio (height/width),[m
-       Tektronix graphics will be restricted to the largest box with a 4014's[m
-       aspect ratio that will fit in the window.  This box is located in the[m
-[7m--Less--lines 1-23[27m[K[K/[Kss[Khh[Kee[Kll[Kll[K[1;1HXTERM(1)                        X Window System                       XTERM(1)[m
-[2;1H[m
-[3;1H[1mNAME[0m[m
-[4;1H       xterm - terminal emulator for X[m
-[5;1H[m
-[6;1H[1mSYNOPSIS[0m[m
-[7;1H       [1mxterm [22m[-[4mtoolkitoption[24m ...] [-[4moption[24m ...] [[4mshell[24m][m
-[8;1H[m
-[9;1H[1mDESCRIPTION[0m[m
-[10;1H       The [4mxterm[24m program is a terminal emulator for the X Window System.  It[m
-[11;1H       provides DEC VT102/VT220 and selected features from higher-level[m
-[12;1H       terminals such as VT320/VT420/VT520 (VT[4mxxx[24m).  It also provides[m
-[13;1H       Tektronix 4014 emulation for programs that cannot use the window system[m
-[14;1H       directly.  If the underlying operating system supports terminal[m
-[15;1H       resizing capabilities (for example, the SIGWINCH signal in systems[m
-[16;1H       derived from 4.3BSD), [4mxterm[24m will use the facilities to notify programs[m
-[17;1H       running in the window whenever it is resized.[m
-[18;1H[m
-[19;1H       The VT[4mxxx[24m and Tektronix 4014 terminals each have their own window so[m
-[20;1H       that you can edit text in one and look at graphics in the other at the[m
-[21;1H       same time.  To maintain the correct aspect ratio (height/width),[m
-[22;1H       Tektronix graphics will be restricted to the largest box with a 4014's[m
-[23;1H       aspect ratio that will fit in the window.  This box is located in the[m
-[24;1H[1;1HXTERM(1)                        X Window System                       XTERM(1)[m
-[2;1H[m
-[3;1H[1mNAME[0m[m
-[4;1H       xterm - terminal emulator for X[m
-[5;1H[m
-[6;1H[1mSYNOPSIS[0m[m
-[7;1H       [1mxterm [22m[-[4mtoolkitoption[24m ...] [-[4moption[24m ...] [[4m[7mshell[27m[24m][m
-[8;1H[m
-[9;1H[1mDESCRIPTION[0m[m
-[10;1H       The [4mxterm[24m program is a terminal emulator for the X Window System.  It[m
-[11;1H       provides DEC VT102/VT220 and selected features from higher-level[m
-[12;1H       terminals such as VT320/VT420/VT520 (VT[4mxxx[24m).  It also provides[m
-[13;1H       Tektronix 4014 emulation for programs that cannot use the window system[m
-[14;1H       directly.  If the underlying operating system supports terminal[m
-[15;1H       resizing capabilities (for example, the SIGWINCH signal in systems[m
-[16;1H       derived from 4.3BSD), [4mxterm[24m will use the facilities to notify programs[m
-[17;1H       running in the window whenever it is resized.[m
-[18;1H[m
-[19;1H       The VT[4mxxx[24m and Tektronix 4014 terminals each have their own window so[m
-[20;1H       that you can edit text in one and look at graphics in the other at the[m
-[21;1H       same time.  To maintain the correct aspect ratio (height/width),[m
-[22;1H       Tektronix graphics will be restricted to the largest box with a 4014's[m
-[23;1H       aspect ratio that will fit in the window.  This box is located in the[m
-[24;1H       upper left area of the window.[m
-[m
-       Although both windows may be displayed at the same time, one of them is[m
-       considered the “active” window for receiving keyboard input and[m
-       terminal output.  This is the window that contains the text cursor.[m
-       The active window can be chosen through escape sequences, the [1mVT[0m[m
-[7m--Less--lines 7-29[27m[K[K[HM[1mSYNOPSIS[0m[m
-[HM[m
-[HM       xterm - terminal emulator for X[m
-[HM[1mNAME[0m[m
-[HM[m
-[HMXTERM(1)                        X Window System                       XTERM(1)[m
-[24;1H[K[7m--Less--lines 1-23[27m[K[K/[Kll[Koo[Kgg[Kii[Knn[K[1;1HXTERM(1)                        X Window System                       XTERM(1)[m
-[2;1H[m
-[3;1H[1mNAME[0m[m
-[4;1H       xterm - terminal emulator for X[m
-[5;1H[m
-[6;1H[1mSYNOPSIS[0m[m
-[7;1H       [1mxterm [22m[-[4mtoolkitoption[24m ...] [-[4moption[24m ...] [[4mshell[24m][m
-[8;1H[m
-[9;1H[1mDESCRIPTION[0m[m
-[10;1H       The [4mxterm[24m program is a terminal emulator for the X Window System.  It[m
-[11;1H       provides DEC VT102/VT220 and selected features from higher-level[m
-[12;1H       terminals such as VT320/VT420/VT520 (VT[4mxxx[24m).  It also provides[m
-[13;1H       Tektronix 4014 emulation for programs that cannot use the window system[m
-[14;1H       directly.  If the underlying operating system supports terminal[m
-[15;1H       resizing capabilities (for example, the SIGWINCH signal in systems[m
-[16;1H       derived from 4.3BSD), [4mxterm[24m will use the facilities to notify programs[m
-[17;1H       running in the window whenever it is resized.[m
-[18;1H[m
-[19;1H       The VT[4mxxx[24m and Tektronix 4014 terminals each have their own window so[m
-[20;1H       that you can edit text in one and look at graphics in the other at the[m
-[21;1H       same time.  To maintain the correct aspect ratio (height/width),[m
-[22;1H       Tektronix graphics will be restricted to the largest box with a 4014's[m
-[23;1H       aspect ratio that will fit in the window.  This box is located in the[m
-[24;1H[1;1HXTERM(1)                        X Window System                       XTERM(1)[m
-[2;1H[m
-[3;1H[1mNAME[0m[m
-[4;1H       xterm - terminal emulator for X[m
-[5;1H[m
-[6;1H[1mSYNOPSIS[0m[m
-[7;1H       [1mxterm [22m[-[4mtoolkitoption[24m ...] [-[4moption[24m ...] [[4mshell[24m][m
-[8;1H[m
-[9;1H[1mDESCRIPTION[0m[m
-[10;1H       The [4mxterm[24m program is a terminal emulator for the X Window System.  It[m
-[11;1H       provides DEC VT102/VT220 and selected features from higher-level[m
-[12;1H       terminals such as VT320/VT420/VT520 (VT[4mxxx[24m).  It also provides[m
-[13;1H       Tektronix 4014 emulation for programs that cannot use the window system[m
-[14;1H       directly.  If the underlying operating system supports terminal[m
-[15;1H       resizing capabilities (for example, the SIGWINCH signal in systems[m
-[16;1H       derived from 4.3BSD), [4mxterm[24m will use the facilities to notify programs[m
-[17;1H       running in the window whenever it is resized.[m
-[18;1H[m
-[19;1H       The VT[4mxxx[24m and Tektronix 4014 terminals each have their own window so[m
-[20;1H       that you can edit text in one and look at graphics in the other at the[m
-[21;1H       same time.  To maintain the correct aspect ratio (height/width),[m
-[22;1H       Tektronix graphics will be restricted to the largest box with a 4014's[m
-[23;1H       aspect ratio that will fit in the window.  This box is located in the[m
-[24;1H[H[2J[H       the directory [4mxterm[24m is started in, or the home directory for a [7mlogin[27m[m
-       [4mxterm[24m).[m
-[m
-       Not all of the features described in this manual are necessarily[m
-       available in this version of [4mxterm[24m.  Some (e.g., the non-VT220[m
-       extensions) are available only if they were compiled in, though the[m
-       most commonly-used are in the default configuration.[m
-[m
-[1mOTHER FEATURES[0m[m
-       [4mXterm[24m automatically highlights the text cursor when the pointer enters[m
-       the window (selected) and unhighlights it when the pointer leaves the[m
-       window (unselected).  If the window is the focus window, then the text[m
-       cursor is highlighted no matter where the pointer is.[m
-[m
-       In VT[4mxxx[24m mode, there are escape sequences to activate and deactivate an[m
-       alternate screen buffer, which is the same size as the display area of[m
-       the window.  When activated, the current screen is saved and replaced[m
-       with the alternate screen.  Saving of lines scrolled off the top of the[m
-       window is disabled until the normal screen is restored.  The usual[m
-       terminal description for [4mxterm[24m allows the visual editor [4mvi[24m(1) to switch[m
-       to the alternate screen for editing and to restore the screen on exit.[m
-       A popup menu entry makes it simple to switch between the normal and[m
-       alternate screens for cut and paste.[m
-[7m--Less--lines 113-135[27m[K[K[HM       minute and second when the COPY was performed (the file is created in[m
-[24;1H[K[7m--Less--lines 112-134[27m[K[K[HM       where [4myyyy[24m, [4mMM[24m, [4mdd[24m, [4mhh[24m, [4mmm[24m and [4mss[24m are the year, month, day, hour,[m
-[24;1H[K[7m--Less--lines 111-133[27m[K[K[HM[m
-[24;1H[K[7m--Less--lines 110-132[27m[K[K[HM           “COPY[4myyyy[24m-[4mMM[24m-[4mdd[24m.[4mhh[24m:[4mmm[24m:[4mss[24m”[m
-[24;1H[K[7m--Less--lines 109-131[27m[K[K[HM[m
-[24;1H[K[7m--Less--lines 108-130[27m[K[K[HM       below).  The name of the file will be[m
-[24;1H[K[7m--Less--lines 107-129[27m[K[K[HM       by sending the COPY escape sequence (or through the [1mTektronix [22mmenu; see[m
-[24;1H[K[7m--Less--lines 106-128[27m[K[K/[K       the window.  When activated, the current screen is saved and replaced[m
-       with the alternate screen.  Saving of lines scrolled off the top of the[m
-       window is disabled until the normal screen is restored.  The usual[m
-       terminal description for [4mxterm[24m allows the visual editor [4mvi[24m(1) to switch[m
-       to the alternate screen for editing and to restore the screen on exit.[m
-       A popup menu entry makes it simple to switch between the normal and[m
-       alternate screens for cut and paste.[m
-[7m--Less--lines 113-135[27m[K[K/[K[H[2J[H       [1m-l      [22mTurn logging on, unless disabled by the [1m[7mlogIn[27mhibit [22mresource.[m
-[m
-               Some versions of [4mxterm[24m may have logging enabled.  However,[m
-               normally logging is not supported, due to security concerns in[m
-               the early 1990s.  That was a problem in X11R4 [1mxterm [22m(1989)[m
-               which was addressed by a patch to X11R5 late in 1993.  X11R6[m
-               included these fixes.  The older version (when running with[m
-               [4mroot[24m privilege) would create the log file using [4mroot[24m privilege.[m
-               The reason why [4mxterm[24m ran with [4mroot[24m privileges was to open[m
-               pseudo-terminals.  Those privileges are now needed only on very[m
-               old systems: Unix98 pseudo-terminals made the BSD scheme[m
-               unnecessary.[m
-[m
-               Unless overridden by the [1m-lf [22moption or the [1mlogFile [22mresource:[m
-[m
-               •   If the filename is “-”, then logging is sent to the[m
-                   standard output.[m
-[m
-               •   Otherwise a filename is generated, and the log file is[m
-                   written to the directory from which [4mxterm[24m is invoked.[m
-[m
-               •   The generated filename is of the form[m
-[m
-[7m--Less--lines 585-607[27m[K[K/[K[H[2J[H               [4mxterm[24m window will be a [7mlogin[27m shell (i.e., the first character[m
-               of argv[0] will be a dash, indicating to the shell that it[m
-               should read the user's .[7mlogin[27m or .profile).[m
-[m
-               The [1m-ls [22mflag and the [1m[7mlogin[27mShell [22mresource are ignored if [1m-e [22mis[m
-               also given, because [4mxterm[24m does not know how to make the shell[m
-               start the given command after whatever it does when it is a[m
-               [7mlogin[27m shell - the user's shell of choice need not be a Bourne[m
-               shell after all.  Also, [4mxterm[24m [4m-e[24m is supposed to provide a[m
-               consistent functionality for other applications that need to[m
-               start text-mode programs in a window, and if [1m[7mlogin[27mShell [22mwere[m
-               not ignored, the result of ~/.profile might interfere with[m
-               that.[m
-[m
-               If you do want the effect of [1m-ls [22mand [1m-e [22msimultaneously, you may[m
-               get away with something like[m
-[m
-                   xterm -e /bin/bash -l -c "my command here"[m
-[m
-               Finally, [1m-ls [22mis not completely ignored, because [4mxterm[24m [4m-ls[24m [4m-e[0m[m
-               does write a [4m/var/log/wtmp[24m entry (if configured to do so),[m
-               whereas [4mxterm[24m [4m-e[24m does not.[m
-[m
-[7m--Less--lines 650-672[27m[K[K[HM       [1m-ls     [22mThis option indicates that the shell that is started in the[m
-[24;1H[K[7m--Less--lines 649-671[27m[K[K[HM[m
-[24;1H[K[7m--Less--lines 648-670[27m[K[K[?1l>[?1049l[23;0;0t[1m[7m%[27m[1m[0m                                                                                [0m[27m[24m[J]1;zsh: pty3  2:22 PM]2;draken: Heptite pty3  534[1;31m[1;33m[0mHeptite@draken ..Heptite/lib/vim/HTML % [K[14C..rs/Heptite/lib/vim/HTML[39D[?2004hq [?2004l
