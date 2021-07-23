@@ -19,7 +19,7 @@ use of macros. For example:
     * and so on...
 * `;db` in normal mode launches the default browser on the current buffer file
 * Commands are included to disable and re-enable the mappings, so it is easier
-  to edit JavScript, PHP, etc.
+  to edit JavaScript, PHP, etc.
 * The map leaders (`;` and `&`) are configurable, along with many other
   configuration variables
 * A menu―including a modified toolbar―is included to allow for reference to
@@ -59,5 +59,5 @@ This includes extra documentation, alternate install methods, an FAQ, etc.
 
 Copyright © 1998 - 2021 Christian J. Robinson
 
-Distributable under the terms of the GNU General Public Licenve, version 3 or
+Distributable under the terms of the GNU General Public License, version 3 or
 later:  <https://www.gnu.org/licenses/licenses.html#GPL>

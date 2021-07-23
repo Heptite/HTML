@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML.vim filetype plugin.
 #
-# Last Change: July 21, 2021
+# Last Change: July 22, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -37,7 +37,8 @@ endif
 
 # g:HTML#SetIfUnset()  {{{1
 #
-# Set a variable if it's not already set.
+# Set a variable if it's not already set. Cannot be used for script-local
+# variables.
 #
 # Arguments:
 #  1       - String:  The variable name
@@ -46,8 +47,8 @@ endif
 #  0  - The variable already existed
 #  1  - The variable didn't exist and was successfully set
 #  -1 - An error occurred
-def g:HTML#SetIfUnset(variable: string, ...args: list<string>): number
-  var val: string
+def g:HTML#SetIfUnset(variable: string, ...args: list<any>): number
+  var val: any
   var newvariable = variable
 
   if variable =~# '^l:'
@@ -60,6 +61,8 @@ def g:HTML#SetIfUnset(variable: string, ...args: list<string>): number
   if args->len() == 0
     execute 'HTMLERROR E119: Not enough arguments for ' .. expand('<sfile>')
     return -1
+  elseif type(args[0]) == type([]) || type(args[0]) == type({})
+    val = args[0]
   else
     val = args->join(' ')
   endif
@@ -68,14 +71,22 @@ def g:HTML#SetIfUnset(variable: string, ...args: list<string>): number
     return 0
   endif
 
-  if val == '""' || val == "''"
-    execute newvariable .. ' = ""'
-  elseif val == '[]'
-    execute newvariable .. ' = []'
-  elseif val == '{}'
-    execute newvariable .. ' = {}'
+  if type(val) == type('')
+    if val == '""' || val == "''"
+      execute newvariable .. ' = ""'
+    elseif val == '[]'
+      execute newvariable .. ' = []'
+    elseif val == '{}'
+      execute newvariable .. ' = {}'
+    else
+      execute newvariable .. " = '" .. val->escape("'\\") .. "'"
+    endif
   else
-    execute newvariable .. " = '" .. val->escape("'\\") .. "'"
+    # Unfortunately this is a suboptimal way to do this, but Vim9script
+    # doesn't allow me to do it any other way:
+    g:tmpvarval = val
+    execute newvariable .. ' = g:tmpvarval'
+    unlet g:tmpvarval
   endif
 
   return 1

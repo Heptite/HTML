@@ -2,7 +2,7 @@ vim9script
 scriptencoding utf8
 
 if v:version < 802 || v:versionlong < 8023182
-  echoerr 'HTML.vim no longer supports Vim versions prior to 8.2.3182'
+  echoerr 'HTML macros plugin no longer supports Vim versions prior to 8.2.3182'
   sleep 3
   finish
 endif
@@ -11,8 +11,8 @@ endif
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         https://christianrobinson.name/vim/HTML/
-# Last Change: July 21, 2021
-# Version:     1.0.13
+# Last Change: July 23, 2021
+# Version:     1.0.14
 # Original Concept: Doug Renze
 #
 #
@@ -57,7 +57,7 @@ endif
 #
 # ---- TODO: ------------------------------------------------------------ {{{1
 #
-# - Add more HTML 5 tags:
+# - Add more HTML 5 tags?
 #   https://www.w3.org/wiki/HTML/New_HTML5_Elements
 #   https://www.w3.org/community/webed/wiki/HTML/New_HTML5_Elements
 # - Find a way to make "gv"--after executing a visual mapping--re-select the
@@ -75,7 +75,6 @@ endif
 if ! exists("g:did_html_commands") || ! g:did_html_commands 
   g:did_html_commands = true
 
-  # Define commands before any functions are loaded, or there will be errors:
   command! -nargs=+ HTMLWARN echohl WarningMsg | echomsg <q-args> | echohl None
   command! -nargs=+ HTMLERROR echohl ErrorMsg | echomsg <q-args> | echohl None
   command! -nargs=+ HTMLMESG echohl Todo | echo <q-args> | echohl None
@@ -152,22 +151,26 @@ if ! exists('b:did_html_mappings_init')
 
   # Detect whether to force uppper or lower case:  {{{2
   if &filetype ==? "xhtml"
-        || g:HTML#BoolVar('g:do_xhtml_mappings')
-        || g:HTML#BoolVar('b:do_xhtml_mappings')
+      || g:HTML#BoolVar('g:do_xhtml_mappings')
+      || g:HTML#BoolVar('b:do_xhtml_mappings')
     b:do_xhtml_mappings = true
   else
     b:do_xhtml_mappings = false
 
     if g:HTML#BoolVar('g:html_tag_case_autodetect')
-          && (line('$') != 1 || getline(1) != '')
+        && (line('$') != 1 || getline(1) != '')
 
       var found_upper = search('\C<\(\s*/\)\?\s*\u\+\_[^<>]*>', 'wn')
       var found_lower = search('\C<\(\s*/\)\?\s*\l\+\_[^<>]*>', 'wn')
 
-      if found_upper != 0 && found_lower != 0
+      if found_upper != 0 && found_lower == 0
         b:html_tag_case = 'uppercase'
-      elseif found_upper == 0 && found_lower > 0
+      elseif found_upper == 0 && found_lower != 0
         b:html_tag_case = 'lowercase'
+      else
+        # Found a combination of upper and lower case, so just use the user
+        # preference:
+        b:html_tag_case = g:html_tag_case
       endif
     endif
   endif
@@ -176,6 +179,8 @@ if ! exists('b:did_html_mappings_init')
     b:html_tag_case = 'lowercase'
   endif
 
+  # Need to inerpolate the value, which the command form of SetIfUnset doesn't
+  # do:
   g:HTML#SetIfUnset('b:html_tag_case', g:html_tag_case)
 
   # Template Creation: {{{2
@@ -279,16 +284,16 @@ g:HTML#Map('vnoremap', '<lead>3', "<ESC>:ColorSelect<CR>")
 # ---- General Markup Tag Mappings: ------------------------------------- {{{1
 
 #       SGML Doctype Command
-if ! g:HTML#BoolVar('b:do_xhtml_mappings')
-  # Transitional HTML (Looser):
-  g:HTML#Map('nnoremap', '<lead>4', "<Cmd>eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/loose.dtd\">')<CR>")
-  # Strict HTML:
-  g:HTML#Map('nnoremap', '<lead>s4', "<Cmd>eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
-else
+if g:HTML#BoolVar('b:do_xhtml_mappings')
   # Transitional XHTML (Looser):
   g:HTML#Map('nnoremap', '<lead>4', "<Cmd>eval append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">')<CR>")
   # Strict XHTML:
   g:HTML#Map('nnoremap', '<lead>s4', "<Cmd>eval append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">')<CR>")
+else
+  # Transitional HTML (Looser):
+  g:HTML#Map('nnoremap', '<lead>4', "<Cmd>eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/loose.dtd\">')<CR>")
+  # Strict HTML:
+  g:HTML#Map('nnoremap', '<lead>s4', "<Cmd>eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
 endif
 g:HTML#Map("imap", '<lead>4', "<C-O>" .. g:html_map_leader .. "4")
 g:HTML#Map("imap", '<lead>s4', "<C-O>" .. g:html_map_leader .. "s4")
@@ -640,14 +645,14 @@ g:HTML#Map('inoremap', '<lead>hr', '<[{HR}] />')
 g:HTML#Map('inoremap', '<lead>Hr', '<[{HR STYLE}]="width: 75%;" />')
 
 #       HTML
-if ! g:HTML#BoolVar('b:do_xhtml_mappings')
-  g:HTML#Map('inoremap', '<lead>ht', '<[{HTML}]><CR></[{HTML}]><ESC>O')
-  # Visual mapping:
-  g:HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></[{HTML}]><C-O>`<<[{HTML}]><CR><ESC>', 1)
-else
+if g:HTML#BoolVar('b:do_xhtml_mappings')
   g:HTML#Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html><ESC>O')
   # Visual mapping:
   g:HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></html><C-O>`<<html xmlns="http://www.w3.org/1999/xhtml"><CR><ESC>', 1)
+else
+  g:HTML#Map('inoremap', '<lead>ht', '<[{HTML}]><CR></[{HTML}]><ESC>O')
+  # Visual mapping:
+  g:HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></[{HTML}]><C-O>`<<[{HTML}]><CR><ESC>', 1)
 endif
 # Motion mapping:
 g:HTML#Mapo('<lead>ht', 0)
@@ -1573,6 +1578,26 @@ else # {{{2
         ":eval BrowserLauncher#Launch('w3m', 2)<CR>"
       )
     endif
+    if BrowserLauncher#Exists('links')
+      # Links:  (This may happen anyway if there's no GUI available.)
+      g:HTML#Map(
+        'nnoremap',
+        '<lead>ln',
+        ":eval BrowserLauncher#Launch('links', 0)<CR>"
+      )
+      # Lynx in an xterm:  (This always happens in the Vim GUI.)
+      g:HTML#Map(
+        'nnoremap',
+        '<lead>nln',
+        ":eval BrowserLauncher#Launch('links', 1)<CR>"
+      )
+      # Lynx in a new Vim window, using :terminal:
+      g:HTML#Map(
+        'nnoremap',
+        '<lead>tln',
+        ":eval BrowserLauncher#Launch('links', 2)<CR>"
+      )
+    endif
   endif
 
 endif # }}}2
@@ -1795,6 +1820,11 @@ if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
     HTMLmenu amenu  1.580 ToolBar.Lynx      ly
   endif
 
+  if maparg(g:html_map_leader .. 'ln', 'n') != ''
+    tmenu           1.580 ToolBar.Links     Launch Links on the Current File
+    HTMLmenu amenu  1.580 ToolBar.Links     ln
+  endif
+
    menu 1.998 ToolBar.-sep99- <Nop>
   amenu 1.999 ToolBar.Help    :help HTML<CR>
   tmenu       ToolBar.Help    HTML Help
@@ -1858,32 +1888,40 @@ if maparg(g:html_map_leader .. 'gc', 'n') != ''
   HTMLmenu amenu - HTML.&Preview.Chrome\ (New\ Tab)      tgc
 endif
 if maparg(g:html_map_leader .. 'ed', 'n') != ''
-   menu HTML.Preview.-sep2-                              <nop>
+   menu HTML.Preview.-sep3-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Edge                   ed
   HTMLmenu amenu - HTML.&Preview.Edge\ (New\ Window)     ned
   HTMLmenu amenu - HTML.&Preview.Edge\ (New\ Tab)        ted
 endif
 if maparg(g:html_map_leader .. 'oa', 'n') != ''
-   menu HTML.Preview.-sep3-                              <nop>
+   menu HTML.Preview.-sep4-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Opera                  oa
   HTMLmenu amenu - HTML.&Preview.Opera\ (New\ Window)    noa
   HTMLmenu amenu - HTML.&Preview.Opera\ (New\ Tab)       toa
 endif
 if maparg(g:html_map_leader .. 'sf', 'n') != ''
-   menu HTML.Preview.-sep4-                              <nop>
+   menu HTML.Preview.-sep5-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Safari                 sf
   HTMLmenu amenu - HTML.&Preview.Safari\ (New\ Window)   nsf
   HTMLmenu amenu - HTML.&Preview.Safari\ (New\ Tab)      tsf
 endif
 if maparg(g:html_map_leader .. 'ly', 'n') != ''
-   menu HTML.Preview.-sep5-                              <nop>
+   menu HTML.Preview.-sep6-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&Lynx                   ly
-  HTMLmenu amenu - HTML.&Preview.Lynx\ (New\ Window\)    nly
+  HTMLmenu amenu - HTML.&Preview.Lynx\ (New\ Window)     nly
+  HTMLmenu amenu - HTML.&Preview.Lynx\ (:terminal)       tly
 endif
 if maparg(g:html_map_leader .. 'w3', 'n') != ''
-   menu HTML.Preview.-sep6-                              <nop>
+   menu HTML.Preview.-sep7-                              <nop>
   HTMLmenu amenu - HTML.&Preview.&w3m                    w3
-  HTMLmenu amenu - HTML.&Preview.w3m\ (New\ Window\)     nw3
+  HTMLmenu amenu - HTML.&Preview.w3m\ (New\ Window)      nw3
+  HTMLmenu amenu - HTML.&Preview.w3m\ (:terminal)        tw3
+endif
+if maparg(g:html_map_leader .. 'ln', 'n') != ''
+   menu HTML.Preview.-sep8-                              <nop>
+  HTMLmenu amenu - HTML.&Preview.Li&nks                  ln
+  HTMLmenu amenu - HTML.&Preview.Links\ (New\ Window)    nln
+  HTMLmenu amenu - HTML.&Preview.Links\ (:terminal)      tln
 endif
 
  menu HTML.-sep4- <Nop>
