@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 23, 2021
+# Last Change: July 25, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -46,8 +46,8 @@ endif
 #    Note: Various browsers use the same HTML rendering engine as Firefox
 #    or Chrome, so supporting them isn't as important.
 #
-#  - Defaulting to Lynx/w3m if the the GUI isn't available on Unix may be
-#    undesirable.
+#  - Defaulting to Lynx/w3m/Links if the the GUI isn't available on Unix may
+#    be undesirable.
 #
 # BUGS:
 #  * On Unix, since the commands to start the browsers are run in the
@@ -55,12 +55,13 @@ endif
 #    so execution errors aren't actually seen.
 #
 #  * On Windows (and Cygwin) there's no reliable way to detect which
-#    browsers are installed so the most common install locations are checked.
+#    browsers are installed so only the most common install locations are
+#    checked.
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright (C) 2004-2020 Christian J. Robinson <heptite@gmail.com>
+# Copyright (C) 2004-2021 Christian J. Robinson <heptite@gmail.com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -94,6 +95,7 @@ endif
 # initialize these variables here:
 var Browsers: dict<list<any>>
 var TextmodeBrowsers = ['lynx', 'w3m', 'links']
+var MacBrowsersExist = ['default']
 
 # s:FindTextmodeBrowsers() {{{1
 #
@@ -108,12 +110,12 @@ var TextmodeBrowsers = ['lynx', 'w3m', 'links']
 # Return value:
 #  None
 def s:FindTextmodeBrowsers()
-  var temppath: string
+  var temp: string
 
   for textbrowser in copy(TextmodeBrowsers)
-    temppath = system('which ' .. textbrowser)->trim()
+    temp = system('which ' .. textbrowser)->trim()
     if v:shell_error == 0
-      Browsers[textbrowser] = [textbrowser, temppath, '', '', '']
+      Browsers[textbrowser] = [textbrowser, temp, '', '', '']
     else
       TextmodeBrowsers->remove(TextmodeBrowsers->match('^\c\V' .. textbrowser .. '\$'))
     endif
@@ -124,47 +126,62 @@ if has('mac') || has('macunix')  # {{{1
   # The following code is provided by Israel Chauca Fuentes
   # <israelvarios()fastmail!fm>:
 
-  def s:MacAppExists(app: string): bool # {{{
-    silent! call system("/usr/bin/osascript -e 'get id of application \""
-      .. app .. "\"' 2>&1 >/dev/null")
-    if v:shell_error
-      return false
-    endif
-    return true
-  enddef # }}}
-
   def s:UseAppleScript(): bool # {{{
     return system('/usr/bin/osascript -e '
       .. "'tell application \"System Events\" to set UI_enabled "
       .. "to UI elements enabled' 2>/dev/null")->trim() ==? 'true' ? true : false
   enddef # }}}
 
-  def g:BrowserLauncher#OpenInMacApp(app: string, new: number = 0): bool # {{{
-    if app == 'test' && new == 0
-      return true
+  def g:BrowserLauncher#Exists(app: string = ''): any # {{{
+    if app == ''
+      return MacBrowsersExist
     endif
 
-    if (! s:MacAppExists(app) && app !=? 'default')
+    if MacBrowsersExist->match('^\c\V' .. app .. '\$')
+      return true
+    else
+      call system("/usr/bin/osascript -e 'get id of application \"" .. app->escape("\"'\\") .. "\"'")
+      if v:shell_error
+        return false
+      endif
+
+      add(MacBrowsersExist, app->tolower())->sort()->uniq()
+      return true
+    endif
+  enddef # }}}
+
+  def g:BrowserLauncher#Launch(app: string, new: number = 0, url: string = ''): bool # {{{
+    var file: string
+    var torn: string
+    var script: string
+    var command: string
+    var use_AS: bool
+    var as_msg: string
+
+    if (! g:BrowserLauncher#Exists(app) && app !=? 'default')
       execute 'HTMLERROR ' .. app .. ' not found'
       return false
     endif
 
-    var file = expand('%:p')
+    if url == ''
+      file = url
+    elseif expand('%') != ''
+      HTMLERROR No file is loaded in the current buffer and no URL was specified.
+      return false
+    else
+      file = expand('%:p')
+    endif
 
     # Can we open new tabs and windows?
-    var use_AS = s:UseAppleScript()
+    use_AS = s:UseAppleScript()
 
     # Why we can't open new tabs and windows:
-    var as_msg = "The feature that allows the opening of new browser windows\n"
+    as_msg = "The feature that allows the opening of new browser windows\n"
       .. "and tabs utilizes the built-in Graphic User Interface Scripting\n"
       .. "architecture of Mac OS X which is currently disabled. You can\n"
       .. "activate GUI Scripting by selecting the checkbox \"Enable\n"
       .. "access for assistive devices\" in the Universal Access\n"
       .. "preference pane."
-
-    var torn: string
-    var script: string
-    var command: string
 
     if (app ==? 'safari') # {{{
       if new != 0 && use_AS
@@ -198,7 +215,7 @@ if has('mac') || has('macunix')  # {{{1
         endif
 
         HTMLMESG Opening file in Safari...
-        command = '/usr/bin/open -a safari ' .. shellescape(file)
+        command = '/usr/bin/open -a safari ' .. file->shellescape()
       endif
     endif "}}}
 
@@ -236,7 +253,7 @@ if has('mac') || has('macunix')  # {{{1
 
         endif
         HTMLMESG Opening file in Firefox...
-        command = '/usr/bin/open -a firefox ' .. shellescape(file)
+        command = '/usr/bin/open -a firefox ' .. file->shellescape()
       endif
     endif # }}}
 
@@ -272,22 +289,21 @@ if has('mac') || has('macunix')  # {{{1
 
         endif
         HTMLMESG Opening file in Opera...
-        command = '/usr/bin/open -a opera ' .. shellescape(file)
+        command = '/usr/bin/open -a opera ' .. file->shellescape()
       endif
     endif # }}}
 
     if (app ==? 'default')
       HTMLMESG Opening file in default browser...
-      command = '/usr/bin/open ' .. shellescape(file)
+      command = '/usr/bin/open ' .. file->shellescape()
     endif
 
     if (command == '')
       execute 'HTMLMESG Opening ' .. app->substitute('^.', '\U&', '') .. '...'
-      command = '/usr/bin/open -a ' .. app .. ' ' .. shellescape(file)
+      command = '/usr/bin/open -a ' .. app .. ' ' .. file->shellescape()
     endif
 
-    #system(command .. " 2>&1 >/dev/null")
-    system(command .. " 2>&1")
+    system(command)
   enddef # }}}
 
   defcompile
@@ -361,6 +377,7 @@ else # OS not recognized, can't do any browser control: {{{1
   HTMLWARN Your OS is not recognized, browser controls will not work.
 
   Browsers = {}
+  TextmodeBrowsers = []
 
 endif # }}}1
 
@@ -416,6 +433,10 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
   if url != ''
     file = url
   elseif expand('%') != ''
+    if &modified
+      HTMLWARN Warning: The current buffer has unsaved modifications.
+    endif
+
     # If we're on Cygwin and not using a text mode browser, translate the file
     # path to a Windows native path for later use, otherwise just add the
     # file:// prefix:
@@ -448,7 +469,7 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
     if has("gui_running") || donew > 0
       if $DISPLAY != '' && xterm != '' && donew == 1
         command = xterm .. ' -T ' .. Browsers[which][0] .. ' -e '
-          .. Browsers[which][1] .. ' ' .. shellescape(file) .. ' &'
+          .. Browsers[which][1] .. ' ' .. file->shellescape() .. ' &'
       elseif exists(':terminal') == 2
         execute 'terminal ++close ' .. Browsers[which][1] .. ' ' .. file
         return true
@@ -465,10 +486,10 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
       endif
     else
       sleep 1
-      execute "!" .. Browsers[which][1] .. " " .. shellescape(file)
+      execute '!' .. Browsers[which][1] .. ' ' .. file->shellescape()
 
       if v:shell_error
-        execute "HTMLERROR Unable to launch " .. Browsers[which][0] .. "."
+        execute 'HTMLERROR Unable to launch ' .. Browsers[which][0] .. '.'
         return false
       endif
 
@@ -482,20 +503,20 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
     if donew == 2
       execute 'HTMLMESG Opening new ' .. Browsers[which][0]->s:Cap() .. ' tab...'
       if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file)
+        command = 'start ' .. Browsers[which][0] .. ' ' .. file->shellescape()
           .. ' ' .. Browsers[which][3] 
       else
         command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " "
-          .. shellescape(file) .. ' ' .. Browsers[which][3]  .. ' &"'
+          .. file->shellescape() .. ' ' .. Browsers[which][3]  .. ' &"'
       endif
     elseif donew > 0
       execute 'HTMLMESG Opening new ' .. Browsers[which][0]->s:Cap() .. ' window...'
       if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file)
+        command = 'start ' .. Browsers[which][0] .. ' ' .. file->shellescape()
           .. ' ' .. Browsers[which][4] 
       else
         command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. ' '
-          .. shellescape(file) .. ' ' .. Browsers[which][4]  .. ' &"'
+          .. file->shellescape() .. ' ' .. Browsers[which][4]  .. ' &"'
       endif
     else
       if which == 'default'
@@ -505,11 +526,11 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
       endif
 
       if has('win32') || has('win64') || has('win32unix')
-        command = 'start ' .. Browsers[which][0] .. ' ' .. shellescape(file)
+        command = 'start ' .. Browsers[which][0] .. ' ' .. file->shellescape()
           .. ' ' .. Browsers[which][2] 
       else
         command = "sh -c \"trap '' HUP; " .. Browsers[which][1] .. " "
-          .. shellescape(file) .. ' ' .. Browsers[which][2]  .. ' &"'
+          .. file->shellescape() .. ' ' .. Browsers[which][2]  .. ' &"'
       endif
     endif
   endif

@@ -275,8 +275,10 @@ When you define a template file with the |g:html_template|  or
 automatically replaced with their corresponding variable value:
 
 Token:			Variable: 		Description: ~
-%authorname%		|g:html_authorname|
+%authorname%		|g:html_authorname|	Author's name
 %authoremail%		|g:html_authoremail_encoded|
+						Author's email address,
+						encoded to prevent spam
 %bgcolor%		|g:html_bgcolor|	Main background color
 %textcolor%		|g:html_textcolor|	Main text color
 %linkcolor%		|g:html_linkcolor|	Unvisited link color

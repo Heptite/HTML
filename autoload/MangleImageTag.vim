@@ -5,14 +5,14 @@ if v:versionlong < 8023182
   finish
 endif
 
-# MangleImageTag() - updates an <IMG>'s WIDTH and HEIGHT tags.
+# g:MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: July 19, 2021
+# Last Change: July 24, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright (C) 2004-2020 Christian J. Robinson <heptite@gmail.com>
+# Copyright (C) 2004-2021 Christian J. Robinson <heptite@gmail.com>
 #
 # Based on "mangleImageTag" by Devin Weaver <ktohg@tritarget.com>
 #
@@ -32,7 +32,7 @@ endif
 # https://www.gnu.org/licenses/licenses.html#GPL
 
 
-def g:MangleImageTag#Mangle() # {{{1
+def g:MangleImageTag#Update() # {{{1
   var start_linenr = line('.')
   var end_linenr = start_linenr
   var col = col('.') - 1

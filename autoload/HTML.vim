@@ -7,12 +7,12 @@ endif
 
 # Various functions for the HTML.vim filetype plugin.
 #
-# Last Change: July 22, 2021
+# Last Change: July 25, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright (C) 2004-2020 Christian J. Robinson <heptite@gmail.com>
+# Copyright (C) 2004-2021 Christian J. Robinson <heptite@gmail.com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -130,11 +130,11 @@ enddef
 # return true/false based on that string.
 #
 # Arguments:
-#  1 - String:  1|true|yes / 0|false|no
+#  1 - String:  1|true|yes / 0|false|no|n
 # Return Value:
 #  1/0
 def s:Bool(str: string): bool
-  return str !~? '^no$\|^\(v:\)\?false$\|^0$\|^$'
+  return str !~? '^no\?$\|^\(v:\)\?false$\|^0$\|^$'
 enddef
 
 # s:IsSet() {{{1
@@ -287,7 +287,7 @@ def g:HTML#Map(cmd: string, map: string, arg: string, extra: number = -999)
 
   newarg = newarg->g:HTML#ConvertCase()
 
-  if g:HTML#BoolVar('b:do_xhtml_mappings') == false
+  if ! g:HTML#BoolVar('b:do_xhtml_mappings')
     newarg = newarg->substitute(' \?/>', '>', 'g')
   endif
 
@@ -593,6 +593,8 @@ enddef
 #  2 - Integer: End of region.
 #  3 - Integer: 1: Add an extra line below the region to re-indent.
 #               *: Don't add an extra line.
+#               (This isn't a boolean because that makes other code too
+#               complex.)
 var filetype_output: string
 def g:HTML#ReIndent(first: number, last: number, extraline: number)
   var firstline: number
@@ -1253,14 +1255,14 @@ def g:HTML#Template(): bool
   set noruler noshowcmd
 
   if line('$') == 1 && getline(1) == ''
-    ret = s:Template2()
+    ret = s:InsertTemplate()
   else
-    var YesNoOverwrite = confirm("Non-empty file.\nInsert template anyway?", "&Yes\n&No\n&Overwrite", 2, "W")
+    var YesNoOverwrite = confirm("Non-empty file.\nInsert template anyway?", "&Yes\n&No\n&Overwrite", 2, 'Question')
     if YesNoOverwrite == 1
-      ret = s:Template2()
+      ret = s:InsertTemplate()
     elseif YesNoOverwrite == 3
-      execute "1,$delete"
-      ret = s:Template2()
+      execute '%delete'
+      ret = s:InsertTemplate()
     endif
   endif
   &ruler = save_ruler
@@ -1268,7 +1270,7 @@ def g:HTML#Template(): bool
   return ret
 enddef
 
-# s:Template2()  {{{1
+# s:InsertTemplate()  {{{1
 #
 # Actually insert the HTML template.
 #
@@ -1277,8 +1279,7 @@ enddef
 # Return Value:
 #  0 - The cursor is not on an insert point.
 #  1 - The cursor is on an insert point.
-def s:Template2(): bool
-
+def s:InsertTemplate(): bool
   if g:html_authoremail != ''
     g:html_authoremail_encoded = g:html_authoremail->g:HTML#EncodeString()
   else
@@ -1382,26 +1383,26 @@ def g:HTML#EntityMenu(name: string, item: string, symb: string = '')
 
   if symb != '-'
     if symb == '\-'
-      newsymb = ' (-)'
+      newsymb = '\ (-)'
     else
-      newsymb = ' (' .. symb .. ')'
+      newsymb = '\ (' .. symb->escape(' &<.|') .. ')'
     endif
   endif
 
   var newname = name->escape(' ')
 
-  execute 'imenu ' .. newname .. newsymb->escape(' &<.|') .. '<tab>'
-        .. g:html_map_entity_leader->escape('&\')
-        .. item->escape('&<') .. ' '
-        .. g:html_map_entity_leader .. item
-  execute 'nmenu ' .. newname .. newsymb->escape(' &<.|') .. '<tab>'
-        .. g:html_map_entity_leader->escape('&\')
-        .. item->escape('&<') .. ' ' .. 'i'
-        .. g:html_map_entity_leader .. item .. '<esc>'
-  execute 'vmenu ' .. newname .. newsymb->escape(' &<.|') .. '<tab>'
-        .. g:html_map_entity_leader->escape('&\')
-        .. item->escape('&<') .. ' ' .. 's'
-        .. g:html_map_entity_leader .. item .. '<esc>'
+  execute 'imenu ' .. newname .. newsymb .. '<tab>'
+    .. g:html_map_entity_leader->escape('\&')
+    .. item->escape('&<') .. ' '
+    .. g:html_map_entity_leader .. item
+  execute 'nmenu ' .. newname .. newsymb .. '<tab>'
+    .. g:html_map_entity_leader->escape('\&')
+    .. item->escape('&<') .. ' ' .. 'i'
+    .. g:html_map_entity_leader .. item .. '<esc>'
+  execute 'vmenu ' .. newname .. newsymb .. '<tab>'
+    .. g:html_map_entity_leader->escape('\&')
+    .. item->escape('&<') .. ' ' .. 's'
+    .. g:html_map_entity_leader .. item .. '<esc>'
 enddef
 
 # g:HTML#ColorsMenu()  {{{1
@@ -1428,10 +1429,14 @@ const colors_sort = {  # {{{
 def g:HTML#ColorsMenu(name: string, color: string)
   var c = name->strpart(0, 1)->toupper()
   var newname = name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
-  execute 'imenu HTML.&Colors.&' .. colors_sort[c] .. '.'
+
+  execute 'inoremenu HTML.&Colors.&' .. colors_sort[c] .. '.'
     .. newname->escape(' ') .. '<tab>(' .. color .. ') ' .. color
-  execute 'nmenu HTML.&Colors.&' .. colors_sort[c] .. '.'
+  execute 'nnoremenu HTML.&Colors.&' .. colors_sort[c] .. '.'
     .. newname->escape(' ') .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
+  execute 'vnoremenu HTML.&Colors.&' .. colors_sort[c] .. '.'
+    .. newname->escape(' ') .. '<tab>(' .. color .. ') s' .. color .. '<esc>'
+
   g:html_color_list[name] = color
 enddef
 

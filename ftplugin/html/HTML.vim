@@ -10,9 +10,9 @@ endif
 # ---- Author & Copyright: ---------------------------------------------- {{{1
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
-# URL:         https://christianrobinson.name/vim/HTML/
-# Last Change: July 23, 2021
-# Version:     1.0.14
+# URL:         https://christianrobinson.name/HTML/
+# Last Change: July 25, 2021
+# Version:     1.0.15
 # Original Concept: Doug Renze
 #
 #
@@ -267,9 +267,9 @@ else
 endif
 
 # Update an image tag's WIDTH & HEIGHT attributes:
-g:HTML#Map('nnoremap', '<lead>mi', '<Cmd>eval MangleImageTag#Mangle()<CR>')
-g:HTML#Map('inoremap', '<lead>mi', '<Cmd>eval MangleImageTag#Mangle()<CR>')
-g:HTML#Map('vnoremap', '<lead>mi', '<ESC>:eval MangleImageTag#Mangle()<CR>')
+g:HTML#Map('nnoremap', '<lead>mi', '<Cmd>eval MangleImageTag#Update()<CR>')
+g:HTML#Map('inoremap', '<lead>mi', '<Cmd>eval MangleImageTag#Update()<CR>')
+g:HTML#Map('vnoremap', '<lead>mi', '<ESC>:eval MangleImageTag#Update()<CR>')
 
 # Insert an HTML template:
 g:HTML#Map('nnoremap', '<lead>html', '<Cmd>if g:HTML#Template() \| startinsert \| endif<CR>')
@@ -1361,246 +1361,193 @@ g:HTML#Map('inoremap', '<elead>r1000', '&#x217f;')
 
 # ---- Browser Remote Controls: ----------------------------------------- {{{1
 
-if has('mac') || has('macunix') # {{{2
+var BrowserLauncherExists: bool
+# try/catch because the function file may not autoload if it's not
+# installed:
+try
+  BrowserLauncherExists = BrowserLauncher#Exists() != []
+catch /^Vim\%((\a\+)\)\=:E117:.\+BrowserLauncher#Exists/
+  BrowserLauncherExists = false
+endtry
 
-  # try/catch because the function file may not autoload if it's not
-  # installed:
-  var openinmacappexists: bool
-  try
-    openinmacappexists = BrowserLauncher#OpenInMacApp('test')
-  catch /^Vim\%((\a\+)\)\=:E117:.\+BrowserLauncher#OpenInMacApp/
-    # Do nothing, just discard the error
-  endtry
-
-  if openinmacappexists
-    # Run the default Mac browser:
+if BrowserLauncherExists
+  if BrowserLauncher#Exists('default')
+    # Run the default browser:
     g:HTML#Map(
       'nnoremap',
       '<lead>db',
-      ":eval BrowserLauncher#OpenInMacApp('default')<CR>"
+      ":eval BrowserLauncher#Launch('default')<CR>"
     )
+  endif
 
+  if BrowserLauncher#Exists('firefox')
     # Firefox: View current file, starting Firefox if it's not running:
     g:HTML#Map(
       'nnoremap',
       '<lead>ff',
-      ":eval BrowserLauncher#OpenInMacApp('firefox', 0)<CR>"
+      ":eval BrowserLauncher#Launch('firefox', 0)<CR>"
     )
     # Firefox: Open a new window, and view the current file:
     g:HTML#Map(
       'nnoremap',
       '<lead>nff',
-      ":eval BrowserLauncher#OpenInMacApp('firefox', 1)<CR>"
+      ":eval BrowserLauncher#Launch('firefox', 1)<CR>"
     )
     # Firefox: Open a new tab, and view the current file:
     g:HTML#Map(
       'nnoremap',
       '<lead>tff',
-      ":eval BrowserLauncher#OpenInMacApp('firefox', 2)<CR>"
+      ":eval BrowserLauncher#Launch('firefox', 2)<CR>"
     )
+  endif
 
+  if BrowserLauncher#Exists('chrome')
+    # Chrome: View current file, starting Chrome if it's not running:
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>gc',
+      ":eval BrowserLauncher#Launch('chrome', 0)<CR>"
+    )
+    # Chrome: Open a new window, and view the current file:
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>ngc',
+      ":eval BrowserLauncher#Launch('chrome', 1)<CR>"
+    )
+    # Chrome: Open a new tab, and view the current file:
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>tgc',
+      ":eval BrowserLauncher#Launch('chrome', 2)<CR>"
+    )
+  endif
+
+  if BrowserLauncher#Exists('edge')
+    # Edge: View current file, starting Microsoft Edge if it's not running:
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>ed',
+      ":eval BrowserLauncher#Launch('edge', 0)<CR>"
+    )
+    # Edge: Open a new window, and view the current file:
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>ned',
+      ":eval BrowserLauncher#Launch('edge', 1)<CR>"
+    )
+    # Edge: Open a new tab, and view the current file:
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>ted',
+      ":eval BrowserLauncher#Launch('edge', 2)<CR>"
+    )
+  endif
+
+  if BrowserLauncher#Exists('opera')
     # Opera: View current file, starting Opera if it's not running:
     g:HTML#Map(
       'nnoremap',
       '<lead>oa',
-      ":eval BrowserLauncher#OpenInMacApp('opera', 0)<CR>"
+      ":eval BrowserLauncher#Launch('opera', 0)<CR>"
     )
     # Opera: View current file in a new window, starting Opera if it's not running:
     g:HTML#Map(
       'nnoremap',
       '<lead>noa',
-      ":eval BrowserLauncher#OpenInMacApp('opera', 1)<CR>"
+      ":eval BrowserLauncher#Launch('opera', 1)<CR>"
     )
     # Opera: Open a new tab, and view the current file:
     g:HTML#Map(
       'nnoremap',
       '<lead>toa',
-      ":eval BrowserLauncher#OpenInMacApp('opera', 2)<CR>"
+      ":eval BrowserLauncher#Launch('opera', 2)<CR>"
     )
+  endif
 
+  if g:BrowserLauncher#Exists('safari')
     # Safari: View current file, starting Safari if it's not running:
     g:HTML#Map(
       'nnoremap',
       '<lead>sf',
-      ":eval BrowserLauncher#OpenInMacApp('safari', 0)<CR>"
+      ":eval BrowserLauncher#Launch('safari', 0)<CR>"
     )
     # Safari: Open a new window, and view the current file:
     g:HTML#Map(
       'nnoremap',
       '<lead>nsf',
-      ":eval BrowserLauncher#OpenInMacApp('safari', 1)<CR>"
+      ":eval BrowserLauncher#Launch('safari', 1)<CR>"
       )
     # Safari: Open a new tab, and view the current file:
     g:HTML#Map(
       'nnoremap',
       '<lead>tsf',
-      ":eval BrowserLauncher#OpenInMacApp('safari', 2)<CR>"
+      ":eval BrowserLauncher#Launch('safari', 2)<CR>"
     )
   endif
 
-else # {{{2
-
-  # try/catch because the function file may not autoload if it's not
-  # installed:
-  var browserlauncherexists: bool
-  try
-    browserlauncherexists = BrowserLauncher#Exists() != []
-  catch /^Vim\%((\a\+)\)\=:E117:.\+BrowserLauncher#Exists/
-    # Do nothing, just discard the error
-  endtry
-
-  if browserlauncherexists
-    if BrowserLauncher#Exists('default')
-      # Run the default browser:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>db',
-        ":eval BrowserLauncher#Launch('default')<CR>"
-      )
-    endif
-    if BrowserLauncher#Exists('firefox')
-      # Firefox: View current file, starting Firefox if it's not running:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>ff',
-        ":eval BrowserLauncher#Launch('firefox', 0)<CR>"
-      )
-      # Firefox: Open a new window, and view the current file:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>nff',
-        ":eval BrowserLauncher#Launch('firefox', 1)<CR>"
-      )
-      # Firefox: Open a new tab, and view the current file:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>tff',
-        ":eval BrowserLauncher#Launch('firefox', 2)<CR>"
-      )
-    endif
-    if BrowserLauncher#Exists('chrome')
-      # Chrome: View current file, starting Chrome if it's not running:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>gc',
-        ":eval BrowserLauncher#Launch('chrome', 0)<CR>"
-      )
-      # Chrome: Open a new window, and view the current file:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>ngc',
-        ":eval BrowserLauncher#Launch('chrome', 1)<CR>"
-      )
-      # Chrome: Open a new tab, and view the current file:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>tgc',
-        ":eval BrowserLauncher#Launch('chrome', 2)<CR>"
-      )
-    endif
-    if BrowserLauncher#Exists('edge')
-      # Edge: View current file, starting Microsoft Edge if it's not running:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>ed',
-        ":eval BrowserLauncher#Launch('edge', 0)<CR>"
-      )
-      # Edge: Open a new window, and view the current file:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>ned',
-        ":eval BrowserLauncher#Launch('edge', 1)<CR>"
-      )
-      # Edge: Open a new tab, and view the current file:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>ted',
-        ":eval BrowserLauncher#Launch('edge', 2)<CR>"
-      )
-    endif
-    if BrowserLauncher#Exists('opera')
-      # Opera: View current file, starting Opera if it's not running:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>oa',
-        ":eval BrowserLauncher#Launch('opera', 0)<CR>"
-      )
-      # Opera: View current file in a new window, starting Opera if it's not running:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>noa',
-        ":eval BrowserLauncher#Launch('opera', 1)<CR>"
-      )
-      # Opera: Open a new tab, and view the current file:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>toa',
-        ":eval BrowserLauncher#Launch('opera', 2)<CR>"
-      )
-    endif
-    if BrowserLauncher#Exists('lynx')
-      # Lynx:  (This may happen anyway if there's no GUI available.)
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>ly',
-        ":eval BrowserLauncher#Launch('lynx', 0)<CR>"
-      )
-      # Lynx in an xterm:  (This always happens in the Vim GUI.)
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>nly',
-        ":eval BrowserLauncher#Launch('lynx', 1)<CR>"
-      )
-      # Lynx in a new Vim window, using :terminal:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>tly',
-        ":eval BrowserLauncher#Launch('lynx', 2)<CR>"
-      )
-    endif
-    if BrowserLauncher#Exists('w3m')
-      # w3m:  (This may happen anyway if there's no GUI available.)
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>w3',
-        ":eval BrowserLauncher#Launch('w3m', 0)<CR>"
-      )
-      # w3m in an xterm:  (This always happens in the Vim GUI.)
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>nw3',
-        ":eval BrowserLauncher#Launch('w3m', 1)<CR>"
-      )
-      # w3m in a new Vim window, using :terminal:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>tw3',
-        ":eval BrowserLauncher#Launch('w3m', 2)<CR>"
-      )
-    endif
-    if BrowserLauncher#Exists('links')
-      # Links:  (This may happen anyway if there's no GUI available.)
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>ln',
-        ":eval BrowserLauncher#Launch('links', 0)<CR>"
-      )
-      # Lynx in an xterm:  (This always happens in the Vim GUI.)
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>nln',
-        ":eval BrowserLauncher#Launch('links', 1)<CR>"
-      )
-      # Lynx in a new Vim window, using :terminal:
-      g:HTML#Map(
-        'nnoremap',
-        '<lead>tln',
-        ":eval BrowserLauncher#Launch('links', 2)<CR>"
-      )
-    endif
+  if BrowserLauncher#Exists('lynx')
+    # Lynx:  (This may happen anyway if there's no GUI available.)
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>ly',
+      ":eval BrowserLauncher#Launch('lynx', 0)<CR>"
+    )
+    # Lynx in an xterm:  (This always happens in the Vim GUI.)
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>nly',
+      ":eval BrowserLauncher#Launch('lynx', 1)<CR>"
+    )
+    # Lynx in a new Vim window, using :terminal:
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>tly',
+      ":eval BrowserLauncher#Launch('lynx', 2)<CR>"
+    )
   endif
 
-endif # }}}2
+  if BrowserLauncher#Exists('w3m')
+    # w3m:  (This may happen anyway if there's no GUI available.)
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>w3',
+      ":eval BrowserLauncher#Launch('w3m', 0)<CR>"
+    )
+    # w3m in an xterm:  (This always happens in the Vim GUI.)
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>nw3',
+      ":eval BrowserLauncher#Launch('w3m', 1)<CR>"
+    )
+    # w3m in a new Vim window, using :terminal:
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>tw3',
+      ":eval BrowserLauncher#Launch('w3m', 2)<CR>"
+    )
+  endif
+
+  if BrowserLauncher#Exists('links')
+    # Links:  (This may happen anyway if there's no GUI available.)
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>ln',
+      ":eval BrowserLauncher#Launch('links', 0)<CR>"
+    )
+    # Lynx in an xterm:  (This always happens in the Vim GUI.)
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>nln',
+      ":eval BrowserLauncher#Launch('links', 1)<CR>"
+    )
+    # Lynx in a new Vim window, using :terminal:
+    g:HTML#Map(
+      'nnoremap',
+      '<lead>tln',
+      ":eval BrowserLauncher#Launch('links', 2)<CR>"
+    )
+  endif
+endif
 
 # ----------------------------------------------------------------------------
 
@@ -1623,45 +1570,37 @@ endif
 
 if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
 
-  if ((has("win32") || has('win64'))
-    && findfile('bitmaps/Browser.bmp', &rtp) == '')
-      || findfile('bitmaps/Browser.xpm', &rtp) == ''
-    var tmp = "Warning:\nYou need to install the Toolbar Bitmaps for the "
-          .. g:html_plugin_file->fnamemodify(':t') .. " plugin. "
-          .. "See: http://christianrobinson.name/vim/HTML/#files\n"
-          .. 'Or see ":help g:no_html_toolbar".'
-    var tmpret: number
-    if has('win32') || has('win64') || has('unix')
-      tmpret = tmp->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
-    else
-      tmpret = tmp->confirm("&Dismiss\nView &Help", 1, 'Warning')
-    endif
+  if findfile('bitmaps/Browser.bmp', &runtimepath) == ''
+    var bitmapmessage = "Warning:\nYou need to install the Toolbar Bitmaps for the "
+      .. g:html_plugin_file->fnamemodify(':t') .. " plugin.\n"
+      .. "See: http://christianrobinson.name/HTML/#files\n"
+      .. 'Or see ":help g:no_html_toolbar".'
+    var bitmapmessagereturn = bitmapmessage->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
 
-    if tmpret == 2
+    if bitmapmessagereturn == 2
       help g:no_html_toolbar
       # Go to the previous window or everything gets messy:
       wincmd p
-    elseif tmpret == 3
-      BrowserLauncher#Launch('default', 0, 'http://christianrobinson.name/vim/HTML/\#files')
+    elseif bitmapmessagereturn == 3
+      BrowserLauncher#Launch('default', 0, 'http://christianrobinson.name/HTML/#files')
     endif
-
   endif
 
   set guioptions+=T
 
   # Save some menu stuff from the global menu.vim so we can reuse them later:
   var save_toolbar: dict<string>
-  save_toolbar['open']      = escape(menu_info('ToolBar.Open')['rhs'], '|')
-  save_toolbar['save']      = escape(menu_info('ToolBar.Save')['rhs'], '|')
-  save_toolbar['saveall']   = escape(menu_info('ToolBar.SaveAll')['rhs'], '|')
-  save_toolbar['replace']   = escape(menu_info('ToolBar.Replace')['rhs'], '|')
-  save_toolbar['replace_v'] = escape(menu_info('ToolBar.Replace', 'v')['rhs'], '|')
-  save_toolbar['cut_v']     = escape(menu_info('ToolBar.Cut', 'v')['rhs'], '|')
-  save_toolbar['copy_v']    = escape(menu_info('ToolBar.Copy', 'v')['rhs'], '|')
-  save_toolbar['paste_n']   = escape(menu_info('ToolBar.Paste', 'n')['rhs'], '|')
-  save_toolbar['paste_c']   = escape(menu_info('ToolBar.Paste', 'c')['rhs'], '|')
-  save_toolbar['paste_i']   = escape(menu_info('ToolBar.Paste', 'i')['rhs'], '|')
-  save_toolbar['paste_v']   = escape(menu_info('ToolBar.Paste', 'v')['rhs'], '|')
+  save_toolbar['open']      = menu_info('ToolBar.Open')['rhs']->escape('|')
+  save_toolbar['save']      = menu_info('ToolBar.Save')['rhs']->escape('|')
+  save_toolbar['saveall']   = menu_info('ToolBar.SaveAll')['rhs']->escape('|')
+  save_toolbar['replace']   = menu_info('ToolBar.Replace')['rhs']->escape('|')
+  save_toolbar['replace_v'] = menu_info('ToolBar.Replace', 'v')['rhs']->escape('|')
+  save_toolbar['cut_v']     = menu_info('ToolBar.Cut', 'v')['rhs']->escape('|')
+  save_toolbar['copy_v']    = menu_info('ToolBar.Copy', 'v')['rhs']->escape('|')
+  save_toolbar['paste_n']   = menu_info('ToolBar.Paste', 'n')['rhs']->escape('|')
+  save_toolbar['paste_c']   = menu_info('ToolBar.Paste', 'c')['rhs']->escape('|')
+  save_toolbar['paste_i']   = menu_info('ToolBar.Paste', 'i')['rhs']->escape('|')
+  save_toolbar['paste_v']   = menu_info('ToolBar.Paste', 'v')['rhs']->escape('|')
 
   silent! unmenu ToolBar
   silent! unmenu! ToolBar
@@ -1670,112 +1609,112 @@ if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
   # commands for that menu item, or GTK versions of gVim don't show the
   # icons properly.
 
-  tmenu           1.10  ToolBar.Open         Open File
-  execute 'amenu  1.10  ToolBar.Open ' ..    save_toolbar['open']
-  tmenu           1.20  ToolBar.Save         Save current file
-  execute 'amenu  1.20  ToolBar.Save ' ..    save_toolbar['save']
-  tmenu           1.30  ToolBar.SaveAll      Save all Files
-  execute 'amenu  1.30  ToolBar.SaveAll ' .. save_toolbar['saveall']
+  tmenu               1.10  ToolBar.Open         Open File
+  execute 'anoremenu  1.10  ToolBar.Open ' ..    save_toolbar['open']
+  tmenu               1.20  ToolBar.Save         Save Current File
+  execute 'anoremenu  1.20  ToolBar.Save ' ..    save_toolbar['save']
+  tmenu               1.30  ToolBar.SaveAll      Save All Files
+  execute 'anoremenu  1.30  ToolBar.SaveAll ' .. save_toolbar['saveall']
 
-   menu           1.50  ToolBar.-sep1-       <Nop>
+   menu               1.50  ToolBar.-sep1-       <Nop>
 
-  tmenu           1.60  ToolBar.Template     Insert Template
-  HTMLmenu amenu  1.60  ToolBar.Template     html
+  tmenu               1.60  ToolBar.Template     Insert Template
+  HTMLmenu amenu      1.60  ToolBar.Template     html
 
-   menu           1.65  ToolBar.-sep2-       <Nop>
+   menu               1.65  ToolBar.-sep2-       <Nop>
 
-  tmenu           1.70  ToolBar.Paragraph    Create Paragraph
-  HTMLmenu imenu  1.70  ToolBar.Paragraph    pp
-  HTMLmenu vmenu  -     ToolBar.Paragraph    pp
-  HTMLmenu nmenu  -     ToolBar.Paragraph    pp i
-  tmenu           1.80  ToolBar.Break        Line Break
-  HTMLmenu imenu  1.80  ToolBar.Break        br
-  HTMLmenu vmenu  -     ToolBar.Break        br
-  HTMLmenu nmenu  -     ToolBar.Break        br i
+  tmenu               1.70  ToolBar.Paragraph    Create Paragraph
+  HTMLmenu imenu      1.70  ToolBar.Paragraph    pp
+  HTMLmenu vmenu      -     ToolBar.Paragraph    pp
+  HTMLmenu nmenu      -     ToolBar.Paragraph    pp i
+  tmenu               1.80  ToolBar.Break        Line Break
+  HTMLmenu imenu      1.80  ToolBar.Break        br
+  HTMLmenu vmenu      -     ToolBar.Break        br
+  HTMLmenu nmenu      -     ToolBar.Break        br i
 
-   menu           1.85  ToolBar.-sep3-       <Nop>
+   menu               1.85  ToolBar.-sep3-       <Nop>
 
-  tmenu           1.90  ToolBar.Link         Create Hyperlink
-  HTMLmenu imenu  1.90  ToolBar.Link         ah
-  HTMLmenu vmenu  -     ToolBar.Link         ah
-  HTMLmenu nmenu  -     ToolBar.Link         ah i
-  tmenu           1.100 ToolBar.Image        Insert Image
-  HTMLmenu imenu  1.100 ToolBar.Image        im
-  HTMLmenu vmenu  -     ToolBar.Image        im
-  HTMLmenu nmenu  -     ToolBar.Image        im i
+  tmenu               1.90  ToolBar.Link         Create Hyperlink
+  HTMLmenu imenu      1.90  ToolBar.Link         ah
+  HTMLmenu vmenu      -     ToolBar.Link         ah
+  HTMLmenu nmenu      -     ToolBar.Link         ah i
+  tmenu               1.100 ToolBar.Image        Insert Image
+  HTMLmenu imenu      1.100 ToolBar.Image        im
+  HTMLmenu vmenu      -     ToolBar.Image        im
+  HTMLmenu nmenu      -     ToolBar.Image        im i
 
-   menu           1.105 ToolBar.-sep4-       <Nop>
+   menu               1.105 ToolBar.-sep4-       <Nop>
 
-  tmenu           1.110 ToolBar.Hline        Create Horizontal Rule
-  HTMLmenu imenu  1.110 ToolBar.Hline        hr
-  HTMLmenu nmenu  -     ToolBar.Hline        hr i
+  tmenu               1.110 ToolBar.Hline        Create Horizontal Rule
+  HTMLmenu imenu      1.110 ToolBar.Hline        hr
+  HTMLmenu nmenu      -     ToolBar.Hline        hr i
 
-   menu           1.115 ToolBar.-sep5-       <Nop>
+   menu               1.115 ToolBar.-sep5-       <Nop>
 
-  tmenu           1.120 ToolBar.Table        Create Table
-  HTMLmenu imenu  1.120 ToolBar.Table        tA <ESC>
-  HTMLmenu nmenu  -     ToolBar.Table        tA
+  tmenu               1.120 ToolBar.Table        Create Table
+  HTMLmenu imenu      1.120 ToolBar.Table        tA <ESC>
+  HTMLmenu nmenu      -     ToolBar.Table        tA
 
-   menu           1.125 ToolBar.-sep6-       <Nop>
+   menu               1.125 ToolBar.-sep6-       <Nop>
 
-  tmenu           1.130 ToolBar.Blist        Create Bullet List
-  execute 'imenu  1.130 ToolBar.Blist'       g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
-  execute 'vmenu        ToolBar.Blist'       g:html_map_leader .. 'uli' .. g:html_map_leader .. 'li<ESC>'
-  execute 'nmenu        ToolBar.Blist'       'i' .. g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
-  tmenu           1.140 ToolBar.Nlist        Create Numbered List
-  execute 'imenu  1.140 ToolBar.Nlist'       g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
-  execute 'vmenu        ToolBar.Nlist'       g:html_map_leader .. 'oli' .. g:html_map_leader .. 'li<ESC>'
-  execute 'nmenu        ToolBar.Nlist'       'i' .. g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
-  tmenu           1.150 ToolBar.Litem        Add List Item
-  HTMLmenu imenu  1.150 ToolBar.Litem        li
-  HTMLmenu nmenu  -     ToolBar.Litem        li i
+  tmenu               1.130 ToolBar.Blist        Create Bullet List
+  execute 'inoremenu  1.130 ToolBar.Blist'       g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
+  execute 'vnoremenu        ToolBar.Blist'       g:html_map_leader .. 'uli' .. g:html_map_leader .. 'li<ESC>'
+  execute 'nnoremenu        ToolBar.Blist'       'i' .. g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li'
+  tmenu               1.140 ToolBar.Nlist        Create Numbered List
+  execute 'inoremenu  1.140 ToolBar.Nlist'       g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
+  execute 'vnoremenu        ToolBar.Nlist'       g:html_map_leader .. 'oli' .. g:html_map_leader .. 'li<ESC>'
+  execute 'nnoremenu        ToolBar.Nlist'       'i' .. g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
+  tmenu               1.150 ToolBar.Litem        Add List Item
+  HTMLmenu imenu      1.150 ToolBar.Litem        li
+  HTMLmenu nmenu      -     ToolBar.Litem        li i
 
-   menu           1.155 ToolBar.-sep7-       <Nop>
+   menu               1.155 ToolBar.-sep7-       <Nop>
 
-  tmenu           1.160 ToolBar.Bold         Bold
-  HTMLmenu imenu  1.160 ToolBar.Bold         bo
-  HTMLmenu vmenu  -     ToolBar.Bold         bo
-  HTMLmenu nmenu  -     ToolBar.Bold         bo i
-  tmenu           1.170 ToolBar.Italic       Italic
-  HTMLmenu imenu  1.170 ToolBar.Italic       it
-  HTMLmenu vmenu  -     ToolBar.Italic       it
-  HTMLmenu nmenu  -     ToolBar.Italic       it i
-  tmenu           1.180 ToolBar.Underline    Underline
-  HTMLmenu imenu  1.180 ToolBar.Underline    un
-  HTMLmenu vmenu  -     ToolBar.Underline    un
-  HTMLmenu nmenu  -     ToolBar.Underline    un i
+  tmenu               1.160 ToolBar.Bold         Bold
+  HTMLmenu imenu      1.160 ToolBar.Bold         bo
+  HTMLmenu vmenu      -     ToolBar.Bold         bo
+  HTMLmenu nmenu      -     ToolBar.Bold         bo i
+  tmenu               1.170 ToolBar.Italic       Italic
+  HTMLmenu imenu      1.170 ToolBar.Italic       it
+  HTMLmenu vmenu      -     ToolBar.Italic       it
+  HTMLmenu nmenu      -     ToolBar.Italic       it i
+  tmenu               1.180 ToolBar.Underline    Underline
+  HTMLmenu imenu      1.180 ToolBar.Underline    un
+  HTMLmenu vmenu      -     ToolBar.Underline    un
+  HTMLmenu nmenu      -     ToolBar.Underline    un i
 
-   menu	          1.185 ToolBar.-sep8-       <Nop>
+   menu	              1.185 ToolBar.-sep8-       <Nop>
 
-  tmenu           1.190 ToolBar.Undo         Undo
-  anoremenu       1.190 ToolBar.Undo         u
-  tmenu           1.200 ToolBar.Redo         Redo
-  anoremenu       1.200 ToolBar.Redo         <C-R>
+  tmenu               1.190 ToolBar.Undo         Undo
+  anoremenu           1.190 ToolBar.Undo         u
+  tmenu               1.200 ToolBar.Redo         Redo
+  anoremenu           1.200 ToolBar.Redo         <C-R>
 
 
-   menu           1.205 ToolBar.-sep9-       <Nop>
+   menu               1.205 ToolBar.-sep9-       <Nop>
 
-  tmenu           1.210 ToolBar.Cut          Cut to Clipboard
-  execute 'vmenu  1.210 ToolBar.Cut ' ..     save_toolbar['cut_v']
-  tmenu           1.220 ToolBar.Copy         Copy to Clipboard
-  execute 'vmenu  1.220 ToolBar.Copy ' ..    save_toolbar['copy_v']
-  tmenu           1.230 ToolBar.Paste        Paste from Clipboard
-  execute 'nmenu  1.230 ToolBar.Paste ' ..   save_toolbar['paste_n']
-  execute 'cmenu        ToolBar.Paste ' ..   save_toolbar['paste_c']
-  execute 'imenu        ToolBar.Paste ' ..   save_toolbar['paste_i']
-  execute 'vmenu        ToolBar.Paste ' ..   save_toolbar['paste_v']
+  tmenu               1.210 ToolBar.Cut          Cut to Clipboard
+  execute 'vnoremenu  1.210 ToolBar.Cut ' ..     save_toolbar['cut_v']
+  tmenu               1.220 ToolBar.Copy         Copy to Clipboard
+  execute 'vnoremenu  1.220 ToolBar.Copy ' ..    save_toolbar['copy_v']
+  tmenu               1.230 ToolBar.Paste        Paste from Clipboard
+  execute 'nnoremenu  1.230 ToolBar.Paste ' ..   save_toolbar['paste_n']
+  execute 'cnoremenu        ToolBar.Paste ' ..   save_toolbar['paste_c']
+  execute 'inoremenu        ToolBar.Paste ' ..   save_toolbar['paste_i']
+  execute 'vnoremenu        ToolBar.Paste ' ..   save_toolbar['paste_v']
 
-   menu           1.235 ToolBar.-sep10-      <Nop>
+   menu               1.235 ToolBar.-sep10-      <Nop>
 
   if !has("gui_athena")
-    tmenu 1.240          ToolBar.Replace      Find / Replace
-    execute 'amenu 1.240 ToolBar.Replace ' .. save_toolbar['replace']
-    vunmenu              ToolBar.Replace
-    execute 'vmenu       ToolBar.Replace ' .. save_toolbar['replace_v']
-    tmenu 1.250          ToolBar.FindNext     Find Next
-    anoremenu 1.250      ToolBar.FindNext     n
-    tmenu 1.260          ToolBar.FindPrev     Find Previous
-    anoremenu 1.260      ToolBar.FindPrev     N
+    tmenu              1.240 ToolBar.Replace      Find / Replace
+    execute 'anoremenu 1.240 ToolBar.Replace ' .. save_toolbar['replace']
+    vunmenu                  ToolBar.Replace
+    execute 'vnoremenu       ToolBar.Replace ' .. save_toolbar['replace_v']
+    tmenu 1.250              ToolBar.FindNext     Find Next
+    anoremenu 1.250          ToolBar.FindNext     n
+    tmenu 1.260              ToolBar.FindPrev     Find Previous
+    anoremenu 1.260          ToolBar.FindPrev     N
   endif
 
    menu 1.500 ToolBar.-sep50- <Nop>
@@ -1825,9 +1764,9 @@ if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
     HTMLmenu amenu  1.580 ToolBar.Links     ln
   endif
 
-   menu 1.998 ToolBar.-sep99- <Nop>
-  amenu 1.999 ToolBar.Help    :help HTML<CR>
-  tmenu       ToolBar.Help    HTML Help
+   menu     1.998 ToolBar.-sep99- <Nop>
+  tmenu     1.999 ToolBar.Help    HTML Help
+  anoremenu 1.999 ToolBar.Help    :help HTML<CR>
 
   g:did_html_toolbar = true
 endif  # ! g:HTML#BoolVar('g:no_html_toolbar') && has("toolbar")
@@ -2768,7 +2707,7 @@ g:doing_internal_html_mappings = false
 if ! exists('g:did_html_plugin_warning_check')
   g:did_html_plugin_warning_check = true
   var pluginfiles: list<string>
-  pluginfiles = 'ftplugin/html/HTML.vim'->findfile(&rtp, -1)
+  pluginfiles = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
   if pluginfiles->len() > 1
     var pluginfilesmatched: list<string>
     pluginfilesmatched = pluginfiles->g:HTML#FilesWithMatch('https\?://christianrobinson.name/\(programming/\)\?vim/HTML/', 20)
