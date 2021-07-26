@@ -1,8 +1,8 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023182
-  echoerr 'HTML macros plugin no longer supports Vim versions prior to 8.2.3182'
+if v:version < 802 || v:versionlong < 8023224
+  echoerr 'HTML macros plugin no longer supports Vim versions prior to 8.2.3224'
   sleep 3
   finish
 endif
@@ -11,8 +11,8 @@ endif
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         https://christianrobinson.name/HTML/
-# Last Change: July 25, 2021
-# Version:     1.0.15
+# Last Change: July 26, 2021
+# Version:     1.0.16
 # Original Concept: Doug Renze
 #
 #
@@ -57,6 +57,7 @@ endif
 #
 # ---- TODO: ------------------------------------------------------------ {{{1
 #
+# - Add a lot more character entities (see table in autoload/HTML.vim)
 # - Add more HTML 5 tags?
 #   https://www.w3.org/wiki/HTML/New_HTML5_Elements
 #   https://www.w3.org/community/webed/wiki/HTML/New_HTML5_Elements
@@ -78,19 +79,19 @@ if ! exists("g:did_html_commands") || ! g:did_html_commands
   command! -nargs=+ HTMLWARN echohl WarningMsg | echomsg <q-args> | echohl None
   command! -nargs=+ HTMLERROR echohl ErrorMsg | echomsg <q-args> | echohl None
   command! -nargs=+ HTMLMESG echohl Todo | echo <q-args> | echohl None
-  command! -nargs=+ SetIfUnset g:HTML#SetIfUnset(<f-args>)
-  command! -nargs=1 HTMLmappings g:HTML#MappingsControl(<f-args>)
-  command! -nargs=1 HTMLMappings g:HTML#MappingsControl(<f-args>)
+  command! -nargs=+ SetIfUnset HTML#SetIfUnset(<f-args>)
+  command! -nargs=1 HTMLmappings HTML#MappingsControl(<f-args>)
+  command! -nargs=1 HTMLMappings HTML#MappingsControl(<f-args>)
   if exists(":HTML") != 2
-    command! -nargs=1 HTML g:HTML#MappingsControl(<f-args>)
+    command! -nargs=1 HTML HTML#MappingsControl(<f-args>)
   endif
-  command! -nargs=? ColorSelect g:HTML#ShowColors(<f-args>)
+  command! -nargs=? ColorSelect HTML#ShowColors(<f-args>)
   if exists(":CS") != 2
-    command! -nargs=? CS g:HTML#ShowColors(<f-args>)
+    command! -nargs=? CS HTML#ShowColors(<f-args>)
   endif
-  command! -nargs=+ HTMLmenu g:HTML#LeadMenu(<f-args>)
-  command! -nargs=+ HTMLemenu g:HTML#EntityMenu(<f-args>)
-  command! -nargs=+ HTMLcmenu g:HTML#ColorsMenu(<f-args>)
+  command! -nargs=+ HTMLmenu HTML#LeadMenu(<f-args>)
+  command! -nargs=+ HTMLemenu HTML#EntityMenu(<f-args>)
+  command! -nargs=+ HTMLcmenu HTML#ColorsMenu(<f-args>)
   command! HTMLReloadFunctions if exists('g:html_function_files')
     |   for f in copy(g:html_function_files)
     |     execute 'HTMLMESG Reloading: ' .. fnamemodify(f, ':t')
@@ -133,7 +134,7 @@ if ! exists('b:did_html_mappings_init')
 
   # Need to inerpolate the value, which the command form of SetIfUnset doesn't
   # do:
-  g:HTML#SetIfUnset('g:html_save_clipboard', &clipboard)
+  HTML#SetIfUnset('g:html_save_clipboard', &clipboard)
 
   silent! setlocal clipboard+=html
   setlocal matchpairs+=<:>
@@ -151,13 +152,13 @@ if ! exists('b:did_html_mappings_init')
 
   # Detect whether to force uppper or lower case:  {{{2
   if &filetype ==? "xhtml"
-      || g:HTML#BoolVar('g:do_xhtml_mappings')
-      || g:HTML#BoolVar('b:do_xhtml_mappings')
+      || HTML#BoolVar('g:do_xhtml_mappings')
+      || HTML#BoolVar('b:do_xhtml_mappings')
     b:do_xhtml_mappings = true
   else
     b:do_xhtml_mappings = false
 
-    if g:HTML#BoolVar('g:html_tag_case_autodetect')
+    if HTML#BoolVar('g:html_tag_case_autodetect')
         && (line('$') != 1 || getline(1) != '')
 
       var found_upper = search('\C<\(\s*/\)\?\s*\u\+\_[^<>]*>', 'wn')
@@ -175,13 +176,13 @@ if ! exists('b:did_html_mappings_init')
     endif
   endif
 
-  if g:HTML#BoolVar('b:do_xhtml_mappings')
+  if HTML#BoolVar('b:do_xhtml_mappings')
     b:html_tag_case = 'lowercase'
   endif
 
   # Need to inerpolate the value, which the command form of SetIfUnset doesn't
   # do:
-  g:HTML#SetIfUnset('b:html_tag_case', g:html_tag_case)
+  HTML#SetIfUnset('b:html_tag_case', g:html_tag_case)
 
   # Template Creation: {{{2
 
@@ -215,7 +216,7 @@ if ! exists('b:did_html_mappings_init')
     .. " </[{BODY}]>\n"
     .. "</[{HTML}]>"
 
-  if g:HTML#BoolVar('b:do_xhtml_mappings')
+  if HTML#BoolVar('b:do_xhtml_mappings')
     b:internal_html_template = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
           .. " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
           .. "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
@@ -227,7 +228,7 @@ if ! exists('b:did_html_mappings_init')
     b:internal_html_template = b:internal_html_template->substitute(' />', '>', 'g')
   endif
 
-  b:internal_html_template = b:internal_html_template->g:HTML#ConvertCase()
+  b:internal_html_template = b:internal_html_template->HTML#ConvertCase()
 
   # }}}2
 
@@ -245,1125 +246,1126 @@ b:did_html_mappings = true
 b:HTMLclearMappings = []
 
 # Make it easy to use a ; (or whatever the map leader is) as normal:
-g:HTML#Map('inoremap', '<lead>' .. g:html_map_leader, g:html_map_leader)
-g:HTML#Map('vnoremap', '<lead>' .. g:html_map_leader, g:html_map_leader, -1)
-g:HTML#Map('nnoremap', '<lead>' .. g:html_map_leader, g:html_map_leader)
+HTML#Map('inoremap', '<lead>' .. g:html_map_leader, g:html_map_leader)
+HTML#Map('vnoremap', '<lead>' .. g:html_map_leader, g:html_map_leader, -1)
+HTML#Map('nnoremap', '<lead>' .. g:html_map_leader, g:html_map_leader)
 # Make it easy to insert a & (or whatever the entity leader is):
-g:HTML#Map('inoremap', '<lead>' .. g:html_map_entity_leader, g:html_map_entity_leader)
+HTML#Map('inoremap', '<lead>' .. g:html_map_entity_leader, g:html_map_entity_leader)
 
-if ! g:HTML#BoolVar('g:no_html_tab_mapping')
+if ! HTML#BoolVar('g:no_html_tab_mapping')
   # Allow hard tabs to be inserted:
-  g:HTML#Map('inoremap', '<lead><tab>', '<tab>')
-  g:HTML#Map('nnoremap', '<lead><tab>', '<tab>')
+  HTML#Map('inoremap', '<lead><tab>', '<tab>')
+  HTML#Map('nnoremap', '<lead><tab>', '<tab>')
 
   # Tab takes us to a (hopefully) reasonable next insert point:
-  g:HTML#Map('inoremap', '<tab>', "<Cmd>eval g:HTML#NextInsertPoint('i')<CR>")
-  g:HTML#Map('nnoremap', '<tab>', "<Cmd>eval g:HTML#NextInsertPoint('n')<CR>")
-  g:HTML#Map('vnoremap', '<tab>', "<Cmd>eval g:HTML#NextInsertPoint('n')<CR>", -1)
+  HTML#Map('inoremap', '<tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i')<CR>")
+  HTML#Map('nnoremap', '<tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>")
+  HTML#Map('vnoremap', '<tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>", -1)
 else
-  g:HTML#Map('inoremap', '<lead><tab>', "<Cmd>eval g:HTML#NextInsertPoint('i')<CR>")
-  g:HTML#Map('nnoremap', '<lead><tab>', "<Cmd>eval g:HTML#NextInsertPoint('n')<CR>")
-  g:HTML#Map('vnoremap', '<lead><tab>', "<Cmd>eval g:HTML#NextInsertPoint('n')<CR>", -1)
+  HTML#Map('inoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i')<CR>")
+  HTML#Map('nnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>")
+  HTML#Map('vnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>", -1)
 endif
 
 # Update an image tag's WIDTH & HEIGHT attributes:
-g:HTML#Map('nnoremap', '<lead>mi', '<Cmd>eval MangleImageTag#Update()<CR>')
-g:HTML#Map('inoremap', '<lead>mi', '<Cmd>eval MangleImageTag#Update()<CR>')
-g:HTML#Map('vnoremap', '<lead>mi', '<ESC>:eval MangleImageTag#Update()<CR>')
+HTML#Map('nnoremap', '<lead>mi', '<Cmd>vim9cmd MangleImageTag#Update()<CR>')
+HTML#Map('inoremap', '<lead>mi', '<Cmd>vim9cmd MangleImageTag#Update()<CR>')
+HTML#Map('vnoremap', '<lead>mi', '<ESC>:vim9cmd MangleImageTag#Update()<CR>')
 
 # Insert an HTML template:
-g:HTML#Map('nnoremap', '<lead>html', '<Cmd>if g:HTML#Template() \| startinsert \| endif<CR>')
+HTML#Map('nnoremap', '<lead>html', '<Cmd>if HTML#Template() \| startinsert \| endif<CR>')
 
 # Show a color selection buffer:
-g:HTML#Map('nnoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
-g:HTML#Map('inoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
-g:HTML#Map('vnoremap', '<lead>3', "<ESC>:ColorSelect<CR>")
+HTML#Map('nnoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
+HTML#Map('inoremap', '<lead>3', "<Cmd>ColorSelect<CR>")
+HTML#Map('vnoremap', '<lead>3', "<ESC>:ColorSelect<CR>")
 
 # ----------------------------------------------------------------------------
 
 # ---- General Markup Tag Mappings: ------------------------------------- {{{1
 
 #       SGML Doctype Command
-if g:HTML#BoolVar('b:do_xhtml_mappings')
+if HTML#BoolVar('b:do_xhtml_mappings')
   # Transitional XHTML (Looser):
-  g:HTML#Map('nnoremap', '<lead>4', "<Cmd>eval append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">')<CR>")
+  HTML#Map('nnoremap', '<lead>4', "<Cmd>vim9cmd append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">')<CR>")
   # Strict XHTML:
-  g:HTML#Map('nnoremap', '<lead>s4', "<Cmd>eval append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">')<CR>")
+  HTML#Map('nnoremap', '<lead>s4', "<Cmd>vim9cmd append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">')<CR>")
 else
   # Transitional HTML (Looser):
-  g:HTML#Map('nnoremap', '<lead>4', "<Cmd>eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/loose.dtd\">')<CR>")
+  HTML#Map('nnoremap', '<lead>4', "<Cmd>vim9cmd append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/html4/loose.dtd\">')<CR>")
   # Strict HTML:
-  g:HTML#Map('nnoremap', '<lead>s4', "<Cmd>eval append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| eval append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
+  HTML#Map('nnoremap', '<lead>s4', "<Cmd>vim9cmd append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
 endif
-g:HTML#Map("imap", '<lead>4', "<C-O>" .. g:html_map_leader .. "4")
-g:HTML#Map("imap", '<lead>s4', "<C-O>" .. g:html_map_leader .. "s4")
+HTML#Map("imap", '<lead>4', "<C-O>" .. g:html_map_leader .. "4")
+HTML#Map("imap", '<lead>s4', "<C-O>" .. g:html_map_leader .. "s4")
 
 #       HTML5 Doctype Command           HTML 5
-g:HTML#Map('nnoremap', '<lead>5', "<Cmd>eval append(0, '<!DOCTYPE html>')<CR>")
-g:HTML#Map("imap", '<lead>5', "<C-O>" .. g:html_map_leader .. "5")
+HTML#Map('nnoremap', '<lead>5', "<Cmd>vim9cmd append(0, '<!DOCTYPE html>')<CR>")
+HTML#Map("imap", '<lead>5', "<C-O>" .. g:html_map_leader .. "5")
 
 #       Content-Type META tag
-g:HTML#Map('inoremap', '<lead>ct', '<[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=<C-R>=g:HTML#DetectCharset()<CR>" />')
+HTML#Map('inoremap', '<lead>ct', '<[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=<C-R>=HTML#DetectCharset()<CR>" />')
 
 #       Comment Tag
-g:HTML#Map('inoremap', '<lead>cm', "<C-R>=g:HTML#SmartTag('comment', 'i')<CR>")
+HTML#Map('inoremap', '<lead>cm', "<C-R>=HTML#SmartTag('comment', 'i')<CR>")
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>cm', "<C-C>:execute \"normal \" .. g:HTML#SmartTag('comment', 'v')<CR>", 2)
+HTML#Map('vnoremap', '<lead>cm', "<C-C>:execute \"normal \" .. HTML#SmartTag('comment', 'v')<CR>", 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>cm', 0)
+HTML#Mapo('<lead>cm', 0)
 
 #       A HREF  Anchor Hyperlink        HTML 2.0
-g:HTML#Map('inoremap', '<lead>ah', '<[{A HREF=""></A}]><C-O>F"')
-g:HTML#Map('inoremap', '<lead>aH', '<[{A HREF="<C-R>*"></A}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ah', '<[{A HREF=""></A}]><C-O>F"')
+HTML#Map('inoremap', '<lead>aH', '<[{A HREF="<C-R>*"></A}]><C-O>F<')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>ah', '<ESC>`>a</[{A}]><C-O>`<<[{A HREF}]=""><C-O>F"', 0)
-g:HTML#Map('vnoremap', '<lead>aH', '<ESC>`>a"></[{A}]><C-O>`<<[{A HREF}]="<C-O>f<', 0)
+HTML#Map('vnoremap', '<lead>ah', '<ESC>`>a</[{A}]><C-O>`<<[{A HREF}]=""><C-O>F"', 0)
+HTML#Map('vnoremap', '<lead>aH', '<ESC>`>a"></[{A}]><C-O>`<<[{A HREF}]="<C-O>f<', 0)
 # Motion mappings:
-g:HTML#Mapo('<lead>ah', 1)
-g:HTML#Mapo('<lead>aH', 1)
+HTML#Mapo('<lead>ah', 1)
+HTML#Mapo('<lead>aH', 1)
 
 #       A HREF  Anchor Hyperlink, with TARGET=""
-g:HTML#Map('inoremap', '<lead>at', '<[{A HREF="" TARGET=""></A}]><C-O>3F"')
-g:HTML#Map('inoremap', '<lead>aT', '<[{A HREF="<C-R>*" TARGET=""></A}]><C-O>F"')
+HTML#Map('inoremap', '<lead>at', '<[{A HREF="" TARGET=""></A}]><C-O>3F"')
+HTML#Map('inoremap', '<lead>aT', '<[{A HREF="<C-R>*" TARGET=""></A}]><C-O>F"')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>at', '<ESC>`>a</[{A}]><C-O>`<<[{A HREF="" TARGET}]=""><C-O>3F"', 0)
-g:HTML#Map('vnoremap', '<lead>aT', '<ESC>`>a" [{TARGET=""></A}]><C-O>`<<[{A HREF}]="<C-O>3f"', 0)
+HTML#Map('vnoremap', '<lead>at', '<ESC>`>a</[{A}]><C-O>`<<[{A HREF="" TARGET}]=""><C-O>3F"', 0)
+HTML#Map('vnoremap', '<lead>aT', '<ESC>`>a" [{TARGET=""></A}]><C-O>`<<[{A HREF}]="<C-O>3f"', 0)
 # Motion mappings:
-g:HTML#Mapo('<lead>at', 1)
-g:HTML#Mapo('<lead>aT', 1)
+HTML#Mapo('<lead>at', 1)
+HTML#Mapo('<lead>aT', 1)
 
 #       A NAME  Named Anchor            HTML 2.0
 #       (note this is not HTML 5 compatible, use ID attributes instead)
-# g:HTML#Map('inoremap', '<lead>an', '<[{A NAME=""></A}]><C-O>F"')
-# g:HTML#Map('inoremap', '<lead>aN', '<[{A NAME="<C-R>*"></A}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>an', '<[{A NAME=""></A}]><C-O>F"')
+# HTML#Map('inoremap', '<lead>aN', '<[{A NAME="<C-R>*"></A}]><C-O>F<')
 # Visual mappings:
-# g:HTML#Map('vnoremap', '<lead>an', '<ESC>`>a</[{A}]><C-O>`<<[{A NAME}]=""><C-O>F"', 0)
-# g:HTML#Map('vnoremap', '<lead>aN', '<ESC>`>a"></[{A}]><C-O>`<<[{A NAME}]="<C-O>f<', 0)
+# HTML#Map('vnoremap', '<lead>an', '<ESC>`>a</[{A}]><C-O>`<<[{A NAME}]=""><C-O>F"', 0)
+# HTML#Map('vnoremap', '<lead>aN', '<ESC>`>a"></[{A}]><C-O>`<<[{A NAME}]="<C-O>f<', 0)
 # Motion mappings:
-# g:HTML#Mapo('<lead>an', 1)
-# g:HTML#Mapo('<lead>aN', 1)
+# HTML#Mapo('<lead>an', 1)
+# HTML#Mapo('<lead>aN', 1)
 
 #       ABBR  Abbreviation              HTML 4.0
-g:HTML#Map('inoremap', '<lead>ab', '<[{ABBR TITLE=""></ABBR}]><C-O>F"')
-g:HTML#Map('inoremap', '<lead>aB', '<[{ABBR TITLE="<C-R>*"></ABBR}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ab', '<[{ABBR TITLE=""></ABBR}]><C-O>F"')
+HTML#Map('inoremap', '<lead>aB', '<[{ABBR TITLE="<C-R>*"></ABBR}]><C-O>F<')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>ab', '<ESC>`>a</[{ABBR}]><C-O>`<<[{ABBR TITLE}]=""><C-O>F"', 0)
-g:HTML#Map('vnoremap', '<lead>aB', '<ESC>`>a"></[{ABBR}]><C-O>`<<[{ABBR TITLE}]="<C-O>f<', 0)
+HTML#Map('vnoremap', '<lead>ab', '<ESC>`>a</[{ABBR}]><C-O>`<<[{ABBR TITLE}]=""><C-O>F"', 0)
+HTML#Map('vnoremap', '<lead>aB', '<ESC>`>a"></[{ABBR}]><C-O>`<<[{ABBR TITLE}]="<C-O>f<', 0)
 # Motion mappings:
-g:HTML#Mapo('<lead>ab', 1)
-g:HTML#Mapo('<lead>aB', 1)
+HTML#Mapo('<lead>ab', 1)
+HTML#Mapo('<lead>aB', 1)
 
 #       ACRONYM                         HTML 4.0
 #       (note this is not HTML 5 compatible, use ABBR instead)
-# g:HTML#Map('inoremap', '<lead>ac', '<[{ACRONYM TITLE=""></ACRONYM}]><C-O>F"')
-# g:HTML#Map('inoremap', '<lead>aC', '<[{ACRONYM TITLE="<C-R>*"></ACRONYM}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>ac', '<[{ACRONYM TITLE=""></ACRONYM}]><C-O>F"')
+# HTML#Map('inoremap', '<lead>aC', '<[{ACRONYM TITLE="<C-R>*"></ACRONYM}]><C-O>F<')
 # Visual mappings:
-# g:HTML#Map('vnoremap', '<lead>ac', '<ESC>`>a</[{ACRONYM}]><C-O>`<<[{ACRONYM TITLE}]=""><C-O>F"', 0)
-# g:HTML#Map('vnoremap', '<lead>aC', '<ESC>`>a"></[{ACRONYM}]><C-O>`<<[{ACRONYM TITLE}]="<C-O>f<', 0)
+# HTML#Map('vnoremap', '<lead>ac', '<ESC>`>a</[{ACRONYM}]><C-O>`<<[{ACRONYM TITLE}]=""><C-O>F"', 0)
+# HTML#Map('vnoremap', '<lead>aC', '<ESC>`>a"></[{ACRONYM}]><C-O>`<<[{ACRONYM TITLE}]="<C-O>f<', 0)
 # Motion mappings:
-# g:HTML#Mapo('<lead>ac', 1)
-# g:HTML#Mapo('<lead>aC', 1)
+# HTML#Mapo('<lead>ac', 1)
+# HTML#Mapo('<lead>aC', 1)
 
 #       ADDRESS                         HTML 2.0
-g:HTML#Map('inoremap', '<lead>ad', '<[{ADDRESS></ADDRESS}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ad', '<[{ADDRESS></ADDRESS}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ad', '<ESC>`>a</[{ADDRESS}]><C-O>`<<[{ADDRESS}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>ad', '<ESC>`>a</[{ADDRESS}]><C-O>`<<[{ADDRESS}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>ad', 0)
+HTML#Mapo('<lead>ad', 0)
 
 #       ARTICLE Self-contained content  HTML 5
-g:HTML#Map('inoremap', '<lead>ar', '<[{ARTICLE}]><CR></[{ARTICLE}]><ESC>O')
+HTML#Map('inoremap', '<lead>ar', '<[{ARTICLE}]><CR></[{ARTICLE}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ar', '<ESC>`>a<CR></[{ARTICLE}]><C-O>`<<[{ARTICLE}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>ar', '<ESC>`>a<CR></[{ARTICLE}]><C-O>`<<[{ARTICLE}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>ar', 0)
+HTML#Mapo('<lead>ar', 0)
 
 #       ASIDE   Content aside from context HTML 5
-g:HTML#Map('inoremap', '<lead>as', '<[{ASIDE}]><CR></[{ASIDE}]><ESC>O')
+HTML#Map('inoremap', '<lead>as', '<[{ASIDE}]><CR></[{ASIDE}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>as', '<ESC>`>a<CR></[{ASIDE}]><C-O>`<<[{ASIDE}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>as', '<ESC>`>a<CR></[{ASIDE}]><C-O>`<<[{ASIDE}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>as', 0)
+HTML#Mapo('<lead>as', 0)
 
 #       AUDIO  Audio with controls      HTML 5
-g:HTML#Map('inoremap', '<lead>au', '<[{AUDIO CONTROLS}]><CR><[{SOURCE SRC="" TYPE}]=""><CR>Your browser does not support the audio tag.<CR></[{AUDIO}]><ESC>kk$3F"i')
+HTML#Map('inoremap', '<lead>au', '<[{AUDIO CONTROLS}]><CR><[{SOURCE SRC="" TYPE}]=""><CR>Your browser does not support the audio tag.<CR></[{AUDIO}]><ESC>kk$3F"i')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>au', '<ESC>`>a<CR></[{AUDIO}]><C-O>`<<[{AUDIO CONTROLS}]><CR><[{SOURCE SRC="" TYPE}]=""><CR><ESC>k$3F"l', 1)
+HTML#Map('vnoremap', '<lead>au', '<ESC>`>a<CR></[{AUDIO}]><C-O>`<<[{AUDIO CONTROLS}]><CR><[{SOURCE SRC="" TYPE}]=""><CR><ESC>k$3F"l', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>au', 0)
+HTML#Mapo('<lead>au', 0)
 
 #       B       Boldfaced Text          HTML 2.0
-g:HTML#Map('inoremap', '<lead>bo', "<C-R>=g:HTML#SmartTag('b', 'i')<CR>")
+HTML#Map('inoremap', '<lead>bo', "<C-R>=HTML#SmartTag('b', 'i')<CR>")
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>bo', "<C-C>:execute \"normal \" .. g:HTML#SmartTag('b', 'v')<CR>", 2)
+HTML#Map('vnoremap', '<lead>bo', "<C-C>:execute \"normal \" .. HTML#SmartTag('b', 'v')<CR>", 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>bo', 0)
+HTML#Mapo('<lead>bo', 0)
 
 #       BASE                            HTML 2.0        HEADER
-g:HTML#Map('inoremap', '<lead>bh', '<[{BASE HREF}]="" /><C-O>F"')
+HTML#Map('inoremap', '<lead>bh', '<[{BASE HREF}]="" /><C-O>F"')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>bh', '<ESC>`>a" /><C-O>`<<[{BASE HREF}]="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>bh', '<ESC>`>a" /><C-O>`<<[{BASE HREF}]="<ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>bh', 0)
+HTML#Mapo('<lead>bh', 0)
 
 #       BASE TARGET                     HTML 2.0        HEADER
-g:HTML#Map('inoremap', '<lead>bt', '<[{BASE TARGET}]="" /><C-O>F"')
+HTML#Map('inoremap', '<lead>bt', '<[{BASE TARGET}]="" /><C-O>F"')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>bt', '<ESC>`>a" /><C-O>`<<[{BASE TARGET}]="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>bt', '<ESC>`>a" /><C-O>`<<[{BASE TARGET}]="<ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>bt', 0)
+HTML#Mapo('<lead>bt', 0)
 
 #       BIG                             HTML 3.0
 #       (<BIG> is not HTML 5 compatible, so we use CSS instead)
-# g:HTML#Map('inoremap', '<lead>bi', '<[{BIG></BIG}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>bi', '<[{SPAN STYLE}]="font-size: larger;"></[{SPAN}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>bi', '<[{BIG></BIG}]><C-O>F<')
+HTML#Map('inoremap', '<lead>bi', '<[{SPAN STYLE}]="font-size: larger;"></[{SPAN}]><C-O>F<')
 # Visual mapping:
-# g:HTML#Map('vnoremap', '<lead>bi', '<ESC>`>a</[{BIG}]><C-O>`<<[{BIG}]><ESC>')
-g:HTML#Map('vnoremap', '<lead>bi', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-size: larger;"><ESC>')
+# HTML#Map('vnoremap', '<lead>bi', '<ESC>`>a</[{BIG}]><C-O>`<<[{BIG}]><ESC>')
+HTML#Map('vnoremap', '<lead>bi', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-size: larger;"><ESC>')
 # Motion mapping:
-g:HTML#Mapo('<lead>bi', 0)
+HTML#Mapo('<lead>bi', 0)
 
 #       BLOCKQUOTE                      HTML 2.0
-g:HTML#Map('inoremap', '<lead>bl', '<[{BLOCKQUOTE}]><CR></[{BLOCKQUOTE}]><ESC>O')
+HTML#Map('inoremap', '<lead>bl', '<[{BLOCKQUOTE}]><CR></[{BLOCKQUOTE}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>bl', '<ESC>`>a<CR></[{BLOCKQUOTE}]><C-O>`<<[{BLOCKQUOTE}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>bl', '<ESC>`>a<CR></[{BLOCKQUOTE}]><C-O>`<<[{BLOCKQUOTE}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>bl', 0)
+HTML#Mapo('<lead>bl', 0)
 
 #       BODY                            HTML 2.0
-g:HTML#Map('inoremap', '<lead>bd', '<[{BODY}]><CR></[{BODY}]><ESC>O')
+HTML#Map('inoremap', '<lead>bd', '<[{BODY}]><CR></[{BODY}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>bd', '<ESC>`>a<CR></[{BODY}]><C-O>`<<[{BODY}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>bd', '<ESC>`>a<CR></[{BODY}]><C-O>`<<[{BODY}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>bd', 0)
+HTML#Mapo('<lead>bd', 0)
 
 #       BR      Line break              HTML 2.0
-g:HTML#Map('inoremap', '<lead>br', '<[{BR}] />')
+HTML#Map('inoremap', '<lead>br', '<[{BR}] />')
 
 #       BUTTON  Generic Button
-g:HTML#Map('inoremap', '<lead>bn', '<[{BUTTON TYPE}]="button"></[{BUTTON}]><C-O>F<')
+HTML#Map('inoremap', '<lead>bn', '<[{BUTTON TYPE}]="button"></[{BUTTON}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>bn', '<ESC>`>a</[{BUTTON}]><C-O>`<<[{BUTTON TYPE}]="button"><ESC>', 2)
+HTML#Map('vnoremap', '<lead>bn', '<ESC>`>a</[{BUTTON}]><C-O>`<<[{BUTTON TYPE}]="button"><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>bn', 0)
+HTML#Mapo('<lead>bn', 0)
 
 #       CANVAS                          HTML 5
-g:HTML#Map('inoremap', '<lead>cv', '<[{CANVAS WIDTH="" HEIGHT=""></CANVAS}]><C-O>F<')
+HTML#Map('inoremap', '<lead>cv', '<[{CANVAS WIDTH="" HEIGHT=""></CANVAS}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>cv', '<ESC>`>a</[{CANVAS}]><C-O>`<<[{CANVAS WIDTH="" HEIGHT=""}]><C-O>3F"', 0)
+HTML#Map('vnoremap', '<lead>cv', '<ESC>`>a</[{CANVAS}]><C-O>`<<[{CANVAS WIDTH="" HEIGHT=""}]><C-O>3F"', 0)
 # Motion mapping:
-g:HTML#Mapo('<lead>cv', 1)
+HTML#Mapo('<lead>cv', 1)
 
 #       CENTER                          NETSCAPE
 #       (<CENTER> is not HTML 5 compatible, so we use CSS instead)
-# g:HTML#Map('inoremap', '<lead>ce', '<[{CENTER></CENTER}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>ce', '<[{DIV STYLE}]="text-align: center;"></[{DIV}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>ce', '<[{CENTER></CENTER}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ce', '<[{DIV STYLE}]="text-align: center;"></[{DIV}]><C-O>F<')
 # Visual mapping:
-# g:HTML#Map('vnoremap', '<lead>ce', '<ESC>`>a</[{CENTER}]><C-O>`<<[{CENTER}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>ce', '<ESC>`>a</[{DIV}]><C-O>`<<[{DIV STYLE}]="text-align: center;"><ESC>', 2)
+# HTML#Map('vnoremap', '<lead>ce', '<ESC>`>a</[{CENTER}]><C-O>`<<[{CENTER}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>ce', '<ESC>`>a</[{DIV}]><C-O>`<<[{DIV STYLE}]="text-align: center;"><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>ce', 0)
+HTML#Mapo('<lead>ce', 0)
 
 #       CITE                            HTML 2.0
-g:HTML#Map('inoremap', '<lead>ci', '<[{CITE></CITE}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ci', '<[{CITE></CITE}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ci', '<ESC>`>a</[{CITE}]><C-O>`<<[{CITE}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>ci', '<ESC>`>a</[{CITE}]><C-O>`<<[{CITE}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>ci', 0)
+HTML#Mapo('<lead>ci', 0)
 
 #       CODE                            HTML 2.0
-g:HTML#Map('inoremap', '<lead>co', '<[{CODE></CODE}]><C-O>F<')
+HTML#Map('inoremap', '<lead>co', '<[{CODE></CODE}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>co', '<ESC>`>a</[{CODE}]><C-O>`<<[{CODE}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>co', '<ESC>`>a</[{CODE}]><C-O>`<<[{CODE}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>co', 0)
+HTML#Mapo('<lead>co', 0)
 
 #       DEFINITION LIST COMPONENTS      HTML 5
 #               DL      Description List
 #               DT      Description Term
 #               DD      Description Body
-g:HTML#Map('inoremap', '<lead>dl', '<[{DL}]><CR></[{DL}]><ESC>O')
-g:HTML#Map('inoremap', '<lead>dt', '<[{DT}]></[{DT}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>dd', '<[{DD}]></[{DD}]><C-O>F<')
+HTML#Map('inoremap', '<lead>dl', '<[{DL}]><CR></[{DL}]><ESC>O')
+HTML#Map('inoremap', '<lead>dt', '<[{DT}]></[{DT}]><C-O>F<')
+HTML#Map('inoremap', '<lead>dd', '<[{DD}]></[{DD}]><C-O>F<')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>dl', '<ESC>`>a<CR></[{DL}]><C-O>`<<[{DL}]><CR><ESC>', 1)
-g:HTML#Map('vnoremap', '<lead>dt', '<ESC>`>a</[{DT}]><C-O>`<<[{DT}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>dd', '<ESC>`>a</[{DD}]><C-O>`<<[{DD}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>dl', '<ESC>`>a<CR></[{DL}]><C-O>`<<[{DL}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>dt', '<ESC>`>a</[{DT}]><C-O>`<<[{DT}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>dd', '<ESC>`>a</[{DD}]><C-O>`<<[{DD}]><ESC>', 2)
 # Motion mappings:
-g:HTML#Mapo('<lead>dl', 0)
-g:HTML#Mapo('<lead>dt', 0)
-g:HTML#Mapo('<lead>dd', 0)
+HTML#Mapo('<lead>dl', 0)
+HTML#Mapo('<lead>dt', 0)
+HTML#Mapo('<lead>dd', 0)
 
 #       DEL     Deleted Text            HTML 3.0
-g:HTML#Map('inoremap', '<lead>de', '<lt>[{DEL></DEL}]><C-O>F<')
+HTML#Map('inoremap', '<lead>de', '<lt>[{DEL></DEL}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>de', '<ESC>`>a</[{DEL}]><C-O>`<<lt>[{DEL}]><ESC>')
+HTML#Map('vnoremap', '<lead>de', '<ESC>`>a</[{DEL}]><C-O>`<<lt>[{DEL}]><ESC>')
 # Motion mapping:
-g:HTML#Mapo('<lead>de', 0)
+HTML#Mapo('<lead>de', 0)
 
 #       DETAILS Expandable details      HTML 5
-g:HTML#Map('inoremap', '<lead>ds', '<[{DETAILS}]><CR><[{SUMMARY}]></[{SUMMARY}]><CR><[{P}]><CR></[{P}]><CR></[{DETAILS}]><ESC>3k$F<i')
+HTML#Map('inoremap', '<lead>ds', '<[{DETAILS}]><CR><[{SUMMARY}]></[{SUMMARY}]><CR><[{P}]><CR></[{P}]><CR></[{DETAILS}]><ESC>3k$F<i')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ds', '<ESC>`>a<CR></[{DETAILS}]><C-O>`<<[{DETAILS}]><CR><[{SUMMARY></SUMMARY}]><CR><ESC>k$F<i', 0)
+HTML#Map('vnoremap', '<lead>ds', '<ESC>`>a<CR></[{DETAILS}]><C-O>`<<[{DETAILS}]><CR><[{SUMMARY></SUMMARY}]><CR><ESC>k$F<i', 0)
 # Motion mapping:
-g:HTML#Mapo('<lead>ds', 1)
+HTML#Mapo('<lead>ds', 1)
 
 #       DFN     Defining Instance       HTML 3.0
-g:HTML#Map('inoremap', '<lead>df', '<[{DFN></DFN}]><C-O>F<')
+HTML#Map('inoremap', '<lead>df', '<[{DFN></DFN}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>df', '<ESC>`>a</[{DFN}]><C-O>`<<[{DFN}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>df', '<ESC>`>a</[{DFN}]><C-O>`<<[{DFN}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>df', 0)
+HTML#Mapo('<lead>df', 0)
 
 #       DIV     Document Division       HTML 3.0
-g:HTML#Map('inoremap', '<lead>dv', '<[{DIV}]><CR></[{DIV}]><ESC>O')
+HTML#Map('inoremap', '<lead>dv', '<[{DIV}]><CR></[{DIV}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>dv', '<ESC>`>a<CR></[{DIV}]><C-O>`<<[{DIV}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>dv', '<ESC>`>a<CR></[{DIV}]><C-O>`<<[{DIV}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>dv', 0)
+HTML#Mapo('<lead>dv', 0)
 
 #       SPAN    Delimit Arbitrary Text  HTML 4.0
 #       with CLASS attribute:
-g:HTML#Map('inoremap', '<lead>sn', '<[{SPAN CLASS=""></SPAN}]><C-O>F"')
+HTML#Map('inoremap', '<lead>sn', '<[{SPAN CLASS=""></SPAN}]><C-O>F"')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>sn', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN CLASS}]=""><ESC>F"i', 0)
+HTML#Map('vnoremap', '<lead>sn', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN CLASS}]=""><ESC>F"i', 0)
 # Motion mapping:
-g:HTML#Mapo('<lead>sn', 1)
+HTML#Mapo('<lead>sn', 1)
 #       with STYLE attribute:
-g:HTML#Map('inoremap', '<lead>ss', '<[{SPAN STYLE=""></SPAN}]><C-O>F"')
+HTML#Map('inoremap', '<lead>ss', '<[{SPAN STYLE=""></SPAN}]><C-O>F"')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ss', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]=""><ESC>F"i', 0)
+HTML#Map('vnoremap', '<lead>ss', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]=""><ESC>F"i', 0)
 # Motion mapping:
-g:HTML#Mapo('<lead>ss', 1)
+HTML#Mapo('<lead>ss', 1)
 
 #       EM      Emphasize               HTML 2.0
-g:HTML#Map('inoremap', '<lead>em', "<C-R>=g:HTML#SmartTag('em', 'i')<CR>")
+HTML#Map('inoremap', '<lead>em', "<C-R>=HTML#SmartTag('em', 'i')<CR>")
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>em', "<C-C>:execute \"normal \" .. g:HTML#SmartTag('em', 'v')<CR>", 2)
+HTML#Map('vnoremap', '<lead>em', "<C-C>:execute \"normal \" .. HTML#SmartTag('em', 'v')<CR>", 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>em', 0)
+HTML#Mapo('<lead>em', 0)
 
 #       FONT                            NETSCAPE
 #       (<FONT> is not HTML 5 compatible, so we use CSS instead)
-# g:HTML#Map('inoremap', '<lead>fo', '<[{FONT SIZE=""></FONT}]><C-O>F"')
-# g:HTML#Map('inoremap', '<lead>fc', '<[{FONT COLOR=""></FONT}]><C-O>F"')
-g:HTML#Map('inoremap', '<lead>fo', '<[{SPAN STYLE}]="font-size: ;"></[{SPAN}]><C-O>F;')
-g:HTML#Map('inoremap', '<lead>fc', '<[{SPAN STYLE}]="color: ;"></[{SPAN}]><C-O>F;')
+# HTML#Map('inoremap', '<lead>fo', '<[{FONT SIZE=""></FONT}]><C-O>F"')
+# HTML#Map('inoremap', '<lead>fc', '<[{FONT COLOR=""></FONT}]><C-O>F"')
+HTML#Map('inoremap', '<lead>fo', '<[{SPAN STYLE}]="font-size: ;"></[{SPAN}]><C-O>F;')
+HTML#Map('inoremap', '<lead>fc', '<[{SPAN STYLE}]="color: ;"></[{SPAN}]><C-O>F;')
 # Visual mappings:
-# g:HTML#Map('vnoremap', '<lead>fo', '<ESC>`>a</[{FONT}]><C-O>`<<[{FONT SIZE}]=""><C-O>F"', 0)
-# g:HTML#Map('vnoremap', '<lead>fc', '<ESC>`>a</[{FONT}]><C-O>`<<[{FONT COLOR}]=""><C-O>F"', 0)
-g:HTML#Map('vnoremap', '<lead>fo', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-size: ;"><C-O>F;', 0)
-g:HTML#Map('vnoremap', '<lead>fc', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="color: ;"><C-O>F;', 0)
+# HTML#Map('vnoremap', '<lead>fo', '<ESC>`>a</[{FONT}]><C-O>`<<[{FONT SIZE}]=""><C-O>F"', 0)
+# HTML#Map('vnoremap', '<lead>fc', '<ESC>`>a</[{FONT}]><C-O>`<<[{FONT COLOR}]=""><C-O>F"', 0)
+HTML#Map('vnoremap', '<lead>fo', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-size: ;"><C-O>F;', 0)
+HTML#Map('vnoremap', '<lead>fc', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="color: ;"><C-O>F;', 0)
 # Motion mappings:
-g:HTML#Mapo('<lead>fo', 1)
-g:HTML#Mapo('<lead>fc', 1)
+HTML#Mapo('<lead>fo', 1)
+HTML#Mapo('<lead>fc', 1)
 
 #       FIGURE                          HTML 5
-g:HTML#Map('inoremap', '<lead>fg', '<[{FIGURE><CR></FIGURE}]><ESC>O')
+HTML#Map('inoremap', '<lead>fg', '<[{FIGURE><CR></FIGURE}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>fg', '<ESC>`>a<CR></[{FIGURE}]><C-O>`<<[{FIGURE}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>fg', '<ESC>`>a<CR></[{FIGURE}]><C-O>`<<[{FIGURE}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>fg', 0)
+HTML#Mapo('<lead>fg', 0)
 
 #       Figure Caption                  HTML 5
-g:HTML#Map('inoremap', '<lead>fp', '<[{FIGCAPTION></FIGCAPTION}]><C-O>F<')
+HTML#Map('inoremap', '<lead>fp', '<[{FIGCAPTION></FIGCAPTION}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>fp', '<ESC>`>a</[{FIGCAPTION}]><C-O>`<<[{FIGCAPTION}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>fp', '<ESC>`>a</[{FIGCAPTION}]><C-O>`<<[{FIGCAPTION}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>fp', 0)
+HTML#Mapo('<lead>fp', 0)
 
 #       FOOOTER                         HTML 5
-g:HTML#Map('inoremap', '<lead>ft', '<[{FOOTER><CR></FOOTER}]><ESC>O')
+HTML#Map('inoremap', '<lead>ft', '<[{FOOTER><CR></FOOTER}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ft', '<ESC>`>a<CR></[{FOOTER}]><C-O>`<<[{FOOTER}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>ft', '<ESC>`>a<CR></[{FOOTER}]><C-O>`<<[{FOOTER}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>ft', 0)
+HTML#Mapo('<lead>ft', 0)
 
 #       HEADER                          HTML 5
-g:HTML#Map('inoremap', '<lead>hd', '<[{HEADER><CR></HEADER}]><ESC>O')
+HTML#Map('inoremap', '<lead>hd', '<[{HEADER><CR></HEADER}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>hd', '<ESC>`>a<CR></[{HEADER}]><C-O>`<<[{HEADER}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>hd', '<ESC>`>a<CR></[{HEADER}]><C-O>`<<[{HEADER}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>hd', 0)
+HTML#Mapo('<lead>hd', 0)
 
 #       HEADINGS, LEVELS 1-6            HTML 2.0
-g:HTML#Map('inoremap', '<lead>h1', '<[{H1}]></[{H1}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>h2', '<[{H2}]></[{H2}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>h3', '<[{H3}]></[{H3}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>h4', '<[{H4}]></[{H4}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>h5', '<[{H5}]></[{H5}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>h6', '<[{H6}]></[{H6}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>H1', '<[{H1 STYLE}]="text-align: center;"></[{H1}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>H2', '<[{H2 STYLE}]="text-align: center;"></[{H2}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>H3', '<[{H3 STYLE}]="text-align: center;"></[{H3}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>H4', '<[{H4 STYLE}]="text-align: center;"></[{H4}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>H5', '<[{H5 STYLE}]="text-align: center;"></[{H5}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>H6', '<[{H6 STYLE}]="text-align: center;"></[{H6}]><C-O>F<')
+HTML#Map('inoremap', '<lead>h1', '<[{H1}]></[{H1}]><C-O>F<')
+HTML#Map('inoremap', '<lead>h2', '<[{H2}]></[{H2}]><C-O>F<')
+HTML#Map('inoremap', '<lead>h3', '<[{H3}]></[{H3}]><C-O>F<')
+HTML#Map('inoremap', '<lead>h4', '<[{H4}]></[{H4}]><C-O>F<')
+HTML#Map('inoremap', '<lead>h5', '<[{H5}]></[{H5}]><C-O>F<')
+HTML#Map('inoremap', '<lead>h6', '<[{H6}]></[{H6}]><C-O>F<')
+HTML#Map('inoremap', '<lead>H1', '<[{H1 STYLE}]="text-align: center;"></[{H1}]><C-O>F<')
+HTML#Map('inoremap', '<lead>H2', '<[{H2 STYLE}]="text-align: center;"></[{H2}]><C-O>F<')
+HTML#Map('inoremap', '<lead>H3', '<[{H3 STYLE}]="text-align: center;"></[{H3}]><C-O>F<')
+HTML#Map('inoremap', '<lead>H4', '<[{H4 STYLE}]="text-align: center;"></[{H4}]><C-O>F<')
+HTML#Map('inoremap', '<lead>H5', '<[{H5 STYLE}]="text-align: center;"></[{H5}]><C-O>F<')
+HTML#Map('inoremap', '<lead>H6', '<[{H6 STYLE}]="text-align: center;"></[{H6}]><C-O>F<')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>h1', '<ESC>`>a</[{H1}]><C-O>`<<[{H1}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>h2', '<ESC>`>a</[{H2}]><C-O>`<<[{H2}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>h3', '<ESC>`>a</[{H3}]><C-O>`<<[{H3}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>h4', '<ESC>`>a</[{H4}]><C-O>`<<[{H4}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>h5', '<ESC>`>a</[{H5}]><C-O>`<<[{H5}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>h6', '<ESC>`>a</[{H6}]><C-O>`<<[{H6}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>H1', '<ESC>`>a</[{H1}]><C-O>`<<[{H1 STYLE}]="text-align: center;"><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>H2', '<ESC>`>a</[{H2}]><C-O>`<<[{H2 STYLE}]="text-align: center;"><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>H3', '<ESC>`>a</[{H3}]><C-O>`<<[{H3 STYLE}]="text-align: center;"><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>H4', '<ESC>`>a</[{H4}]><C-O>`<<[{H4 STYLE}]="text-align: center;"><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>H5', '<ESC>`>a</[{H5}]><C-O>`<<[{H5 STYLE}]="text-align: center;"><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>H6', '<ESC>`>a</[{H6}]><C-O>`<<[{H6 STYLE}]="text-align: center;"><ESC>', 2)
+HTML#Map('vnoremap', '<lead>h1', '<ESC>`>a</[{H1}]><C-O>`<<[{H1}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>h2', '<ESC>`>a</[{H2}]><C-O>`<<[{H2}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>h3', '<ESC>`>a</[{H3}]><C-O>`<<[{H3}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>h4', '<ESC>`>a</[{H4}]><C-O>`<<[{H4}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>h5', '<ESC>`>a</[{H5}]><C-O>`<<[{H5}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>h6', '<ESC>`>a</[{H6}]><C-O>`<<[{H6}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>H1', '<ESC>`>a</[{H1}]><C-O>`<<[{H1 STYLE}]="text-align: center;"><ESC>', 2)
+HTML#Map('vnoremap', '<lead>H2', '<ESC>`>a</[{H2}]><C-O>`<<[{H2 STYLE}]="text-align: center;"><ESC>', 2)
+HTML#Map('vnoremap', '<lead>H3', '<ESC>`>a</[{H3}]><C-O>`<<[{H3 STYLE}]="text-align: center;"><ESC>', 2)
+HTML#Map('vnoremap', '<lead>H4', '<ESC>`>a</[{H4}]><C-O>`<<[{H4 STYLE}]="text-align: center;"><ESC>', 2)
+HTML#Map('vnoremap', '<lead>H5', '<ESC>`>a</[{H5}]><C-O>`<<[{H5 STYLE}]="text-align: center;"><ESC>', 2)
+HTML#Map('vnoremap', '<lead>H6', '<ESC>`>a</[{H6}]><C-O>`<<[{H6 STYLE}]="text-align: center;"><ESC>', 2)
 # Motion mappings:
-g:HTML#Mapo('<lead>h1', 0)
-g:HTML#Mapo('<lead>h2', 0)
-g:HTML#Mapo('<lead>h3', 0)
-g:HTML#Mapo('<lead>h4', 0)
-g:HTML#Mapo('<lead>h5', 0)
-g:HTML#Mapo('<lead>h6', 0)
-g:HTML#Mapo('<lead>H1', 0)
-g:HTML#Mapo('<lead>H2', 0)
-g:HTML#Mapo('<lead>H3', 0)
-g:HTML#Mapo('<lead>H4', 0)
-g:HTML#Mapo('<lead>H5', 0)
-g:HTML#Mapo('<lead>H6', 0)
+HTML#Mapo('<lead>h1', 0)
+HTML#Mapo('<lead>h2', 0)
+HTML#Mapo('<lead>h3', 0)
+HTML#Mapo('<lead>h4', 0)
+HTML#Mapo('<lead>h5', 0)
+HTML#Mapo('<lead>h6', 0)
+HTML#Mapo('<lead>H1', 0)
+HTML#Mapo('<lead>H2', 0)
+HTML#Mapo('<lead>H3', 0)
+HTML#Mapo('<lead>H4', 0)
+HTML#Mapo('<lead>H5', 0)
+HTML#Mapo('<lead>H6', 0)
 
 #       HGROUP  Group headings             HTML 5
-g:HTML#Map('inoremap', '<lead>hg', '<[{HGROUP}]><CR></[{HGROUP}]><C-O>O')
+HTML#Map('inoremap', '<lead>hg', '<[{HGROUP}]><CR></[{HGROUP}]><C-O>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>hg', '<ESC>`>a<CR></[{HGROUP}]><C-O>`<<[{HGROUP}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>hg', '<ESC>`>a<CR></[{HGROUP}]><C-O>`<<[{HGROUP}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>hg', 0)
+HTML#Mapo('<lead>hg', 0)
 
 #       HEAD                            HTML 2.0
-g:HTML#Map('inoremap', '<lead>he', '<[{HEAD}]><CR></[{HEAD}]><ESC>O')
+HTML#Map('inoremap', '<lead>he', '<[{HEAD}]><CR></[{HEAD}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>he', '<ESC>`>a<CR></[{HEAD}]><C-O>`<<[{HEAD}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>he', '<ESC>`>a<CR></[{HEAD}]><C-O>`<<[{HEAD}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>he', 0)
+HTML#Mapo('<lead>he', 0)
 
 #       HR      Horizontal Rule         HTML 2.0
-g:HTML#Map('inoremap', '<lead>hr', '<[{HR}] />')
-g:HTML#Map('inoremap', '<lead>Hr', '<[{HR STYLE}]="width: 75%;" />')
+HTML#Map('inoremap', '<lead>hr', '<[{HR}] />')
+HTML#Map('inoremap', '<lead>Hr', '<[{HR STYLE}]="width: 75%;" />')
 
 #       HTML
-if g:HTML#BoolVar('b:do_xhtml_mappings')
-  g:HTML#Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html><ESC>O')
+if HTML#BoolVar('b:do_xhtml_mappings')
+  HTML#Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html><ESC>O')
   # Visual mapping:
-  g:HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></html><C-O>`<<html xmlns="http://www.w3.org/1999/xhtml"><CR><ESC>', 1)
+  HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></html><C-O>`<<html xmlns="http://www.w3.org/1999/xhtml"><CR><ESC>', 1)
 else
-  g:HTML#Map('inoremap', '<lead>ht', '<[{HTML}]><CR></[{HTML}]><ESC>O')
+  HTML#Map('inoremap', '<lead>ht', '<[{HTML}]><CR></[{HTML}]><ESC>O')
   # Visual mapping:
-  g:HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></[{HTML}]><C-O>`<<[{HTML}]><CR><ESC>', 1)
+  HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></[{HTML}]><C-O>`<<[{HTML}]><CR><ESC>', 1)
 endif
 # Motion mapping:
-g:HTML#Mapo('<lead>ht', 0)
+HTML#Mapo('<lead>ht', 0)
 
 #       I       Italicized Text         HTML 2.0
-g:HTML#Map('inoremap', '<lead>it', "<C-R>=g:HTML#SmartTag('i', 'i')<CR>")
+HTML#Map('inoremap', '<lead>it', "<C-R>=HTML#SmartTag('i', 'i')<CR>")
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>it', "<C-C>:execute \"normal \" .. g:HTML#SmartTag('i', 'v')<CR>", 2)
+HTML#Map('vnoremap', '<lead>it', "<C-C>:execute \"normal \" .. HTML#SmartTag('i', 'v')<CR>", 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>it', 0)
+HTML#Mapo('<lead>it', 0)
 
 #       IMG     Image                   HTML 2.0
-g:HTML#Map('inoremap', '<lead>im', '<[{IMG SRC="" ALT}]="" /><C-O>3F"')
-g:HTML#Map('inoremap', '<lead>iM', '<[{IMG SRC="<C-R>*" ALT}]="" /><C-O>F"')
+HTML#Map('inoremap', '<lead>im', '<[{IMG SRC="" ALT}]="" /><C-O>3F"')
+HTML#Map('inoremap', '<lead>iM', '<[{IMG SRC="<C-R>*" ALT}]="" /><C-O>F"')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>im', '<ESC>`>a" /><C-O>`<<[{IMG SRC="" ALT}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>iM', '<ESC>`>a" [{ALT}]="" /><C-O>`<<[{IMG SRC}]="<C-O>3f"', 0)
+HTML#Map('vnoremap', '<lead>im', '<ESC>`>a" /><C-O>`<<[{IMG SRC="" ALT}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>iM', '<ESC>`>a" [{ALT}]="" /><C-O>`<<[{IMG SRC}]="<C-O>3f"', 0)
 # Motion mapping:
-g:HTML#Mapo('<lead>im', 1)
-g:HTML#Mapo('<lead>iM', 1)
+HTML#Mapo('<lead>im', 1)
+HTML#Mapo('<lead>iM', 1)
 
 #       INS     Inserted Text           HTML 3.0
-g:HTML#Map('inoremap', '<lead>in', '<lt>[{INS></INS}]><C-O>F<')
+HTML#Map('inoremap', '<lead>in', '<lt>[{INS></INS}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>in', '<ESC>`>a</[{INS}]><C-O>`<<lt>[{INS}]><ESC>')
+HTML#Map('vnoremap', '<lead>in', '<ESC>`>a</[{INS}]><C-O>`<<lt>[{INS}]><ESC>')
 # Motion mapping:
-g:HTML#Mapo('<lead>in', 0)
+HTML#Mapo('<lead>in', 0)
 
 #       KBD     Keyboard Text           HTML 2.0
-g:HTML#Map('inoremap', '<lead>kb', '<[{KBD></KBD}]><C-O>F<')
+HTML#Map('inoremap', '<lead>kb', '<[{KBD></KBD}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>kb', '<ESC>`>a</[{KBD}]><C-O>`<<[{KBD}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>kb', '<ESC>`>a</[{KBD}]><C-O>`<<[{KBD}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>kb', 0)
+HTML#Mapo('<lead>kb', 0)
 
 #       LI      List Item               HTML 2.0
-g:HTML#Map('inoremap', '<lead>li', '<[{LI}]></[{LI}]><C-O>F<')
+HTML#Map('inoremap', '<lead>li', '<[{LI}]></[{LI}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>li', '<ESC>`>a</[{LI}]><C-O>`<<[{LI}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>li', '<ESC>`>a</[{LI}]><C-O>`<<[{LI}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>li', 0)
+HTML#Mapo('<lead>li', 0)
 
 #       LINK                            HTML 2.0        HEADER
-g:HTML#Map('inoremap', '<lead>lk', '<[{LINK HREF}]="" /><C-O>F"')
+HTML#Map('inoremap', '<lead>lk', '<[{LINK HREF}]="" /><C-O>F"')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>lk', '<ESC>`>a" /><C-O>`<<[{LINK HREF}]="<ESC>')
+HTML#Map('vnoremap', '<lead>lk', '<ESC>`>a" /><C-O>`<<[{LINK HREF}]="<ESC>')
 # Motion mapping:
-g:HTML#Mapo('<lead>lk', 0)
+HTML#Mapo('<lead>lk', 0)
 
 #       MAIN                            HTML 5
-g:HTML#Map('inoremap', '<lead>ma', '<[{MAIN><CR></MAIN}]><ESC>O')
+HTML#Map('inoremap', '<lead>ma', '<[{MAIN><CR></MAIN}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ma', '<ESC>`>a<CR></[{MAIN}]><C-O>`<<[{MAIN}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>ma', '<ESC>`>a<CR></[{MAIN}]><C-O>`<<[{MAIN}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>ma', 0)
+HTML#Mapo('<lead>ma', 0)
 
 #       METER                           HTML 5
-g:HTML#Map('inoremap', '<lead>mt', '<[{METER VALUE="" MIN="" MAX=""></METER}]><C-O>5F"')
+HTML#Map('inoremap', '<lead>mt', '<[{METER VALUE="" MIN="" MAX=""></METER}]><C-O>5F"')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>mt', '<ESC>`>a</[{METER}]><C-O>`<<[{METER VALUE="" MIN="" MAX}]=""><C-O>5F"', 0)
+HTML#Map('vnoremap', '<lead>mt', '<ESC>`>a</[{METER}]><C-O>`<<[{METER VALUE="" MIN="" MAX}]=""><C-O>5F"', 0)
 # Motion mapping:
-g:HTML#Mapo('<lead>mt', 1)
+HTML#Mapo('<lead>mt', 1)
 
 #       MARK                            HTML 5
-g:HTML#Map('inoremap', '<lead>mk', '<[{MARK></MARK}]><C-O>F<')
+HTML#Map('inoremap', '<lead>mk', '<[{MARK></MARK}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>mk', '<ESC>`>a</[{MARK}]><C-O>`<<[{MARK}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>mk', '<ESC>`>a</[{MARK}]><C-O>`<<[{MARK}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>mk', 0)
+HTML#Mapo('<lead>mk', 0)
 
 #       META    Meta Information        HTML 2.0        HEADER
-g:HTML#Map('inoremap', '<lead>me', '<[{META NAME="" CONTENT}]="" /><C-O>3F"')
-g:HTML#Map('inoremap', '<lead>mE', '<[{META NAME="" CONTENT}]="<C-R>*" /><C-O>3F"')
+HTML#Map('inoremap', '<lead>me', '<[{META NAME="" CONTENT}]="" /><C-O>3F"')
+HTML#Map('inoremap', '<lead>mE', '<[{META NAME="" CONTENT}]="<C-R>*" /><C-O>3F"')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>me', '<ESC>`>a" [{CONTENT}]="" /><C-O>`<<[{META NAME}]="<C-O>3f"', 0)
-g:HTML#Map('vnoremap', '<lead>mE', '<ESC>`>a" /><C-O>`<<[{META NAME="" CONTENT}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>me', '<ESC>`>a" [{CONTENT}]="" /><C-O>`<<[{META NAME}]="<C-O>3f"', 0)
+HTML#Map('vnoremap', '<lead>mE', '<ESC>`>a" /><C-O>`<<[{META NAME="" CONTENT}]="<C-O>2F"', 0)
 # Motion mappings:
-g:HTML#Mapo('<lead>me', 1)
-g:HTML#Mapo('<lead>mE', 1)
+HTML#Mapo('<lead>me', 1)
+HTML#Mapo('<lead>mE', 1)
 
 #       META    Meta http-equiv         HTML 2.0        HEADER
-g:HTML#Map('inoremap', '<lead>mh', '<[{META HTTP-EQUIV="" CONTENT}]="" /><C-O>3F"')
+HTML#Map('inoremap', '<lead>mh', '<[{META HTTP-EQUIV="" CONTENT}]="" /><C-O>3F"')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>mh', '<ESC>`>a" /><C-O>`<<[{META HTTP-EQUIV="" CONTENT}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>mh', '<ESC>`>a" /><C-O>`<<[{META HTTP-EQUIV="" CONTENT}]="<C-O>2F"', 0)
 # Motion mappings:
-g:HTML#Mapo('<lead>mh', 1)
+HTML#Mapo('<lead>mh', 1)
 
 #       NAV                             HTML 5
-g:HTML#Map('inoremap', '<lead>na', '<[{NAV><CR></NAV}]><ESC>O')
+HTML#Map('inoremap', '<lead>na', '<[{NAV><CR></NAV}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>na', '<ESC>`>a<CR></[{NAV}]><C-O>`<<[{NAV}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>na', '<ESC>`>a<CR></[{NAV}]><C-O>`<<[{NAV}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>na', 1)
+HTML#Mapo('<lead>na', 1)
 
 #       OL      Ordered List            HTML 3.0
-g:HTML#Map('inoremap', '<lead>ol', '<[{OL}]><CR></[{OL}]><ESC>O')
+HTML#Map('inoremap', '<lead>ol', '<[{OL}]><CR></[{OL}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ol', '<ESC>`>a<CR></[{OL}]><C-O>`<<[{OL}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>ol', '<ESC>`>a<CR></[{OL}]><C-O>`<<[{OL}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>ol', 0)
+HTML#Mapo('<lead>ol', 0)
 
 #       P       Paragraph               HTML 3.0
-g:HTML#Map('inoremap', '<lead>pp', '<[{P}]><CR></[{P}]><ESC>O')
+HTML#Map('inoremap', '<lead>pp', '<[{P}]><CR></[{P}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>pp', '<ESC>`>a<CR></[{P}]><C-O>`<<[{P}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>pp', '<ESC>`>a<CR></[{P}]><C-O>`<<[{P}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>pp', 0)
+HTML#Mapo('<lead>pp', 0)
 # A special mapping... If you're between <P> and </P> this will insert the
 # close tag and then the open tag in insert mode:
-g:HTML#Map('inoremap', '<lead>/p', '</[{P}]><CR><CR><[{P}]><CR>')
+HTML#Map('inoremap', '<lead>/p', '</[{P}]><CR><CR><[{P}]><CR>')
 
 #       PRE     Preformatted Text       HTML 2.0
-g:HTML#Map('inoremap', '<lead>pr', '<[{PRE}]><CR></[{PRE}]><ESC>O')
+HTML#Map('inoremap', '<lead>pr', '<[{PRE}]><CR></[{PRE}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>pr', '<ESC>`>a<CR></[{PRE}]><C-O>`<<[{PRE}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>pr', '<ESC>`>a<CR></[{PRE}]><C-O>`<<[{PRE}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>pr', 0)
+HTML#Mapo('<lead>pr', 0)
 
 #       PROGRESS                        HTML 5
-g:HTML#Map('inoremap', '<lead>pg', '<[{PROGRESS VALUE="" MAX=""></PROGRESS}]><C-O>3F"')
+HTML#Map('inoremap', '<lead>pg', '<[{PROGRESS VALUE="" MAX=""></PROGRESS}]><C-O>3F"')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>pg', '<ESC>`>a" [{MAX=""></PROGRESS}]><C-O>`<<[{PROGRESS VALUE}]="<C-O>3f"', 0)
+HTML#Map('vnoremap', '<lead>pg', '<ESC>`>a" [{MAX=""></PROGRESS}]><C-O>`<<[{PROGRESS VALUE}]="<C-O>3f"', 0)
 # Motion mapping:
-g:HTML#Mapo('<lead>pg', 1)
+HTML#Mapo('<lead>pg', 1)
 
 #       Q       Quote                   HTML 3.0
-g:HTML#Map('inoremap', '<lead>qu', '<[{Q></Q}]><C-O>F<')
+HTML#Map('inoremap', '<lead>qu', '<[{Q></Q}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>qu', '<ESC>`>a</[{Q}]><C-O>`<<[{Q}]><ESC>')
+HTML#Map('vnoremap', '<lead>qu', '<ESC>`>a</[{Q}]><C-O>`<<[{Q}]><ESC>')
 # Motion mapping:
-g:HTML#Mapo('<lead>qu', 0)
+HTML#Mapo('<lead>qu', 0)
 
 #       STRIKE  Strikethrough           HTML 3.0
 #       (note this is not HTML 5 compatible, use DEL instead)
-# g:HTML#Map('inoremap', '<lead>sk', '<[{STRIKE></STRIKE}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>sk', '<[{STRIKE></STRIKE}]><C-O>F<')
 # Visual mapping:
-# g:HTML#Map('vnoremap', '<lead>sk', '<ESC>`>a</[{STRIKE}]><C-O>`<<[{STRIKE}]><ESC>', 2)
+# HTML#Map('vnoremap', '<lead>sk', '<ESC>`>a</[{STRIKE}]><C-O>`<<[{STRIKE}]><ESC>', 2)
 # Motion mapping:
-# g:HTML#Mapo('<lead>sk', 0)
+# HTML#Mapo('<lead>sk', 0)
 
 #       SAMP    Sample Text             HTML 2.0
-g:HTML#Map('inoremap', '<lead>sa', '<[{SAMP></SAMP}]><C-O>F<')
+HTML#Map('inoremap', '<lead>sa', '<[{SAMP></SAMP}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>sa', '<ESC>`>a</[{SAMP}]><C-O>`<<[{SAMP}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>sa', '<ESC>`>a</[{SAMP}]><C-O>`<<[{SAMP}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>sa', 0)
+HTML#Mapo('<lead>sa', 0)
 
 #       SECTION                         HTML 5
-g:HTML#Map('inoremap', '<lead>sc', '<[{SECTION><CR></SECTION}]><ESC>O')
+HTML#Map('inoremap', '<lead>sc', '<[{SECTION><CR></SECTION}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>sc', '<ESC>`>a<CR></[{SECTION}]><C-O>`<<[{SECTION}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>sc', '<ESC>`>a<CR></[{SECTION}]><C-O>`<<[{SECTION}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>sc', 1)
+HTML#Mapo('<lead>sc', 1)
 
 #       SMALL   Small Text              HTML 3.0
 #       (<SMALL> is not HTML 5 compatible, so we use CSS instead)
-# g:HTML#Map('inoremap', '<lead>sm', '<[{SMALL></SMALL}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>sm', '<[{SPAN STYLE}]="font-size: smaller;"></[{SPAN}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>sm', '<[{SMALL></SMALL}]><C-O>F<')
+HTML#Map('inoremap', '<lead>sm', '<[{SPAN STYLE}]="font-size: smaller;"></[{SPAN}]><C-O>F<')
 # Visual mapping:
-# g:HTML#Map('vnoremap', '<lead>sm', '<ESC>`>a</[{SMALL}]><C-O>`<<[{SMALL}]><ESC>')
-g:HTML#Map('vnoremap', '<lead>sm', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-size: smaller;"><ESC>')
+# HTML#Map('vnoremap', '<lead>sm', '<ESC>`>a</[{SMALL}]><C-O>`<<[{SMALL}]><ESC>')
+HTML#Map('vnoremap', '<lead>sm', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-size: smaller;"><ESC>')
 # Motion mapping:
-g:HTML#Mapo('<lead>sm', 0)
+HTML#Mapo('<lead>sm', 0)
 
 #       STRONG  Bold Text               HTML 2.0
-g:HTML#Map('inoremap', '<lead>st', "<C-R>=g:HTML#SmartTag('strong', 'i')<CR>")
+HTML#Map('inoremap', '<lead>st', "<C-R>=HTML#SmartTag('strong', 'i')<CR>")
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>st', "<C-C>:execute \"normal \" .. g:HTML#SmartTag('strong', 'v')<CR>", 2)
+HTML#Map('vnoremap', '<lead>st', "<C-C>:execute \"normal \" .. HTML#SmartTag('strong', 'v')<CR>", 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>st', 0)
+HTML#Mapo('<lead>st', 0)
 
 #       STYLE                           HTML 4.0        HEADER
-g:HTML#Map('inoremap', '<lead>cs', '<[{STYLE TYPE}]="text/css"><CR><!--<CR>--><CR></[{STYLE}]><ESC>kO')
+HTML#Map('inoremap', '<lead>cs', '<[{STYLE TYPE}]="text/css"><CR><!--<CR>--><CR></[{STYLE}]><ESC>kO')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>cs', '<ESC>`>a<CR> --><CR></[{STYLE}]><C-O>`<<[{STYLE TYPE}]="text/css"><CR><!--<CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>cs', '<ESC>`>a<CR> --><CR></[{STYLE}]><C-O>`<<[{STYLE TYPE}]="text/css"><CR><!--<CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>cs', 0)
+HTML#Mapo('<lead>cs', 0)
 
 #       Linked CSS stylesheet
-g:HTML#Map('inoremap', '<lead>ls', '<[{LINK REL}]="stylesheet" [{TYPE}]="text/css" [{HREF}]="" /><C-O>F"')
+HTML#Map('inoremap', '<lead>ls', '<[{LINK REL}]="stylesheet" [{TYPE}]="text/css" [{HREF}]="" /><C-O>F"')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ls', '<ESC>`>a" /><C-O>`<<[{LINK REL}]="stylesheet" [{TYPE}]="text/css" [{HREF}]="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>ls', '<ESC>`>a" /><C-O>`<<[{LINK REL}]="stylesheet" [{TYPE}]="text/css" [{HREF}]="<ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>ls', 0)
+HTML#Mapo('<lead>ls', 0)
 
 #       SUB     Subscript               HTML 3.0
-g:HTML#Map('inoremap', '<lead>sb', '<[{SUB></SUB}]><C-O>F<')
+HTML#Map('inoremap', '<lead>sb', '<[{SUB></SUB}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>sb', '<ESC>`>a</[{SUB}]><C-O>`<<[{SUB}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>sb', '<ESC>`>a</[{SUB}]><C-O>`<<[{SUB}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>sb', 0)
+HTML#Mapo('<lead>sb', 0)
 
 #       SUP     Superscript             HTML 3.0
-g:HTML#Map('inoremap', '<lead>sp', '<[{SUP></SUP}]><C-O>F<')
+HTML#Map('inoremap', '<lead>sp', '<[{SUP></SUP}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>sp', '<ESC>`>a</[{SUP}]><C-O>`<<[{SUP}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>sp', '<ESC>`>a</[{SUP}]><C-O>`<<[{SUP}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>sp', 0)
+HTML#Mapo('<lead>sp', 0)
 
 #       TITLE                           HTML 2.0        HEADER
-g:HTML#Map('inoremap', '<lead>ti', '<[{TITLE></TITLE}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ti', '<[{TITLE></TITLE}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ti', '<ESC>`>a</[{TITLE}]><C-O>`<<[{TITLE}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>ti', '<ESC>`>a</[{TITLE}]><C-O>`<<[{TITLE}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>ti', 0)
+HTML#Mapo('<lead>ti', 0)
 
 #       TIME    Human readable date/time HTML 5
-g:HTML#Map('inoremap', '<lead>tm', '<[{TIME DATETIME=""></TIME}]><C-O>F<')
+HTML#Map('inoremap', '<lead>tm', '<[{TIME DATETIME=""></TIME}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>tm', '<ESC>`>a</[{TIME}]><C-O>`<<[{TIME DATETIME=""}]><ESC>F"i', 0)
+HTML#Map('vnoremap', '<lead>tm', '<ESC>`>a</[{TIME}]><C-O>`<<[{TIME DATETIME=""}]><ESC>F"i', 0)
 # Motion mapping:
-g:HTML#Mapo('<lead>tm', 1)
+HTML#Mapo('<lead>tm', 1)
 
 #       TT      Teletype Text (monospaced)      HTML 2.0
 #       (<TT> is not HTML 5 compatible, so we use CSS instead)
-# g:HTML#Map('inoremap', '<lead>tt', '<[{TT></TT}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>tt', '<[{SPAN STYLE}]="font-family: monospace;"></[{SPAN}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>tt', '<[{TT></TT}]><C-O>F<')
+HTML#Map('inoremap', '<lead>tt', '<[{SPAN STYLE}]="font-family: monospace;"></[{SPAN}]><C-O>F<')
 # Visual mapping:
-# g:HTML#Map('vnoremap', '<lead>tt', '<ESC>`>a</[{TT}]><C-O>`<<[{TT}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>tt', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-family: monospace;"><ESC>', 2)
+# HTML#Map('vnoremap', '<lead>tt', '<ESC>`>a</[{TT}]><C-O>`<<[{TT}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>tt', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="font-family: monospace;"><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>tt', 0)
+HTML#Mapo('<lead>tt', 0)
 
 #       U       Underlined Text         HTML 2.0
-g:HTML#Map('inoremap', '<lead>un', "<C-R>=g:HTML#SmartTag('u', 'i')<CR>")
+HTML#Map('inoremap', '<lead>un', "<C-R>=HTML#SmartTag('u', 'i')<CR>")
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>un', "<C-C>:execute \"normal \" .. g:HTML#SmartTag('u', 'v')<CR>", 2)
+HTML#Map('vnoremap', '<lead>un', "<C-C>:execute \"normal \" .. HTML#SmartTag('u', 'v')<CR>", 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>un', 0)
+HTML#Mapo('<lead>un', 0)
 
 #       UL      Unordered List          HTML 2.0
-g:HTML#Map('inoremap', '<lead>ul', '<[{UL}]><CR></[{UL}]><ESC>O')
+HTML#Map('inoremap', '<lead>ul', '<[{UL}]><CR></[{UL}]><ESC>O')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>ul', '<ESC>`>a<CR></[{UL}]><C-O>`<<[{UL}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>ul', '<ESC>`>a<CR></[{UL}]><C-O>`<<[{UL}]><CR><ESC>', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>ul', 0)
+HTML#Mapo('<lead>ul', 0)
 
 #       VAR     Variable                HTML 3.0
-g:HTML#Map('inoremap', '<lead>va', '<[{VAR></VAR}]><C-O>F<')
+HTML#Map('inoremap', '<lead>va', '<[{VAR></VAR}]><C-O>F<')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>va', '<ESC>`>a</[{VAR}]><C-O>`<<[{VAR}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>va', '<ESC>`>a</[{VAR}]><C-O>`<<[{VAR}]><ESC>', 2)
 # Motion mapping:
-g:HTML#Mapo('<lead>va', 0)
+HTML#Mapo('<lead>va', 0)
 
 #       Embedded JavaScript
-g:HTML#Map('inoremap', '<lead>js', '<C-O>:eval g:HTML#TC(v:false)<CR><[{SCRIPT TYPE}]="text/javascript"><CR><!--<CR>// --><CR></[{SCRIPT}]><ESC>:eval g:HTML#TC(v:true)<CR>kko')
+HTML#Map('inoremap', '<lead>js', '<C-O>:vim9cmd HTML#TC(v:false)<CR><[{SCRIPT TYPE}]="text/javascript"><CR><!--<CR>// --><CR></[{SCRIPT}]><ESC>:vim9cmd HTML#TC(v:true)<CR>kko')
 
 #       Sourced JavaScript
-g:HTML#Map('inoremap', '<lead>sj', '<[{SCRIPT SRC}]="" [{TYPE}]="text/javascript"></[{SCRIPT}]><C-O>3F"')
+HTML#Map('inoremap', '<lead>sj', '<[{SCRIPT SRC}]="" [{TYPE}]="text/javascript"></[{SCRIPT}]><C-O>3F"')
 
 #       EMBED                           HTML 5
-g:HTML#Map('inoremap', '<lead>eb', '<[{EMBED SRC="" WIDTH="" HEIGHT}]="" /><ESC>$5F"i')
+HTML#Map('inoremap', '<lead>eb', '<[{EMBED SRC="" WIDTH="" HEIGHT}]="" /><ESC>$5F"i')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>eb', '<ESC>`>a" [{WIDTH="" HEIGHT}]="" /><C-O>`<<[{EMBED SRC}]="<ESC>$3F"i', 0)
+HTML#Map('vnoremap', '<lead>eb', '<ESC>`>a" [{WIDTH="" HEIGHT}]="" /><C-O>`<<[{EMBED SRC}]="<ESC>$3F"i', 0)
 # Motion mapping:
-g:HTML#Mapo('<lead>eb', 1)
+HTML#Mapo('<lead>eb', 1)
 
 #       NOSCRIPT
-g:HTML#Map('inoremap', '<lead>ns', '<[{NOSCRIPT}]><CR></[{NOSCRIPT}]><C-O>O')
-g:HTML#Map('vnoremap', '<lead>ns', '<ESC>`>a<CR></[{NOSCRIPT}]><C-O>`<<[{NOSCRIPT}]><CR><ESC>', 1)
-g:HTML#Mapo('<lead>ns', 0)
+HTML#Map('inoremap', '<lead>ns', '<[{NOSCRIPT}]><CR></[{NOSCRIPT}]><C-O>O')
+HTML#Map('vnoremap', '<lead>ns', '<ESC>`>a<CR></[{NOSCRIPT}]><C-O>`<<[{NOSCRIPT}]><CR><ESC>', 1)
+HTML#Mapo('<lead>ns', 0)
 
 #       OBJECT
-g:HTML#Map('inoremap', '<lead>ob', '<[{OBJECT DATA="" WIDTH="" HEIGHT}]=""><CR></[{OBJECT}]><ESC>k$5F"i')
-g:HTML#Map('vnoremap', '<lead>ob', '<ESC>`>a<CR></[{OBJECT}]><C-O>`<<[{OBJECT DATA="" WIDTH="" HEIGHT}]=""><CR><ESC>k$5F"', 1)
-g:HTML#Mapo('<lead>ob', 0)
+HTML#Map('inoremap', '<lead>ob', '<[{OBJECT DATA="" WIDTH="" HEIGHT}]=""><CR></[{OBJECT}]><ESC>k$5F"i')
+HTML#Map('vnoremap', '<lead>ob', '<ESC>`>a<CR></[{OBJECT}]><C-O>`<<[{OBJECT DATA="" WIDTH="" HEIGHT}]=""><CR><ESC>k$5F"', 1)
+HTML#Mapo('<lead>ob', 0)
 
 #       PARAM (Object Parameter)
-g:HTML#Map('inoremap', '<lead>pm', '<[{PARAM NAME="" VALUE}]="" /><ESC>3F"i')
-g:HTML#Map('vnoremap', '<lead>pm', '<ESC>`>a" [{VALUE}]="" /><C-O>`<<[{PARAM NAME}]="<ESC>3f"i', 0)
-g:HTML#Mapo('<lead>pm', 0)
+HTML#Map('inoremap', '<lead>pm', '<[{PARAM NAME="" VALUE}]="" /><ESC>3F"i')
+HTML#Map('vnoremap', '<lead>pm', '<ESC>`>a" [{VALUE}]="" /><C-O>`<<[{PARAM NAME}]="<ESC>3f"i', 0)
+HTML#Mapo('<lead>pm', 0)
 
 #       VIDEO  Video with controls      HTML 5
-g:HTML#Map('inoremap', '<lead>vi', '<[{VIDEO WIDTH="" HEIGHT="" CONTROLS}]><CR><[{SOURCE SRC="" TYPE}]=""><CR>Your browser does not support the video tag.<CR></[{VIDEO}]><ESC>kkk$3F"i')
+HTML#Map('inoremap', '<lead>vi', '<[{VIDEO WIDTH="" HEIGHT="" CONTROLS}]><CR><[{SOURCE SRC="" TYPE}]=""><CR>Your browser does not support the video tag.<CR></[{VIDEO}]><ESC>kkk$3F"i')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>vi', '<ESC>`>a<CR></[{VIDEO}]><C-O>`<<[{VIDEO WIDTH="" HEIGHT="" CONTROLS}]><CR><[{SOURCE SRC="" TYPE}]=""><CR><ESC>kk$3F"', 1)
+HTML#Map('vnoremap', '<lead>vi', '<ESC>`>a<CR></[{VIDEO}]><C-O>`<<[{VIDEO WIDTH="" HEIGHT="" CONTROLS}]><CR><[{SOURCE SRC="" TYPE}]=""><CR><ESC>kk$3F"', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>vi', 0)
+HTML#Mapo('<lead>vi', 0)
 
 #       WBR     Possible line break     HTML 5
-g:HTML#Map('inoremap', '<lead>wb', '<[{WBR}] />')
+HTML#Map('inoremap', '<lead>wb', '<[{WBR}] />')
 
 
 # Table stuff:
-g:HTML#Map('inoremap', '<lead>ca', '<[{CAPTION></CAPTION}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>ta', '<[{TABLE}]><CR></[{TABLE}]><ESC>O')
-g:HTML#Map('inoremap', '<lead>tH', '<[{THEAD}]><CR></[{THEAD}]><ESC>O')
-g:HTML#Map('inoremap', '<lead>tb', '<[{TBODY}]><CR></[{TBODY}]><ESC>O')
-g:HTML#Map('inoremap', '<lead>tf', '<[{TFOOT}]><CR></[{TFOOT}]><ESC>O')
-g:HTML#Map('inoremap', '<lead>tr', '<[{TR}]><CR></[{TR}]><ESC>O')
-g:HTML#Map('inoremap', '<lead>td', '<[{TD></TD}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>th', '<[{TH></TH}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ca', '<[{CAPTION></CAPTION}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ta', '<[{TABLE}]><CR></[{TABLE}]><ESC>O')
+HTML#Map('inoremap', '<lead>tH', '<[{THEAD}]><CR></[{THEAD}]><ESC>O')
+HTML#Map('inoremap', '<lead>tb', '<[{TBODY}]><CR></[{TBODY}]><ESC>O')
+HTML#Map('inoremap', '<lead>tf', '<[{TFOOT}]><CR></[{TFOOT}]><ESC>O')
+HTML#Map('inoremap', '<lead>tr', '<[{TR}]><CR></[{TR}]><ESC>O')
+HTML#Map('inoremap', '<lead>td', '<[{TD></TD}]><C-O>F<')
+HTML#Map('inoremap', '<lead>th', '<[{TH></TH}]><C-O>F<')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>ca', '<ESC>`>a<CR></[{CAPTION}]><C-O>`<<[{CAPTION}]><CR><ESC>', 1)
-g:HTML#Map('vnoremap', '<lead>ta', '<ESC>`>a<CR></[{TABLE}]><C-O>`<<[{TABLE}]><CR><ESC>', 1)
-g:HTML#Map('vnoremap', '<lead>tH', '<ESC>`>a<CR></[{THEAD}]><C-O>`<<[{THEAD}]><CR><ESC>', 1)
-g:HTML#Map('vnoremap', '<lead>tb', '<ESC>`>a<CR></[{TBODY}]><C-O>`<<[{TBODY}]><CR><ESC>', 1)
-g:HTML#Map('vnoremap', '<lead>tf', '<ESC>`>a<CR></[{TFOOT}]><C-O>`<<[{TFOOT}]><CR><ESC>', 1)
-g:HTML#Map('vnoremap', '<lead>tr', '<ESC>`>a<CR></[{TR}]><C-O>`<<[{TR}]><CR><ESC>', 1)
-g:HTML#Map('vnoremap', '<lead>td', '<ESC>`>a</[{TD}]><C-O>`<<[{TD}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>th', '<ESC>`>a</[{TH}]><C-O>`<<[{TH}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>ca', '<ESC>`>a<CR></[{CAPTION}]><C-O>`<<[{CAPTION}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>ta', '<ESC>`>a<CR></[{TABLE}]><C-O>`<<[{TABLE}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>tH', '<ESC>`>a<CR></[{THEAD}]><C-O>`<<[{THEAD}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>tb', '<ESC>`>a<CR></[{TBODY}]><C-O>`<<[{TBODY}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>tf', '<ESC>`>a<CR></[{TFOOT}]><C-O>`<<[{TFOOT}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>tr', '<ESC>`>a<CR></[{TR}]><C-O>`<<[{TR}]><CR><ESC>', 1)
+HTML#Map('vnoremap', '<lead>td', '<ESC>`>a</[{TD}]><C-O>`<<[{TD}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>th', '<ESC>`>a</[{TH}]><C-O>`<<[{TH}]><ESC>', 2)
 # Motion mappings:
-g:HTML#Mapo('<lead>ca', 0)
-g:HTML#Mapo('<lead>ta', 0)
-g:HTML#Mapo('<lead>tH', 0)
-g:HTML#Mapo('<lead>tb', 0)
-g:HTML#Mapo('<lead>tf', 0)
-g:HTML#Mapo('<lead>tr', 0)
-g:HTML#Mapo('<lead>td', 0)
-g:HTML#Mapo('<lead>th', 0)
+HTML#Mapo('<lead>ca', 0)
+HTML#Mapo('<lead>ta', 0)
+HTML#Mapo('<lead>tH', 0)
+HTML#Mapo('<lead>tb', 0)
+HTML#Mapo('<lead>tf', 0)
+HTML#Mapo('<lead>tr', 0)
+HTML#Mapo('<lead>td', 0)
+HTML#Mapo('<lead>th', 0)
 
-# Interactively generate a table of Rows x Columns:
-g:HTML#Map('nnoremap', '<lead>tA', ':eval g:HTML#GenerateTable()<CR>')
+# Interactively generate a table:
+HTML#Map('nnoremap', '<lead>tA', ':vim9cmd HTML#GenerateTable()<CR>')
 
 # Frames stuff:
 #       (note this is not HTML 5 compatible)
-# g:HTML#Map('inoremap', '<lead>fs', '<[{FRAMESET ROWS="" COLS}]=""><CR></[{FRAMESET}]><ESC>k$3F"i')
-# g:HTML#Map('inoremap', '<lead>fr', '<[{FRAME SRC}]="" /><C-O>F"')
-# g:HTML#Map('inoremap', '<lead>nf', '<[{NOFRAMES}]><CR></[{NOFRAMES}]><ESC>O')
+# HTML#Map('inoremap', '<lead>fs', '<[{FRAMESET ROWS="" COLS}]=""><CR></[{FRAMESET}]><ESC>k$3F"i')
+# HTML#Map('inoremap', '<lead>fr', '<[{FRAME SRC}]="" /><C-O>F"')
+# HTML#Map('inoremap', '<lead>nf', '<[{NOFRAMES}]><CR></[{NOFRAMES}]><ESC>O')
 # Visual mappings:
-# g:HTML#Map('vnoremap', '<lead>fs', '<ESC>`>a<CR></[{FRAMESET}]><C-O>`<<[{FRAMESET ROWS="" COLS}]=""><CR><ESC>k$3F"', 1)
-# g:HTML#Map('vnoremap', '<lead>fr', '<ESC>`>a" /><C-O>`<<[{FRAME SRC}]="<ESC>')
-# g:HTML#Map('vnoremap', '<lead>nf', '<ESC>`>a<CR></[{NOFRAMES}]><C-O>`<<[{NOFRAMES}]><CR><ESC>', 1)
+# HTML#Map('vnoremap', '<lead>fs', '<ESC>`>a<CR></[{FRAMESET}]><C-O>`<<[{FRAMESET ROWS="" COLS}]=""><CR><ESC>k$3F"', 1)
+# HTML#Map('vnoremap', '<lead>fr', '<ESC>`>a" /><C-O>`<<[{FRAME SRC}]="<ESC>')
+# HTML#Map('vnoremap', '<lead>nf', '<ESC>`>a<CR></[{NOFRAMES}]><C-O>`<<[{NOFRAMES}]><CR><ESC>', 1)
 # Motion mappings:
-# g:HTML#Mapo('<lead>fs', 0)
-# g:HTML#Mapo('<lead>fr', 0)
-# g:HTML#Mapo('<lead>nf', 0)
+# HTML#Mapo('<lead>fs', 0)
+# HTML#Mapo('<lead>fr', 0)
+# HTML#Mapo('<lead>nf', 0)
 
 #       IFRAME  Inline Frame            HTML 4.0
-g:HTML#Map('inoremap', '<lead>if', '<[{IFRAME SRC="" WIDTH="" HEIGHT}]=""><CR></[{IFRAME}]><ESC>k$5F"i')
+HTML#Map('inoremap', '<lead>if', '<[{IFRAME SRC="" WIDTH="" HEIGHT}]=""><CR></[{IFRAME}]><ESC>k$5F"i')
 # Visual mapping:
-g:HTML#Map('vnoremap', '<lead>if', '<ESC>`>a<CR></[{IFRAME}]><C-O>`<<[{IFRAME SRC="" WIDTH="" HEIGHT}]=""><CR><ESC>k$5F"', 1)
+HTML#Map('vnoremap', '<lead>if', '<ESC>`>a<CR></[{IFRAME}]><C-O>`<<[{IFRAME SRC="" WIDTH="" HEIGHT}]=""><CR><ESC>k$5F"', 1)
 # Motion mapping:
-g:HTML#Mapo('<lead>if', 0)
+HTML#Mapo('<lead>if', 0)
 
 # Forms stuff:
-g:HTML#Map('inoremap', '<lead>fm', '<[{FORM ACTION}]=""><CR></[{FORM}]><ESC>k$F"i')
-g:HTML#Map('inoremap', '<lead>fd', '<[{FIELDSET}]><CR><[{LEGEND></LEGEND}]><CR></[{FIELDSET}]><ESC>k$F<i')
-g:HTML#Map('inoremap', '<lead>bu', '<[{INPUT TYPE="BUTTON" NAME="" VALUE}]="" /><C-O>3F"')
-g:HTML#Map('inoremap', '<lead>ch', '<[{INPUT TYPE="CHECKBOX" NAME="" VALUE}]="" /><C-O>3F"')
-g:HTML#Map('inoremap', '<lead>cl', '<[{INPUT TYPE="DATE" NAME}]="" /><C-O>F"')
-g:HTML#Map('inoremap', '<lead>nt', '<[{INPUT TYPE="TIME" NAME}]="" /><C-O>F"')
-g:HTML#Map('inoremap', '<lead>ra', '<[{INPUT TYPE="RADIO" NAME="" VALUE}]="" /><C-O>3F"')
-g:HTML#Map('inoremap', '<lead>rn', '<[{INPUT TYPE="RANGE" NAME="" MIN="" MAX}]="" /><C-O>5F"')
-g:HTML#Map('inoremap', '<lead>hi', '<[{INPUT TYPE="HIDDEN" NAME="" VALUE}]="" /><C-O>3F"')
-g:HTML#Map('inoremap', '<lead>pa', '<[{INPUT TYPE="PASSWORD" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
-g:HTML#Map('inoremap', '<lead>te', '<[{INPUT TYPE="TEXT" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
-g:HTML#Map('inoremap', '<lead>fi', '<[{INPUT TYPE="FILE" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
-g:HTML#Map('inoremap', '<lead>@', '<[{INPUT TYPE="EMAIL" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
-g:HTML#Map('inoremap', '<lead>#', '<[{INPUT TYPE="TEL" NAME="" VALUE="" SIZE}]="15" /><C-O>5F"')
-g:HTML#Map('inoremap', '<lead>nu', '<[{INPUT TYPE="NUMBER" NAME="" VALUE="" STYLE}]="width: 5em;" /><C-O>5F"')
-g:HTML#Map('inoremap', '<lead>ur', '<[{INPUT TYPE="URL" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
-g:HTML#Map('inoremap', '<lead>se', '<[{SELECT NAME}]=""><CR></[{SELECT}]><ESC>O')
-g:HTML#Map('inoremap', '<lead>ms', '<[{SELECT NAME="" MULTIPLE}]><CR></[{SELECT}]><ESC>O')
-g:HTML#Map('inoremap', '<lead>op', '<[{OPTION></OPTION}]><C-O>F<')
-g:HTML#Map('inoremap', '<lead>og', '<[{OPTGROUP LABEL}]=""><CR></[{OPTGROUP}]><ESC>k$F"i')
-g:HTML#Map('inoremap', '<lead>ou', '<[{OUTPUT NAME}]=""></[{OUTPUT}]><C-O>F"')
-g:HTML#Map('inoremap', '<lead>tx', '<[{TEXTAREA NAME="" ROWS="10" COLS}]="50"><CR></[{TEXTAREA}]><ESC>k$5F"i')
-g:HTML#Map('inoremap', '<lead>su', '<[{INPUT TYPE="SUBMIT" VALUE}]="Submit" />')
-g:HTML#Map('inoremap', '<lead>re', '<[{INPUT TYPE="RESET" VALUE}]="Reset" />')
-g:HTML#Map('inoremap', '<lead>la', '<[{LABEL FOR=""></LABEL}]><C-O>F"')
-g:HTML#Map('inoremap', '<lead>da', '<[{INPUT LIST}]=""><CR><[{DATALIST ID}]=""><CR></[{DATALIST}]><CR></[{INPUT}]><ESC>kkk$F"i')
+HTML#Map('inoremap', '<lead>fm', '<[{FORM ACTION}]=""><CR></[{FORM}]><ESC>k$F"i')
+HTML#Map('inoremap', '<lead>fd', '<[{FIELDSET}]><CR><[{LEGEND></LEGEND}]><CR></[{FIELDSET}]><ESC>k$F<i')
+HTML#Map('inoremap', '<lead>bu', '<[{INPUT TYPE="BUTTON" NAME="" VALUE}]="" /><C-O>3F"')
+HTML#Map('inoremap', '<lead>ch', '<[{INPUT TYPE="CHECKBOX" NAME="" VALUE}]="" /><C-O>3F"')
+HTML#Map('inoremap', '<lead>cl', '<[{INPUT TYPE="DATE" NAME}]="" /><C-O>F"')
+HTML#Map('inoremap', '<lead>nt', '<[{INPUT TYPE="TIME" NAME}]="" /><C-O>F"')
+HTML#Map('inoremap', '<lead>ra', '<[{INPUT TYPE="RADIO" NAME="" VALUE}]="" /><C-O>3F"')
+HTML#Map('inoremap', '<lead>rn', '<[{INPUT TYPE="RANGE" NAME="" MIN="" MAX}]="" /><C-O>5F"')
+HTML#Map('inoremap', '<lead>hi', '<[{INPUT TYPE="HIDDEN" NAME="" VALUE}]="" /><C-O>3F"')
+HTML#Map('inoremap', '<lead>pa', '<[{INPUT TYPE="PASSWORD" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
+HTML#Map('inoremap', '<lead>te', '<[{INPUT TYPE="TEXT" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
+HTML#Map('inoremap', '<lead>fi', '<[{INPUT TYPE="FILE" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
+HTML#Map('inoremap', '<lead>@', '<[{INPUT TYPE="EMAIL" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
+HTML#Map('inoremap', '<lead>#', '<[{INPUT TYPE="TEL" NAME="" VALUE="" SIZE}]="15" /><C-O>5F"')
+HTML#Map('inoremap', '<lead>nu', '<[{INPUT TYPE="NUMBER" NAME="" VALUE="" STYLE}]="width: 5em;" /><C-O>5F"')
+HTML#Map('inoremap', '<lead>ur', '<[{INPUT TYPE="URL" NAME="" VALUE="" SIZE}]="20" /><C-O>5F"')
+HTML#Map('inoremap', '<lead>se', '<[{SELECT NAME}]=""><CR></[{SELECT}]><ESC>O')
+HTML#Map('inoremap', '<lead>ms', '<[{SELECT NAME="" MULTIPLE}]><CR></[{SELECT}]><ESC>O')
+HTML#Map('inoremap', '<lead>op', '<[{OPTION></OPTION}]><C-O>F<')
+HTML#Map('inoremap', '<lead>og', '<[{OPTGROUP LABEL}]=""><CR></[{OPTGROUP}]><ESC>k$F"i')
+HTML#Map('inoremap', '<lead>ou', '<[{OUTPUT NAME}]=""></[{OUTPUT}]><C-O>F"')
+HTML#Map('inoremap', '<lead>tx', '<[{TEXTAREA NAME="" ROWS="10" COLS}]="50"><CR></[{TEXTAREA}]><ESC>k$5F"i')
+HTML#Map('inoremap', '<lead>su', '<[{INPUT TYPE="SUBMIT" VALUE}]="Submit" />')
+HTML#Map('inoremap', '<lead>re', '<[{INPUT TYPE="RESET" VALUE}]="Reset" />')
+HTML#Map('inoremap', '<lead>la', '<[{LABEL FOR=""></LABEL}]><C-O>F"')
+HTML#Map('inoremap', '<lead>da', '<[{INPUT LIST}]=""><CR><[{DATALIST ID}]=""><CR></[{DATALIST}]><CR></[{INPUT}]><ESC>kkk$F"i')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>fm', '<ESC>`>a<CR></[{FORM}]><C-O>`<<[{FORM ACTION}]=""><CR><ESC>k$F"', 1)
-g:HTML#Map('vnoremap', '<lead>fd', '<ESC>`>a<CR></[{FIELDSET}]><C-O>`<<[{FIELDSET}]><CR><[{LEGEND></LEGEND}]><CR><ESC>k$F<i', 0)
-g:HTML#Map('vnoremap', '<lead>bu', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="BUTTON" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>ch', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="CHECKBOX" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>cl', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="DATE" NAME}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>nt', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="TIME" NAME}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>ra', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="RADIO" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>rn', '<ESC>`>a" [{MIN="" MAX}]="" /><C-O>`<<[{INPUT TYPE="RANGE" NAME}]="<C-O>3f"', 0)
-g:HTML#Map('vnoremap', '<lead>hi', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="HIDDEN" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>pa', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="PASSWORD" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>te', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="TEXT" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>fi', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="FILE" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>@', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="EMAIL" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>#', '<ESC>`>a" [{SIZE}]="15" /><C-O>`<<[{INPUT TYPE="TEL" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>nu', '<ESC>`>a" [{STYLE}]="width: 5em;" /><C-O>`<<[{INPUT TYPE="NUMBER" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>ur', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="URL" NAME="" VALUE}]="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>se', '<ESC>`>a<CR></[{SELECT}]><C-O>`<<[{SELECT NAME}]=""><CR><ESC>k$F"', 1)
-g:HTML#Map('vnoremap', '<lead>ms', '<ESC>`>a<CR></[{SELECT}]><C-O>`<<[{SELECT NAME="" MULTIPLE}]><CR><ESC>k$F"', 1)
-g:HTML#Map('vnoremap', '<lead>op', '<ESC>`>a</[{OPTION}]><C-O>`<<[{OPTION}]><ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>og', '<ESC>`>a<CR></[{OPTGROUP}]><C-O>`<<[{OPTGROUP LABEL}]=""><CR><ESC>k$F"', 1)
-g:HTML#Map('vnoremap', '<lead>ou', '<ESC>`>a</[{OUTPUT}]><C-O>`<<[{OUTPUT NAME}]=""><C-O>F"', 0)
-g:HTML#Map('vnoremap', '<lead>oU', '<ESC>`>a"></[{OUTPUT}]><C-O>`<<[{OUTPUT NAME}]="<C-O>f<', 0)
-g:HTML#Map('vnoremap', '<lead>tx', '<ESC>`>a<CR></[{TEXTAREA}]><C-O>`<<[{TEXTAREA NAME="" ROWS="10" COLS}]="50"><CR><ESC>k$5F"', 1)
-g:HTML#Map('vnoremap', '<lead>la', '<ESC>`>a</[{LABEL}]><C-O>`<<[{LABEL FOR}]=""><C-O>F"', 0)
-g:HTML#Map('vnoremap', '<lead>lA', '<ESC>`>a"></[{LABEL}]><C-O>`<<[{LABEL FOR}]="<C-O>f<', 0)
-g:HTML#Map('vnoremap', '<lead>da', 's<[{INPUT LIST}]="<C-R>""><CR><[{DATALIST ID}]="<C-R>""><CR></[{DATALIST}]><CR></[{INPUT}]><ESC>kO', 0)
+HTML#Map('vnoremap', '<lead>fm', '<ESC>`>a<CR></[{FORM}]><C-O>`<<[{FORM ACTION}]=""><CR><ESC>k$F"', 1)
+HTML#Map('vnoremap', '<lead>fd', '<ESC>`>a<CR></[{FIELDSET}]><C-O>`<<[{FIELDSET}]><CR><[{LEGEND></LEGEND}]><CR><ESC>k$F<i', 0)
+HTML#Map('vnoremap', '<lead>bu', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="BUTTON" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>ch', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="CHECKBOX" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>cl', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="DATE" NAME}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>nt', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="TIME" NAME}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>ra', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="RADIO" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>rn', '<ESC>`>a" [{MIN="" MAX}]="" /><C-O>`<<[{INPUT TYPE="RANGE" NAME}]="<C-O>3f"', 0)
+HTML#Map('vnoremap', '<lead>hi', '<ESC>`>a" /><C-O>`<<[{INPUT TYPE="HIDDEN" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>pa', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="PASSWORD" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>te', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="TEXT" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>fi', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="FILE" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>@', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="EMAIL" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>#', '<ESC>`>a" [{SIZE}]="15" /><C-O>`<<[{INPUT TYPE="TEL" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>nu', '<ESC>`>a" [{STYLE}]="width: 5em;" /><C-O>`<<[{INPUT TYPE="NUMBER" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>ur', '<ESC>`>a" [{SIZE}]="20" /><C-O>`<<[{INPUT TYPE="URL" NAME="" VALUE}]="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>se', '<ESC>`>a<CR></[{SELECT}]><C-O>`<<[{SELECT NAME}]=""><CR><ESC>k$F"', 1)
+HTML#Map('vnoremap', '<lead>ms', '<ESC>`>a<CR></[{SELECT}]><C-O>`<<[{SELECT NAME="" MULTIPLE}]><CR><ESC>k$F"', 1)
+HTML#Map('vnoremap', '<lead>op', '<ESC>`>a</[{OPTION}]><C-O>`<<[{OPTION}]><ESC>', 2)
+HTML#Map('vnoremap', '<lead>og', '<ESC>`>a<CR></[{OPTGROUP}]><C-O>`<<[{OPTGROUP LABEL}]=""><CR><ESC>k$F"', 1)
+HTML#Map('vnoremap', '<lead>ou', '<ESC>`>a</[{OUTPUT}]><C-O>`<<[{OUTPUT NAME}]=""><C-O>F"', 0)
+HTML#Map('vnoremap', '<lead>oU', '<ESC>`>a"></[{OUTPUT}]><C-O>`<<[{OUTPUT NAME}]="<C-O>f<', 0)
+HTML#Map('vnoremap', '<lead>tx', '<ESC>`>a<CR></[{TEXTAREA}]><C-O>`<<[{TEXTAREA NAME="" ROWS="10" COLS}]="50"><CR><ESC>k$5F"', 1)
+HTML#Map('vnoremap', '<lead>la', '<ESC>`>a</[{LABEL}]><C-O>`<<[{LABEL FOR}]=""><C-O>F"', 0)
+HTML#Map('vnoremap', '<lead>lA', '<ESC>`>a"></[{LABEL}]><C-O>`<<[{LABEL FOR}]="<C-O>f<', 0)
+HTML#Map('vnoremap', '<lead>da', 's<[{INPUT LIST}]="<C-R>""><CR><[{DATALIST ID}]="<C-R>""><CR></[{DATALIST}]><CR></[{INPUT}]><ESC>kO', 0)
 # Motion mappings:
-g:HTML#Mapo('<lead>fm', 0)
-g:HTML#Mapo('<lead>fd', 1)
-g:HTML#Mapo('<lead>bu', 1)
-g:HTML#Mapo('<lead>ch', 1)
-g:HTML#Mapo('<lead>cl', 1)
-g:HTML#Mapo('<lead>nt', 1)
-g:HTML#Mapo('<lead>ra', 1)
-g:HTML#Mapo('<lead>rn', 1)
-g:HTML#Mapo('<lead>hi', 1)
-g:HTML#Mapo('<lead>pa', 1)
-g:HTML#Mapo('<lead>te', 1)
-g:HTML#Mapo('<lead>fi', 1)
-g:HTML#Mapo('<lead>@', 1)
-g:HTML#Mapo('<lead>#', 1)
-g:HTML#Mapo('<lead>nu', 1)
-g:HTML#Mapo('<lead>ur', 1)
-g:HTML#Mapo('<lead>se', 0)
-g:HTML#Mapo('<lead>ms', 0)
-g:HTML#Mapo('<lead>op', 0)
-g:HTML#Mapo('<lead>og', 0)
-g:HTML#Mapo('<lead>ou', 1)
-g:HTML#Mapo('<lead>oU', 1)
-g:HTML#Mapo('<lead>tx', 0)
-g:HTML#Mapo('<lead>la', 1)
-g:HTML#Mapo('<lead>lA', 1)
-g:HTML#Mapo('<lead>da', 1)
+HTML#Mapo('<lead>fm', 0)
+HTML#Mapo('<lead>fd', 1)
+HTML#Mapo('<lead>bu', 1)
+HTML#Mapo('<lead>ch', 1)
+HTML#Mapo('<lead>cl', 1)
+HTML#Mapo('<lead>nt', 1)
+HTML#Mapo('<lead>ra', 1)
+HTML#Mapo('<lead>rn', 1)
+HTML#Mapo('<lead>hi', 1)
+HTML#Mapo('<lead>pa', 1)
+HTML#Mapo('<lead>te', 1)
+HTML#Mapo('<lead>fi', 1)
+HTML#Mapo('<lead>@', 1)
+HTML#Mapo('<lead>#', 1)
+HTML#Mapo('<lead>nu', 1)
+HTML#Mapo('<lead>ur', 1)
+HTML#Mapo('<lead>se', 0)
+HTML#Mapo('<lead>ms', 0)
+HTML#Mapo('<lead>op', 0)
+HTML#Mapo('<lead>og', 0)
+HTML#Mapo('<lead>ou', 1)
+HTML#Mapo('<lead>oU', 1)
+HTML#Mapo('<lead>tx', 0)
+HTML#Mapo('<lead>la', 1)
+HTML#Mapo('<lead>lA', 1)
+HTML#Mapo('<lead>da', 1)
 
 # Server Side Include (SSI) directives:
-g:HTML#Map('inoremap', '<lead>cf', '<!--#config timefmt="" --><C-O>F"')
-g:HTML#Map('inoremap', '<lead>cz', '<!--#config sizefmt="" --><C-O>F"')
-g:HTML#Map('inoremap', '<lead>ev', '<!--#echo var="" --><C-O>F"')
-g:HTML#Map('inoremap', '<lead>iv', '<!--#include virtual="" --><C-O>F"')
-g:HTML#Map('inoremap', '<lead>fv', '<!--#flastmod virtual="" --><C-O>F"')
-g:HTML#Map('inoremap', '<lead>fz', '<!--#fsize virtual="" --><C-O>F"')
-g:HTML#Map('inoremap', '<lead>ec', '<!--#exec cmd="" --><C-O>F"')
-g:HTML#Map('inoremap', '<lead>sv', '<!--#set var="" value="" --><C-O>3F"')
-g:HTML#Map('inoremap', '<lead>ie', '<!--#if expr="" --><CR><!--#else --><CR><!--#endif --><ESC>kk$F"i')
+HTML#Map('inoremap', '<lead>cf', '<!--#config timefmt="" --><C-O>F"')
+HTML#Map('inoremap', '<lead>cz', '<!--#config sizefmt="" --><C-O>F"')
+HTML#Map('inoremap', '<lead>ev', '<!--#echo var="" --><C-O>F"')
+HTML#Map('inoremap', '<lead>iv', '<!--#include virtual="" --><C-O>F"')
+HTML#Map('inoremap', '<lead>fv', '<!--#flastmod virtual="" --><C-O>F"')
+HTML#Map('inoremap', '<lead>fz', '<!--#fsize virtual="" --><C-O>F"')
+HTML#Map('inoremap', '<lead>ec', '<!--#exec cmd="" --><C-O>F"')
+HTML#Map('inoremap', '<lead>sv', '<!--#set var="" value="" --><C-O>3F"')
+HTML#Map('inoremap', '<lead>ie', '<!--#if expr="" --><CR><!--#else --><CR><!--#endif --><ESC>kk$F"i')
 # Visual mappings:
-g:HTML#Map('vnoremap', '<lead>cf', '<ESC>`>a" --><C-O>`<<!--#config timefmt="<ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>cz', '<ESC>`>a" --><C-O>`<<!--#config sizefmt="<ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>ev', '<ESC>`>a" --><C-O>`<<!--#echo var="<ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>iv', '<ESC>`>a" --><C-O>`<<!--#include virtual="<ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>fv', '<ESC>`>a" --><C-O>`<<!--#flastmod virtual="<ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>fz', '<ESC>`>a" --><C-O>`<<!--#fsize virtual="<ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>ec', '<ESC>`>a" --><C-O>`<<!--#exec cmd="<ESC>', 2)
-g:HTML#Map('vnoremap', '<lead>sv', '<ESC>`>a" --><C-O>`<<!--#set var="" value="<C-O>2F"', 0)
-g:HTML#Map('vnoremap', '<lead>ie', '<ESC>`>a<CR><!--#else --><CR><!--#endif --><C-O>`<<!--#if expr="" --><CR><ESC>kf"a', 0)
+HTML#Map('vnoremap', '<lead>cf', '<ESC>`>a" --><C-O>`<<!--#config timefmt="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>cz', '<ESC>`>a" --><C-O>`<<!--#config sizefmt="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>ev', '<ESC>`>a" --><C-O>`<<!--#echo var="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>iv', '<ESC>`>a" --><C-O>`<<!--#include virtual="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>fv', '<ESC>`>a" --><C-O>`<<!--#flastmod virtual="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>fz', '<ESC>`>a" --><C-O>`<<!--#fsize virtual="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>ec', '<ESC>`>a" --><C-O>`<<!--#exec cmd="<ESC>', 2)
+HTML#Map('vnoremap', '<lead>sv', '<ESC>`>a" --><C-O>`<<!--#set var="" value="<C-O>2F"', 0)
+HTML#Map('vnoremap', '<lead>ie', '<ESC>`>a<CR><!--#else --><CR><!--#endif --><C-O>`<<!--#if expr="" --><CR><ESC>kf"a', 0)
 # Motion mappings:
-g:HTML#Mapo('<lead>cf', 0)
-g:HTML#Mapo('<lead>cz', 0)
-g:HTML#Mapo('<lead>ev', 0)
-g:HTML#Mapo('<lead>iv', 0)
-g:HTML#Mapo('<lead>fv', 0)
-g:HTML#Mapo('<lead>fz', 0)
-g:HTML#Mapo('<lead>ec', 0)
-g:HTML#Mapo('<lead>sv', 1)
-g:HTML#Mapo('<lead>ie', 1)
+HTML#Mapo('<lead>cf', 0)
+HTML#Mapo('<lead>cz', 0)
+HTML#Mapo('<lead>ev', 0)
+HTML#Mapo('<lead>iv', 0)
+HTML#Mapo('<lead>fv', 0)
+HTML#Mapo('<lead>fz', 0)
+HTML#Mapo('<lead>ec', 0)
+HTML#Mapo('<lead>sv', 1)
+HTML#Mapo('<lead>ie', 1)
 
 # ----------------------------------------------------------------------------
 
-# ---- Special Character (Character Entities) Mappings: ----------------- {{{1
+# ---- Character Entities Mappings: ------------------------------------- {{{1
 
 # Convert the character under the cursor or the highlighted string to decimal
 # HTML entities:
-g:HTML#Map('vnoremap', '<lead>&', "s<C-R>=g:HTML#SI(g:HTML#EncodeString(@\"))<CR><Esc>")
-g:HTML#Mapo('<lead>&', 0)
+HTML#Map('vnoremap', '<lead>&', "s<C-R>=HTML#SI(HTML#EncodeString(@\"))<CR><Esc>")
+HTML#Mapo('<lead>&', 0)
 
 # Convert the character under the cursor or the highlighted string to hex
 # HTML entities:
-g:HTML#Map('vnoremap', '<lead>*', "s<C-R>=g:HTML#SI(g:HTML#EncodeString(@\", 'x'))<CR><Esc>")
-g:HTML#Mapo('<lead>*', 0)
+HTML#Map('vnoremap', '<lead>*', "s<C-R>=HTML#SI(HTML#EncodeString(@\", 'x'))<CR><Esc>")
+HTML#Mapo('<lead>*', 0)
 
 # Convert the character under the cursor or the highlighted string to a %XX
 # string:
-g:HTML#Map('vnoremap', '<lead>%', "s<C-R>=g:HTML#SI(g:HTML#EncodeString(@\", '%'))<CR><Esc>")
-g:HTML#Mapo('<lead>%', 0)
+HTML#Map('vnoremap', '<lead>%', "s<C-R>=HTML#SI(HTML#EncodeString(@\", '%'))<CR><Esc>")
+HTML#Mapo('<lead>%', 0)
 
 # Decode a &#...; or %XX encoded string:
-g:HTML#Map('vnoremap', '<lead>^', "s<C-R>=g:HTML#SI(g:HTML#EncodeString(@\", 'd'))<CR><Esc>")
-g:HTML#Mapo('<lead>^', 0)
+HTML#Map('vnoremap', '<lead>^', "s<C-R>=HTML#SI(HTML#EncodeString(@\", 'd'))<CR><Esc>")
+HTML#Mapo('<lead>^', 0)
 
-g:HTML#Map('inoremap', '<elead>&', '&amp;')
-g:HTML#Map('inoremap', '<elead>cO', '&copy;')
-g:HTML#Map('inoremap', '<elead>rO', '&reg;')
-g:HTML#Map('inoremap', '<elead>tm', '&trade;')
-g:HTML#Map('inoremap', "<elead>'", '&quot;')
-g:HTML#Map('inoremap', "<elead>l'", '&lsquo;')
-g:HTML#Map('inoremap', "<elead>r'", '&rsquo;')
-g:HTML#Map('inoremap', '<elead>l"', '&ldquo;')
-g:HTML#Map('inoremap', '<elead>r"', '&rdquo;')
-g:HTML#Map('inoremap', '<elead><', '&lt;')
-g:HTML#Map('inoremap', '<elead>>', '&gt;')
-g:HTML#Map('inoremap', '<elead><space>', '&nbsp;')
-g:HTML#Map('inoremap', '<lead><space>', '&nbsp;')
-g:HTML#Map('inoremap', '<elead>#', '&pound;')
-g:HTML#Map('inoremap', '<elead>E=', '&euro;')
-g:HTML#Map('inoremap', '<elead>Y=', '&yen;')
-g:HTML#Map('inoremap', '<elead>c\|', '&cent;')
-g:HTML#Map('inoremap', '<elead>A`', '&Agrave;')
-g:HTML#Map('inoremap', "<elead>A'", '&Aacute;')
-g:HTML#Map('inoremap', '<elead>A^', '&Acirc;')
-g:HTML#Map('inoremap', '<elead>A~', '&Atilde;')
-g:HTML#Map('inoremap', '<elead>A"', '&Auml;')
-g:HTML#Map('inoremap', '<elead>Ao', '&Aring;')
-g:HTML#Map('inoremap', '<elead>AE', '&AElig;')
-g:HTML#Map('inoremap', '<elead>C,', '&Ccedil;')
-g:HTML#Map('inoremap', '<elead>E`', '&Egrave;')
-g:HTML#Map('inoremap', "<elead>E'", '&Eacute;')
-g:HTML#Map('inoremap', '<elead>E^', '&Ecirc;')
-g:HTML#Map('inoremap', '<elead>E"', '&Euml;')
-g:HTML#Map('inoremap', '<elead>I`', '&Igrave;')
-g:HTML#Map('inoremap', "<elead>I'", '&Iacute;')
-g:HTML#Map('inoremap', '<elead>I^', '&Icirc;')
-g:HTML#Map('inoremap', '<elead>I"', '&Iuml;')
-g:HTML#Map('inoremap', '<elead>N~', '&Ntilde;')
-g:HTML#Map('inoremap', '<elead>O`', '&Ograve;')
-g:HTML#Map('inoremap', "<elead>O'", '&Oacute;')
-g:HTML#Map('inoremap', '<elead>O^', '&Ocirc;')
-g:HTML#Map('inoremap', '<elead>O~', '&Otilde;')
-g:HTML#Map('inoremap', '<elead>O"', '&Ouml;')
-g:HTML#Map('inoremap', '<elead>O/', '&Oslash;')
-g:HTML#Map('inoremap', '<elead>U`', '&Ugrave;')
-g:HTML#Map('inoremap', "<elead>U'", '&Uacute;')
-g:HTML#Map('inoremap', '<elead>U^', '&Ucirc;')
-g:HTML#Map('inoremap', '<elead>U"', '&Uuml;')
-g:HTML#Map('inoremap', "<elead>Y'", '&Yacute;')
-g:HTML#Map('inoremap', '<elead>a`', '&agrave;')
-g:HTML#Map('inoremap', "<elead>a'", '&aacute;')
-g:HTML#Map('inoremap', '<elead>a^', '&acirc;')
-g:HTML#Map('inoremap', '<elead>a~', '&atilde;')
-g:HTML#Map('inoremap', '<elead>a"', '&auml;')
-g:HTML#Map('inoremap', '<elead>ao', '&aring;')
-g:HTML#Map('inoremap', '<elead>ae', '&aelig;')
-g:HTML#Map('inoremap', '<elead>c,', '&ccedil;')
-g:HTML#Map('inoremap', '<elead>e`', '&egrave;')
-g:HTML#Map('inoremap', "<elead>e'", '&eacute;')
-g:HTML#Map('inoremap', '<elead>e^', '&ecirc;')
-g:HTML#Map('inoremap', '<elead>e"', '&euml;')
-g:HTML#Map('inoremap', '<elead>i`', '&igrave;')
-g:HTML#Map('inoremap', "<elead>i'", '&iacute;')
-g:HTML#Map('inoremap', '<elead>i^', '&icirc;')
-g:HTML#Map('inoremap', '<elead>i"', '&iuml;')
-g:HTML#Map('inoremap', '<elead>n~', '&ntilde;')
-g:HTML#Map('inoremap', '<elead>o`', '&ograve;')
-g:HTML#Map('inoremap', "<elead>o'", '&oacute;')
-g:HTML#Map('inoremap', '<elead>o^', '&ocirc;')
-g:HTML#Map('inoremap', '<elead>o~', '&otilde;')
-g:HTML#Map('inoremap', '<elead>o"', '&ouml;')
-g:HTML#Map('inoremap', '<elead>u`', '&ugrave;')
-g:HTML#Map('inoremap', "<elead>u'", '&uacute;')
-g:HTML#Map('inoremap', '<elead>u^', '&ucirc;')
-g:HTML#Map('inoremap', '<elead>u"', '&uuml;')
-g:HTML#Map('inoremap', "<elead>y'", '&yacute;')
-g:HTML#Map('inoremap', '<elead>y"', '&yuml;')
-g:HTML#Map('inoremap', '<elead>2<', '&laquo;')
-g:HTML#Map('inoremap', '<elead>2>', '&raquo;')
-g:HTML#Map('inoremap', '<elead>"', '&uml;')
-g:HTML#Map('inoremap', '<elead>o/', '&oslash;')
-g:HTML#Map('inoremap', '<elead>sz', '&szlig;')
-g:HTML#Map('inoremap', '<elead>!', '&iexcl;')
-g:HTML#Map('inoremap', '<elead>?', '&iquest;')
-g:HTML#Map('inoremap', '<elead>dg', '&deg;')
-g:HTML#Map('inoremap', '<elead>0^', '&#x2070;')
-g:HTML#Map('inoremap', '<elead>1^', '&sup1;')
-g:HTML#Map('inoremap', '<elead>2^', '&sup2;')
-g:HTML#Map('inoremap', '<elead>3^', '&sup3;')
-g:HTML#Map('inoremap', '<elead>4^', '&#x2074;')
-g:HTML#Map('inoremap', '<elead>5^', '&#x2075;')
-g:HTML#Map('inoremap', '<elead>6^', '&#x2076;')
-g:HTML#Map('inoremap', '<elead>7^', '&#x2077;')
-g:HTML#Map('inoremap', '<elead>8^', '&#x2078;')
-g:HTML#Map('inoremap', '<elead>9^', '&#x2079;')
-g:HTML#Map('inoremap', '<elead>0v', '&#x2080;')
-g:HTML#Map('inoremap', '<elead>1v', '&#x2081;')
-g:HTML#Map('inoremap', '<elead>2v', '&#x2082;')
-g:HTML#Map('inoremap', '<elead>3v', '&#x2083;')
-g:HTML#Map('inoremap', '<elead>4v', '&#x2084;')
-g:HTML#Map('inoremap', '<elead>5v', '&#x2085;')
-g:HTML#Map('inoremap', '<elead>6v', '&#x2086;')
-g:HTML#Map('inoremap', '<elead>7v', '&#x2087;')
-g:HTML#Map('inoremap', '<elead>8v', '&#x2088;')
-g:HTML#Map('inoremap', '<elead>9v', '&#x2089;')
-g:HTML#Map('inoremap', '<elead>mi', '&micro;')
-g:HTML#Map('inoremap', '<elead>pa', '&para;')
-g:HTML#Map('inoremap', '<elead>se', '&sect;')
-g:HTML#Map('inoremap', '<elead>.', '&middot;')
-g:HTML#Map('inoremap', '<elead>*', '&bull;')
-g:HTML#Map('inoremap', '<elead>x', '&times;')
-g:HTML#Map('inoremap', '<elead>/', '&divide;')
-g:HTML#Map('inoremap', '<elead>+-', '&plusmn;')
-g:HTML#Map('inoremap', '<elead>n-', '&ndash;')  # Math symbol
-g:HTML#Map('inoremap', '<elead>2-', '&ndash;')  # ...
-g:HTML#Map('inoremap', '<elead>m-', '&mdash;')  # Sentence break
-g:HTML#Map('inoremap', '<elead>3-', '&mdash;')  # ...
-g:HTML#Map('inoremap', '<elead>--', '&mdash;')  # ...
-g:HTML#Map('inoremap', '<elead>3.', '&hellip;')
+# TODO: Expand these mappings based on the table in autoload/HTML.vim
+
+HTML#Map('inoremap', '<elead>&', '&amp;')
+HTML#Map('inoremap', '<elead>cO', '&copy;')
+HTML#Map('inoremap', '<elead>rO', '&reg;')
+HTML#Map('inoremap', '<elead>tm', '&trade;')
+HTML#Map('inoremap', "<elead>'", '&quot;')
+HTML#Map('inoremap', "<elead>l'", '&lsquo;')
+HTML#Map('inoremap', "<elead>r'", '&rsquo;')
+HTML#Map('inoremap', '<elead>l"', '&ldquo;')
+HTML#Map('inoremap', '<elead>r"', '&rdquo;')
+HTML#Map('inoremap', '<elead><', '&lt;')
+HTML#Map('inoremap', '<elead>>', '&gt;')
+HTML#Map('inoremap', '<elead><space>', '&nbsp;')
+HTML#Map('inoremap', '<lead><space>', '&nbsp;')
+HTML#Map('inoremap', '<elead>#', '&pound;')
+HTML#Map('inoremap', '<elead>E=', '&euro;')
+HTML#Map('inoremap', '<elead>Y=', '&yen;')
+HTML#Map('inoremap', '<elead>c\|', '&cent;')
+HTML#Map('inoremap', '<elead>A`', '&Agrave;')
+HTML#Map('inoremap', "<elead>A'", '&Aacute;')
+HTML#Map('inoremap', '<elead>A^', '&Acirc;')
+HTML#Map('inoremap', '<elead>A~', '&Atilde;')
+HTML#Map('inoremap', '<elead>A"', '&Auml;')
+HTML#Map('inoremap', '<elead>Ao', '&Aring;')
+HTML#Map('inoremap', '<elead>AE', '&AElig;')
+HTML#Map('inoremap', '<elead>C,', '&Ccedil;')
+HTML#Map('inoremap', '<elead>E`', '&Egrave;')
+HTML#Map('inoremap', "<elead>E'", '&Eacute;')
+HTML#Map('inoremap', '<elead>E^', '&Ecirc;')
+HTML#Map('inoremap', '<elead>E"', '&Euml;')
+HTML#Map('inoremap', '<elead>I`', '&Igrave;')
+HTML#Map('inoremap', "<elead>I'", '&Iacute;')
+HTML#Map('inoremap', '<elead>I^', '&Icirc;')
+HTML#Map('inoremap', '<elead>I"', '&Iuml;')
+HTML#Map('inoremap', '<elead>N~', '&Ntilde;')
+HTML#Map('inoremap', '<elead>O`', '&Ograve;')
+HTML#Map('inoremap', "<elead>O'", '&Oacute;')
+HTML#Map('inoremap', '<elead>O^', '&Ocirc;')
+HTML#Map('inoremap', '<elead>O~', '&Otilde;')
+HTML#Map('inoremap', '<elead>O"', '&Ouml;')
+HTML#Map('inoremap', '<elead>O/', '&Oslash;')
+HTML#Map('inoremap', '<elead>U`', '&Ugrave;')
+HTML#Map('inoremap', "<elead>U'", '&Uacute;')
+HTML#Map('inoremap', '<elead>U^', '&Ucirc;')
+HTML#Map('inoremap', '<elead>U"', '&Uuml;')
+HTML#Map('inoremap', "<elead>Y'", '&Yacute;')
+HTML#Map('inoremap', '<elead>a`', '&agrave;')
+HTML#Map('inoremap', "<elead>a'", '&aacute;')
+HTML#Map('inoremap', '<elead>a^', '&acirc;')
+HTML#Map('inoremap', '<elead>a~', '&atilde;')
+HTML#Map('inoremap', '<elead>a"', '&auml;')
+HTML#Map('inoremap', '<elead>ao', '&aring;')
+HTML#Map('inoremap', '<elead>ae', '&aelig;')
+HTML#Map('inoremap', '<elead>c,', '&ccedil;')
+HTML#Map('inoremap', '<elead>e`', '&egrave;')
+HTML#Map('inoremap', "<elead>e'", '&eacute;')
+HTML#Map('inoremap', '<elead>e^', '&ecirc;')
+HTML#Map('inoremap', '<elead>e"', '&euml;')
+HTML#Map('inoremap', '<elead>i`', '&igrave;')
+HTML#Map('inoremap', "<elead>i'", '&iacute;')
+HTML#Map('inoremap', '<elead>i^', '&icirc;')
+HTML#Map('inoremap', '<elead>i"', '&iuml;')
+HTML#Map('inoremap', '<elead>n~', '&ntilde;')
+HTML#Map('inoremap', '<elead>o`', '&ograve;')
+HTML#Map('inoremap', "<elead>o'", '&oacute;')
+HTML#Map('inoremap', '<elead>o^', '&ocirc;')
+HTML#Map('inoremap', '<elead>o~', '&otilde;')
+HTML#Map('inoremap', '<elead>o"', '&ouml;')
+HTML#Map('inoremap', '<elead>u`', '&ugrave;')
+HTML#Map('inoremap', "<elead>u'", '&uacute;')
+HTML#Map('inoremap', '<elead>u^', '&ucirc;')
+HTML#Map('inoremap', '<elead>u"', '&uuml;')
+HTML#Map('inoremap', "<elead>y'", '&yacute;')
+HTML#Map('inoremap', '<elead>y"', '&yuml;')
+HTML#Map('inoremap', '<elead>2<', '&laquo;')
+HTML#Map('inoremap', '<elead>2>', '&raquo;')
+HTML#Map('inoremap', '<elead>"', '&uml;')
+HTML#Map('inoremap', '<elead>o/', '&oslash;')
+HTML#Map('inoremap', '<elead>sz', '&szlig;')
+HTML#Map('inoremap', '<elead>!', '&iexcl;')
+HTML#Map('inoremap', '<elead>?', '&iquest;')
+HTML#Map('inoremap', '<elead>dg', '&deg;')
+HTML#Map('inoremap', '<elead>0^', '&#x2070;')
+HTML#Map('inoremap', '<elead>1^', '&sup1;')
+HTML#Map('inoremap', '<elead>2^', '&sup2;')
+HTML#Map('inoremap', '<elead>3^', '&sup3;')
+HTML#Map('inoremap', '<elead>4^', '&#x2074;')
+HTML#Map('inoremap', '<elead>5^', '&#x2075;')
+HTML#Map('inoremap', '<elead>6^', '&#x2076;')
+HTML#Map('inoremap', '<elead>7^', '&#x2077;')
+HTML#Map('inoremap', '<elead>8^', '&#x2078;')
+HTML#Map('inoremap', '<elead>9^', '&#x2079;')
+HTML#Map('inoremap', '<elead>0v', '&#x2080;')
+HTML#Map('inoremap', '<elead>1v', '&#x2081;')
+HTML#Map('inoremap', '<elead>2v', '&#x2082;')
+HTML#Map('inoremap', '<elead>3v', '&#x2083;')
+HTML#Map('inoremap', '<elead>4v', '&#x2084;')
+HTML#Map('inoremap', '<elead>5v', '&#x2085;')
+HTML#Map('inoremap', '<elead>6v', '&#x2086;')
+HTML#Map('inoremap', '<elead>7v', '&#x2087;')
+HTML#Map('inoremap', '<elead>8v', '&#x2088;')
+HTML#Map('inoremap', '<elead>9v', '&#x2089;')
+HTML#Map('inoremap', '<elead>mi', '&micro;')
+HTML#Map('inoremap', '<elead>pa', '&para;')
+HTML#Map('inoremap', '<elead>se', '&sect;')
+HTML#Map('inoremap', '<elead>.', '&middot;')
+HTML#Map('inoremap', '<elead>*', '&bull;')
+HTML#Map('inoremap', '<elead>x', '&times;')
+HTML#Map('inoremap', '<elead>/', '&divide;')
+HTML#Map('inoremap', '<elead>+-', '&plusmn;')
+HTML#Map('inoremap', '<elead>n-', '&ndash;')  # Math symbol
+HTML#Map('inoremap', '<elead>2-', '&ndash;')  # ...
+HTML#Map('inoremap', '<elead>m-', '&mdash;')  # Sentence break
+HTML#Map('inoremap', '<elead>3-', '&mdash;')  # ...
+HTML#Map('inoremap', '<elead>--', '&mdash;')  # ...
+HTML#Map('inoremap', '<elead>3.', '&hellip;')
 # Fractions:
-g:HTML#Map('inoremap', '<elead>14', '&frac14;')
-g:HTML#Map('inoremap', '<elead>12', '&frac12;')
-g:HTML#Map('inoremap', '<elead>34', '&frac34;')
-g:HTML#Map('inoremap', '<elead>13', '&frac13;')
-g:HTML#Map('inoremap', '<elead>23', '&frac23;')
-g:HTML#Map('inoremap', '<elead>15', '&frac15;')
-g:HTML#Map('inoremap', '<elead>25', '&frac25;')
-g:HTML#Map('inoremap', '<elead>35', '&frac35;')
-g:HTML#Map('inoremap', '<elead>45', '&frac45;')
-g:HTML#Map('inoremap', '<elead>16', '&frac16;')
-g:HTML#Map('inoremap', '<elead>56', '&frac56;')
-g:HTML#Map('inoremap', '<elead>18', '&frac18;')
-g:HTML#Map('inoremap', '<elead>38', '&frac38;')
-g:HTML#Map('inoremap', '<elead>58', '&frac58;')
-g:HTML#Map('inoremap', '<elead>78', '&frac78;')
+HTML#Map('inoremap', '<elead>14', '&frac14;')
+HTML#Map('inoremap', '<elead>12', '&frac12;')
+HTML#Map('inoremap', '<elead>34', '&frac34;')
+HTML#Map('inoremap', '<elead>13', '&frac13;')
+HTML#Map('inoremap', '<elead>23', '&frac23;')
+HTML#Map('inoremap', '<elead>15', '&frac15;')
+HTML#Map('inoremap', '<elead>25', '&frac25;')
+HTML#Map('inoremap', '<elead>35', '&frac35;')
+HTML#Map('inoremap', '<elead>45', '&frac45;')
+HTML#Map('inoremap', '<elead>16', '&frac16;')
+HTML#Map('inoremap', '<elead>56', '&frac56;')
+HTML#Map('inoremap', '<elead>18', '&frac18;')
+HTML#Map('inoremap', '<elead>38', '&frac38;')
+HTML#Map('inoremap', '<elead>58', '&frac58;')
+HTML#Map('inoremap', '<elead>78', '&frac78;')
 # Greek letters:
 #   ... Capital:
-g:HTML#Map('inoremap', '<elead>Al', '&Alpha;')
-g:HTML#Map('inoremap', '<elead>Be', '&Beta;')
-g:HTML#Map('inoremap', '<elead>Ga', '&Gamma;')
-g:HTML#Map('inoremap', '<elead>De', '&Delta;')
-g:HTML#Map('inoremap', '<elead>Ep', '&Epsilon;')
-g:HTML#Map('inoremap', '<elead>Ze', '&Zeta;')
-g:HTML#Map('inoremap', '<elead>Et', '&Eta;')
-g:HTML#Map('inoremap', '<elead>Th', '&Theta;')
-g:HTML#Map('inoremap', '<elead>Io', '&Iota;')
-g:HTML#Map('inoremap', '<elead>Ka', '&Kappa;')
-g:HTML#Map('inoremap', '<elead>Lm', '&Lambda;')
-g:HTML#Map('inoremap', '<elead>Mu', '&Mu;')
-g:HTML#Map('inoremap', '<elead>Nu', '&Nu;')
-g:HTML#Map('inoremap', '<elead>Xi', '&Xi;')
-g:HTML#Map('inoremap', '<elead>Oc', '&Omicron;')
-g:HTML#Map('inoremap', '<elead>Pi', '&Pi;')
-g:HTML#Map('inoremap', '<elead>Rh', '&Rho;')
-g:HTML#Map('inoremap', '<elead>Si', '&Sigma;')
-g:HTML#Map('inoremap', '<elead>Ta', '&Tau;')
-g:HTML#Map('inoremap', '<elead>Up', '&Upsilon;')
-g:HTML#Map('inoremap', '<elead>Ph', '&Phi;')
-g:HTML#Map('inoremap', '<elead>Ch', '&Chi;')
-g:HTML#Map('inoremap', '<elead>Ps', '&Psi;')
+HTML#Map('inoremap', '<elead>Al', '&Alpha;')
+HTML#Map('inoremap', '<elead>Be', '&Beta;')
+HTML#Map('inoremap', '<elead>Ga', '&Gamma;')
+HTML#Map('inoremap', '<elead>De', '&Delta;')
+HTML#Map('inoremap', '<elead>Ep', '&Epsilon;')
+HTML#Map('inoremap', '<elead>Ze', '&Zeta;')
+HTML#Map('inoremap', '<elead>Et', '&Eta;')
+HTML#Map('inoremap', '<elead>Th', '&Theta;')
+HTML#Map('inoremap', '<elead>Io', '&Iota;')
+HTML#Map('inoremap', '<elead>Ka', '&Kappa;')
+HTML#Map('inoremap', '<elead>Lm', '&Lambda;')
+HTML#Map('inoremap', '<elead>Mu', '&Mu;')
+HTML#Map('inoremap', '<elead>Nu', '&Nu;')
+HTML#Map('inoremap', '<elead>Xi', '&Xi;')
+HTML#Map('inoremap', '<elead>Oc', '&Omicron;')
+HTML#Map('inoremap', '<elead>Pi', '&Pi;')
+HTML#Map('inoremap', '<elead>Rh', '&Rho;')
+HTML#Map('inoremap', '<elead>Si', '&Sigma;')
+HTML#Map('inoremap', '<elead>Ta', '&Tau;')
+HTML#Map('inoremap', '<elead>Up', '&Upsilon;')
+HTML#Map('inoremap', '<elead>Ph', '&Phi;')
+HTML#Map('inoremap', '<elead>Ch', '&Chi;')
+HTML#Map('inoremap', '<elead>Ps', '&Psi;')
 #   ... Lowercase/small:
-g:HTML#Map('inoremap', '<elead>al', '&alpha;')
-g:HTML#Map('inoremap', '<elead>be', '&beta;')
-g:HTML#Map('inoremap', '<elead>ga', '&gamma;')
-g:HTML#Map('inoremap', '<elead>de', '&delta;')
-g:HTML#Map('inoremap', '<elead>ep', '&epsilon;')
-g:HTML#Map('inoremap', '<elead>ze', '&zeta;')
-g:HTML#Map('inoremap', '<elead>et', '&eta;')
-g:HTML#Map('inoremap', '<elead>th', '&theta;')
-g:HTML#Map('inoremap', '<elead>io', '&iota;')
-g:HTML#Map('inoremap', '<elead>ka', '&kappa;')
-g:HTML#Map('inoremap', '<elead>lm', '&lambda;')
-g:HTML#Map('inoremap', '<elead>mu', '&mu;')
-g:HTML#Map('inoremap', '<elead>nu', '&nu;')
-g:HTML#Map('inoremap', '<elead>xi', '&xi;')
-g:HTML#Map('inoremap', '<elead>oc', '&omicron;')
-g:HTML#Map('inoremap', '<elead>pi', '&pi;')
-g:HTML#Map('inoremap', '<elead>rh', '&rho;')
-g:HTML#Map('inoremap', '<elead>si', '&sigma;')
-g:HTML#Map('inoremap', '<elead>sf', '&sigmaf;')
-g:HTML#Map('inoremap', '<elead>ta', '&tau;')
-g:HTML#Map('inoremap', '<elead>up', '&upsilon;')
-g:HTML#Map('inoremap', '<elead>ph', '&phi;')
-g:HTML#Map('inoremap', '<elead>ch', '&chi;')
-g:HTML#Map('inoremap', '<elead>ps', '&psi;')
-g:HTML#Map('inoremap', '<elead>og', '&omega;')
-g:HTML#Map('inoremap', '<elead>ts', '&thetasym;')
-g:HTML#Map('inoremap', '<elead>uh', '&upsih;')
-g:HTML#Map('inoremap', '<elead>pv', '&piv;')
+HTML#Map('inoremap', '<elead>al', '&alpha;')
+HTML#Map('inoremap', '<elead>be', '&beta;')
+HTML#Map('inoremap', '<elead>ga', '&gamma;')
+HTML#Map('inoremap', '<elead>de', '&delta;')
+HTML#Map('inoremap', '<elead>ep', '&epsilon;')
+HTML#Map('inoremap', '<elead>ze', '&zeta;')
+HTML#Map('inoremap', '<elead>et', '&eta;')
+HTML#Map('inoremap', '<elead>th', '&theta;')
+HTML#Map('inoremap', '<elead>io', '&iota;')
+HTML#Map('inoremap', '<elead>ka', '&kappa;')
+HTML#Map('inoremap', '<elead>lm', '&lambda;')
+HTML#Map('inoremap', '<elead>mu', '&mu;')
+HTML#Map('inoremap', '<elead>nu', '&nu;')
+HTML#Map('inoremap', '<elead>xi', '&xi;')
+HTML#Map('inoremap', '<elead>oc', '&omicron;')
+HTML#Map('inoremap', '<elead>pi', '&pi;')
+HTML#Map('inoremap', '<elead>rh', '&rho;')
+HTML#Map('inoremap', '<elead>si', '&sigma;')
+HTML#Map('inoremap', '<elead>sf', '&sigmaf;')
+HTML#Map('inoremap', '<elead>ta', '&tau;')
+HTML#Map('inoremap', '<elead>up', '&upsilon;')
+HTML#Map('inoremap', '<elead>ph', '&phi;')
+HTML#Map('inoremap', '<elead>ch', '&chi;')
+HTML#Map('inoremap', '<elead>ps', '&psi;')
+HTML#Map('inoremap', '<elead>og', '&omega;')
+HTML#Map('inoremap', '<elead>ts', '&thetasym;')
+HTML#Map('inoremap', '<elead>uh', '&upsih;')
+HTML#Map('inoremap', '<elead>pv', '&piv;')
 # single-line arrows:
-g:HTML#Map('inoremap', '<elead>la', '&larr;')
-g:HTML#Map('inoremap', '<elead>ua', '&uarr;')
-g:HTML#Map('inoremap', '<elead>ra', '&rarr;')
-g:HTML#Map('inoremap', '<elead>da', '&darr;')
-g:HTML#Map('inoremap', '<elead>ha', '&harr;')
-# g:HTML#Map('inoremap', '<elead>ca', '&crarr;')
+HTML#Map('inoremap', '<elead>la', '&larr;')
+HTML#Map('inoremap', '<elead>ua', '&uarr;')
+HTML#Map('inoremap', '<elead>ra', '&rarr;')
+HTML#Map('inoremap', '<elead>da', '&darr;')
+HTML#Map('inoremap', '<elead>ha', '&harr;')
+# HTML#Map('inoremap', '<elead>ca', '&crarr;')
 # double-line arrows:
-g:HTML#Map('inoremap', '<elead>lA', '&lArr;')
-g:HTML#Map('inoremap', '<elead>uA', '&uArr;')
-g:HTML#Map('inoremap', '<elead>rA', '&rArr;')
-g:HTML#Map('inoremap', '<elead>dA', '&dArr;')
-g:HTML#Map('inoremap', '<elead>hA', '&hArr;')
+HTML#Map('inoremap', '<elead>lA', '&lArr;')
+HTML#Map('inoremap', '<elead>uA', '&uArr;')
+HTML#Map('inoremap', '<elead>rA', '&rArr;')
+HTML#Map('inoremap', '<elead>dA', '&dArr;')
+HTML#Map('inoremap', '<elead>hA', '&hArr;')
 # Roman numerals, upppercase:
-g:HTML#Map('inoremap', '<elead>R1',    '&#x2160;')
-g:HTML#Map('inoremap', '<elead>R2',    '&#x2161;')
-g:HTML#Map('inoremap', '<elead>R3',    '&#x2162;')
-g:HTML#Map('inoremap', '<elead>R4',    '&#x2163;')
-g:HTML#Map('inoremap', '<elead>R5',    '&#x2164;')
-g:HTML#Map('inoremap', '<elead>R6',    '&#x2165;')
-g:HTML#Map('inoremap', '<elead>R7',    '&#x2166;')
-g:HTML#Map('inoremap', '<elead>R8',    '&#x2167;')
-g:HTML#Map('inoremap', '<elead>R9',    '&#x2168;')
-g:HTML#Map('inoremap', '<elead>R10',   '&#x2169;')
-g:HTML#Map('inoremap', '<elead>R11',   '&#x216a;')
-g:HTML#Map('inoremap', '<elead>R12',   '&#x216b;')
-g:HTML#Map('inoremap', '<elead>R50',   '&#x216c;')
-g:HTML#Map('inoremap', '<elead>R100',  '&#x216d;')
-g:HTML#Map('inoremap', '<elead>R500',  '&#x216e;')
-g:HTML#Map('inoremap', '<elead>R1000', '&#x216f;')
+HTML#Map('inoremap', '<elead>R1',    '&#x2160;')
+HTML#Map('inoremap', '<elead>R2',    '&#x2161;')
+HTML#Map('inoremap', '<elead>R3',    '&#x2162;')
+HTML#Map('inoremap', '<elead>R4',    '&#x2163;')
+HTML#Map('inoremap', '<elead>R5',    '&#x2164;')
+HTML#Map('inoremap', '<elead>R6',    '&#x2165;')
+HTML#Map('inoremap', '<elead>R7',    '&#x2166;')
+HTML#Map('inoremap', '<elead>R8',    '&#x2167;')
+HTML#Map('inoremap', '<elead>R9',    '&#x2168;')
+HTML#Map('inoremap', '<elead>R10',   '&#x2169;')
+HTML#Map('inoremap', '<elead>R11',   '&#x216a;')
+HTML#Map('inoremap', '<elead>R12',   '&#x216b;')
+HTML#Map('inoremap', '<elead>R50',   '&#x216c;')
+HTML#Map('inoremap', '<elead>R100',  '&#x216d;')
+HTML#Map('inoremap', '<elead>R500',  '&#x216e;')
+HTML#Map('inoremap', '<elead>R1000', '&#x216f;')
 # Roman numerals, lowercase:
-g:HTML#Map('inoremap', '<elead>r1',    '&#x2170;')
-g:HTML#Map('inoremap', '<elead>r2',    '&#x2171;')
-g:HTML#Map('inoremap', '<elead>r3',    '&#x2172;')
-g:HTML#Map('inoremap', '<elead>r4',    '&#x2173;')
-g:HTML#Map('inoremap', '<elead>r5',    '&#x2174;')
-g:HTML#Map('inoremap', '<elead>r6',    '&#x2175;')
-g:HTML#Map('inoremap', '<elead>r7',    '&#x2176;')
-g:HTML#Map('inoremap', '<elead>r8',    '&#x2177;')
-g:HTML#Map('inoremap', '<elead>r9',    '&#x2178;')
-g:HTML#Map('inoremap', '<elead>r10',   '&#x2179;')
-g:HTML#Map('inoremap', '<elead>r11',   '&#x217a;')
-g:HTML#Map('inoremap', '<elead>r12',   '&#x217b;')
-g:HTML#Map('inoremap', '<elead>r50',   '&#x217c;')
-g:HTML#Map('inoremap', '<elead>r100',  '&#x217d;')
-g:HTML#Map('inoremap', '<elead>r500',  '&#x217e;')
-g:HTML#Map('inoremap', '<elead>r1000', '&#x217f;')
+HTML#Map('inoremap', '<elead>r1',    '&#x2170;')
+HTML#Map('inoremap', '<elead>r2',    '&#x2171;')
+HTML#Map('inoremap', '<elead>r3',    '&#x2172;')
+HTML#Map('inoremap', '<elead>r4',    '&#x2173;')
+HTML#Map('inoremap', '<elead>r5',    '&#x2174;')
+HTML#Map('inoremap', '<elead>r6',    '&#x2175;')
+HTML#Map('inoremap', '<elead>r7',    '&#x2176;')
+HTML#Map('inoremap', '<elead>r8',    '&#x2177;')
+HTML#Map('inoremap', '<elead>r9',    '&#x2178;')
+HTML#Map('inoremap', '<elead>r10',   '&#x2179;')
+HTML#Map('inoremap', '<elead>r11',   '&#x217a;')
+HTML#Map('inoremap', '<elead>r12',   '&#x217b;')
+HTML#Map('inoremap', '<elead>r50',   '&#x217c;')
+HTML#Map('inoremap', '<elead>r100',  '&#x217d;')
+HTML#Map('inoremap', '<elead>r500',  '&#x217e;')
+HTML#Map('inoremap', '<elead>r1000', '&#x217f;')
 
 # ----------------------------------------------------------------------------
 
 # ---- Browser Remote Controls: ----------------------------------------- {{{1
 
 var BrowserLauncherExists: bool
-# try/catch because the function file may not autoload if it's not
-# installed:
+# try/catch because the function won't autoload if it's not installed:
 try
   BrowserLauncherExists = BrowserLauncher#Exists() != []
 catch /^Vim\%((\a\+)\)\=:E117:.\+BrowserLauncher#Exists/
@@ -1373,178 +1375,178 @@ endtry
 if BrowserLauncherExists
   if BrowserLauncher#Exists('default')
     # Run the default browser:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>db',
-      ":eval BrowserLauncher#Launch('default')<CR>"
+      ":vim9cmd BrowserLauncher#Launch('default')<CR>"
     )
   endif
 
   if BrowserLauncher#Exists('firefox')
     # Firefox: View current file, starting Firefox if it's not running:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>ff',
-      ":eval BrowserLauncher#Launch('firefox', 0)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('firefox', 0)<CR>"
     )
     # Firefox: Open a new window, and view the current file:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>nff',
-      ":eval BrowserLauncher#Launch('firefox', 1)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('firefox', 1)<CR>"
     )
     # Firefox: Open a new tab, and view the current file:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>tff',
-      ":eval BrowserLauncher#Launch('firefox', 2)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('firefox', 2)<CR>"
     )
   endif
 
   if BrowserLauncher#Exists('chrome')
     # Chrome: View current file, starting Chrome if it's not running:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>gc',
-      ":eval BrowserLauncher#Launch('chrome', 0)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('chrome', 0)<CR>"
     )
     # Chrome: Open a new window, and view the current file:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>ngc',
-      ":eval BrowserLauncher#Launch('chrome', 1)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('chrome', 1)<CR>"
     )
     # Chrome: Open a new tab, and view the current file:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>tgc',
-      ":eval BrowserLauncher#Launch('chrome', 2)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('chrome', 2)<CR>"
     )
   endif
 
   if BrowserLauncher#Exists('edge')
     # Edge: View current file, starting Microsoft Edge if it's not running:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>ed',
-      ":eval BrowserLauncher#Launch('edge', 0)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('edge', 0)<CR>"
     )
     # Edge: Open a new window, and view the current file:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>ned',
-      ":eval BrowserLauncher#Launch('edge', 1)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('edge', 1)<CR>"
     )
     # Edge: Open a new tab, and view the current file:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>ted',
-      ":eval BrowserLauncher#Launch('edge', 2)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('edge', 2)<CR>"
     )
   endif
 
   if BrowserLauncher#Exists('opera')
     # Opera: View current file, starting Opera if it's not running:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>oa',
-      ":eval BrowserLauncher#Launch('opera', 0)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('opera', 0)<CR>"
     )
     # Opera: View current file in a new window, starting Opera if it's not running:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>noa',
-      ":eval BrowserLauncher#Launch('opera', 1)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('opera', 1)<CR>"
     )
     # Opera: Open a new tab, and view the current file:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>toa',
-      ":eval BrowserLauncher#Launch('opera', 2)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('opera', 2)<CR>"
     )
   endif
 
-  if g:BrowserLauncher#Exists('safari')
+  if BrowserLauncher#Exists('safari')
     # Safari: View current file, starting Safari if it's not running:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>sf',
-      ":eval BrowserLauncher#Launch('safari', 0)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('safari', 0)<CR>"
     )
     # Safari: Open a new window, and view the current file:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>nsf',
-      ":eval BrowserLauncher#Launch('safari', 1)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('safari', 1)<CR>"
       )
     # Safari: Open a new tab, and view the current file:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>tsf',
-      ":eval BrowserLauncher#Launch('safari', 2)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('safari', 2)<CR>"
     )
   endif
 
   if BrowserLauncher#Exists('lynx')
     # Lynx:  (This may happen anyway if there's no GUI available.)
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>ly',
-      ":eval BrowserLauncher#Launch('lynx', 0)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('lynx', 0)<CR>"
     )
     # Lynx in an xterm:  (This always happens in the Vim GUI.)
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>nly',
-      ":eval BrowserLauncher#Launch('lynx', 1)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('lynx', 1)<CR>"
     )
     # Lynx in a new Vim window, using :terminal:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>tly',
-      ":eval BrowserLauncher#Launch('lynx', 2)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('lynx', 2)<CR>"
     )
   endif
 
   if BrowserLauncher#Exists('w3m')
     # w3m:  (This may happen anyway if there's no GUI available.)
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>w3',
-      ":eval BrowserLauncher#Launch('w3m', 0)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('w3m', 0)<CR>"
     )
     # w3m in an xterm:  (This always happens in the Vim GUI.)
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>nw3',
-      ":eval BrowserLauncher#Launch('w3m', 1)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('w3m', 1)<CR>"
     )
     # w3m in a new Vim window, using :terminal:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>tw3',
-      ":eval BrowserLauncher#Launch('w3m', 2)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('w3m', 2)<CR>"
     )
   endif
 
   if BrowserLauncher#Exists('links')
     # Links:  (This may happen anyway if there's no GUI available.)
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>ln',
-      ":eval BrowserLauncher#Launch('links', 0)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('links', 0)<CR>"
     )
     # Lynx in an xterm:  (This always happens in the Vim GUI.)
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>nln',
-      ":eval BrowserLauncher#Launch('links', 1)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('links', 1)<CR>"
     )
     # Lynx in a new Vim window, using :terminal:
-    g:HTML#Map(
+    HTML#Map(
       'nnoremap',
       '<lead>tln',
-      ":eval BrowserLauncher#Launch('links', 2)<CR>"
+      ":vim9cmd BrowserLauncher#Launch('links', 2)<CR>"
     )
   endif
 endif
@@ -1554,21 +1556,21 @@ endif
 endif # ! exists("b:did_html_mappings")
 
 # ---- ToolBar Buttons: ------------------------------------------------- {{{1
-if ! has("gui_running") && ! g:HTML#BoolVar('g:force_html_menu')
+if ! has("gui_running") && ! HTML#BoolVar('g:force_html_menu')
   augroup HTMLplugin
   au!
   execute 'autocmd GUIEnter * ++once source ' .. g:html_plugin_file
   augroup END
 elseif exists("g:did_html_menus")
-  g:HTML#MenuControl()
-elseif ! g:HTML#BoolVar('g:no_html_menu')
+  HTML#MenuControl()
+elseif ! HTML#BoolVar('g:no_html_menu')
 
 # Solve a race condition:
 if ! exists('g:did_install_default_menus')
   source $VIMRUNTIME/menu.vim
 endif
 
-if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
+if ! HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
 
   if findfile('bitmaps/Browser.bmp', &runtimepath) == ''
     var bitmapmessage = "Warning:\nYou need to install the Toolbar Bitmaps for the "
@@ -1684,7 +1686,7 @@ if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
   HTMLmenu vmenu      -     ToolBar.Underline    un
   HTMLmenu nmenu      -     ToolBar.Underline    un i
 
-   menu	              1.185 ToolBar.-sep8-       <Nop>
+   menu               1.185 ToolBar.-sep8-       <Nop>
 
   tmenu               1.190 ToolBar.Undo         Undo
   anoremenu           1.190 ToolBar.Undo         u
@@ -1769,7 +1771,7 @@ if ! g:HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
   anoremenu 1.999 ToolBar.Help    :help HTML<CR>
 
   g:did_html_toolbar = true
-endif  # ! g:HTML#BoolVar('g:no_html_toolbar') && has("toolbar")
+endif  # ! HTML#BoolVar('g:no_html_toolbar') && has("toolbar")
 # ----------------------------------------------------------------------------
 
 # ---- Menu Items: ------------------------------------------------------ {{{1
@@ -1790,7 +1792,7 @@ cnoremenu      PopUp.Select\ &Inner\ Ta&g <C-C>vit
 
 augroup HTMLmenu
 au!
-  autocmd BufEnter,WinEnter * g:HTML#MenuControl() | g:HTML#ToggleClipboard(2)
+  autocmd BufEnter,WinEnter * HTML#MenuControl() | HTML#ToggleClipboard(2)
 augroup END
 
 amenu HTM&L.HTML\ Help<TAB>:help\ HTML\.txt :help HTML.txt<CR>
@@ -1805,7 +1807,7 @@ amenu HTML.Co&ntrol.Switch\ to\ &XHTML\ mode<tab>:HTML\ xhtml :HTMLmappings xhtm
  menu HTML.Control.-sep2- <Nop>
 amenu HTML.Co&ntrol.&Reload\ Mappings<tab>:HTML\ reload       :HTMLmappings reload<CR>
 
-if g:HTML#BoolVar('b:do_xhtml_mappings')
+if HTML#BoolVar('b:do_xhtml_mappings')
   amenu disable HTML.Control.Switch\ to\ XHTML\ mode
 else
   amenu disable HTML.Control.Switch\ to\ HTML\ mode
@@ -1876,231 +1878,231 @@ HTMLmenu vmenu - HTML.Character\ &Entities.Convert\ to\ %XX\ (URI\ Encode\)   %
 HTMLmenu vmenu - HTML.Character\ &Entities.Convert\ from\ Entities/%XX        ^
 
  menu HTML.Character\ Entities.-sep0- <Nop>
-HTMLemenu HTML.Character\ Entities.Ampersand            &
+HTMLemenu HTML.Character\ Entities.Ampersand            &        -
 HTMLemenu HTML.Character\ Entities.Greaterthan          >        >
 HTMLemenu HTML.Character\ Entities.Lessthan             <        <
 HTMLemenu HTML.Character\ Entities.Space                <space>  nonbreaking
  menu HTML.Character\ Entities.-sep1- <Nop>
-HTMLemenu HTML.Character\ Entities.Cent                 c\|      ¢
-HTMLemenu HTML.Character\ Entities.Pound                #        £
-HTMLemenu HTML.Character\ Entities.Euro                 E=       €
-HTMLemenu HTML.Character\ Entities.Yen                  Y=       ¥
+HTMLemenu HTML.Character\ Entities.Cent                 c\|      \\xA2
+HTMLemenu HTML.Character\ Entities.Pound                #        \\xA3
+HTMLemenu HTML.Character\ Entities.Euro                 E=       \\u20AC
+HTMLemenu HTML.Character\ Entities.Yen                  Y=       \\xA5
  menu HTML.Character\ Entities.-sep2- <Nop>
-HTMLemenu HTML.Character\ Entities.Copyright            cO       ©
-HTMLemenu HTML.Character\ Entities.Registered           rO       ®
-HTMLemenu HTML.Character\ Entities.Trademark            tm       TM
+HTMLemenu HTML.Character\ Entities.Copyright            cO       \\xA9
+HTMLemenu HTML.Character\ Entities.Registered           rO       \\xAE
+HTMLemenu HTML.Character\ Entities.Trademark            tm       \\u2122
  menu HTML.Character\ Entities.-sep3- <Nop>
-HTMLemenu HTML.Character\ Entities.Inverted\ Exlamation !        ¡
-HTMLemenu HTML.Character\ Entities.Inverted\ Question   ?        ¿
-HTMLemenu HTML.Character\ Entities.Paragraph            pa       ¶
-HTMLemenu HTML.Character\ Entities.Section              se       §
-HTMLemenu HTML.Character\ Entities.Middle\ Dot          \.       ·
-HTMLemenu HTML.Character\ Entities.Bullet               *        •
-HTMLemenu HTML.Character\ Entities.En\ dash             n-       \-
-HTMLemenu HTML.Character\ Entities.Em\ dash             m-       --
-HTMLemenu HTML.Character\ Entities.Ellipsis             3\.      ...
+HTMLemenu HTML.Character\ Entities.Inverted\ Exlamation !        \\xA1
+HTMLemenu HTML.Character\ Entities.Inverted\ Question   ?        \\xBF
+HTMLemenu HTML.Character\ Entities.Paragraph            pa       \\xB6
+HTMLemenu HTML.Character\ Entities.Section              se       \\xA7
+HTMLemenu HTML.Character\ Entities.Middle\ Dot          \.       \\xB7
+HTMLemenu HTML.Character\ Entities.Bullet               *        \\u2022
+HTMLemenu HTML.Character\ Entities.En\ dash             n-       \\u2013
+HTMLemenu HTML.Character\ Entities.Em\ dash             m-       \\u2014
+HTMLemenu HTML.Character\ Entities.Ellipsis             3\.      \\u2026
  menu HTML.Character\ Entities.-sep5- <Nop>
-HTMLemenu HTML.Character\ Entities.Math.Multiply        x   ×
-HTMLemenu HTML.Character\ Entities.Math.Divide          /   ÷
-HTMLemenu HTML.Character\ Entities.Math.Degree          dg  °
-HTMLemenu HTML.Character\ Entities.Math.Micro           mi  µ
-HTMLemenu HTML.Character\ Entities.Math.Plus/Minus      +-  ±
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 1    R1    Ⅰ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 2    R2    Ⅱ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 3    R3    Ⅲ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 4    R4    Ⅳ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 5    R5    Ⅴ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 6    R6    Ⅵ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 7    R7    Ⅶ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 8    R8    Ⅷ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 9    R9    Ⅸ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 10   R10   Ⅹ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 11   R11   Ⅺ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 12   R12   Ⅻ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 50   R50   Ⅼ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 100  R100  Ⅽ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 500  R500  Ⅾ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 1000 R1000 Ⅿ
+HTMLemenu HTML.Character\ Entities.Math.Multiply        x   \\xD7
+HTMLemenu HTML.Character\ Entities.Math.Divide          /   \\xF7
+HTMLemenu HTML.Character\ Entities.Math.Degree          dg  \\xB0
+HTMLemenu HTML.Character\ Entities.Math.Micro           mi  \\xB5
+HTMLemenu HTML.Character\ Entities.Math.Plus/Minus      +-  \\xB1
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 1    R1    \\u2160
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 2    R2    \\u2161
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 3    R3    \\u2162
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 4    R4    \\u2163
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 5    R5    \\u2164
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 6    R6    \\u2165
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 7    R7    \\u2166
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 8    R8    \\u2167
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 9    R9    \\u2168
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 10   R10   \\u2169
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 11   R11   \\u216A
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 12   R12   \\u216B
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 50   R50   \\u216C
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 100  R100  \\u216D
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 500  R500  \\u216E
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 1000 R1000 \\u216F
  menu HTML.Character\ Entities.Math.Roman\ Numerals.-sep1- <Nop>
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 1    r1    ⅰ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 2    r2    ⅱ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 3    r3    ⅲ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 4    r4    ⅳ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 5    r5    ⅴ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 6    r6    ⅵ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 7    r7    ⅶ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 8    r8    ⅷ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 9    r9    ⅸ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 10   r10   ⅹ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 11   r11   ⅺ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 12   r12   ⅻ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 50   r50   ⅼ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 100  r100  ⅽ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 500  r500  ⅾ
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 1000 r1000 ⅿ
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 0  0^  ⁰
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 1  1^  ¹
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 2  2^  ²
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 3  3^  ³
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 4  4^  ⁴
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 5  5^  ⁵
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 6  6^  ⁶
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 7  7^  ⁷
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 8  8^  ⁸
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 9  9^  ⁹
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 1    r1    \\u2170
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 2    r2    \\u2171
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 3    r3    \\u2172
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 4    r4    \\u2173
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 5    r5    \\u2174
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 6    r6    \\u2175
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 7    r7    \\u2176
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 8    r8    \\u2177
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 9    r9    \\u2178
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 10   r10   \\u2179
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 11   r11   \\u217A
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 12   r12   \\u217B
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 50   r50   \\u217C
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 100  r100  \\u217D
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 500  r500  \\u217E
+HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 1000 r1000 \\u217F
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 0  0^  \\u2070
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 1  1^  \\xB9
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 2  2^  \\xB2
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 3  3^  \\xB3
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 4  4^  \\u2074
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 5  5^  \\u2075
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 6  6^  \\u2076
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 7  7^  \\u2077
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 8  8^  \\u2078
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 9  9^  \\u2079
  menu HTML.Character\ Entities.Math.Super/Subscript.-sep1- <Nop>
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 0    0v  ₀
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 1    1v  ₁
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 2    2v  ₂
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 3    3v  ₃
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 4    4v  ₄
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 5    5v  ₅
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 6    6v  ₆
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 7    7v  ₇
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 8    8v  ₈
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 9    9v  ₉
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Quarter    14  ¼
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Half       12  ½
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Three\ Quarters 34  ¾
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Third      13  ⅓
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Two\ Thirds     23  ⅔
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Fifth      15  ⅕
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Two\ Fifths     25  ⅖
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Three\ Fifths   35  ⅗
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Four\ Fiftsh    45  ⅘
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Sixth      16  ⅙
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Five\ Sixths    56  ⅚
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Eigth      18  ⅛
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Three\ Eigths   38  ⅜
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Five\ Eigths    58  ⅝
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Seven\ Eigths   78  ⅞
-HTMLemenu HTML.Character\ Entities.&Graves.A-grave  A`  À
-HTMLemenu HTML.Character\ Entities.&Graves.a-grave  a`  à
-HTMLemenu HTML.Character\ Entities.&Graves.E-grave  E`  È
-HTMLemenu HTML.Character\ Entities.&Graves.e-grave  e`  è
-HTMLemenu HTML.Character\ Entities.&Graves.I-grave  I`  Ì
-HTMLemenu HTML.Character\ Entities.&Graves.i-grave  i`  ì
-HTMLemenu HTML.Character\ Entities.&Graves.O-grave  O`  Ò
-HTMLemenu HTML.Character\ Entities.&Graves.o-grave  o`  ò
-HTMLemenu HTML.Character\ Entities.&Graves.U-grave  U`  Ù
-HTMLemenu HTML.Character\ Entities.&Graves.u-grave  u`  ù
-HTMLemenu HTML.Character\ Entities.&Acutes.A-acute  A'  Á
-HTMLemenu HTML.Character\ Entities.&Acutes.a-acute  a'  á
-HTMLemenu HTML.Character\ Entities.&Acutes.E-acute  E'  É
-HTMLemenu HTML.Character\ Entities.&Acutes.e-acute  e'  é
-HTMLemenu HTML.Character\ Entities.&Acutes.I-acute  I'  Í
-HTMLemenu HTML.Character\ Entities.&Acutes.i-acute  i'  í
-HTMLemenu HTML.Character\ Entities.&Acutes.O-acute  O'  Ó
-HTMLemenu HTML.Character\ Entities.&Acutes.o-acute  o'  ó
-HTMLemenu HTML.Character\ Entities.&Acutes.U-acute  U'  Ú
-HTMLemenu HTML.Character\ Entities.&Acutes.u-acute  u'  ú
-HTMLemenu HTML.Character\ Entities.&Acutes.Y-acute  Y'  Ý
-HTMLemenu HTML.Character\ Entities.&Acutes.y-acute  y'  ý
-HTMLemenu HTML.Character\ Entities.&Tildes.A-tilde  A~  Ã
-HTMLemenu HTML.Character\ Entities.&Tildes.a-tilde  a~  ã
-HTMLemenu HTML.Character\ Entities.&Tildes.N-tilde  N~  Ñ
-HTMLemenu HTML.Character\ Entities.&Tildes.n-tilde  n~  ñ
-HTMLemenu HTML.Character\ Entities.&Tildes.O-tilde  O~  Õ
-HTMLemenu HTML.Character\ Entities.&Tildes.o-tilde  o~  õ
-HTMLemenu HTML.Character\ Entities.&Circumflexes.A-circumflex  A^  Â
-HTMLemenu HTML.Character\ Entities.&Circumflexes.a-circumflex  a^  â
-HTMLemenu HTML.Character\ Entities.&Circumflexes.E-circumflex  E^  Ê
-HTMLemenu HTML.Character\ Entities.&Circumflexes.e-circumflex  e^  ê
-HTMLemenu HTML.Character\ Entities.&Circumflexes.I-circumflex  I^  Î
-HTMLemenu HTML.Character\ Entities.&Circumflexes.i-circumflex  i^  î
-HTMLemenu HTML.Character\ Entities.&Circumflexes.O-circumflex  O^  Ô
-HTMLemenu HTML.Character\ Entities.&Circumflexes.o-circumflex  o^  ô
-HTMLemenu HTML.Character\ Entities.&Circumflexes.U-circumflex  U^  Û
-HTMLemenu HTML.Character\ Entities.&Circumflexes.u-circumflex  u^  û
-HTMLemenu HTML.Character\ Entities.&Umlauts.A-umlaut  A"  Ä
-HTMLemenu HTML.Character\ Entities.&Umlauts.a-umlaut  a"  ä
-HTMLemenu HTML.Character\ Entities.&Umlauts.E-umlaut  E"  Ë
-HTMLemenu HTML.Character\ Entities.&Umlauts.e-umlaut  e"  ë
-HTMLemenu HTML.Character\ Entities.&Umlauts.I-umlaut  I"  Ï
-HTMLemenu HTML.Character\ Entities.&Umlauts.i-umlaut  i"  ï
-HTMLemenu HTML.Character\ Entities.&Umlauts.O-umlaut  O"  Ö
-HTMLemenu HTML.Character\ Entities.&Umlauts.o-umlaut  o"  ö
-HTMLemenu HTML.Character\ Entities.&Umlauts.U-umlaut  U"  Ü
-HTMLemenu HTML.Character\ Entities.&Umlauts.u-umlaut  u"  ü
-HTMLemenu HTML.Character\ Entities.&Umlauts.y-umlaut  y"  ÿ
-HTMLemenu HTML.Character\ Entities.&Umlauts.Umlaut    "   ¨
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Alpha    Al Α
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Beta     Be Β
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Gamma    Ga Γ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Delta    De Δ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Epsilon  Ep Ε
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Zeta     Ze Ζ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Eta      Et Η
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Theta    Th Θ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Iota     Io Ι
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Kappa    Ka Κ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Lambda   Lm Λ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Mu       Mu Μ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Nu       Nu Ν
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Xi       Xi Ξ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Omicron  Oc Ο
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Pi       Pi Π
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Rho      Rh Ρ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Sigma    Si Σ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Tau      Ta Τ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Upsilon  Up Υ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Phi      Ph Φ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Chi      Ch Χ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Psi      Ps Ψ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.alpha    al α
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.beta     be β
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.gamma    ga γ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.delta    de δ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.epsilon  ep ε
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.zeta     ze ζ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.eta      et η
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.theta    th θ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.iota     io ι
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.kappa    ka κ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.lambda   lm λ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.mu       mu μ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.nu       nu ν
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.xi       xi ξ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.omicron  oc ο
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.pi       pi π
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.rho      rh ρ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.sigma    si σ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.sigmaf   sf ς
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.tau      ta τ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.upsilon  up υ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.phi      ph φ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.chi      ch χ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.psi      ps ψ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.omega    og ω
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.thetasym ts ϑ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.upsih    uh ϒ
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.piv      pv ϖ
-HTMLemenu HTML.Character\ Entities.A&rrows.Left\ single\ arrow        la ←
-HTMLemenu HTML.Character\ Entities.A&rrows.Right\ single\ arrow       ra →
-HTMLemenu HTML.Character\ Entities.A&rrows.Up\ single\ arrow          ua ↑
-HTMLemenu HTML.Character\ Entities.A&rrows.Down\ single\ arrow        da ↓
-HTMLemenu HTML.Character\ Entities.A&rrows.Left-right\ single\ arrow  ha ↔
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 0    0v  \\u2080
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 1    1v  \\u2081
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 2    2v  \\u2082
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 3    3v  \\u2083
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 4    4v  \\u2084
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 5    5v  \\u2085
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 6    6v  \\u2086
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 7    7v  \\u2087
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 8    8v  \\u2088
+HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 9    9v  \\u2089
+HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Quarter    14  \\xBC
+HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Half       12  \\xBD
+HTMLemenu HTML.Character\ Entities.Math.Fractions.Three\ Quarters 34  \\xBE
+HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Third      13  \\u2153
+HTMLemenu HTML.Character\ Entities.Math.Fractions.Two\ Thirds     23  \\u2154
+HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Fifth      15  \\u2155
+HTMLemenu HTML.Character\ Entities.Math.Fractions.Two\ Fifths     25  \\u2156
+HTMLemenu HTML.Character\ Entities.Math.Fractions.Three\ Fifths   35  \\u2157
+HTMLemenu HTML.Character\ Entities.Math.Fractions.Four\ Fiftsh    45  \\u2158
+HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Sixth      16  \\u2159
+HTMLemenu HTML.Character\ Entities.Math.Fractions.Five\ Sixths    56  \\u215A
+HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Eigth      18  \\u215B
+HTMLemenu HTML.Character\ Entities.Math.Fractions.Three\ Eigths   38  \\u215C
+HTMLemenu HTML.Character\ Entities.Math.Fractions.Five\ Eigths    58  \\u215D
+HTMLemenu HTML.Character\ Entities.Math.Fractions.Seven\ Eigths   78  \\u215E
+HTMLemenu HTML.Character\ Entities.&Graves.A-grave  A`  \\xC0
+HTMLemenu HTML.Character\ Entities.&Graves.a-grave  a`  \\xE0
+HTMLemenu HTML.Character\ Entities.&Graves.E-grave  E`  \\xC8
+HTMLemenu HTML.Character\ Entities.&Graves.e-grave  e`  \\xE8
+HTMLemenu HTML.Character\ Entities.&Graves.I-grave  I`  \\xCC
+HTMLemenu HTML.Character\ Entities.&Graves.i-grave  i`  \\xEC
+HTMLemenu HTML.Character\ Entities.&Graves.O-grave  O`  \\xD2
+HTMLemenu HTML.Character\ Entities.&Graves.o-grave  o`  \\xF2
+HTMLemenu HTML.Character\ Entities.&Graves.U-grave  U`  \\xD9
+HTMLemenu HTML.Character\ Entities.&Graves.u-grave  u`  \\xF9
+HTMLemenu HTML.Character\ Entities.&Acutes.A-acute  A'  \\xC1
+HTMLemenu HTML.Character\ Entities.&Acutes.a-acute  a'  \\xE1
+HTMLemenu HTML.Character\ Entities.&Acutes.E-acute  E'  \\xC9
+HTMLemenu HTML.Character\ Entities.&Acutes.e-acute  e'  \\xE9
+HTMLemenu HTML.Character\ Entities.&Acutes.I-acute  I'  \\xCD
+HTMLemenu HTML.Character\ Entities.&Acutes.i-acute  i'  \\xED
+HTMLemenu HTML.Character\ Entities.&Acutes.O-acute  O'  \\xD3
+HTMLemenu HTML.Character\ Entities.&Acutes.o-acute  o'  \\xF3
+HTMLemenu HTML.Character\ Entities.&Acutes.U-acute  U'  \\xDA
+HTMLemenu HTML.Character\ Entities.&Acutes.u-acute  u'  \\xFA
+HTMLemenu HTML.Character\ Entities.&Acutes.Y-acute  Y'  \\xDD
+HTMLemenu HTML.Character\ Entities.&Acutes.y-acute  y'  \\xFD
+HTMLemenu HTML.Character\ Entities.&Tildes.A-tilde  A~  \\xC3
+HTMLemenu HTML.Character\ Entities.&Tildes.a-tilde  a~  \\xE3
+HTMLemenu HTML.Character\ Entities.&Tildes.N-tilde  N~  \\xD1
+HTMLemenu HTML.Character\ Entities.&Tildes.n-tilde  n~  \\xF1
+HTMLemenu HTML.Character\ Entities.&Tildes.O-tilde  O~  \\xD5
+HTMLemenu HTML.Character\ Entities.&Tildes.o-tilde  o~  \\xF5
+HTMLemenu HTML.Character\ Entities.&Circumflexes.A-circumflex  A^  \\xC2
+HTMLemenu HTML.Character\ Entities.&Circumflexes.a-circumflex  a^  \\xE2
+HTMLemenu HTML.Character\ Entities.&Circumflexes.E-circumflex  E^  \\xCA
+HTMLemenu HTML.Character\ Entities.&Circumflexes.e-circumflex  e^  \\xEA
+HTMLemenu HTML.Character\ Entities.&Circumflexes.I-circumflex  I^  \\xCE
+HTMLemenu HTML.Character\ Entities.&Circumflexes.i-circumflex  i^  \\xEE
+HTMLemenu HTML.Character\ Entities.&Circumflexes.O-circumflex  O^  \\xD4
+HTMLemenu HTML.Character\ Entities.&Circumflexes.o-circumflex  o^  \\xF4
+HTMLemenu HTML.Character\ Entities.&Circumflexes.U-circumflex  U^  \\xDB
+HTMLemenu HTML.Character\ Entities.&Circumflexes.u-circumflex  u^  \\xFB
+HTMLemenu HTML.Character\ Entities.&Umlauts.A-umlaut  A"  \\xC4
+HTMLemenu HTML.Character\ Entities.&Umlauts.a-umlaut  a"  \\xE4
+HTMLemenu HTML.Character\ Entities.&Umlauts.E-umlaut  E"  \\xCB
+HTMLemenu HTML.Character\ Entities.&Umlauts.e-umlaut  e"  \\xEB
+HTMLemenu HTML.Character\ Entities.&Umlauts.I-umlaut  I"  \\xCF
+HTMLemenu HTML.Character\ Entities.&Umlauts.i-umlaut  i"  \\xEF
+HTMLemenu HTML.Character\ Entities.&Umlauts.O-umlaut  O"  \\xD6
+HTMLemenu HTML.Character\ Entities.&Umlauts.o-umlaut  o"  \\xF6
+HTMLemenu HTML.Character\ Entities.&Umlauts.U-umlaut  U"  \\xDC
+HTMLemenu HTML.Character\ Entities.&Umlauts.u-umlaut  u"  \\xFC
+HTMLemenu HTML.Character\ Entities.&Umlauts.y-umlaut  y"  \\xFF
+HTMLemenu HTML.Character\ Entities.&Umlauts.Umlaut    "   \\xA8
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Alpha    Al \\u391
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Beta     Be \\u392
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Gamma    Ga \\u393
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Delta    De \\u394
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Epsilon  Ep \\u395
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Zeta     Ze \\u396
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Eta      Et \\u397
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Theta    Th \\u398
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Iota     Io \\u399
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Kappa    Ka \\u39A
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Lambda   Lm \\u39B
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Mu       Mu \\u39C
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Nu       Nu \\u39D
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Xi       Xi \\u39E
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Omicron  Oc \\u39F
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Pi       Pi \\u3A0
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Rho      Rh \\u3A1
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Sigma    Si \\u3A3
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Tau      Ta \\u3A4
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Upsilon  Up \\u3A5
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Phi      Ph \\u3A6
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Chi      Ch \\u3A7
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Psi      Ps \\u3A8
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.alpha    al \\u3B1
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.beta     be \\u3B2
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.gamma    ga \\u3B3
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.delta    de \\u3B4
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.epsilon  ep \\u3B5
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.zeta     ze \\u3B6
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.eta      et \\u3B7
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.theta    th \\u3B8
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.iota     io \\u3B9
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.kappa    ka \\u3BA
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.lambda   lm \\u3BB
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.mu       mu \\u3BC
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.nu       nu \\u3BD
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.xi       xi \\u3BE
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.omicron  oc \\u3BF
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.pi       pi \\u3C0
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.rho      rh \\u3C1
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.sigma    si \\u3C3
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.sigmaf   sf \\u3C2
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.tau      ta \\u3C4
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.upsilon  up \\u3C5
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.phi      ph \\u3C6
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.chi      ch \\u3C7
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.psi      ps \\u3C8
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.omega    og \\u3C9
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.thetasym ts \\u3D1
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.upsih    uh \\u3D2
+HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.piv      pv \\u3D6
+HTMLemenu HTML.Character\ Entities.A&rrows.Left\ single\ arrow        la \\u2190
+HTMLemenu HTML.Character\ Entities.A&rrows.Right\ single\ arrow       ra \\u2192
+HTMLemenu HTML.Character\ Entities.A&rrows.Up\ single\ arrow          ua \\u2191
+HTMLemenu HTML.Character\ Entities.A&rrows.Down\ single\ arrow        da \\u2193
+HTMLemenu HTML.Character\ Entities.A&rrows.Left-right\ single\ arrow  ha \\u2194
  menu HTML.Character\ Entities.Arrows.-sep1- <Nop>
-HTMLemenu HTML.Character\ Entities.A&rrows.Left\ double\ arrow        lA ⇐
-HTMLemenu HTML.Character\ Entities.A&rrows.Right\ double\ arrow       rA ⇒
-HTMLemenu HTML.Character\ Entities.A&rrows.Up\ double\ arrow          uA ⇑
-HTMLemenu HTML.Character\ Entities.A&rrows.Down\ double\ arrow        dA ⇓
-HTMLemenu HTML.Character\ Entities.A&rrows.Left-right\ double\ arrow  hA ⇔
-HTMLemenu HTML.Character\ Entities.&Quotes.Quotation\ mark            '  "
-HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Single\ Quote        l' ‘
-HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Single\ Quote       r' ’
-HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Double\ Quote        l" “
-HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Double\ Quote       r" ”
-HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Angle\ Quote         2< «
-HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Angle\ Quote        2> »
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..A-ring      Ao Å
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..a-ring      ao å
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..AE-ligature AE Æ
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..ae-ligature ae æ
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..C-cedilla   C, Ç
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..c-cedilla   c, ç
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..O-slash     O/ Ø
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..o-slash     o/ ø
+HTMLemenu HTML.Character\ Entities.A&rrows.Left\ double\ arrow        lA \\u21D0
+HTMLemenu HTML.Character\ Entities.A&rrows.Right\ double\ arrow       rA \\u21D2
+HTMLemenu HTML.Character\ Entities.A&rrows.Up\ double\ arrow          uA \\u21D1
+HTMLemenu HTML.Character\ Entities.A&rrows.Down\ double\ arrow        dA \\u21D3
+HTMLemenu HTML.Character\ Entities.A&rrows.Left-right\ double\ arrow  hA \\u21D4
+HTMLemenu HTML.Character\ Entities.&Quotes.Quotation\ mark            '  x22
+HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Single\ Quote        l' \\u2018
+HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Single\ Quote       r' \\u2019
+HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Double\ Quote        l" \\u201C
+HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Double\ Quote       r" \\u201D
+HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Angle\ Quote         2< \\xAB
+HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Angle\ Quote        2> \\xBB
+HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..A-ring      Ao \\xC5
+HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..a-ring      ao \\xE5
+HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..AE-ligature AE \\xC6
+HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..ae-ligature ae \\xE6
+HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..C-cedilla   C, \\xC7
+HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..c-cedilla   c, \\xE7
+HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..O-slash     O/ \\xD8
+HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..o-slash     o/ \\xF8
 
 # Colors menu:   {{{2
 
@@ -2710,7 +2712,7 @@ if ! exists('g:did_html_plugin_warning_check')
   pluginfiles = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
   if pluginfiles->len() > 1
     var pluginfilesmatched: list<string>
-    pluginfilesmatched = pluginfiles->g:HTML#FilesWithMatch('https\?://christianrobinson.name/\(programming/\)\?vim/HTML/', 20)
+    pluginfilesmatched = pluginfiles->HTML#FilesWithMatch('https\?://christianrobinson.name/\(programming/\)\?vim/HTML/', 20)
     if pluginfilesmatched->len() > 1
       var pluginmessage = "Multiple versions of the HTML.vim filetype plugin are installed.\n"
         .. "Locations:\n   " .. pluginfilesmatched->join("\n   ")

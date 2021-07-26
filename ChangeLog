@@ -1,3 +1,7 @@
+Sun, 25 Jul 2021 13:49:32 -0600 Christian J. Robinson
+ * Refactor MacOS browser control code to make overall logic simpler.
+Squash some bugs.
+
 Fri, 23 Jul 2021 15:16:39 -0600 Christian J. Robinson
  * Delete temporary files.
 

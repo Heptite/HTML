@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:versionlong < 8023182
+if v:version < 802 || v:versionlong < 8023224
   finish
 endif
 
-# g:MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
+# MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: July 24, 2021
+# Last Change: July 26, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -32,7 +32,7 @@ endif
 # https://www.gnu.org/licenses/licenses.html#GPL
 
 
-def g:MangleImageTag#Update() # {{{1
+def MangleImageTag#Update() # {{{1
   var start_linenr = line('.')
   var end_linenr = start_linenr
   var col = col('.') - 1
@@ -103,7 +103,7 @@ def g:MangleImageTag#Update() # {{{1
     endif
   endif
 
-  var size = s:ImageSize(src)
+  var size = ImageSize(src)
   if len(size) != 2
     return
   endif
@@ -138,7 +138,7 @@ def g:MangleImageTag#Update() # {{{1
   &autoindent = saveautoindent
 enddef
 
-def s:ImageSize(image: string): list<number> # {{{1
+def ImageSize(image: string): list<number> # {{{1
   var ext = fnamemodify(image, ':e')
   var size: list<number>
 
@@ -174,11 +174,11 @@ def s:ImageSize(image: string): list<number> # {{{1
     endfor
 
     if ext ==? 'png'
-      size = buf2->s:SizePng()
+      size = buf2->SizePng()
     elseif ext ==? 'gif'
-      size = buf2->s:SizeGif()
+      size = buf2->SizeGif()
     elseif ext ==? 'jpg' || ext ==? 'jpeg'
-      size = buf2->s:SizeJpg()
+      size = buf2->SizeJpg()
     endif
   else
     echohl ErrorMsg
@@ -191,14 +191,14 @@ def s:ImageSize(image: string): list<number> # {{{1
   return size
 enddef
 
-def s:SizeGif(lines: list<number>): list<number> # {{{1
+def SizeGif(lines: list<number>): list<number> # {{{1
   var i = 0
   var len = len(lines)
 
   while i <= len
     if join(lines[i : i + 9], ' ') =~ '^71 73 70\( \d\+\)\{7}'
-      var width = lines[i + 6 : i + 7]->reverse()->s:Vec()
-      var height = lines[i + 8 : i + 9]->reverse()->s:Vec()
+      var width = lines[i + 6 : i + 7]->reverse()->Vec()
+      var height = lines[i + 8 : i + 9]->reverse()->Vec()
 
       return [width, height]
     endif
@@ -213,14 +213,14 @@ def s:SizeGif(lines: list<number>): list<number> # {{{1
   return []
 enddef
 
-def s:SizeJpg(lines: list<number>): list<number> # {{{1
+def SizeJpg(lines: list<number>): list<number> # {{{1
   var i = 0
   var len = len(lines)
 
   while i <= len
     if join(lines[i : i + 8], ' ') =~ '^255 192\( \d\+\)\{7}'
-      var height = s:Vec(lines[i + 5 : i + 6])
-      var width = s:Vec(lines[i + 7 : i + 8])
+      var height = Vec(lines[i + 5 : i + 6])
+      var width = Vec(lines[i + 7 : i + 8])
 
       return [width, height]
     endif
@@ -234,14 +234,14 @@ def s:SizeJpg(lines: list<number>): list<number> # {{{1
   return []
 enddef
 
-def s:SizePng(lines: list<number>): list<number> # {{{1
+def SizePng(lines: list<number>): list<number> # {{{1
   var i = 0
   var len = len(lines)
 
   while i <= len
     if join(lines[i : i + 11], ' ') =~ '^73 72 68 82\( \d\+\)\{8}'
-      var width = s:Vec(lines[i + 4 : i + 7])
-      var height = s:Vec(lines[i + 8 : i + 11])
+      var width = Vec(lines[i + 4 : i + 7])
+      var height = Vec(lines[i + 8 : i + 11])
 
       return [width, height]
     endif
@@ -255,7 +255,7 @@ def s:SizePng(lines: list<number>): list<number> # {{{1
   return []
 enddef
 
-def s:Vec(nums: list<number>): number # {{{1
+def Vec(nums: list<number>): number # {{{1
   var n = 0
   for i in nums
     n = n * 256 + i

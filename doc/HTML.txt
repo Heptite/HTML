@@ -1,15 +1,16 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Jul 23
+		Last change: 2021 Jul 26
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
 						*HTML-macros*	*XHTML-macros*
 
-This is a set of HTML/XHTML macros, menus, and toolbar buttons to make editing
-HTML files easier. The original Copyright goes to Doug Renze, although his
-efforts have been heavily modified in this implementation. All the changes are
-Copyright © 1998 - 2021 Christian J. Robinson. These macros and the supporting
-scripts are distributable under the terms of the GNU |GPL| version 3 or later.
+This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim 9 or
+later to make editing HTML files easier. The original Copyright goes to Doug
+Renze, although his efforts have been heavily modified in this implementation.
+All the changes are Copyright © 1998 - 2021 Christian J. Robinson. These
+macros and the supporting scripts are distributable under the terms of the GNU
+|GPL| version 3 or later.
 
 ------------------------------------------------------------------------------
 
@@ -17,8 +18,7 @@ scripts are distributable under the terms of the GNU |GPL| version 3 or later.
 2. Customization Variables		|html-variables|
 3. Commands				|html-commands|
 4. Mappings for Normal <> Tags		|html-tags|
-5. Mappings for &...; codes, such as &lt; &gt; &amp; and so on
-					|character-codes|
+5. Mappings for &...; entity codes	|character-entities|
 6. How to Use Browser Mappings		|browser-control|
 7. Miscellaneous Extras			|html-misc|
 
@@ -902,8 +902,9 @@ another character of your preference. See |g:html_map_leader|.
 <	(|n_;|)
 							*n_;tA*
 ;tA	Interactive table; you will be interactively prompted for the table
-	rows, columns, and border width. (Note that border width is not HTML
-	5 compatible. Leave it empty and use CSS instead.)
+	rows, columns, border width, table header and table footer. (Note that
+	border width is not HTML 5 compatible; leave it empty and use CSS
+	instead.)
 							*i_;tH* *v_;tH* *n_;tH*
 ;tH	Table header row: >
 	<THEAD></THEAD>
@@ -1446,7 +1447,7 @@ drive).
 	to using |:terminal| if xterm is not found.) (Only on Unix and
 	Cygwin.)
 								*n_;tly*
-;tly	Same as |n_;ly|, but in a new Vim window, using |:terminal| .  (Only
+;tly	Same as |n_;ly|, but in a new Vim window, using |:terminal|.  (Only
 	on Unix and Cygwin.)
 								*n_;w3*
 ;w3	Use w3m to view the current file. This behaves like |n_;nw3| if the Vim
@@ -1457,7 +1458,7 @@ drive).
 	to using |:terminal| if xterm is not found.) (Only on Unix and
 	Cygwin.)
 								*n_;tw3*
-;tw3	Same as |n_;w3|, but in a new Vim window, using |:terminal| .  (Only
+;tw3	Same as |n_;w3|, but in a new Vim window, using |:terminal|.  (Only
 	on Unix and Cygwin.)
 								*n_;ln*
 ;ln	Use Links to view the current file. This behaves like |n_;nln| if the
@@ -1468,7 +1469,7 @@ drive).
 	to using |:terminal| if xterm is not found.) (Only on Unix and
 	Cygwin.)
 								*n_;tln*
-;tln	Same as |n_;ln|, but in a new Vim window, using |:terminal| .  (Only
+;tln	Same as |n_;ln|, but in a new Vim window, using |:terminal|.  (Only
 	on Unix and Cygwin.)
 
 ==============================================================================
@@ -1489,11 +1490,11 @@ HTML#EncodeString({string} [, {...}])			*HTML#EncodeString()*
 	The second argument controls how the string is handled:
 
 	Argument:	Behavior: ~
-	d/decode	Decode the %XX, &#...;, and &#x...; elements of the
-			provided string
+	d/decode	Decode the %XX, &...;, &#...;, and &#x...; elements of
+			the provided string
 	%		Encode as a %XX URI string
 	x		Encode as a &#x...; string (hexadecimal)
-	omitted		Encode as a &#...; string (decimal)
+	omitted		Encode as a &...; or &#...; string (name, or decimal)
 	other		No change to the string
 
 	See |n_;&|, |n_;star|, and |n_;%| for examples.
@@ -1507,13 +1508,26 @@ HTML#EncodeString({string} [, {...}])			*HTML#EncodeString()*
 	  in Vim itself.
 
 HTML#DecodeSymbol({symbol})				*HTML#DecodeSymbol()*
-	Returns the character representation of {symbol}, if it is in &#...;
-	or %XX format. This function is typically used by
+	Returns the character representation of {symbol}, if it is in &#NNN;,
+	&aaa;, or %XX format. This function is typically used by
 	|HTML#EncodeString()| to decode strings.
 
-HTML#GenerateTable()					*HTML#GenerateTable()*
-	This is normally called by the |n_;tA|, mapping but it works the same
-	if called any other way.
+							*HTML#GenerateTable()*
+HTML#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
+	This is normally called by the |n_;tA|, mapping but it can be called
+	with argumetns to non-interactively generate a table:
+
+	Argument:	Behavior: ~
+	{rows}		Number: Number of rows to insert
+	{columns}	Number: Number of columns to insert
+	{border-width}	Number: Width of the border in pixels (not HTML5
+			compatible; leave at 0 and use CSS)
+	{thead}		Boolean: Whether to insert a table header
+	{tfoot}		Boolean: Whether to insert a table footer
+
+	If a table header or table footer is inserted, a table body tag will
+	also be inserted.  Note that the header and footer is exclusive of the
+	row count.
 
 HTML#Map({maptype}, {lhs}, {rhs} [, {re-indent}])	*HTML#Map()*
 	This function defines a mapping, local to the buffer and silent.

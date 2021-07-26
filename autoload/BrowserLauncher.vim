@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:versionlong < 8023182
+if v:version < 802 || v:versionlong < 8023224
   finish
 endif
 
@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 25, 2021
+# Last Change: July 26, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -59,7 +59,7 @@ endif
 #    checked.
 #
 # Requirements:
-#       Vim 9 or later
+#  * Vim 9 or later
 #
 # Copyright (C) 2004-2021 Christian J. Robinson <heptite@gmail.com>
 #
@@ -97,7 +97,7 @@ var Browsers: dict<list<any>>
 var TextmodeBrowsers = ['lynx', 'w3m', 'links']
 var MacBrowsersExist = ['default']
 
-# s:FindTextmodeBrowsers() {{{1
+# FindTextmodeBrowsers() {{{1
 #
 # Remove browsers from TextmodeBrowsers that aren't found, and add to
 # Browsers{} textmode browsers that are found.
@@ -109,7 +109,7 @@ var MacBrowsersExist = ['default']
 #  None
 # Return value:
 #  None
-def s:FindTextmodeBrowsers()
+def FindTextmodeBrowsers()
   var temp: string
 
   for textbrowser in copy(TextmodeBrowsers)
@@ -126,13 +126,13 @@ if has('mac') || has('macunix')  # {{{1
   # The following code is provided by Israel Chauca Fuentes
   # <israelvarios()fastmail!fm>:
 
-  def s:UseAppleScript(): bool # {{{
+  def UseAppleScript(): bool # {{{
     return system('/usr/bin/osascript -e '
       .. "'tell application \"System Events\" to set UI_enabled "
       .. "to UI elements enabled' 2>/dev/null")->trim() ==? 'true' ? true : false
   enddef # }}}
 
-  def g:BrowserLauncher#Exists(app: string = ''): any # {{{
+  def BrowserLauncher#Exists(app: string = ''): any # {{{
     if app == ''
       return MacBrowsersExist
     endif
@@ -140,7 +140,7 @@ if has('mac') || has('macunix')  # {{{1
     if MacBrowsersExist->match('^\c\V' .. app .. '\$')
       return true
     else
-      call system("/usr/bin/osascript -e 'get id of application \"" .. app->escape("\"'\\") .. "\"'")
+      system("/usr/bin/osascript -e 'get id of application \"" .. app->escape("\"'\\") .. "\"'")
       if v:shell_error
         return false
       endif
@@ -150,7 +150,7 @@ if has('mac') || has('macunix')  # {{{1
     endif
   enddef # }}}
 
-  def g:BrowserLauncher#Launch(app: string, new: number = 0, url: string = ''): bool # {{{
+  def BrowserLauncher#Launch(app: string, new: number = 0, url: string = ''): bool # {{{
     var file: string
     var torn: string
     var script: string
@@ -158,7 +158,7 @@ if has('mac') || has('macunix')  # {{{1
     var use_AS: bool
     var as_msg: string
 
-    if (! g:BrowserLauncher#Exists(app) && app !=? 'default')
+    if (! BrowserLauncher#Exists(app) && app !=? 'default')
       execute 'HTMLERROR ' .. app .. ' not found'
       return false
     endif
@@ -173,7 +173,7 @@ if has('mac') || has('macunix')  # {{{1
     endif
 
     # Can we open new tabs and windows?
-    use_AS = s:UseAppleScript()
+    use_AS = UseAppleScript()
 
     # Why we can't open new tabs and windows:
     as_msg = "The feature that allows the opening of new browser windows\n"
@@ -338,7 +338,7 @@ elseif has('unix') && ! has('win32unix') # {{{1
     endif
   endfor
 
-  s:FindTextmodeBrowsers()
+  FindTextmodeBrowsers()
 
 elseif has('win32') || has('win64') || has('win32unix')  # {{{1
 
@@ -366,7 +366,7 @@ elseif has('win32') || has('win64') || has('win32unix')  # {{{1
   Browsers['default'] = ['"RunDll32.exe shell32.dll,ShellExec_RunDLL"', '', '', '', '']
 
   if has('win32unix')
-    s:FindTextmodeBrowsers()
+    FindTextmodeBrowsers()
 
     # Different quoting required for "cygstart":
     Browsers['default'] = ['RunDll32.exe shell32.dll,ShellExec_RunDLL', '', '', '', '']
@@ -381,27 +381,27 @@ else # OS not recognized, can't do any browser control: {{{1
 
 endif # }}}1
 
-# g:BrowserLauncher#Exists() {{{1
+# BrowserLauncher#Exists() {{{1
 #
 # Usage:
-#  :echo BrowserLauncher#Exists([browser])
+#  BrowserLauncher#Exists([browser])
 # Return value:
 #  With an argument: True or False - Whether the browser was found (exists)
 #  Without an argument: list - The names of the browsers that were found
-def g:BrowserLauncher#Exists(browser: string = ''): any
+def BrowserLauncher#Exists(browser: string = ''): any
   if browser == ''
-    return keys(Browsers)
+    return Browsers->keys()->sort()
   else
     return exists('Browsers["' .. browser->escape('"\\') .. '"]') ? true : false
   endif
 enddef
 
-# g:BrowserLauncher#Launch() {{{1
+# BrowserLauncher#Launch() {{{1
 #
 # Usage:
-#  :call BrowserLauncher#Launch({...}, [{0/1/2}], [url])
+#  BrowserLauncher#Launch({...}, [{0/1/2}], [url])
 #    The first argument is which browser to launch, by name (not executable).
-#    Use g:BrowserLauncher#Exists() to see which ones are available.
+#    Use BrowserLauncher#Exists() to see which ones are available.
 #
 #    The optional second argument is whether to launch a new window:
 #      0 - No (default -- in modern brosers this tends to open a new tab)
@@ -415,13 +415,13 @@ enddef
 # Return value:
 #  false - Failure (No browser was launched/controlled.)
 #  true  - Success (A browser was launched/controlled.)
-def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): bool
+def BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): bool
   var which = browser
   var donew = new
   var command: string
   var file: string
 
-  if !g:BrowserLauncher#Exists(which)
+  if !BrowserLauncher#Exists(which)
     execute 'HTMLERROR Unknown browser ID: ' .. which
     return false
   endif
@@ -501,7 +501,7 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
   # browser:
   if command == ''
     if donew == 2
-      execute 'HTMLMESG Opening new ' .. Browsers[which][0]->s:Cap() .. ' tab...'
+      execute 'HTMLMESG Opening new ' .. Browsers[which][0]->Cap() .. ' tab...'
       if has('win32') || has('win64') || has('win32unix')
         command = 'start ' .. Browsers[which][0] .. ' ' .. file->shellescape()
           .. ' ' .. Browsers[which][3] 
@@ -510,7 +510,7 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
           .. file->shellescape() .. ' ' .. Browsers[which][3]  .. ' &"'
       endif
     elseif donew > 0
-      execute 'HTMLMESG Opening new ' .. Browsers[which][0]->s:Cap() .. ' window...'
+      execute 'HTMLMESG Opening new ' .. Browsers[which][0]->Cap() .. ' window...'
       if has('win32') || has('win64') || has('win32unix')
         command = 'start ' .. Browsers[which][0] .. ' ' .. file->shellescape()
           .. ' ' .. Browsers[which][4] 
@@ -522,7 +522,7 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
       if which == 'default'
         execute 'HTMLMESG Invoking system default browser...'
       else
-        execute 'HTMLMESG Invoking ' .. Browsers[which][0]->s:Cap() .. "..."
+        execute 'HTMLMESG Invoking ' .. Browsers[which][0]->Cap() .. "..."
       endif
 
       if has('win32') || has('win64') || has('win32unix')
@@ -558,7 +558,7 @@ def g:BrowserLauncher#Launch(browser: string, new: number = 0, url: string = '')
   return false
 enddef
 
-# s:Cap() {{{1
+# Cap() {{{1
 #
 # Capitalize the first letter of every word in a string
 #
@@ -566,7 +566,7 @@ enddef
 #  1 - String: The words
 # Return value:
 #  String: The words capitalized
-def s:Cap(arg: string): string
+def Cap(arg: string): string
   return arg->substitute('\<.', '\U&', 'g')
 enddef # }}}1
 
