@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023224
+if v:version < 802 || v:versionlong < 8023228
   finish
 endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: July 26, 2021
+# Last Change: July 27, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -31,6 +31,9 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
+if exists(':HTMLERROR') != 2
+  command! -nargs=+ HTMLERROR echohl ErrorMsg | echomsg <q-args> | echohl None
+endif
 
 def MangleImageTag#Update() # {{{1
   var start_linenr = line('.')
@@ -39,10 +42,7 @@ def MangleImageTag#Update() # {{{1
   var line = getline(start_linenr)
 
   if line !~? '<img'
-    echohl ErrorMsg
-    echomsg "The current line does not contain an IMG tag (see :help ;mi)."
-    echohl None
-
+    HTMLERROR The current line does not contain an IMG tag (see :help ;mi).
     return
   endif
 
@@ -67,10 +67,7 @@ def MangleImageTag#Update() # {{{1
   tag = tag->strpart(0, tagend)
 
   if tag[0] != '<' || col > strlen(savestart .. tag) - 1
-    echohl ErrorMsg
-    echomsg "The cursor is not on an IMG tag."
-    echohl None
-
+    HTMLERROR The cursor is not on an IMG tag.
     return
   endif
 
@@ -84,10 +81,7 @@ def MangleImageTag#Update() # {{{1
       case = true
     endif
   else
-    echohl ErrorMsg
-    echomsg "Image SRC not specified in the tag."
-    echohl None
-
+    HTMLERROR Image SRC not specified in the tag.
     return
   endif
 
@@ -95,10 +89,7 @@ def MangleImageTag#Update() # {{{1
     if filereadable(expand("%:p:h") .. '/' .. src)
       src = expand("%:p:h") .. '/' .. src
     else
-      echohl ErrorMsg
-      echomsg "Can not find image file (or it is not readable): " .. src
-      echohl None
-
+      execute 'HTMLERROR Can not find image file (or it is not readable): ' .. src
       return
     endif
   endif
@@ -142,26 +133,22 @@ def ImageSize(image: string): list<number> # {{{1
   var ext = fnamemodify(image, ':e')
   var size: list<number>
 
-  if ext !~? 'png\|gif\|jpe\?g'
-    echohl ErrorMsg
-    echomsg "Image type not recognized: " .. tolower(ext)
-    echohl None
-
+  if ext !~? '^png$\|^gif$\|^jpe\?g$'
+    execute 'HTMLERROR Image type not supported: ' .. tolower(ext)
     return []
   endif
 
   if filereadable(image) == 1
+    var buf: list<number>
+    var i = 0
+
     # Note that the 1024 here is not bytes, but lines,
     # whereas below the 1024 IS bytes:
-    var buf = readfile(image, 'b', 1024)
-    var buf2: list<number>
-
-    var i = 0
-    for l in buf
-      var string = split(l, '\zs')
+    for line in readfile(image, 'b', 1024)
+      var string = split(line, '\zs')
       for c in string
         var char = char2nr(c)
-        buf2->add((char == 10 ? 0 : char))
+        buf->add((char == 10 ? 0 : char))
 
         # Keep the script from being too slow, but could cause a JPG
         # (and GIF/PNG?) to return as "malformed":
@@ -170,21 +157,18 @@ def ImageSize(image: string): list<number> # {{{1
           break
         endif
       endfor
-      buf2->add(10)
+      buf->add(10)
     endfor
 
     if ext ==? 'png'
-      size = buf2->SizePng()
+      size = buf->SizePng()
     elseif ext ==? 'gif'
-      size = buf2->SizeGif()
+      size = buf->SizeGif()
     elseif ext ==? 'jpg' || ext ==? 'jpeg'
-      size = buf2->SizeJpg()
+      size = buf->SizeJpg()
     endif
   else
-    echohl ErrorMsg
-    echomsg "Can not read file: " .. image
-    echohl None
-
+    execute 'HTMLERROR Can not read file: ' .. image
     return []
   endif
 
@@ -206,9 +190,7 @@ def SizeGif(lines: list<number>): list<number> # {{{1
     i += 1
   endwhile
 
-  echohl ErrorMsg
-  echomsg "Malformed GIF file."
-  echohl None
+  HTMLERROR Malformed GIF file.
 
   return []
 enddef
@@ -227,9 +209,7 @@ def SizeJpg(lines: list<number>): list<number> # {{{1
     i += 1
   endwhile
 
-  echohl ErrorMsg
-  echomsg "Malformed JPEG file."
-  echohl None
+  HTMLERROR Malformed JPEG file.
 
   return []
 enddef
@@ -248,18 +228,19 @@ def SizePng(lines: list<number>): list<number> # {{{1
     i += 1
   endwhile
 
-  echohl ErrorMsg
-  echomsg "Malformed PNG file."
-  echohl None
+  HTMLERROR Malformed PNG file.
 
   return []
 enddef
 
-def Vec(nums: list<number>): number # {{{1
+def Vec(numbers: list<number>): number # {{{1
   var n = 0
-  for i in nums
-    n = n * 256 + i
-  endfor
+  numbers->mapnew(
+    (_, i) => {
+      n = n * 256 + i
+      return
+    }
+  )
   return n
 enddef
 

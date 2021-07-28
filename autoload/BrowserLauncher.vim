@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023224
+if v:version < 802 || v:versionlong < 8023228
   finish
 endif
 
@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 26, 2021
+# Last Change: July 27, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -86,9 +86,9 @@ add(g:html_function_files, expand('<sfile>:p'))->sort()->uniq()
 
 
 if exists(':HTMLWARN') != 2
-  command! -nargs=+ HTMLWARN :echohl WarningMsg | echomsg <q-args> | echohl None
-  command! -nargs=+ HTMLERROR :echohl ErrorMsg | echomsg <q-args> | echohl None
-  command! -nargs=+ HTMLMESG :echohl Todo | echo <q-args> | echohl None
+  command! -nargs=+ HTMLWARN echohl WarningMsg | echomsg <q-args> | echohl None
+  command! -nargs=+ HTMLMESG echohl Todo | echo <q-args> | echohl None
+  command! -nargs=+ HTMLERROR echohl ErrorMsg | echomsg <q-args> | echohl None
 endif
 
 # Allow auto-scoping to work properly for Vim 9,
@@ -110,16 +110,18 @@ var MacBrowsersExist = ['default']
 # Return value:
 #  None
 def FindTextmodeBrowsers()
-  var temp: string
-
-  for textbrowser in copy(TextmodeBrowsers)
-    temp = system('which ' .. textbrowser)->trim()
-    if v:shell_error == 0
-      Browsers[textbrowser] = [textbrowser, temp, '', '', '']
-    else
-      TextmodeBrowsers->remove(TextmodeBrowsers->match('^\c\V' .. textbrowser .. '\$'))
-    endif
-  endfor
+  TextmodeBrowsers->copy()->mapnew(
+    (_, textbrowser) => {
+      var temp: string
+      temp = system('which ' .. textbrowser)->trim()
+      if v:shell_error == 0
+        Browsers[textbrowser] = [textbrowser, temp, '', '', '']
+      else
+        TextmodeBrowsers->remove(TextmodeBrowsers->match('^\c\V' .. textbrowser .. '\$'))
+      endif
+      return
+    }
+  )
 enddef # }}}1
 
 if has('mac') || has('macunix')  # {{{1

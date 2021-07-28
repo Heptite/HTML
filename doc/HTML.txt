@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Jul 26
+		Last change: 2021 Jul 27
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -609,8 +609,8 @@ another character of your preference. See |g:html_map_leader|.
 	</DIV>
 <	(|n_;|)
 							*i_;eb* *v_;eb* *n_;eb*
-;eb	Embedded element, plus NOEMBED: >
-	<EMBED SRC="" WIDTH="" HEIGHT="">
+;eb	Embedded element: >
+	<EMBED TYPE="" SRC="" WIDTH="" HEIGHT="">
 <	Visual mode puts the selected text SRC="here". (|n_;|)
 							*i_;ob* *v_;ob* *n_;ob*
 ;ob	Generic embedded object: >
@@ -1529,7 +1529,7 @@ HTML#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 	also be inserted.  Note that the header and footer is exclusive of the
 	row count.
 
-HTML#Map({maptype}, {lhs}, {rhs} [, {re-indent}])	*HTML#Map()*
+HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 	This function defines a mapping, local to the buffer and silent.
 	{maptype} is any map command. {lhs} and {rhs} are equivalent to :map
 	arguments, see |map.txt|. This is useful for autocommands and HTML
@@ -1545,19 +1545,20 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {re-indent}])	*HTML#Map()*
 	uppercase/lowercase according to the |g:html_tag_case| or
 	|b:html_tag_case| variable, and the [{}] markers will be removed.
 
-	{re-indent} is optional, applies only to visual maps when filetype
-	indenting is enabled, and should not be used for maps that enter
-	insert mode. If the value is 1, the visually selected area is
-	re-selected, plus one line below, and re-indented. A value of 2 does
-	the same without moving down a line.
+	{options} is optional, but if it exists it's a dictionary that
+	specifies behavior for visual mappings:
 
-	The special cases of 0 means the visual mapping enters visual mode,
-	and -1 tells the function not to add any special extra code to the
-	visual mapping.
+	{"extra": false} ~
+	Do not add extra magic to the visual mapping. This suppresses the
+	other options.
 
-	Note that more "magic" than what is documented here gets applied to
-	the mappings depending on their mode, the value of {re-indent} and so
-	on.
+	{"insert": true} ~
+	The visual mapping enters insert mode. (Note this doesn't put the
+	mapping into insert mode itself, but only tells HTML#Map that the
+	visual mapping enters visual mode so it behaves slightly differently.)
+
+	{"reindent": N} ~
+	Re-indent the visually selected lines, plus N lines below.
 
 HTML#Mapo({map}, {insert})				*HTML#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the

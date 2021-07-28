@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023224
+if v:version < 802 || v:versionlong < 8023228
   finish
 endif
 
 # Various functions for the HTML.vim filetype plugin.
 #
-# Last Change: July 26, 2021
+# Last Change: July 27, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -30,9 +30,9 @@ endif
 # https://www.gnu.org/licenses/licenses.html#GPL
 
 if exists(':HTMLWARN') != 2
-  command! -nargs=+ HTMLWARN :echohl WarningMsg | echomsg <q-args> | echohl None
-  command! -nargs=+ HTMLERROR :echohl ErrorMsg | echomsg <q-args> | echohl None
-  command! -nargs=+ HTMLMESG :echohl Todo | echo <q-args> | echohl None
+  command! -nargs=+ HTMLWARN echohl WarningMsg | echomsg <q-args> | echohl None
+  command! -nargs=+ HTMLMESG echohl Todo | echo <q-args> | echohl None
+  command! -nargs=+ HTMLERROR echohl ErrorMsg | echomsg <q-args> | echohl None
 endif
 
 # HTML#SetIfUnset()  {{{1
@@ -185,7 +185,7 @@ def HTML#FilesWithMatch(files: list<string>, pat: string, max: number = -1): lis
   return matched
 enddef
 
-# CharToEntities()  {{{1
+# CharToEntity()  {{{1
 #
 # Convert a character to its corresponding character entity, or its numeric
 # form if the entity doesn't exist in the lookup table.
@@ -194,7 +194,7 @@ enddef
 #  1 - Character: The character to encode
 # Return Value:
 #  String: The entity representing the character
-def CharToEntities(char: string): string
+def CharToEntity(char: string): string
   var newchar: string
   
   if len(char) > 1
@@ -211,7 +211,7 @@ def CharToEntities(char: string): string
   return newchar
 enddef
 
-# EntitiesToChar()  {{{1
+# EntityToChar()  {{{1
 #
 # Convert character entities to its corresponing character.
 #
@@ -219,7 +219,7 @@ enddef
 #  1 - String: The entity to decode
 # Return Value:
 #  String: The decoded character
-def EntitiesToChar(entity: string): string
+def EntityToChar(entity: string): string
   var char: string
 
   if exists('DictEntitiesToChar["' .. entity .. '"]')
@@ -722,9 +722,12 @@ var DictEntitiesToChar = { # {{{
   "&yopf;": "\U1D56A", "&zopf;": "\U1D56B"
 }
 var DictCharToEntities: dict<string>
-for [entity, char] in items(DictEntitiesToChar)
-  DictCharToEntities[char] = entity
-endfor # }}}
+DictEntitiesToChar->mapnew(
+  (key, value) => {
+    DictCharToEntities[value] = key
+    return
+  }
+) # }}}
 
 # HTML#EncodeString()  {{{1
 #
@@ -745,8 +748,7 @@ def HTML#EncodeString(str: string, code: string = ''): string
   var out = str
 
   if code == ''
-    #out = out->substitute('.', '\=printf("&#%d;", submatch(0)->char2nr())', 'g')
-    out = out->substitute('.', '\=CharToEntities(submatch(0))', 'g')
+    out = out->substitute('.', '\=submatch(0)->CharToEntity()', 'g')
   elseif code == 'x'
     out = out->substitute('.', '\=printf("&#x%x;", submatch(0)->char2nr())', 'g')
   elseif code == '%'
@@ -760,7 +762,8 @@ enddef
 
 # HTML#DecodeSymbol()  {{{1
 #
-# Decode the HTML symbol string to its literal character counterpart
+# Decode the HTML entity or URI symbol string to its literal character
+# counterpart
 #
 # Arguments:
 #  1 - String:  The string to decode.
@@ -770,7 +773,7 @@ def HTML#DecodeSymbol(symbol: string): string
   var char: string
 
   if symbol =~ '^&#\(x\x\+\);$\|^&#\(\d\+\);$\|^&\(\a\+\);$'
-    char = EntitiesToChar(symbol)
+    char = EntityToChar(symbol)
   elseif symbol =~ '^%\(\x\x\)$'
     char = symbol->strpart(1, symbol->strlen() - 1)->str2nr(16)->nr2char()
   else
@@ -788,14 +791,14 @@ enddef
 #  1 - String:  Which map command to run.
 #  2 - String:  LHS of the map.
 #  3 - String:  RHS of the map.
-#  4 - Integer: Optional, applies only to visual maps:
-#                -1: Don't add any extra special code to the mapping.
-#                 0: Mapping enters insert mode.
-#               Applies only when filetype indenting is on:
-#                 1: re-selects the region, moves down a line, and re-indents.
-#                 2: re-selects the region and re-indents.
-#                 (Don't use these two arguments for maps that enter insert
-#                 mode!)
+#  4 - Dictionary: Optional, applies only to visual maps:
+#                {'extra': bool}
+#                 Whether to suppress extra code on the mapping
+#                {'insert': bool}
+#                 Whether mapping enters insert mode
+#                {'reindent': number}
+#                 Re-selects the region, moves down "number" lines, and
+#                 re-indents (applies only when filetype indenting is on)
 # Return Value:
 #  Boolean: Whether a mapping was defined
 const MODES = {  # {{{
@@ -807,7 +810,9 @@ const MODES = {  # {{{
       'l': 'langmap',
     }  # }}}
 
-def HTML#Map(cmd: string, map: string, arg: string, extra: number = -999): bool
+def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
+  g:tmpopts = opts
+
   if exists('g:html_map_leader') == 0 && map =~? '^<lead>'
     HTMLERROR g:html_map_leader is not set! No mapping defined.
     return false
@@ -840,14 +845,18 @@ def HTML#Map(cmd: string, map: string, arg: string, extra: number = -999): bool
 
     # Note that <C-c>:-command is necessary instead of just <Cmd> because
     # <Cmd> doesn't update visual marks, which the mappings rely on:
-    if extra < 0 && extra != -999
+    if exists('g:tmpopts["extra"]') && ! g:tmpopts['extra']
       execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
-    elseif extra >= 1
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:vim9cmd HTML#TO(v:false)<CR>gv" .. newarg
-        .. ":vim9cmd HTML#TO(v:true)<CR>m':vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), " .. extra .. ")<CR>``"
-    elseif extra == 0
+    elseif exists('g:tmpopts["insert"]') && g:tmpopts['insert'] && exists('g:tmpopts["reindent"]')
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:vim9cmd HTML#TO(v:false)<CR><C-O>gv" .. newarg
+        .. "<C-O>:vim9cmd HTML#TO(v:true)<CR><C-O>m'<C-O>:vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. g:tmpopts['reindent'] .. ")<CR><C-O>``"
+    elseif exists('g:tmpopts["insert"]') && g:tmpopts['insert']
       execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:vim9cmd HTML#TO(v:false)<CR>gv" .. newarg
         .. "<C-O>:vim9cmd HTML#TO(v:true)<CR>"
+    elseif exists('g:tmpopts["reindent"]')
+      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:vim9cmd HTML#TO(v:false)<CR>gv" .. newarg
+        .. ":vim9cmd HTML#TO(v:true)<CR>m':vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), " .. g:tmpopts['reindent'] .. ")<CR>``"
     else
       execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:vim9cmd HTML#TO(v:false)<CR>gv" .. newarg
         .. ":vim9cmd HTML#TO(v:true)<CR>"
@@ -864,7 +873,9 @@ def HTML#Map(cmd: string, map: string, arg: string, extra: number = -999): bool
 
   # Save extra mappings so they can be restored if we need to later:
   ExtraMappingsAdd(':vim9cmd HTML#Map("' .. cmd .. '", "' .. map->escape('"\')
-        .. '", "' .. arg->escape('"\') .. (extra != -999 ? ('", ' .. extra) : '"' ) .. ')')
+    .. '", "' .. arg->escape('"\') .. (g:tmpopts != {} ? string(g:tmpopts) : '') .. ')')
+
+  unlet g:tmpopts
 
   return true
 enddef
@@ -877,8 +888,6 @@ enddef
 # Arguments:
 #  1 - String:  The mapping.
 #  2 - Boolean: Whether to enter insert mode after the mapping has executed.
-#               (A value greater than 1 tells the mapping not to move right one
-#               character.)
 # Return Value:
 #  Boolean: Whether a mapping was defined
 def HTML#Mapo(map: string, insert: bool): bool
@@ -970,9 +979,7 @@ def HTML#WR(type: string)
   &selection = sel_save
 
   if b:htmltaginsert
-    if b:htmltaginsert < 2
-      execute "normal \<Right>"
-    endif
+    execute "normal \<Right>"
     silent startinsert
   endif
 enddef
@@ -1107,70 +1114,78 @@ enddef
 # b:html_tag_case.
 #
 # Arguments:
-#  1 - String: The string with the regions to convert surrounded by [{...}].
+#  1 - String or List<String>: The string(s) with the regions to convert
+#      surrounded by [{...}].
 # Return Value:
-#  The converted string.
-def HTML#ConvertCase(str: string): string
-  var newstr = str
+#  The converted string(s).
+def HTML#ConvertCase(str: any): any
+  var newstr: list<string>
+  var newnewstr: list<string>
+  if type(str) == type([])
+    newstr = str
+  else
+    newstr = [str]
+  endif
 
   if ! exists('b:html_tag_case')
     b:html_tag_case = g:html_tag_case
   endif
 
   if b:html_tag_case =~? '^u\(pper\(case\)\?\)\?'
-    newstr = newstr->substitute('\[{\(.\{-}\)}\]', '\U\1', 'g')
+    newnewstr = newstr->mapnew(
+      (_, value): string => {
+        return value->substitute('\[{\(.\{-}\)}\]', '\U\1', 'g')
+      }
+    )
   elseif b:html_tag_case =~? '^l\(ower\(case\)\?\)\?'
-    newstr = newstr->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g')
+    newnewstr = newstr->mapnew(
+      (_, value): string => {
+        return value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g')
+      }
+    )
   else
     execute "HTMLWARN WARNING: b:html_tag_case = '" .. b:html_tag_case .. "' invalid, overriding to 'lowercase'."
     b:html_tag_case = 'lowercase'
     newstr = newstr->HTML#ConvertCase()
   endif
 
-  return newstr
+  if type(str) == type([])
+    return newnewstr
+  else
+    return newnewstr[0]
+  endif
 enddef
 
 # HTML#ReIndent()  {{{1
 #
 # Re-indent a region.  (Usually called by HTML#Map.)
-#  Nothing happens if filetype indenting isn't enabled or 'indentexpr' is
+#  Nothing happens if filetype indenting isn't enabled and 'indentexpr' is
 #  unset.
 #
 # Arguments:
 #  1 - Integer: Start of region.
 #  2 - Integer: End of region.
-#  3 - Integer: 1: Add an extra line below the region to re-indent.
-#               *: Don't add an extra line.
-#               (This isn't a boolean because that makes other code too
-#               complex.)
-var filetype_output: string
-def HTML#ReIndent(first: number, last: number, extraline: number)
+#  3 - Integer: Optional - Add N extra lines below the region to re-indent.
+#  4 - Integer: Optional - Add N extra lines above the region to re-indent.
+def HTML#ReIndent(first: number, last: number, extralines: number = 0, prelines: number = 0)
   var firstline: number
   var lastline: number
+  var filetypeoutput: string
 
   # To find out if filetype indenting is enabled:
-  silent! redir =>filetype_output | silent! filetype | redir END
+  silent! redir =>filetypeoutput | silent! filetype | redir END
 
-  if filetype_output =~ "indent:OFF" && &indentexpr == ''
+  if filetypeoutput =~ "indent:OFF" && &indentexpr == ''
     return
   endif
 
   # Make sure the range is in the proper order:
   if last >= first
-    firstline = first
-    lastline = last
+    firstline = first - prelines
+    lastline = last + extralines
   else
-    lastline = first
-    firstline = last
-  endif
-
-  # Make sure the full region to be re-indendted is included:
-  if extraline == 1
-    if firstline == lastline
-      lastline = lastline + 2
-    else
-      lastline = lastline + 1
-    endif
+    firstline = last - prelines
+    lastline = first + extralines
   endif
 
   execute ':' .. firstline .. ',' .. lastline .. 'norm =='
@@ -1500,50 +1515,52 @@ def HTML#GenerateTable(rows: number = -1, columns: number = -1, border: number =
   endif
 
   if newborder > 0
-    lines->add(HTML#ConvertCase('<[{TABLE BORDER}]="' .. border .. '">'))
+    lines->add('<[{TABLE BORDER}]="' .. border .. '">')
   else
-    lines->add(HTML#ConvertCase('<[{TABLE}]>'))
+    lines->add('<[{TABLE}]>')
   endif
 
   if newthead
-    lines->add(HTML#ConvertCase('<[{THEAD}]>'))
-    lines->add(HTML#ConvertCase('<[{TR}]>'))
+    lines->add('<[{THEAD}]>')
+    lines->add('<[{TR}]>')
     for c in newcolumns->range()
-      lines->add(HTML#ConvertCase('<[{TH></TH}]>'))
+      lines->add('<[{TH></TH}]>')
     endfor
-    lines->add(HTML#ConvertCase('</[{TR}]>'))
-    lines->add(HTML#ConvertCase('</[{THEAD}]>'))
+    lines->add('</[{TR}]>')
+    lines->add('</[{THEAD}]>')
   endif
 
   if newthead || newtfoot
-    lines->add(HTML#ConvertCase('<[{TBODY}]>'))
+    lines->add('<[{TBODY}]>')
   endif
 
   for r in newrows->range()
-    lines->add(HTML#ConvertCase('<[{TR}]>'))
+    lines->add('<[{TR}]>')
 
     for c in newcolumns->range()
-      lines->add(HTML#ConvertCase('<[{TD></TD}]>'))
+      lines->add('<[{TD></TD}]>')
     endfor
 
-    lines->add(HTML#ConvertCase('</[{TR}]>'))
+    lines->add('</[{TR}]>')
   endfor
 
   if newthead || newtfoot
-    lines->add(HTML#ConvertCase('</[{TBODY}]>'))
+    lines->add('</[{TBODY}]>')
   endif
 
   if newtfoot
-    lines->add(HTML#ConvertCase('<[{TFOOT}]>'))
-    lines->add(HTML#ConvertCase('<[{TR}]>'))
+    lines->add('<[{TFOOT}]>')
+    lines->add('<[{TR}]>')
     for c in newcolumns->range()
-      lines->add(HTML#ConvertCase('<[{TD></TD}]>'))
+      lines->add('<[{TD></TD}]>')
     endfor
-    lines->add(HTML#ConvertCase('</[{TR}]>'))
-    lines->add(HTML#ConvertCase('</[{TFOOT}]>'))
+    lines->add('</[{TR}]>')
+    lines->add('</[{TFOOT}]>')
   endif
 
-  lines->add(HTML#ConvertCase("</[{TABLE}]>"))
+  lines->add("</[{TABLE}]>")
+
+  lines = lines->HTML#ConvertCase()
 
   lines->append('.')
 
@@ -1571,9 +1588,12 @@ enddef
 # Return Value:
 #  None
 def ClearMappings()
-  for mapping in b:HTMLclearMappings
-    silent! execute mapping
-  endfor
+  b:HTMLclearMappings->mapnew(
+    (_, mapping) => {
+      silent! execute mapping
+      return
+    }
+  )
   b:HTMLclearMappings = []
   unlet b:did_html_mappings
 enddef
@@ -1589,9 +1609,12 @@ enddef
 #  None
 def DoExtraMappings()
   doing_extra_html_mappings = true
-  for mapping in b:HTMLextraMappings
-    silent! execute mapping
-  endfor
+  b:HTMLextraMappings->mapnew(
+    (_, mapping) => {
+      silent! execute mapping
+      return
+    }
+  )
   doing_extra_html_mappings = false
 enddef
 
@@ -1824,8 +1847,10 @@ def HTML#ShowColors(str: string='')
   inoremap <silent> <buffer> <space> <C-o><C-f>
   noremap <silent> <buffer> b <C-b>
   inoremap <silent> <buffer> b <C-o><C-b>
-  noremap <silent> <buffer> <tab> <Cmd>vim9cmd search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
-  inoremap <silent> <buffer> <tab> <Cmd>vim9cmd search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}')<CR>
+  noremap <silent> <buffer> <tab> <Cmd>vim9cmd search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}', 'w')<CR>
+  inoremap <silent> <buffer> <tab> <Cmd>vim9cmd search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}', 'w')<CR>
+  noremap <silent> <buffer> <s-tab> <Cmd>vim9cmd search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}', 'bw')<CR>
+  inoremap <silent> <buffer> <s-tab> <Cmd>vim9cmd search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}', 'bw')<CR>
 
   var ins = ''
   if str != ''
