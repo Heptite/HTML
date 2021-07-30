@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023228
+if v:version < 802 || v:versionlong < 8023236
   finish
 endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: July 27, 2021
+# Last Change: July 30, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -31,9 +31,13 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-if exists(':HTMLERROR') != 2
-  command! -nargs=+ HTMLERROR echohl ErrorMsg | echomsg <q-args> | echohl None
-endif
+if exists(':HTMLERROR') != 2  # {{{1
+  command! -nargs=+ HTMLERROR {
+      echohl ErrorMsg
+      echomsg <q-args>
+      echohl None
+    }
+endif  # }}}1
 
 def MangleImageTag#Update() # {{{1
   var start_linenr = line('.')
@@ -41,14 +45,37 @@ def MangleImageTag#Update() # {{{1
   var col = col('.') - 1
   var line = getline(start_linenr)
 
+  normal m'
+
   if line !~? '<img'
-    HTMLERROR The current line does not contain an IMG tag (see :help ;mi).
-    return
+    var attr = synID(line('.'), col('.') - 1, 1)->synIDattr('name')
+
+    if attr ==? 'htmlTag' || attr ==? 'htmlArg' || attr ==? 'htmlString'
+      while getline('.')->strpart(col('.') - 1, 1) != '<'
+        execute 'keepjumps go ' .. (line('.')->line2byte() + col('.') - 2)
+      endwhile
+
+      start_linenr = line('.')
+      end_linenr = start_linenr
+      line = getline(start_linenr)
+      col = col('.') - 1
+
+      if line !~? '<img'
+        HTMLERROR The cursor isn't on an IMG tag.
+        normal ``
+        return
+      endif
+
+    else
+      HTMLERROR The cursor isn't on an IMG tag.
+      normal ``
+      return
+    endif
   endif
 
   # Get the rest of the tag if we have a partial tag:
   while line =~? '<img\_[^>]*$'
-    end_linenr = end_linenr + 1
+    end_linenr += 1
     line = line .. "\n" .. getline(end_linenr)
   endwhile
 
@@ -68,6 +95,7 @@ def MangleImageTag#Update() # {{{1
 
   if tag[0] != '<' || col > strlen(savestart .. tag) - 1
     HTMLERROR The cursor is not on an IMG tag.
+    normal ``
     return
   endif
 
@@ -82,6 +110,7 @@ def MangleImageTag#Update() # {{{1
     endif
   else
     HTMLERROR Image SRC not specified in the tag.
+    normal ``
     return
   endif
 
@@ -90,12 +119,14 @@ def MangleImageTag#Update() # {{{1
       src = expand("%:p:h") .. '/' .. src
     else
       execute 'HTMLERROR Can not find image file (or it is not readable): ' .. src
+      normal ``
       return
     endif
   endif
 
   var size = ImageSize(src)
   if len(size) != 2
+    normal ``
     return
   endif
 
@@ -127,6 +158,8 @@ def MangleImageTag#Update() # {{{1
   line->split("\n")->setline(start_linenr)
 
   &autoindent = saveautoindent
+
+  normal ``
 enddef
 
 def ImageSize(image: string): list<number> # {{{1

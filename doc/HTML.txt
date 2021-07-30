@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Jul 27
+		Last change: 2021 Jul 30
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -65,7 +65,8 @@ example, if you are within <I></I> and type ;em it will assume you want
 	typing ;& in insert mode will insert a literal & character.
 	(In actuality this mapping is defined as |g:html_map_leader| +
 	|g:html_map_entity_leader| to insert whatever is in
-	|g:html_map_entity_leader|.) (Also see |n_;&|)
+	|g:html_map_entity_leader|.) (Note that this mapping behaves very
+	differently in visual mode. See: |n_;&|) 
 
 				*html-<Tab>* *html-tab* *html-CTRL-I*
 				*i_html-<Tab>* *i_html-tab* *i_html-CTRL-I*
@@ -724,14 +725,14 @@ another character of your preference. See |g:html_map_leader|.
 	<I></I>
 <	(|html-smart-tag|) (|n_;|)
 							*i_;js*
-;js	Inline Javascript: >
+;js	Inline JavaScript: >
 	<SCRIPT TYPE="text/javascript" LANGUAGE="javascript">
 	 <!--
 
 	 // -->
 	</SCRIPT>
 <							*i_;sj*
-;sj	External Javascript: >
+;sj	External (sourced) JavaScript: >
 	<SCRIPT SRC="" TYPE="text/javascript" LANGUAGE="javascript"></SCRIPT>
 <							*i_;ns* *v_;ns* *n_;ns*
 ;ns	Alternate content for browsers with script handling turned off: >
@@ -777,9 +778,8 @@ another character of your preference. See |g:html_map_leader|.
 	the visually selected text <META HTTP-EQUIV="" CONTENT="here">.
 	(|n_;|)
 							*i_;mi* *v_;mi* *n_;mi*
-;mi	Automatically add or update the WIDTH and HEIGHT attributes of an
-	<IMG> tag. If the <IMG> tag spans multiple lines the cursor must be
-	on the first line of the tag.
+;mi	Automatically add or update the WIDTH and HEIGHT attributes of the
+	<IMG> tag under the cursor.
 							*i_;na* *v_;na* *n_;na*
 ;na	Navigation links: >
 	<NAV>
@@ -1070,6 +1070,10 @@ another character of your preference. See |g:html_map_leader|.
 Server Side Include directives for Apache and other supported web servers.
 See: https://en.wikipedia.org/wiki/Server_Side_Includes
 
+For all of these the cursor is placed on the second " in insert mode, and
+highlighted text is inserted between the ""'s for visual mode, except the
+|v_;ie| mapping, where text is inserted between the if and else lines.
+
 							*i_;cf* *v_;cf* *n_;cf*
 ;cf	<!--#config timefmt="" -->  (|n_;|)
 							*i_;cz* *v_;cz* *n_;cz*
@@ -1102,6 +1106,9 @@ characters into the HTML buffer. These are known as characters entities.
 	their &#...; entities, where "..." is equivalent to the ASCII decimal
 	representation. For example, "foo bar" would become
 	"&#102;&#111;&#111;&#32;&#98;&#97;&#114;". (See |i_;&|) (|n_;|)
+
+	This can be very slow if you translate a long string and syntax
+	highlighting is enabled.
 
 	(Note that the "&" in this mapping is not translated to whatever
 	|g:html_map_entity_leader| is set to.)
@@ -1555,15 +1562,17 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 	{"insert": true} ~
 	The visual mapping enters insert mode. (Note this doesn't put the
 	mapping into insert mode itself, but only tells HTML#Map that the
-	visual mapping enters visual mode so it behaves slightly differently.)
+	visual mapping ends in insert mode so it behaves somewhat
+	differently.)
 
 	{"reindent": N} ~
-	Re-indent the visually selected lines, plus N lines below.
+	Re-indent the visually selected lines, plus N lines below. This value
+	is usally going to be 1, and sometimes 2; very rarely other values.
 
-HTML#Mapo({map}, {insert})				*HTML#Mapo()*
+HTML#Mapo({map} [, {insert}])				*HTML#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
 	visual mapping by the same name. {insert} is a boolean value that
-	indicates whether to end in insert mode.
+	indicates whether to end in insert mode, default false.
 
 HTML#NextInsertPoint([{mode}])				*HTML#NextInsertPoint()*
 	This is normally called by the |i_;<Tab>| mapping, but it works the
@@ -1582,7 +1591,7 @@ HTML#SetIfUnset({variable}, {value})			*HTML#SetIfUnset()*
 	empty string, a {value} of [] initializes to an empty list, and a
 	value of {} initializes to an empty dictionary. Be sure to enclose
 	the variable name in quotes. This function will not work for
-	function-local variables. (|l:var|)
+	function-local variables (|l:var|).
 
 
 Author's notes:						*html-author-notes*

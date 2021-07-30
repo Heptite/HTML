@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023228
+if v:version < 802 || v:versionlong < 8023236
   finish
 endif
 
-# Various functions for the HTML.vim filetype plugin.
+# Various functions for the HTML macros filetype plugin.
 #
-# Last Change: July 27, 2021
+# Last Change: July 29, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -29,11 +29,26 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-if exists(':HTMLWARN') != 2
-  command! -nargs=+ HTMLWARN echohl WarningMsg | echomsg <q-args> | echohl None
-  command! -nargs=+ HTMLMESG echohl Todo | echo <q-args> | echohl None
-  command! -nargs=+ HTMLERROR echohl ErrorMsg | echomsg <q-args> | echohl None
-endif
+if exists(':HTMLWARN') != 2  # {{{1
+  command! -nargs=+ HTMLWARN {
+      echohl WarningMsg
+      echomsg <q-args>
+      echohl None
+    }
+  command! -nargs=+ HTMLMESG {
+      echohl Todo
+      echo <q-args>
+      echohl None
+    }
+  command! -nargs=+ HTMLERROR {
+      echohl ErrorMsg
+      echomsg <q-args>
+      echohl None
+    }
+endif  # }}}1
+
+# Used by some of the functions to save then restore some options:
+var saveopts: dict<any>
 
 # HTML#SetIfUnset()  {{{1
 #
@@ -82,11 +97,7 @@ def HTML#SetIfUnset(variable: string, ...args: list<any>): number
       execute newvariable .. " = '" .. val->escape("'\\") .. "'"
     endif
   else
-    # Unfortunately this is a suboptimal way to do this, but Vim9script
-    # doesn't allow me to do it any other way:
-    g:tmpvarval = val
-    execute newvariable .. ' = g:tmpvarval'
-    unlet g:tmpvarval
+    execute newvariable .. ' = ' .. string(val)
   endif
 
   return 1
@@ -109,7 +120,7 @@ def HTML#BoolVar(variable: string): bool
   var newvariable = variable
 
   if variable !~ '^[bgstvw]:'
-    newvariable = "g:" .. variable
+    newvariable = 'g:' .. variable
   endif
 
   if newvariable->IsSet()
@@ -202,10 +213,10 @@ def CharToEntity(char: string): string
     return char
   endif
 
-  if exists('DictCharToEntities["' .. char .. '"]')
+  if DictCharToEntities->has_key(char)
     newchar = DictCharToEntities[char]
   else
-    newchar = printf("&#%d;", char->char2nr())
+    newchar = printf('&#%d;', char->char2nr())
   endif
 
   return newchar
@@ -222,7 +233,7 @@ enddef
 def EntityToChar(entity: string): string
   var char: string
 
-  if exists('DictEntitiesToChar["' .. entity .. '"]')
+  if DictEntitiesToChar->has_key(entity)
     char = DictEntitiesToChar[entity]
   elseif entity =~ '^&#\(x\x\+\);$'
     char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
@@ -237,489 +248,489 @@ enddef
 
 # https://dev.w3.org/html5/html-author/charref
 var DictEntitiesToChar = { # {{{
-  "&Tab;": "\x9", "&NewLine;": "\xA", "&excl;": "\x21",
-  "&quot;": "\x22", "&num;": "\x23", "&dollar;": "\x24",
-  "&percnt;": "\x25", "&amp;": "\x26", "&apos;": "\x27",
-  "&lpar;": "\x28", "&rpar;": "\x29", "&ast;": "\x2A",
-  "&plus;": "\x2B", "&comma;": "\x2C", "&period;": "\x2E",
-  "&sol;": "\x2F", "&colon;": "\x3A", "&semi;": "\x3B",
-  "&lt;": "\x3C", "&equals;": "\x3D", "&gt;": "\x3E",
-  "&quest;": "\x3F", "&commat;": "\x40", "&lsqb;": "\x5B",
-  "&bsol;": "\x5C", "&rsqb;": "\x5D", "&Hat;": "\x5E",
-  "&lowbar;": "\x5F", "&grave;": "\x60", "&lcub;": "\x7B",
-  "&verbar;": "\x7C", "&rcub;": "\x7D", "&nbsp;": "\xA0",
-  "&iexcl;": "\xA1", "&cent;": "\xA2", "&pound;": "\xA3",
-  "&curren;": "\xA4", "&yen;": "\xA5", "&brvbar;": "\xA6",
-  "&sect;": "\xA7", "&uml;": "\xA8", "&copy;": "\xA9",
-  "&ordf;": "\xAA", "&laquo;": "\xAB", "&not;": "\xAC",
-  "&shy;": "\xAD", "&reg;": "\xAE", "&macr;": "\xAF",
-  "&deg;": "\xB0", "&plusmn;": "\xB1", "&sup2;": "\xB2",
-  "&sup3;": "\xB3", "&acute;": "\xB4", "&micro;": "\xB5",
-  "&para;": "\xB6", "&middot;": "\xB7", "&cedil;": "\xB8",
-  "&sup1;": "\xB9", "&ordm;": "\xBA", "&raquo;": "\xBB",
-  "&frac14;": "\xBC", "&frac12;": "\xBD", "&frac34;": "\xBE",
-  "&iquest;": "\xBF", "&Agrave;": "\xC0", "&Aacute;": "\xC1",
-  "&Acirc;": "\xC2", "&Atilde;": "\xC3", "&Auml;": "\xC4",
-  "&Aring;": "\xC5", "&AElig;": "\xC6", "&Ccedil;": "\xC7",
-  "&Egrave;": "\xC8", "&Eacute;": "\xC9", "&Ecirc;": "\xCA",
-  "&Euml;": "\xCB", "&Igrave;": "\xCC", "&Iacute;": "\xCD",
-  "&Icirc;": "\xCE", "&Iuml;": "\xCF", "&ETH;": "\xD0",
-  "&Ntilde;": "\xD1", "&Ograve;": "\xD2", "&Oacute;": "\xD3",
-  "&Ocirc;": "\xD4", "&Otilde;": "\xD5", "&Ouml;": "\xD6",
-  "&times;": "\xD7", "&Oslash;": "\xD8", "&Ugrave;": "\xD9",
-  "&Uacute;": "\xDA", "&Ucirc;": "\xDB", "&Uuml;": "\xDC",
-  "&Yacute;": "\xDD", "&THORN;": "\xDE", "&szlig;": "\xDF",
-  "&agrave;": "\xE0", "&aacute;": "\xE1", "&acirc;": "\xE2",
-  "&atilde;": "\xE3", "&auml;": "\xE4", "&aring;": "\xE5",
-  "&aelig;": "\xE6", "&ccedil;": "\xE7", "&egrave;": "\xE8",
-  "&eacute;": "\xE9", "&ecirc;": "\xEA", "&euml;": "\xEB",
-  "&igrave;": "\xEC", "&iacute;": "\xED", "&icirc;": "\xEE",
-  "&iuml;": "\xEF", "&eth;": "\xF0", "&ntilde;": "\xF1",
-  "&ograve;": "\xF2", "&oacute;": "\xF3", "&ocirc;": "\xF4",
-  "&otilde;": "\xF5", "&ouml;": "\xF6", "&divide;": "\xF7",
-  "&oslash;": "\xF8", "&ugrave;": "\xF9", "&uacute;": "\xFA",
-  "&ucirc;": "\xFB", "&uuml;": "\xFC", "&yacute;": "\xFD",
-  "&thorn;": "\xFE", "&yuml;": "\xFF", "&Amacr;": "\U100",
-  "&amacr;": "\U101", "&Abreve;": "\U102", "&abreve;": "\U103",
-  "&Aogon;": "\U104", "&aogon;": "\U105", "&Cacute;": "\U106",
-  "&cacute;": "\U107", "&Ccirc;": "\U108", "&ccirc;": "\U109",
-  "&Cdot;": "\U10A", "&cdot;": "\U10B", "&Ccaron;": "\U10C",
-  "&ccaron;": "\U10D", "&Dcaron;": "\U10E", "&dcaron;": "\U10F",
-  "&Dstrok;": "\U110", "&dstrok;": "\U111", "&Emacr;": "\U112",
-  "&emacr;": "\U113", "&Edot;": "\U116", "&edot;": "\U117",
-  "&Eogon;": "\U118", "&eogon;": "\U119", "&Ecaron;": "\U11A",
-  "&ecaron;": "\U11B", "&Gcirc;": "\U11C", "&gcirc;": "\U11D",
-  "&Gbreve;": "\U11E", "&gbreve;": "\U11F", "&Gdot;": "\U120",
-  "&gdot;": "\U121", "&Gcedil;": "\U122", "&Hcirc;": "\U124",
-  "&hcirc;": "\U125", "&Hstrok;": "\U126", "&hstrok;": "\U127",
-  "&Itilde;": "\U128", "&itilde;": "\U129", "&Imacr;": "\U12A",
-  "&imacr;": "\U12B", "&Iogon;": "\U12E", "&iogon;": "\U12F",
-  "&Idot;": "\U130", "&imath;": "\U131", "&IJlig;": "\U132",
-  "&ijlig;": "\U133", "&Jcirc;": "\U134", "&jcirc;": "\U135",
-  "&Kcedil;": "\U136", "&kcedil;": "\U137", "&kgreen;": "\U138",
-  "&Lacute;": "\U139", "&lacute;": "\U13A", "&Lcedil;": "\U13B",
-  "&lcedil;": "\U13C", "&Lcaron;": "\U13D", "&lcaron;": "\U13E",
-  "&Lmidot;": "\U13F", "&lmidot;": "\U140", "&Lstrok;": "\U141",
-  "&lstrok;": "\U142", "&Nacute;": "\U143", "&nacute;": "\U144",
-  "&Ncedil;": "\U145", "&ncedil;": "\U146", "&Ncaron;": "\U147",
-  "&ncaron;": "\U148", "&napos;": "\U149", "&ENG;": "\U14A",
-  "&eng;": "\U14B", "&Omacr;": "\U14C", "&omacr;": "\U14D",
-  "&Odblac;": "\U150", "&odblac;": "\U151", "&OElig;": "\U152",
-  "&oelig;": "\U153", "&Racute;": "\U154", "&racute;": "\U155",
-  "&Rcedil;": "\U156", "&rcedil;": "\U157", "&Rcaron;": "\U158",
-  "&rcaron;": "\U159", "&Sacute;": "\U15A", "&sacute;": "\U15B",
-  "&Scirc;": "\U15C", "&scirc;": "\U15D", "&Scedil;": "\U15E",
-  "&scedil;": "\U15F", "&Scaron;": "\U160", "&scaron;": "\U161",
-  "&Tcedil;": "\U162", "&tcedil;": "\U163", "&Tcaron;": "\U164",
-  "&tcaron;": "\U165", "&Tstrok;": "\U166", "&tstrok;": "\U167",
-  "&Utilde;": "\U168", "&utilde;": "\U169", "&Umacr;": "\U16A",
-  "&umacr;": "\U16B", "&Ubreve;": "\U16C", "&ubreve;": "\U16D",
-  "&Uring;": "\U16E", "&uring;": "\U16F", "&Udblac;": "\U170",
-  "&udblac;": "\U171", "&Uogon;": "\U172", "&uogon;": "\U173",
-  "&Wcirc;": "\U174", "&wcirc;": "\U175", "&Ycirc;": "\U176",
-  "&ycirc;": "\U177", "&Yuml;": "\U178", "&Zacute;": "\U179",
-  "&zacute;": "\U17A", "&Zdot;": "\U17B", "&zdot;": "\U17C",
-  "&Zcaron;": "\U17D", "&zcaron;": "\U17E", "&fnof;": "\U192",
-  "&imped;": "\U1B5", "&gacute;": "\U1F5", "&jmath;": "\U237",
-  "&circ;": "\U2C6", "&caron;": "\U2C7", "&breve;": "\U2D8",
-  "&dot;": "\U2D9", "&ring;": "\U2DA", "&ogon;": "\U2DB",
-  "&tilde;": "\U2DC", "&dblac;": "\U2DD", "&DownBreve;": "\U311",
-  "&UnderBar;": "\U332", "&Alpha;": "\U391", "&Beta;": "\U392",
-  "&Gamma;": "\U393", "&Delta;": "\U394", "&Epsilon;": "\U395",
-  "&Zeta;": "\U396", "&Eta;": "\U397", "&Theta;": "\U398",
-  "&Iota;": "\U399", "&Kappa;": "\U39A", "&Lambda;": "\U39B",
-  "&Mu;": "\U39C", "&Nu;": "\U39D", "&Xi;": "\U39E",
-  "&Omicron;": "\U39F", "&Pi;": "\U3A0", "&Rho;": "\U3A1",
-  "&Sigma;": "\U3A3", "&Tau;": "\U3A4", "&Upsilon;": "\U3A5",
-  "&Phi;": "\U3A6", "&Chi;": "\U3A7", "&Psi;": "\U3A8",
-  "&Omega;": "\U3A9", "&alpha;": "\U3B1", "&beta;": "\U3B2",
-  "&gamma;": "\U3B3", "&delta;": "\U3B4", "&epsiv;": "\U3B5",
-  "&zeta;": "\U3B6", "&eta;": "\U3B7", "&theta;": "\U3B8",
-  "&iota;": "\U3B9", "&kappa;": "\U3BA", "&lambda;": "\U3BB",
-  "&mu;": "\U3BC", "&nu;": "\U3BD", "&xi;": "\U3BE",
-  "&omicron;": "\U3BF", "&pi;": "\U3C0", "&rho;": "\U3C1",
-  "&sigmav;": "\U3C2", "&sigma;": "\U3C3", "&tau;": "\U3C4",
-  "&upsi;": "\U3C5", "&phi;": "\U3C6", "&chi;": "\U3C7",
-  "&psi;": "\U3C8", "&omega;": "\U3C9", "&thetav;": "\U3D1",
-  "&Upsi;": "\U3D2", "&straightphi;": "\U3D5", "&piv;": "\U3D6",
-  "&Gammad;": "\U3DC", "&gammad;": "\U3DD", "&kappav;": "\U3F0",
-  "&rhov;": "\U3F1", "&epsi;": "\U3F5", "&bepsi;": "\U3F6",
-  "&IOcy;": "\U401", "&DJcy;": "\U402", "&GJcy;": "\U403",
-  "&Jukcy;": "\U404", "&DScy;": "\U405", "&Iukcy;": "\U406",
-  "&YIcy;": "\U407", "&Jsercy;": "\U408", "&LJcy;": "\U409",
-  "&NJcy;": "\U40A", "&TSHcy;": "\U40B", "&KJcy;": "\U40C",
-  "&Ubrcy;": "\U40E", "&DZcy;": "\U40F", "&Acy;": "\U410",
-  "&Bcy;": "\U411", "&Vcy;": "\U412", "&Gcy;": "\U413",
-  "&Dcy;": "\U414", "&IEcy;": "\U415", "&ZHcy;": "\U416",
-  "&Zcy;": "\U417", "&Icy;": "\U418", "&Jcy;": "\U419",
-  "&Kcy;": "\U41A", "&Lcy;": "\U41B", "&Mcy;": "\U41C",
-  "&Ncy;": "\U41D", "&Ocy;": "\U41E", "&Pcy;": "\U41F",
-  "&Rcy;": "\U420", "&Scy;": "\U421", "&Tcy;": "\U422",
-  "&Ucy;": "\U423", "&Fcy;": "\U424", "&KHcy;": "\U425",
-  "&TScy;": "\U426", "&CHcy;": "\U427", "&SHcy;": "\U428",
-  "&SHCHcy;": "\U429", "&HARDcy;": "\U42A", "&Ycy;": "\U42B",
-  "&SOFTcy;": "\U42C", "&Ecy;": "\U42D", "&YUcy;": "\U42E",
-  "&YAcy;": "\U42F", "&acy;": "\U430", "&bcy;": "\U431",
-  "&vcy;": "\U432", "&gcy;": "\U433", "&dcy;": "\U434",
-  "&iecy;": "\U435", "&zhcy;": "\U436", "&zcy;": "\U437",
-  "&icy;": "\U438", "&jcy;": "\U439", "&kcy;": "\U43A",
-  "&lcy;": "\U43B", "&mcy;": "\U43C", "&ncy;": "\U43D",
-  "&ocy;": "\U43E", "&pcy;": "\U43F", "&rcy;": "\U440",
-  "&scy;": "\U441", "&tcy;": "\U442", "&ucy;": "\U443",
-  "&fcy;": "\U444", "&khcy;": "\U445", "&tscy;": "\U446",
-  "&chcy;": "\U447", "&shcy;": "\U448", "&shchcy;": "\U449",
-  "&hardcy;": "\U44A", "&ycy;": "\U44B", "&softcy;": "\U44C",
-  "&ecy;": "\U44D", "&yucy;": "\U44E", "&yacy;": "\U44F",
-  "&iocy;": "\U451", "&djcy;": "\U452", "&gjcy;": "\U453",
-  "&jukcy;": "\U454", "&dscy;": "\U455", "&iukcy;": "\U456",
-  "&yicy;": "\U457", "&jsercy;": "\U458", "&ljcy;": "\U459",
-  "&njcy;": "\U45A", "&tshcy;": "\U45B", "&kjcy;": "\U45C",
-  "&ubrcy;": "\U45E", "&dzcy;": "\U45F", "&ensp;": "\U2002",
-  "&emsp;": "\U2003", "&emsp13;": "\U2004", "&emsp14;": "\U2005",
-  "&numsp;": "\U2007", "&puncsp;": "\U2008", "&thinsp;": "\U2009",
-  "&hairsp;": "\U200A", "&ZeroWidthSpace;": "\U200B", "&zwnj;": "\U200C",
-  "&zwj;": "\U200D", "&lrm;": "\U200E", "&rlm;": "\U200F",
-  "&hyphen;": "\U2010", "&ndash;": "\U2013", "&mdash;": "\U2014",
-  "&horbar;": "\U2015", "&Verbar;": "\U2016", "&lsquo;": "\U2018",
-  "&rsquo;": "\U2019", "&lsquor;": "\U201A", "&ldquo;": "\U201C",
-  "&rdquo;": "\U201D", "&ldquor;": "\U201E", "&dagger;": "\U2020",
-  "&Dagger;": "\U2021", "&bull;": "\U2022", "&nldr;": "\U2025",
-  "&hellip;": "\U2026", "&permil;": "\U2030", "&pertenk;": "\U2031",
-  "&prime;": "\U2032", "&Prime;": "\U2033", "&tprime;": "\U2034",
-  "&bprime;": "\U2035", "&lsaquo;": "\U2039", "&rsaquo;": "\U203A",
-  "&oline;": "\U203E", "&caret;": "\U2041", "&hybull;": "\U2043",
-  "&frasl;": "\U2044", "&bsemi;": "\U204F", "&qprime;": "\U2057",
-  "&MediumSpace;": "\U205F", "&NoBreak;": "\U2060", "&ApplyFunction;": "\U2061",
-  "&InvisibleTimes;": "\U2062", "&InvisibleComma;": "\U2063", "&euro;": "\U20AC",
-  "&tdot;": "\U20DB", "&DotDot;": "\U20DC", "&Copf;": "\U2102",
-  "&incare;": "\U2105", "&gscr;": "\U210A", "&hamilt;": "\U210B",
-  "&Hfr;": "\U210C", "&quaternions;": "\U210D", "&planckh;": "\U210E",
-  "&planck;": "\U210F", "&Iscr;": "\U2110", "&image;": "\U2111",
-  "&Lscr;": "\U2112", "&ell;": "\U2113", "&Nopf;": "\U2115",
-  "&numero;": "\U2116", "&copysr;": "\U2117", "&weierp;": "\U2118",
-  "&Popf;": "\U2119", "&rationals;": "\U211A", "&Rscr;": "\U211B",
-  "&real;": "\U211C", "&reals;": "\U211D", "&rx;": "\U211E",
-  "&trade;": "\U2122", "&integers;": "\U2124", "&ohm;": "\U2126",
-  "&mho;": "\U2127", "&Zfr;": "\U2128", "&iiota;": "\U2129",
-  "&angst;": "\U212B", "&bernou;": "\U212C", "&Cfr;": "\U212D",
-  "&escr;": "\U212F", "&Escr;": "\U2130", "&Fscr;": "\U2131",
-  "&phmmat;": "\U2133", "&order;": "\U2134", "&alefsym;": "\U2135",
-  "&beth;": "\U2136", "&gimel;": "\U2137", "&daleth;": "\U2138",
-  "&CapitalDifferentialD;": "\U2145", "&DifferentialD;": "\U2146", "&ExponentialE;": "\U2147",
-  "&ImaginaryI;": "\U2148", "&frac13;": "\U2153", "&frac23;": "\U2154",
-  "&frac15;": "\U2155", "&frac25;": "\U2156", "&frac35;": "\U2157",
-  "&frac45;": "\U2158", "&frac16;": "\U2159", "&frac56;": "\U215A",
-  "&frac18;": "\U215B", "&frac38;": "\U215C", "&frac58;": "\U215D",
-  "&frac78;": "\U215E", "&larr;": "\U2190", "&uarr;": "\U2191",
-  "&rarr;": "\U2192", "&darr;": "\U2193", "&harr;": "\U2194",
-  "&varr;": "\U2195", "&nwarr;": "\U2196", "&nearr;": "\U2197",
-  "&searr;": "\U2198", "&swarr;": "\U2199", "&nlarr;": "\U219A",
-  "&nrarr;": "\U219B", "&rarrw;": "\U219D", "&Larr;": "\U219E",
-  "&Uarr;": "\U219F", "&Rarr;": "\U21A0", "&Darr;": "\U21A1",
-  "&larrtl;": "\U21A2", "&rarrtl;": "\U21A3", "&LeftTeeArrow;": "\U21A4",
-  "&UpTeeArrow;": "\U21A5", "&map;": "\U21A6", "&DownTeeArrow;": "\U21A7",
-  "&larrhk;": "\U21A9", "&rarrhk;": "\U21AA", "&larrlp;": "\U21AB",
-  "&rarrlp;": "\U21AC", "&harrw;": "\U21AD", "&nharr;": "\U21AE",
-  "&lsh;": "\U21B0", "&rsh;": "\U21B1", "&ldsh;": "\U21B2",
-  "&rdsh;": "\U21B3", "&crarr;": "\U21B5", "&cularr;": "\U21B6",
-  "&curarr;": "\U21B7", "&olarr;": "\U21BA", "&orarr;": "\U21BB",
-  "&lharu;": "\U21BC", "&lhard;": "\U21BD", "&uharr;": "\U21BE",
-  "&uharl;": "\U21BF", "&rharu;": "\U21C0", "&rhard;": "\U21C1",
-  "&dharr;": "\U21C2", "&dharl;": "\U21C3", "&rlarr;": "\U21C4",
-  "&udarr;": "\U21C5", "&lrarr;": "\U21C6", "&llarr;": "\U21C7",
-  "&uuarr;": "\U21C8", "&rrarr;": "\U21C9", "&ddarr;": "\U21CA",
-  "&lrhar;": "\U21CB", "&rlhar;": "\U21CC", "&nlArr;": "\U21CD",
-  "&nhArr;": "\U21CE", "&nrArr;": "\U21CF", "&lArr;": "\U21D0",
-  "&uArr;": "\U21D1", "&rArr;": "\U21D2", "&dArr;": "\U21D3",
-  "&hArr;": "\U21D4", "&vArr;": "\U21D5", "&nwArr;": "\U21D6",
-  "&neArr;": "\U21D7", "&seArr;": "\U21D8", "&swArr;": "\U21D9",
-  "&lAarr;": "\U21DA", "&rAarr;": "\U21DB", "&zigrarr;": "\U21DD",
-  "&larrb;": "\U21E4", "&rarrb;": "\U21E5", "&duarr;": "\U21F5",
-  "&loarr;": "\U21FD", "&roarr;": "\U21FE", "&hoarr;": "\U21FF",
-  "&forall;": "\U2200", "&comp;": "\U2201", "&part;": "\U2202",
-  "&exist;": "\U2203", "&nexist;": "\U2204", "&empty;": "\U2205",
-  "&nabla;": "\U2207", "&isin;": "\U2208", "&notin;": "\U2209",
-  "&niv;": "\U220B", "&notni;": "\U220C", "&prod;": "\U220F",
-  "&coprod;": "\U2210", "&sum;": "\U2211", "&minus;": "\U2212",
-  "&mnplus;": "\U2213", "&plusdo;": "\U2214", "&setmn;": "\U2216",
-  "&lowast;": "\U2217", "&compfn;": "\U2218", "&radic;": "\U221A",
-  "&prop;": "\U221D", "&infin;": "\U221E", "&angrt;": "\U221F",
-  "&ang;": "\U2220", "&angmsd;": "\U2221", "&angsph;": "\U2222",
-  "&mid;": "\U2223", "&nmid;": "\U2224", "&par;": "\U2225",
-  "&npar;": "\U2226", "&and;": "\U2227", "&or;": "\U2228",
-  "&cap;": "\U2229", "&cup;": "\U222A", "&int;": "\U222B",
-  "&Int;": "\U222C", "&tint;": "\U222D", "&conint;": "\U222E",
-  "&Conint;": "\U222F", "&Cconint;": "\U2230", "&cwint;": "\U2231",
-  "&cwconint;": "\U2232", "&awconint;": "\U2233", "&there4;": "\U2234",
-  "&becaus;": "\U2235", "&ratio;": "\U2236", "&Colon;": "\U2237",
-  "&minusd;": "\U2238", "&mDDot;": "\U223A", "&homtht;": "\U223B",
-  "&sim;": "\U223C", "&bsim;": "\U223D", "&ac;": "\U223E",
-  "&acd;": "\U223F", "&wreath;": "\U2240", "&nsim;": "\U2241",
-  "&esim;": "\U2242", "&sime;": "\U2243", "&nsime;": "\U2244",
-  "&cong;": "\U2245", "&simne;": "\U2246", "&ncong;": "\U2247",
-  "&asymp;": "\U2248", "&nap;": "\U2249", "&ape;": "\U224A",
-  "&apid;": "\U224B", "&bcong;": "\U224C", "&asympeq;": "\U224D",
-  "&bump;": "\U224E", "&bumpe;": "\U224F", "&esdot;": "\U2250",
-  "&eDot;": "\U2251", "&efDot;": "\U2252", "&erDot;": "\U2253",
-  "&colone;": "\U2254", "&ecolon;": "\U2255", "&ecir;": "\U2256",
-  "&cire;": "\U2257", "&wedgeq;": "\U2259", "&veeeq;": "\U225A",
-  "&trie;": "\U225C", "&equest;": "\U225F", "&ne;": "\U2260",
-  "&equiv;": "\U2261", "&nequiv;": "\U2262", "&le;": "\U2264",
-  "&ge;": "\U2265", "&lE;": "\U2266", "&gE;": "\U2267",
-  "&lnE;": "\U2268", "&gnE;": "\U2269", "&Lt;": "\U226A",
-  "&Gt;": "\U226B", "&twixt;": "\U226C", "&NotCupCap;": "\U226D",
-  "&nlt;": "\U226E", "&ngt;": "\U226F", "&nle;": "\U2270",
-  "&nge;": "\U2271", "&lsim;": "\U2272", "&gsim;": "\U2273",
-  "&nlsim;": "\U2274", "&ngsim;": "\U2275", "&lg;": "\U2276",
-  "&gl;": "\U2277", "&ntlg;": "\U2278", "&ntgl;": "\U2279",
-  "&pr;": "\U227A", "&sc;": "\U227B", "&prcue;": "\U227C",
-  "&sccue;": "\U227D", "&prsim;": "\U227E", "&scsim;": "\U227F",
-  "&npr;": "\U2280", "&nsc;": "\U2281", "&sub;": "\U2282",
-  "&sup;": "\U2283", "&nsub;": "\U2284", "&nsup;": "\U2285",
-  "&sube;": "\U2286", "&supe;": "\U2287", "&nsube;": "\U2288",
-  "&nsupe;": "\U2289", "&subne;": "\U228A", "&supne;": "\U228B",
-  "&cupdot;": "\U228D", "&uplus;": "\U228E", "&sqsub;": "\U228F",
-  "&sqsup;": "\U2290", "&sqsube;": "\U2291", "&sqsupe;": "\U2292",
-  "&sqcap;": "\U2293", "&sqcup;": "\U2294", "&oplus;": "\U2295",
-  "&ominus;": "\U2296", "&otimes;": "\U2297", "&osol;": "\U2298",
-  "&odot;": "\U2299", "&ocir;": "\U229A", "&oast;": "\U229B",
-  "&odash;": "\U229D", "&plusb;": "\U229E", "&minusb;": "\U229F",
-  "&timesb;": "\U22A0", "&sdotb;": "\U22A1", "&vdash;": "\U22A2",
-  "&dashv;": "\U22A3", "&top;": "\U22A4", "&bottom;": "\U22A5",
-  "&models;": "\U22A7", "&vDash;": "\U22A8", "&Vdash;": "\U22A9",
-  "&Vvdash;": "\U22AA", "&VDash;": "\U22AB", "&nvdash;": "\U22AC",
-  "&nvDash;": "\U22AD", "&nVdash;": "\U22AE", "&nVDash;": "\U22AF",
-  "&prurel;": "\U22B0", "&vltri;": "\U22B2", "&vrtri;": "\U22B3",
-  "&ltrie;": "\U22B4", "&rtrie;": "\U22B5", "&origof;": "\U22B6",
-  "&imof;": "\U22B7", "&mumap;": "\U22B8", "&hercon;": "\U22B9",
-  "&intcal;": "\U22BA", "&veebar;": "\U22BB", "&barvee;": "\U22BD",
-  "&angrtvb;": "\U22BE", "&lrtri;": "\U22BF", "&xwedge;": "\U22C0",
-  "&xvee;": "\U22C1", "&xcap;": "\U22C2", "&xcup;": "\U22C3",
-  "&diam;": "\U22C4", "&sdot;": "\U22C5", "&sstarf;": "\U22C6",
-  "&divonx;": "\U22C7", "&bowtie;": "\U22C8", "&ltimes;": "\U22C9",
-  "&rtimes;": "\U22CA", "&lthree;": "\U22CB", "&rthree;": "\U22CC",
-  "&bsime;": "\U22CD", "&cuvee;": "\U22CE", "&cuwed;": "\U22CF",
-  "&Sub;": "\U22D0", "&Sup;": "\U22D1", "&Cap;": "\U22D2",
-  "&Cup;": "\U22D3", "&fork;": "\U22D4", "&epar;": "\U22D5",
-  "&ltdot;": "\U22D6", "&gtdot;": "\U22D7", "&Ll;": "\U22D8",
-  "&Gg;": "\U22D9", "&leg;": "\U22DA", "&gel;": "\U22DB",
-  "&cuepr;": "\U22DE", "&cuesc;": "\U22DF", "&nprcue;": "\U22E0",
-  "&nsccue;": "\U22E1", "&nsqsube;": "\U22E2", "&nsqsupe;": "\U22E3",
-  "&lnsim;": "\U22E6", "&gnsim;": "\U22E7", "&prnsim;": "\U22E8",
-  "&scnsim;": "\U22E9", "&nltri;": "\U22EA", "&nrtri;": "\U22EB",
-  "&nltrie;": "\U22EC", "&nrtrie;": "\U22ED", "&vellip;": "\U22EE",
-  "&ctdot;": "\U22EF", "&utdot;": "\U22F0", "&dtdot;": "\U22F1",
-  "&disin;": "\U22F2", "&isinsv;": "\U22F3", "&isins;": "\U22F4",
-  "&isindot;": "\U22F5", "&notinvc;": "\U22F6", "&notinvb;": "\U22F7",
-  "&isinE;": "\U22F9", "&nisd;": "\U22FA", "&xnis;": "\U22FB",
-  "&nis;": "\U22FC", "&notnivc;": "\U22FD", "&notnivb;": "\U22FE",
-  "&barwed;": "\U2305", "&Barwed;": "\U2306", "&lceil;": "\U2308",
-  "&rceil;": "\U2309", "&lfloor;": "\U230A", "&rfloor;": "\U230B",
-  "&drcrop;": "\U230C", "&dlcrop;": "\U230D", "&urcrop;": "\U230E",
-  "&ulcrop;": "\U230F", "&bnot;": "\U2310", "&profline;": "\U2312",
-  "&profsurf;": "\U2313", "&telrec;": "\U2315", "&target;": "\U2316",
-  "&ulcorn;": "\U231C", "&urcorn;": "\U231D", "&dlcorn;": "\U231E",
-  "&drcorn;": "\U231F", "&frown;": "\U2322", "&smile;": "\U2323",
-  "&cylcty;": "\U232D", "&profalar;": "\U232E", "&topbot;": "\U2336",
-  "&ovbar;": "\U233D", "&solbar;": "\U233F", "&angzarr;": "\U237C",
-  "&lmoust;": "\U23B0", "&rmoust;": "\U23B1", "&tbrk;": "\U23B4",
-  "&bbrk;": "\U23B5", "&bbrktbrk;": "\U23B6", "&OverParenthesis;": "\U23DC",
-  "&UnderParenthesis;": "\U23DD", "&OverBrace;": "\U23DE", "&UnderBrace;": "\U23DF",
-  "&trpezium;": "\U23E2", "&elinters;": "\U23E7", "&blank;": "\U2423",
-  "&oS;": "\U24C8", "&boxh;": "\U2500", "&boxv;": "\U2502",
-  "&boxdr;": "\U250C", "&boxdl;": "\U2510", "&boxur;": "\U2514",
-  "&boxul;": "\U2518", "&boxvr;": "\U251C", "&boxvl;": "\U2524",
-  "&boxhd;": "\U252C", "&boxhu;": "\U2534", "&boxvh;": "\U253C",
-  "&boxH;": "\U2550", "&boxV;": "\U2551", "&boxdR;": "\U2552",
-  "&boxDr;": "\U2553", "&boxDR;": "\U2554", "&boxdL;": "\U2555",
-  "&boxDl;": "\U2556", "&boxDL;": "\U2557", "&boxuR;": "\U2558",
-  "&boxUr;": "\U2559", "&boxUR;": "\U255A", "&boxuL;": "\U255B",
-  "&boxUl;": "\U255C", "&boxUL;": "\U255D", "&boxvR;": "\U255E",
-  "&boxVr;": "\U255F", "&boxVR;": "\U2560", "&boxvL;": "\U2561",
-  "&boxVl;": "\U2562", "&boxVL;": "\U2563", "&boxHd;": "\U2564",
-  "&boxhD;": "\U2565", "&boxHD;": "\U2566", "&boxHu;": "\U2567",
-  "&boxhU;": "\U2568", "&boxHU;": "\U2569", "&boxvH;": "\U256A",
-  "&boxVh;": "\U256B", "&boxVH;": "\U256C", "&uhblk;": "\U2580",
-  "&lhblk;": "\U2584", "&block;": "\U2588", "&blk14;": "\U2591",
-  "&blk12;": "\U2592", "&blk34;": "\U2593", "&squ;": "\U25A1",
-  "&squf;": "\U25AA", "&EmptyVerySmallSquare;": "\U25AB", "&rect;": "\U25AD",
-  "&marker;": "\U25AE", "&fltns;": "\U25B1", "&xutri;": "\U25B3",
-  "&utrif;": "\U25B4", "&utri;": "\U25B5", "&rtrif;": "\U25B8",
-  "&rtri;": "\U25B9", "&xdtri;": "\U25BD", "&dtrif;": "\U25BE",
-  "&dtri;": "\U25BF", "&ltrif;": "\U25C2", "&ltri;": "\U25C3",
-  "&loz;": "\U25CA", "&cir;": "\U25CB", "&tridot;": "\U25EC",
-  "&xcirc;": "\U25EF", "&ultri;": "\U25F8", "&urtri;": "\U25F9",
-  "&lltri;": "\U25FA", "&EmptySmallSquare;": "\U25FB", "&FilledSmallSquare;": "\U25FC",
-  "&starf;": "\U2605", "&star;": "\U2606", "&phone;": "\U260E",
-  "&female;": "\U2640", "&male;": "\U2642", "&spades;": "\U2660",
-  "&clubs;": "\U2663", "&hearts;": "\U2665", "&diams;": "\U2666",
-  "&sung;": "\U266A", "&flat;": "\U266D", "&natur;": "\U266E",
-  "&sharp;": "\U266F", "&check;": "\U2713", "&cross;": "\U2717",
-  "&malt;": "\U2720", "&sext;": "\U2736", "&VerticalSeparator;": "\U2758",
-  "&lbbrk;": "\U2772", "&rbbrk;": "\U2773", "&lobrk;": "\U27E6",
-  "&robrk;": "\U27E7", "&lang;": "\U27E8", "&rang;": "\U27E9",
-  "&Lang;": "\U27EA", "&Rang;": "\U27EB", "&loang;": "\U27EC",
-  "&roang;": "\U27ED", "&xlarr;": "\U27F5", "&xrarr;": "\U27F6",
-  "&xharr;": "\U27F7", "&xlArr;": "\U27F8", "&xrArr;": "\U27F9",
-  "&xhArr;": "\U27FA", "&xmap;": "\U27FC", "&dzigrarr;": "\U27FF",
-  "&nvlArr;": "\U2902", "&nvrArr;": "\U2903", "&nvHarr;": "\U2904",
-  "&Map;": "\U2905", "&lbarr;": "\U290C", "&rbarr;": "\U290D",
-  "&lBarr;": "\U290E", "&rBarr;": "\U290F", "&RBarr;": "\U2910",
-  "&DDotrahd;": "\U2911", "&UpArrowBar;": "\U2912", "&DownArrowBar;": "\U2913",
-  "&Rarrtl;": "\U2916", "&latail;": "\U2919", "&ratail;": "\U291A",
-  "&lAtail;": "\U291B", "&rAtail;": "\U291C", "&larrfs;": "\U291D",
-  "&rarrfs;": "\U291E", "&larrbfs;": "\U291F", "&rarrbfs;": "\U2920",
-  "&nwarhk;": "\U2923", "&nearhk;": "\U2924", "&searhk;": "\U2925",
-  "&swarhk;": "\U2926", "&nwnear;": "\U2927", "&nesear;": "\U2928",
-  "&seswar;": "\U2929", "&swnwar;": "\U292A", "&rarrc;": "\U2933",
-  "&cudarrr;": "\U2935", "&ldca;": "\U2936", "&rdca;": "\U2937",
-  "&cudarrl;": "\U2938", "&larrpl;": "\U2939", "&curarrm;": "\U293C",
-  "&cularrp;": "\U293D", "&rarrpl;": "\U2945", "&harrcir;": "\U2948",
-  "&Uarrocir;": "\U2949", "&lurdshar;": "\U294A", "&ldrushar;": "\U294B",
-  "&LeftRightVector;": "\U294E", "&RightUpDownVector;": "\U294F", "&DownLeftRightVector;": "\U2950",
-  "&LeftUpDownVector;": "\U2951", "&LeftVectorBar;": "\U2952", "&RightVectorBar;": "\U2953",
-  "&RightUpVectorBar;": "\U2954", "&RightDownVectorBar;": "\U2955", "&DownLeftVectorBar;": "\U2956",
-  "&DownRightVectorBar;": "\U2957", "&LeftUpVectorBar;": "\U2958", "&LeftDownVectorBar;": "\U2959",
-  "&LeftTeeVector;": "\U295A", "&RightTeeVector;": "\U295B", "&RightUpTeeVector;": "\U295C",
-  "&RightDownTeeVector;": "\U295D", "&DownLeftTeeVector;": "\U295E", "&DownRightTeeVector;": "\U295F",
-  "&LeftUpTeeVector;": "\U2960", "&LeftDownTeeVector;": "\U2961", "&lHar;": "\U2962",
-  "&uHar;": "\U2963", "&rHar;": "\U2964", "&dHar;": "\U2965",
-  "&luruhar;": "\U2966", "&ldrdhar;": "\U2967", "&ruluhar;": "\U2968",
-  "&rdldhar;": "\U2969", "&lharul;": "\U296A", "&llhard;": "\U296B",
-  "&rharul;": "\U296C", "&lrhard;": "\U296D", "&udhar;": "\U296E",
-  "&duhar;": "\U296F", "&RoundImplies;": "\U2970", "&erarr;": "\U2971",
-  "&simrarr;": "\U2972", "&larrsim;": "\U2973", "&rarrsim;": "\U2974",
-  "&rarrap;": "\U2975", "&ltlarr;": "\U2976", "&gtrarr;": "\U2978",
-  "&subrarr;": "\U2979", "&suplarr;": "\U297B", "&lfisht;": "\U297C",
-  "&rfisht;": "\U297D", "&ufisht;": "\U297E", "&dfisht;": "\U297F",
-  "&lopar;": "\U2985", "&ropar;": "\U2986", "&lbrke;": "\U298B",
-  "&rbrke;": "\U298C", "&lbrkslu;": "\U298D", "&rbrksld;": "\U298E",
-  "&lbrksld;": "\U298F", "&rbrkslu;": "\U2990", "&langd;": "\U2991",
-  "&rangd;": "\U2992", "&lparlt;": "\U2993", "&rpargt;": "\U2994",
-  "&gtlPar;": "\U2995", "&ltrPar;": "\U2996", "&vzigzag;": "\U299A",
-  "&vangrt;": "\U299C", "&angrtvbd;": "\U299D", "&ange;": "\U29A4",
-  "&range;": "\U29A5", "&dwangle;": "\U29A6", "&uwangle;": "\U29A7",
-  "&angmsdaa;": "\U29A8", "&angmsdab;": "\U29A9", "&angmsdac;": "\U29AA",
-  "&angmsdad;": "\U29AB", "&angmsdae;": "\U29AC", "&angmsdaf;": "\U29AD",
-  "&angmsdag;": "\U29AE", "&angmsdah;": "\U29AF", "&bemptyv;": "\U29B0",
-  "&demptyv;": "\U29B1", "&cemptyv;": "\U29B2", "&raemptyv;": "\U29B3",
-  "&laemptyv;": "\U29B4", "&ohbar;": "\U29B5", "&omid;": "\U29B6",
-  "&opar;": "\U29B7", "&operp;": "\U29B9", "&olcross;": "\U29BB",
-  "&odsold;": "\U29BC", "&olcir;": "\U29BE", "&ofcir;": "\U29BF",
-  "&olt;": "\U29C0", "&ogt;": "\U29C1", "&cirscir;": "\U29C2",
-  "&cirE;": "\U29C3", "&solb;": "\U29C4", "&bsolb;": "\U29C5",
-  "&boxbox;": "\U29C9", "&trisb;": "\U29CD", "&rtriltri;": "\U29CE",
-  "&LeftTriangleBar;": "\U29CF", "&RightTriangleBar;": "\U29D0", "&race;": "\U29DA",
-  "&iinfin;": "\U29DC", "&infintie;": "\U29DD", "&nvinfin;": "\U29DE",
-  "&eparsl;": "\U29E3", "&smeparsl;": "\U29E4", "&eqvparsl;": "\U29E5",
-  "&lozf;": "\U29EB", "&RuleDelayed;": "\U29F4", "&dsol;": "\U29F6",
-  "&xodot;": "\U2A00", "&xoplus;": "\U2A01", "&xotime;": "\U2A02",
-  "&xuplus;": "\U2A04", "&xsqcup;": "\U2A06", "&qint;": "\U2A0C",
-  "&fpartint;": "\U2A0D", "&cirfnint;": "\U2A10", "&awint;": "\U2A11",
-  "&rppolint;": "\U2A12", "&scpolint;": "\U2A13", "&npolint;": "\U2A14",
-  "&pointint;": "\U2A15", "&quatint;": "\U2A16", "&intlarhk;": "\U2A17",
-  "&pluscir;": "\U2A22", "&plusacir;": "\U2A23", "&simplus;": "\U2A24",
-  "&plusdu;": "\U2A25", "&plussim;": "\U2A26", "&plustwo;": "\U2A27",
-  "&mcomma;": "\U2A29", "&minusdu;": "\U2A2A", "&loplus;": "\U2A2D",
-  "&roplus;": "\U2A2E", "&Cross;": "\U2A2F", "&timesd;": "\U2A30",
-  "&timesbar;": "\U2A31", "&smashp;": "\U2A33", "&lotimes;": "\U2A34",
-  "&rotimes;": "\U2A35", "&otimesas;": "\U2A36", "&Otimes;": "\U2A37",
-  "&odiv;": "\U2A38", "&triplus;": "\U2A39", "&triminus;": "\U2A3A",
-  "&tritime;": "\U2A3B", "&iprod;": "\U2A3C", "&amalg;": "\U2A3F",
-  "&capdot;": "\U2A40", "&ncup;": "\U2A42", "&ncap;": "\U2A43",
-  "&capand;": "\U2A44", "&cupor;": "\U2A45", "&cupcap;": "\U2A46",
-  "&capcup;": "\U2A47", "&cupbrcap;": "\U2A48", "&capbrcup;": "\U2A49",
-  "&cupcup;": "\U2A4A", "&capcap;": "\U2A4B", "&ccups;": "\U2A4C",
-  "&ccaps;": "\U2A4D", "&ccupssm;": "\U2A50", "&And;": "\U2A53",
-  "&Or;": "\U2A54", "&andand;": "\U2A55", "&oror;": "\U2A56",
-  "&orslope;": "\U2A57", "&andslope;": "\U2A58", "&andv;": "\U2A5A",
-  "&orv;": "\U2A5B", "&andd;": "\U2A5C", "&ord;": "\U2A5D",
-  "&wedbar;": "\U2A5F", "&sdote;": "\U2A66", "&simdot;": "\U2A6A",
-  "&congdot;": "\U2A6D", "&easter;": "\U2A6E", "&apacir;": "\U2A6F",
-  "&apE;": "\U2A70", "&eplus;": "\U2A71", "&pluse;": "\U2A72",
-  "&Esim;": "\U2A73", "&Colone;": "\U2A74", "&Equal;": "\U2A75",
-  "&eDDot;": "\U2A77", "&equivDD;": "\U2A78", "&ltcir;": "\U2A79",
-  "&gtcir;": "\U2A7A", "&ltquest;": "\U2A7B", "&gtquest;": "\U2A7C",
-  "&les;": "\U2A7D", "&ges;": "\U2A7E", "&lesdot;": "\U2A7F",
-  "&gesdot;": "\U2A80", "&lesdoto;": "\U2A81", "&gesdoto;": "\U2A82",
-  "&lesdotor;": "\U2A83", "&gesdotol;": "\U2A84", "&lap;": "\U2A85",
-  "&gap;": "\U2A86", "&lne;": "\U2A87", "&gne;": "\U2A88",
-  "&lnap;": "\U2A89", "&gnap;": "\U2A8A", "&lEg;": "\U2A8B",
-  "&gEl;": "\U2A8C", "&lsime;": "\U2A8D", "&gsime;": "\U2A8E",
-  "&lsimg;": "\U2A8F", "&gsiml;": "\U2A90", "&lgE;": "\U2A91",
-  "&glE;": "\U2A92", "&lesges;": "\U2A93", "&gesles;": "\U2A94",
-  "&els;": "\U2A95", "&egs;": "\U2A96", "&elsdot;": "\U2A97",
-  "&egsdot;": "\U2A98", "&el;": "\U2A99", "&eg;": "\U2A9A",
-  "&siml;": "\U2A9D", "&simg;": "\U2A9E", "&simlE;": "\U2A9F",
-  "&simgE;": "\U2AA0", "&LessLess;": "\U2AA1", "&GreaterGreater;": "\U2AA2",
-  "&glj;": "\U2AA4", "&gla;": "\U2AA5", "&ltcc;": "\U2AA6",
-  "&gtcc;": "\U2AA7", "&lescc;": "\U2AA8", "&gescc;": "\U2AA9",
-  "&smt;": "\U2AAA", "&lat;": "\U2AAB", "&smte;": "\U2AAC",
-  "&late;": "\U2AAD", "&bumpE;": "\U2AAE", "&pre;": "\U2AAF",
-  "&sce;": "\U2AB0", "&prE;": "\U2AB3", "&scE;": "\U2AB4",
-  "&prnE;": "\U2AB5", "&scnE;": "\U2AB6", "&prap;": "\U2AB7",
-  "&scap;": "\U2AB8", "&prnap;": "\U2AB9", "&scnap;": "\U2ABA",
-  "&Pr;": "\U2ABB", "&Sc;": "\U2ABC", "&subdot;": "\U2ABD",
-  "&supdot;": "\U2ABE", "&subplus;": "\U2ABF", "&supplus;": "\U2AC0",
-  "&submult;": "\U2AC1", "&supmult;": "\U2AC2", "&subedot;": "\U2AC3",
-  "&supedot;": "\U2AC4", "&subE;": "\U2AC5", "&supE;": "\U2AC6",
-  "&subsim;": "\U2AC7", "&supsim;": "\U2AC8", "&subnE;": "\U2ACB",
-  "&supnE;": "\U2ACC", "&csub;": "\U2ACF", "&csup;": "\U2AD0",
-  "&csube;": "\U2AD1", "&csupe;": "\U2AD2", "&subsup;": "\U2AD3",
-  "&supsub;": "\U2AD4", "&subsub;": "\U2AD5", "&supsup;": "\U2AD6",
-  "&suphsub;": "\U2AD7", "&supdsub;": "\U2AD8", "&forkv;": "\U2AD9",
-  "&topfork;": "\U2ADA", "&mlcp;": "\U2ADB", "&Dashv;": "\U2AE4",
-  "&Vdashl;": "\U2AE6", "&Barv;": "\U2AE7", "&vBar;": "\U2AE8",
-  "&vBarv;": "\U2AE9", "&Vbar;": "\U2AEB", "&Not;": "\U2AEC",
-  "&bNot;": "\U2AED", "&rnmid;": "\U2AEE", "&cirmid;": "\U2AEF",
-  "&midcir;": "\U2AF0", "&topcir;": "\U2AF1", "&nhpar;": "\U2AF2",
-  "&parsim;": "\U2AF3", "&parsl;": "\U2AFD", "&fflig;": "\UFB00",
-  "&filig;": "\UFB01", "&fllig;": "\UFB02", "&ffilig;": "\UFB03",
-  "&ffllig;": "\UFB04", "&Ascr;": "\U1D49C", "&Cscr;": "\U1D49E",
-  "&Dscr;": "\U1D49F", "&Gscr;": "\U1D4A2", "&Jscr;": "\U1D4A5",
-  "&Kscr;": "\U1D4A6", "&Nscr;": "\U1D4A9", "&Oscr;": "\U1D4AA",
-  "&Pscr;": "\U1D4AB", "&Qscr;": "\U1D4AC", "&Sscr;": "\U1D4AE",
-  "&Tscr;": "\U1D4AF", "&Uscr;": "\U1D4B0", "&Vscr;": "\U1D4B1",
-  "&Wscr;": "\U1D4B2", "&Xscr;": "\U1D4B3", "&Yscr;": "\U1D4B4",
-  "&Zscr;": "\U1D4B5", "&ascr;": "\U1D4B6", "&bscr;": "\U1D4B7",
-  "&cscr;": "\U1D4B8", "&dscr;": "\U1D4B9", "&fscr;": "\U1D4BB",
-  "&hscr;": "\U1D4BD", "&iscr;": "\U1D4BE", "&jscr;": "\U1D4BF",
-  "&kscr;": "\U1D4C0", "&lscr;": "\U1D4C1", "&mscr;": "\U1D4C2",
-  "&nscr;": "\U1D4C3", "&pscr;": "\U1D4C5", "&qscr;": "\U1D4C6",
-  "&rscr;": "\U1D4C7", "&sscr;": "\U1D4C8", "&tscr;": "\U1D4C9",
-  "&uscr;": "\U1D4CA", "&vscr;": "\U1D4CB", "&wscr;": "\U1D4CC",
-  "&xscr;": "\U1D4CD", "&yscr;": "\U1D4CE", "&zscr;": "\U1D4CF",
-  "&Afr;": "\U1D504", "&Bfr;": "\U1D505", "&Dfr;": "\U1D507",
-  "&Efr;": "\U1D508", "&Ffr;": "\U1D509", "&Gfr;": "\U1D50A",
-  "&Jfr;": "\U1D50D", "&Kfr;": "\U1D50E", "&Lfr;": "\U1D50F",
-  "&Mfr;": "\U1D510", "&Nfr;": "\U1D511", "&Ofr;": "\U1D512",
-  "&Pfr;": "\U1D513", "&Qfr;": "\U1D514", "&Sfr;": "\U1D516",
-  "&Tfr;": "\U1D517", "&Ufr;": "\U1D518", "&Vfr;": "\U1D519",
-  "&Wfr;": "\U1D51A", "&Xfr;": "\U1D51B", "&Yfr;": "\U1D51C",
-  "&afr;": "\U1D51E", "&bfr;": "\U1D51F", "&cfr;": "\U1D520",
-  "&dfr;": "\U1D521", "&efr;": "\U1D522", "&ffr;": "\U1D523",
-  "&gfr;": "\U1D524", "&hfr;": "\U1D525", "&ifr;": "\U1D526",
-  "&jfr;": "\U1D527", "&kfr;": "\U1D528", "&lfr;": "\U1D529",
-  "&mfr;": "\U1D52A", "&nfr;": "\U1D52B", "&ofr;": "\U1D52C",
-  "&pfr;": "\U1D52D", "&qfr;": "\U1D52E", "&rfr;": "\U1D52F",
-  "&sfr;": "\U1D530", "&tfr;": "\U1D531", "&ufr;": "\U1D532",
-  "&vfr;": "\U1D533", "&wfr;": "\U1D534", "&xfr;": "\U1D535",
-  "&yfr;": "\U1D536", "&zfr;": "\U1D537", "&Aopf;": "\U1D538",
-  "&Bopf;": "\U1D539", "&Dopf;": "\U1D53B", "&Eopf;": "\U1D53C",
-  "&Fopf;": "\U1D53D", "&Gopf;": "\U1D53E", "&Iopf;": "\U1D540",
-  "&Jopf;": "\U1D541", "&Kopf;": "\U1D542", "&Lopf;": "\U1D543",
-  "&Mopf;": "\U1D544", "&Oopf;": "\U1D546", "&Sopf;": "\U1D54A",
-  "&Topf;": "\U1D54B", "&Uopf;": "\U1D54C", "&Vopf;": "\U1D54D",
-  "&Wopf;": "\U1D54E", "&Xopf;": "\U1D54F", "&Yopf;": "\U1D550",
-  "&aopf;": "\U1D552", "&bopf;": "\U1D553", "&copf;": "\U1D554",
-  "&dopf;": "\U1D555", "&eopf;": "\U1D556", "&fopf;": "\U1D557",
-  "&gopf;": "\U1D558", "&hopf;": "\U1D559", "&iopf;": "\U1D55A",
-  "&jopf;": "\U1D55B", "&kopf;": "\U1D55C", "&lopf;": "\U1D55D",
-  "&mopf;": "\U1D55E", "&nopf;": "\U1D55F", "&oopf;": "\U1D560",
-  "&popf;": "\U1D561", "&qopf;": "\U1D562", "&ropf;": "\U1D563",
-  "&sopf;": "\U1D564", "&topf;": "\U1D565", "&uopf;": "\U1D566",
-  "&vopf;": "\U1D567", "&wopf;": "\U1D568", "&xopf;": "\U1D569",
-  "&yopf;": "\U1D56A", "&zopf;": "\U1D56B"
+  '&Tab;': "\x9", '&NewLine;': "\xA", '&excl;': "\x21",
+  '&quot;': "\x22", '&num;': "\x23", '&dollar;': "\x24",
+  '&percnt;': "\x25", '&amp;': "\x26", '&apos;': "\x27",
+  '&lpar;': "\x28", '&rpar;': "\x29", '&ast;': "\x2A",
+  '&plus;': "\x2B", '&comma;': "\x2C", '&period;': "\x2E",
+  '&sol;': "\x2F", '&colon;': "\x3A", '&semi;': "\x3B",
+  '&lt;': "\x3C", '&equals;': "\x3D", '&gt;': "\x3E",
+  '&quest;': "\x3F", '&commat;': "\x40", '&lsqb;': "\x5B",
+  '&bsol;': "\x5C", '&rsqb;': "\x5D", '&Hat;': "\x5E",
+  '&lowbar;': "\x5F", '&grave;': "\x60", '&lcub;': "\x7B",
+  '&verbar;': "\x7C", '&rcub;': "\x7D", '&nbsp;': "\xA0",
+  '&iexcl;': "\xA1", '&cent;': "\xA2", '&pound;': "\xA3",
+  '&curren;': "\xA4", '&yen;': "\xA5", '&brvbar;': "\xA6",
+  '&sect;': "\xA7", '&uml;': "\xA8", '&copy;': "\xA9",
+  '&ordf;': "\xAA", '&laquo;': "\xAB", '&not;': "\xAC",
+  '&shy;': "\xAD", '&reg;': "\xAE", '&macr;': "\xAF",
+  '&deg;': "\xB0", '&plusmn;': "\xB1", '&sup2;': "\xB2",
+  '&sup3;': "\xB3", '&acute;': "\xB4", '&micro;': "\xB5",
+  '&para;': "\xB6", '&middot;': "\xB7", '&cedil;': "\xB8",
+  '&sup1;': "\xB9", '&ordm;': "\xBA", '&raquo;': "\xBB",
+  '&frac14;': "\xBC", '&frac12;': "\xBD", '&frac34;': "\xBE",
+  '&iquest;': "\xBF", '&Agrave;': "\xC0", '&Aacute;': "\xC1",
+  '&Acirc;': "\xC2", '&Atilde;': "\xC3", '&Auml;': "\xC4",
+  '&Aring;': "\xC5", '&AElig;': "\xC6", '&Ccedil;': "\xC7",
+  '&Egrave;': "\xC8", '&Eacute;': "\xC9", '&Ecirc;': "\xCA",
+  '&Euml;': "\xCB", '&Igrave;': "\xCC", '&Iacute;': "\xCD",
+  '&Icirc;': "\xCE", '&Iuml;': "\xCF", '&ETH;': "\xD0",
+  '&Ntilde;': "\xD1", '&Ograve;': "\xD2", '&Oacute;': "\xD3",
+  '&Ocirc;': "\xD4", '&Otilde;': "\xD5", '&Ouml;': "\xD6",
+  '&times;': "\xD7", '&Oslash;': "\xD8", '&Ugrave;': "\xD9",
+  '&Uacute;': "\xDA", '&Ucirc;': "\xDB", '&Uuml;': "\xDC",
+  '&Yacute;': "\xDD", '&THORN;': "\xDE", '&szlig;': "\xDF",
+  '&agrave;': "\xE0", '&aacute;': "\xE1", '&acirc;': "\xE2",
+  '&atilde;': "\xE3", '&auml;': "\xE4", '&aring;': "\xE5",
+  '&aelig;': "\xE6", '&ccedil;': "\xE7", '&egrave;': "\xE8",
+  '&eacute;': "\xE9", '&ecirc;': "\xEA", '&euml;': "\xEB",
+  '&igrave;': "\xEC", '&iacute;': "\xED", '&icirc;': "\xEE",
+  '&iuml;': "\xEF", '&eth;': "\xF0", '&ntilde;': "\xF1",
+  '&ograve;': "\xF2", '&oacute;': "\xF3", '&ocirc;': "\xF4",
+  '&otilde;': "\xF5", '&ouml;': "\xF6", '&divide;': "\xF7",
+  '&oslash;': "\xF8", '&ugrave;': "\xF9", '&uacute;': "\xFA",
+  '&ucirc;': "\xFB", '&uuml;': "\xFC", '&yacute;': "\xFD",
+  '&thorn;': "\xFE", '&yuml;': "\xFF", '&Amacr;': "\U100",
+  '&amacr;': "\U101", '&Abreve;': "\U102", '&abreve;': "\U103",
+  '&Aogon;': "\U104", '&aogon;': "\U105", '&Cacute;': "\U106",
+  '&cacute;': "\U107", '&Ccirc;': "\U108", '&ccirc;': "\U109",
+  '&Cdot;': "\U10A", '&cdot;': "\U10B", '&Ccaron;': "\U10C",
+  '&ccaron;': "\U10D", '&Dcaron;': "\U10E", '&dcaron;': "\U10F",
+  '&Dstrok;': "\U110", '&dstrok;': "\U111", '&Emacr;': "\U112",
+  '&emacr;': "\U113", '&Edot;': "\U116", '&edot;': "\U117",
+  '&Eogon;': "\U118", '&eogon;': "\U119", '&Ecaron;': "\U11A",
+  '&ecaron;': "\U11B", '&Gcirc;': "\U11C", '&gcirc;': "\U11D",
+  '&Gbreve;': "\U11E", '&gbreve;': "\U11F", '&Gdot;': "\U120",
+  '&gdot;': "\U121", '&Gcedil;': "\U122", '&Hcirc;': "\U124",
+  '&hcirc;': "\U125", '&Hstrok;': "\U126", '&hstrok;': "\U127",
+  '&Itilde;': "\U128", '&itilde;': "\U129", '&Imacr;': "\U12A",
+  '&imacr;': "\U12B", '&Iogon;': "\U12E", '&iogon;': "\U12F",
+  '&Idot;': "\U130", '&imath;': "\U131", '&IJlig;': "\U132",
+  '&ijlig;': "\U133", '&Jcirc;': "\U134", '&jcirc;': "\U135",
+  '&Kcedil;': "\U136", '&kcedil;': "\U137", '&kgreen;': "\U138",
+  '&Lacute;': "\U139", '&lacute;': "\U13A", '&Lcedil;': "\U13B",
+  '&lcedil;': "\U13C", '&Lcaron;': "\U13D", '&lcaron;': "\U13E",
+  '&Lmidot;': "\U13F", '&lmidot;': "\U140", '&Lstrok;': "\U141",
+  '&lstrok;': "\U142", '&Nacute;': "\U143", '&nacute;': "\U144",
+  '&Ncedil;': "\U145", '&ncedil;': "\U146", '&Ncaron;': "\U147",
+  '&ncaron;': "\U148", '&napos;': "\U149", '&ENG;': "\U14A",
+  '&eng;': "\U14B", '&Omacr;': "\U14C", '&omacr;': "\U14D",
+  '&Odblac;': "\U150", '&odblac;': "\U151", '&OElig;': "\U152",
+  '&oelig;': "\U153", '&Racute;': "\U154", '&racute;': "\U155",
+  '&Rcedil;': "\U156", '&rcedil;': "\U157", '&Rcaron;': "\U158",
+  '&rcaron;': "\U159", '&Sacute;': "\U15A", '&sacute;': "\U15B",
+  '&Scirc;': "\U15C", '&scirc;': "\U15D", '&Scedil;': "\U15E",
+  '&scedil;': "\U15F", '&Scaron;': "\U160", '&scaron;': "\U161",
+  '&Tcedil;': "\U162", '&tcedil;': "\U163", '&Tcaron;': "\U164",
+  '&tcaron;': "\U165", '&Tstrok;': "\U166", '&tstrok;': "\U167",
+  '&Utilde;': "\U168", '&utilde;': "\U169", '&Umacr;': "\U16A",
+  '&umacr;': "\U16B", '&Ubreve;': "\U16C", '&ubreve;': "\U16D",
+  '&Uring;': "\U16E", '&uring;': "\U16F", '&Udblac;': "\U170",
+  '&udblac;': "\U171", '&Uogon;': "\U172", '&uogon;': "\U173",
+  '&Wcirc;': "\U174", '&wcirc;': "\U175", '&Ycirc;': "\U176",
+  '&ycirc;': "\U177", '&Yuml;': "\U178", '&Zacute;': "\U179",
+  '&zacute;': "\U17A", '&Zdot;': "\U17B", '&zdot;': "\U17C",
+  '&Zcaron;': "\U17D", '&zcaron;': "\U17E", '&fnof;': "\U192",
+  '&imped;': "\U1B5", '&gacute;': "\U1F5", '&jmath;': "\U237",
+  '&circ;': "\U2C6", '&caron;': "\U2C7", '&breve;': "\U2D8",
+  '&dot;': "\U2D9", '&ring;': "\U2DA", '&ogon;': "\U2DB",
+  '&tilde;': "\U2DC", '&dblac;': "\U2DD", '&DownBreve;': "\U311",
+  '&UnderBar;': "\U332", '&Alpha;': "\U391", '&Beta;': "\U392",
+  '&Gamma;': "\U393", '&Delta;': "\U394", '&Epsilon;': "\U395",
+  '&Zeta;': "\U396", '&Eta;': "\U397", '&Theta;': "\U398",
+  '&Iota;': "\U399", '&Kappa;': "\U39A", '&Lambda;': "\U39B",
+  '&Mu;': "\U39C", '&Nu;': "\U39D", '&Xi;': "\U39E",
+  '&Omicron;': "\U39F", '&Pi;': "\U3A0", '&Rho;': "\U3A1",
+  '&Sigma;': "\U3A3", '&Tau;': "\U3A4", '&Upsilon;': "\U3A5",
+  '&Phi;': "\U3A6", '&Chi;': "\U3A7", '&Psi;': "\U3A8",
+  '&Omega;': "\U3A9", '&alpha;': "\U3B1", '&beta;': "\U3B2",
+  '&gamma;': "\U3B3", '&delta;': "\U3B4", '&epsiv;': "\U3B5",
+  '&zeta;': "\U3B6", '&eta;': "\U3B7", '&theta;': "\U3B8",
+  '&iota;': "\U3B9", '&kappa;': "\U3BA", '&lambda;': "\U3BB",
+  '&mu;': "\U3BC", '&nu;': "\U3BD", '&xi;': "\U3BE",
+  '&omicron;': "\U3BF", '&pi;': "\U3C0", '&rho;': "\U3C1",
+  '&sigmav;': "\U3C2", '&sigma;': "\U3C3", '&tau;': "\U3C4",
+  '&upsi;': "\U3C5", '&phi;': "\U3C6", '&chi;': "\U3C7",
+  '&psi;': "\U3C8", '&omega;': "\U3C9", '&thetav;': "\U3D1",
+  '&Upsi;': "\U3D2", '&straightphi;': "\U3D5", '&piv;': "\U3D6",
+  '&Gammad;': "\U3DC", '&gammad;': "\U3DD", '&kappav;': "\U3F0",
+  '&rhov;': "\U3F1", '&epsi;': "\U3F5", '&bepsi;': "\U3F6",
+  '&IOcy;': "\U401", '&DJcy;': "\U402", '&GJcy;': "\U403",
+  '&Jukcy;': "\U404", '&DScy;': "\U405", '&Iukcy;': "\U406",
+  '&YIcy;': "\U407", '&Jsercy;': "\U408", '&LJcy;': "\U409",
+  '&NJcy;': "\U40A", '&TSHcy;': "\U40B", '&KJcy;': "\U40C",
+  '&Ubrcy;': "\U40E", '&DZcy;': "\U40F", '&Acy;': "\U410",
+  '&Bcy;': "\U411", '&Vcy;': "\U412", '&Gcy;': "\U413",
+  '&Dcy;': "\U414", '&IEcy;': "\U415", '&ZHcy;': "\U416",
+  '&Zcy;': "\U417", '&Icy;': "\U418", '&Jcy;': "\U419",
+  '&Kcy;': "\U41A", '&Lcy;': "\U41B", '&Mcy;': "\U41C",
+  '&Ncy;': "\U41D", '&Ocy;': "\U41E", '&Pcy;': "\U41F",
+  '&Rcy;': "\U420", '&Scy;': "\U421", '&Tcy;': "\U422",
+  '&Ucy;': "\U423", '&Fcy;': "\U424", '&KHcy;': "\U425",
+  '&TScy;': "\U426", '&CHcy;': "\U427", '&SHcy;': "\U428",
+  '&SHCHcy;': "\U429", '&HARDcy;': "\U42A", '&Ycy;': "\U42B",
+  '&SOFTcy;': "\U42C", '&Ecy;': "\U42D", '&YUcy;': "\U42E",
+  '&YAcy;': "\U42F", '&acy;': "\U430", '&bcy;': "\U431",
+  '&vcy;': "\U432", '&gcy;': "\U433", '&dcy;': "\U434",
+  '&iecy;': "\U435", '&zhcy;': "\U436", '&zcy;': "\U437",
+  '&icy;': "\U438", '&jcy;': "\U439", '&kcy;': "\U43A",
+  '&lcy;': "\U43B", '&mcy;': "\U43C", '&ncy;': "\U43D",
+  '&ocy;': "\U43E", '&pcy;': "\U43F", '&rcy;': "\U440",
+  '&scy;': "\U441", '&tcy;': "\U442", '&ucy;': "\U443",
+  '&fcy;': "\U444", '&khcy;': "\U445", '&tscy;': "\U446",
+  '&chcy;': "\U447", '&shcy;': "\U448", '&shchcy;': "\U449",
+  '&hardcy;': "\U44A", '&ycy;': "\U44B", '&softcy;': "\U44C",
+  '&ecy;': "\U44D", '&yucy;': "\U44E", '&yacy;': "\U44F",
+  '&iocy;': "\U451", '&djcy;': "\U452", '&gjcy;': "\U453",
+  '&jukcy;': "\U454", '&dscy;': "\U455", '&iukcy;': "\U456",
+  '&yicy;': "\U457", '&jsercy;': "\U458", '&ljcy;': "\U459",
+  '&njcy;': "\U45A", '&tshcy;': "\U45B", '&kjcy;': "\U45C",
+  '&ubrcy;': "\U45E", '&dzcy;': "\U45F", '&ensp;': "\U2002",
+  '&emsp;': "\U2003", '&emsp13;': "\U2004", '&emsp14;': "\U2005",
+  '&numsp;': "\U2007", '&puncsp;': "\U2008", '&thinsp;': "\U2009",
+  '&hairsp;': "\U200A", '&ZeroWidthSpace;': "\U200B", '&zwnj;': "\U200C",
+  '&zwj;': "\U200D", '&lrm;': "\U200E", '&rlm;': "\U200F",
+  '&hyphen;': "\U2010", '&ndash;': "\U2013", '&mdash;': "\U2014",
+  '&horbar;': "\U2015", '&Verbar;': "\U2016", '&lsquo;': "\U2018",
+  '&rsquo;': "\U2019", '&lsquor;': "\U201A", '&ldquo;': "\U201C",
+  '&rdquo;': "\U201D", '&ldquor;': "\U201E", '&dagger;': "\U2020",
+  '&Dagger;': "\U2021", '&bull;': "\U2022", '&nldr;': "\U2025",
+  '&hellip;': "\U2026", '&permil;': "\U2030", '&pertenk;': "\U2031",
+  '&prime;': "\U2032", '&Prime;': "\U2033", '&tprime;': "\U2034",
+  '&bprime;': "\U2035", '&lsaquo;': "\U2039", '&rsaquo;': "\U203A",
+  '&oline;': "\U203E", '&caret;': "\U2041", '&hybull;': "\U2043",
+  '&frasl;': "\U2044", '&bsemi;': "\U204F", '&qprime;': "\U2057",
+  '&MediumSpace;': "\U205F", '&NoBreak;': "\U2060", '&ApplyFunction;': "\U2061",
+  '&InvisibleTimes;': "\U2062", '&InvisibleComma;': "\U2063", '&euro;': "\U20AC",
+  '&tdot;': "\U20DB", '&DotDot;': "\U20DC", '&Copf;': "\U2102",
+  '&incare;': "\U2105", '&gscr;': "\U210A", '&hamilt;': "\U210B",
+  '&Hfr;': "\U210C", '&quaternions;': "\U210D", '&planckh;': "\U210E",
+  '&planck;': "\U210F", '&Iscr;': "\U2110", '&image;': "\U2111",
+  '&Lscr;': "\U2112", '&ell;': "\U2113", '&Nopf;': "\U2115",
+  '&numero;': "\U2116", '&copysr;': "\U2117", '&weierp;': "\U2118",
+  '&Popf;': "\U2119", '&rationals;': "\U211A", '&Rscr;': "\U211B",
+  '&real;': "\U211C", '&reals;': "\U211D", '&rx;': "\U211E",
+  '&trade;': "\U2122", '&integers;': "\U2124", '&ohm;': "\U2126",
+  '&mho;': "\U2127", '&Zfr;': "\U2128", '&iiota;': "\U2129",
+  '&angst;': "\U212B", '&bernou;': "\U212C", '&Cfr;': "\U212D",
+  '&escr;': "\U212F", '&Escr;': "\U2130", '&Fscr;': "\U2131",
+  '&phmmat;': "\U2133", '&order;': "\U2134", '&alefsym;': "\U2135",
+  '&beth;': "\U2136", '&gimel;': "\U2137", '&daleth;': "\U2138",
+  '&CapitalDifferentialD;': "\U2145", '&DifferentialD;': "\U2146", '&ExponentialE;': "\U2147",
+  '&ImaginaryI;': "\U2148", '&frac13;': "\U2153", '&frac23;': "\U2154",
+  '&frac15;': "\U2155", '&frac25;': "\U2156", '&frac35;': "\U2157",
+  '&frac45;': "\U2158", '&frac16;': "\U2159", '&frac56;': "\U215A",
+  '&frac18;': "\U215B", '&frac38;': "\U215C", '&frac58;': "\U215D",
+  '&frac78;': "\U215E", '&larr;': "\U2190", '&uarr;': "\U2191",
+  '&rarr;': "\U2192", '&darr;': "\U2193", '&harr;': "\U2194",
+  '&varr;': "\U2195", '&nwarr;': "\U2196", '&nearr;': "\U2197",
+  '&searr;': "\U2198", '&swarr;': "\U2199", '&nlarr;': "\U219A",
+  '&nrarr;': "\U219B", '&rarrw;': "\U219D", '&Larr;': "\U219E",
+  '&Uarr;': "\U219F", '&Rarr;': "\U21A0", '&Darr;': "\U21A1",
+  '&larrtl;': "\U21A2", '&rarrtl;': "\U21A3", '&LeftTeeArrow;': "\U21A4",
+  '&UpTeeArrow;': "\U21A5", '&map;': "\U21A6", '&DownTeeArrow;': "\U21A7",
+  '&larrhk;': "\U21A9", '&rarrhk;': "\U21AA", '&larrlp;': "\U21AB",
+  '&rarrlp;': "\U21AC", '&harrw;': "\U21AD", '&nharr;': "\U21AE",
+  '&lsh;': "\U21B0", '&rsh;': "\U21B1", '&ldsh;': "\U21B2",
+  '&rdsh;': "\U21B3", '&crarr;': "\U21B5", '&cularr;': "\U21B6",
+  '&curarr;': "\U21B7", '&olarr;': "\U21BA", '&orarr;': "\U21BB",
+  '&lharu;': "\U21BC", '&lhard;': "\U21BD", '&uharr;': "\U21BE",
+  '&uharl;': "\U21BF", '&rharu;': "\U21C0", '&rhard;': "\U21C1",
+  '&dharr;': "\U21C2", '&dharl;': "\U21C3", '&rlarr;': "\U21C4",
+  '&udarr;': "\U21C5", '&lrarr;': "\U21C6", '&llarr;': "\U21C7",
+  '&uuarr;': "\U21C8", '&rrarr;': "\U21C9", '&ddarr;': "\U21CA",
+  '&lrhar;': "\U21CB", '&rlhar;': "\U21CC", '&nlArr;': "\U21CD",
+  '&nhArr;': "\U21CE", '&nrArr;': "\U21CF", '&lArr;': "\U21D0",
+  '&uArr;': "\U21D1", '&rArr;': "\U21D2", '&dArr;': "\U21D3",
+  '&hArr;': "\U21D4", '&vArr;': "\U21D5", '&nwArr;': "\U21D6",
+  '&neArr;': "\U21D7", '&seArr;': "\U21D8", '&swArr;': "\U21D9",
+  '&lAarr;': "\U21DA", '&rAarr;': "\U21DB", '&zigrarr;': "\U21DD",
+  '&larrb;': "\U21E4", '&rarrb;': "\U21E5", '&duarr;': "\U21F5",
+  '&loarr;': "\U21FD", '&roarr;': "\U21FE", '&hoarr;': "\U21FF",
+  '&forall;': "\U2200", '&comp;': "\U2201", '&part;': "\U2202",
+  '&exist;': "\U2203", '&nexist;': "\U2204", '&empty;': "\U2205",
+  '&nabla;': "\U2207", '&isin;': "\U2208", '&notin;': "\U2209",
+  '&niv;': "\U220B", '&notni;': "\U220C", '&prod;': "\U220F",
+  '&coprod;': "\U2210", '&sum;': "\U2211", '&minus;': "\U2212",
+  '&mnplus;': "\U2213", '&plusdo;': "\U2214", '&setmn;': "\U2216",
+  '&lowast;': "\U2217", '&compfn;': "\U2218", '&radic;': "\U221A",
+  '&prop;': "\U221D", '&infin;': "\U221E", '&angrt;': "\U221F",
+  '&ang;': "\U2220", '&angmsd;': "\U2221", '&angsph;': "\U2222",
+  '&mid;': "\U2223", '&nmid;': "\U2224", '&par;': "\U2225",
+  '&npar;': "\U2226", '&and;': "\U2227", '&or;': "\U2228",
+  '&cap;': "\U2229", '&cup;': "\U222A", '&int;': "\U222B",
+  '&Int;': "\U222C", '&tint;': "\U222D", '&conint;': "\U222E",
+  '&Conint;': "\U222F", '&Cconint;': "\U2230", '&cwint;': "\U2231",
+  '&cwconint;': "\U2232", '&awconint;': "\U2233", '&there4;': "\U2234",
+  '&becaus;': "\U2235", '&ratio;': "\U2236", '&Colon;': "\U2237",
+  '&minusd;': "\U2238", '&mDDot;': "\U223A", '&homtht;': "\U223B",
+  '&sim;': "\U223C", '&bsim;': "\U223D", '&ac;': "\U223E",
+  '&acd;': "\U223F", '&wreath;': "\U2240", '&nsim;': "\U2241",
+  '&esim;': "\U2242", '&sime;': "\U2243", '&nsime;': "\U2244",
+  '&cong;': "\U2245", '&simne;': "\U2246", '&ncong;': "\U2247",
+  '&asymp;': "\U2248", '&nap;': "\U2249", '&ape;': "\U224A",
+  '&apid;': "\U224B", '&bcong;': "\U224C", '&asympeq;': "\U224D",
+  '&bump;': "\U224E", '&bumpe;': "\U224F", '&esdot;': "\U2250",
+  '&eDot;': "\U2251", '&efDot;': "\U2252", '&erDot;': "\U2253",
+  '&colone;': "\U2254", '&ecolon;': "\U2255", '&ecir;': "\U2256",
+  '&cire;': "\U2257", '&wedgeq;': "\U2259", '&veeeq;': "\U225A",
+  '&trie;': "\U225C", '&equest;': "\U225F", '&ne;': "\U2260",
+  '&equiv;': "\U2261", '&nequiv;': "\U2262", '&le;': "\U2264",
+  '&ge;': "\U2265", '&lE;': "\U2266", '&gE;': "\U2267",
+  '&lnE;': "\U2268", '&gnE;': "\U2269", '&Lt;': "\U226A",
+  '&Gt;': "\U226B", '&twixt;': "\U226C", '&NotCupCap;': "\U226D",
+  '&nlt;': "\U226E", '&ngt;': "\U226F", '&nle;': "\U2270",
+  '&nge;': "\U2271", '&lsim;': "\U2272", '&gsim;': "\U2273",
+  '&nlsim;': "\U2274", '&ngsim;': "\U2275", '&lg;': "\U2276",
+  '&gl;': "\U2277", '&ntlg;': "\U2278", '&ntgl;': "\U2279",
+  '&pr;': "\U227A", '&sc;': "\U227B", '&prcue;': "\U227C",
+  '&sccue;': "\U227D", '&prsim;': "\U227E", '&scsim;': "\U227F",
+  '&npr;': "\U2280", '&nsc;': "\U2281", '&sub;': "\U2282",
+  '&sup;': "\U2283", '&nsub;': "\U2284", '&nsup;': "\U2285",
+  '&sube;': "\U2286", '&supe;': "\U2287", '&nsube;': "\U2288",
+  '&nsupe;': "\U2289", '&subne;': "\U228A", '&supne;': "\U228B",
+  '&cupdot;': "\U228D", '&uplus;': "\U228E", '&sqsub;': "\U228F",
+  '&sqsup;': "\U2290", '&sqsube;': "\U2291", '&sqsupe;': "\U2292",
+  '&sqcap;': "\U2293", '&sqcup;': "\U2294", '&oplus;': "\U2295",
+  '&ominus;': "\U2296", '&otimes;': "\U2297", '&osol;': "\U2298",
+  '&odot;': "\U2299", '&ocir;': "\U229A", '&oast;': "\U229B",
+  '&odash;': "\U229D", '&plusb;': "\U229E", '&minusb;': "\U229F",
+  '&timesb;': "\U22A0", '&sdotb;': "\U22A1", '&vdash;': "\U22A2",
+  '&dashv;': "\U22A3", '&top;': "\U22A4", '&bottom;': "\U22A5",
+  '&models;': "\U22A7", '&vDash;': "\U22A8", '&Vdash;': "\U22A9",
+  '&Vvdash;': "\U22AA", '&VDash;': "\U22AB", '&nvdash;': "\U22AC",
+  '&nvDash;': "\U22AD", '&nVdash;': "\U22AE", '&nVDash;': "\U22AF",
+  '&prurel;': "\U22B0", '&vltri;': "\U22B2", '&vrtri;': "\U22B3",
+  '&ltrie;': "\U22B4", '&rtrie;': "\U22B5", '&origof;': "\U22B6",
+  '&imof;': "\U22B7", '&mumap;': "\U22B8", '&hercon;': "\U22B9",
+  '&intcal;': "\U22BA", '&veebar;': "\U22BB", '&barvee;': "\U22BD",
+  '&angrtvb;': "\U22BE", '&lrtri;': "\U22BF", '&xwedge;': "\U22C0",
+  '&xvee;': "\U22C1", '&xcap;': "\U22C2", '&xcup;': "\U22C3",
+  '&diam;': "\U22C4", '&sdot;': "\U22C5", '&sstarf;': "\U22C6",
+  '&divonx;': "\U22C7", '&bowtie;': "\U22C8", '&ltimes;': "\U22C9",
+  '&rtimes;': "\U22CA", '&lthree;': "\U22CB", '&rthree;': "\U22CC",
+  '&bsime;': "\U22CD", '&cuvee;': "\U22CE", '&cuwed;': "\U22CF",
+  '&Sub;': "\U22D0", '&Sup;': "\U22D1", '&Cap;': "\U22D2",
+  '&Cup;': "\U22D3", '&fork;': "\U22D4", '&epar;': "\U22D5",
+  '&ltdot;': "\U22D6", '&gtdot;': "\U22D7", '&Ll;': "\U22D8",
+  '&Gg;': "\U22D9", '&leg;': "\U22DA", '&gel;': "\U22DB",
+  '&cuepr;': "\U22DE", '&cuesc;': "\U22DF", '&nprcue;': "\U22E0",
+  '&nsccue;': "\U22E1", '&nsqsube;': "\U22E2", '&nsqsupe;': "\U22E3",
+  '&lnsim;': "\U22E6", '&gnsim;': "\U22E7", '&prnsim;': "\U22E8",
+  '&scnsim;': "\U22E9", '&nltri;': "\U22EA", '&nrtri;': "\U22EB",
+  '&nltrie;': "\U22EC", '&nrtrie;': "\U22ED", '&vellip;': "\U22EE",
+  '&ctdot;': "\U22EF", '&utdot;': "\U22F0", '&dtdot;': "\U22F1",
+  '&disin;': "\U22F2", '&isinsv;': "\U22F3", '&isins;': "\U22F4",
+  '&isindot;': "\U22F5", '&notinvc;': "\U22F6", '&notinvb;': "\U22F7",
+  '&isinE;': "\U22F9", '&nisd;': "\U22FA", '&xnis;': "\U22FB",
+  '&nis;': "\U22FC", '&notnivc;': "\U22FD", '&notnivb;': "\U22FE",
+  '&barwed;': "\U2305", '&Barwed;': "\U2306", '&lceil;': "\U2308",
+  '&rceil;': "\U2309", '&lfloor;': "\U230A", '&rfloor;': "\U230B",
+  '&drcrop;': "\U230C", '&dlcrop;': "\U230D", '&urcrop;': "\U230E",
+  '&ulcrop;': "\U230F", '&bnot;': "\U2310", '&profline;': "\U2312",
+  '&profsurf;': "\U2313", '&telrec;': "\U2315", '&target;': "\U2316",
+  '&ulcorn;': "\U231C", '&urcorn;': "\U231D", '&dlcorn;': "\U231E",
+  '&drcorn;': "\U231F", '&frown;': "\U2322", '&smile;': "\U2323",
+  '&cylcty;': "\U232D", '&profalar;': "\U232E", '&topbot;': "\U2336",
+  '&ovbar;': "\U233D", '&solbar;': "\U233F", '&angzarr;': "\U237C",
+  '&lmoust;': "\U23B0", '&rmoust;': "\U23B1", '&tbrk;': "\U23B4",
+  '&bbrk;': "\U23B5", '&bbrktbrk;': "\U23B6", '&OverParenthesis;': "\U23DC",
+  '&UnderParenthesis;': "\U23DD", '&OverBrace;': "\U23DE", '&UnderBrace;': "\U23DF",
+  '&trpezium;': "\U23E2", '&elinters;': "\U23E7", '&blank;': "\U2423",
+  '&oS;': "\U24C8", '&boxh;': "\U2500", '&boxv;': "\U2502",
+  '&boxdr;': "\U250C", '&boxdl;': "\U2510", '&boxur;': "\U2514",
+  '&boxul;': "\U2518", '&boxvr;': "\U251C", '&boxvl;': "\U2524",
+  '&boxhd;': "\U252C", '&boxhu;': "\U2534", '&boxvh;': "\U253C",
+  '&boxH;': "\U2550", '&boxV;': "\U2551", '&boxdR;': "\U2552",
+  '&boxDr;': "\U2553", '&boxDR;': "\U2554", '&boxdL;': "\U2555",
+  '&boxDl;': "\U2556", '&boxDL;': "\U2557", '&boxuR;': "\U2558",
+  '&boxUr;': "\U2559", '&boxUR;': "\U255A", '&boxuL;': "\U255B",
+  '&boxUl;': "\U255C", '&boxUL;': "\U255D", '&boxvR;': "\U255E",
+  '&boxVr;': "\U255F", '&boxVR;': "\U2560", '&boxvL;': "\U2561",
+  '&boxVl;': "\U2562", '&boxVL;': "\U2563", '&boxHd;': "\U2564",
+  '&boxhD;': "\U2565", '&boxHD;': "\U2566", '&boxHu;': "\U2567",
+  '&boxhU;': "\U2568", '&boxHU;': "\U2569", '&boxvH;': "\U256A",
+  '&boxVh;': "\U256B", '&boxVH;': "\U256C", '&uhblk;': "\U2580",
+  '&lhblk;': "\U2584", '&block;': "\U2588", '&blk14;': "\U2591",
+  '&blk12;': "\U2592", '&blk34;': "\U2593", '&squ;': "\U25A1",
+  '&squf;': "\U25AA", '&EmptyVerySmallSquare;': "\U25AB", '&rect;': "\U25AD",
+  '&marker;': "\U25AE", '&fltns;': "\U25B1", '&xutri;': "\U25B3",
+  '&utrif;': "\U25B4", '&utri;': "\U25B5", '&rtrif;': "\U25B8",
+  '&rtri;': "\U25B9", '&xdtri;': "\U25BD", '&dtrif;': "\U25BE",
+  '&dtri;': "\U25BF", '&ltrif;': "\U25C2", '&ltri;': "\U25C3",
+  '&loz;': "\U25CA", '&cir;': "\U25CB", '&tridot;': "\U25EC",
+  '&xcirc;': "\U25EF", '&ultri;': "\U25F8", '&urtri;': "\U25F9",
+  '&lltri;': "\U25FA", '&EmptySmallSquare;': "\U25FB", '&FilledSmallSquare;': "\U25FC",
+  '&starf;': "\U2605", '&star;': "\U2606", '&phone;': "\U260E",
+  '&female;': "\U2640", '&male;': "\U2642", '&spades;': "\U2660",
+  '&clubs;': "\U2663", '&hearts;': "\U2665", '&diams;': "\U2666",
+  '&sung;': "\U266A", '&flat;': "\U266D", '&natur;': "\U266E",
+  '&sharp;': "\U266F", '&check;': "\U2713", '&cross;': "\U2717",
+  '&malt;': "\U2720", '&sext;': "\U2736", '&VerticalSeparator;': "\U2758",
+  '&lbbrk;': "\U2772", '&rbbrk;': "\U2773", '&lobrk;': "\U27E6",
+  '&robrk;': "\U27E7", '&lang;': "\U27E8", '&rang;': "\U27E9",
+  '&Lang;': "\U27EA", '&Rang;': "\U27EB", '&loang;': "\U27EC",
+  '&roang;': "\U27ED", '&xlarr;': "\U27F5", '&xrarr;': "\U27F6",
+  '&xharr;': "\U27F7", '&xlArr;': "\U27F8", '&xrArr;': "\U27F9",
+  '&xhArr;': "\U27FA", '&xmap;': "\U27FC", '&dzigrarr;': "\U27FF",
+  '&nvlArr;': "\U2902", '&nvrArr;': "\U2903", '&nvHarr;': "\U2904",
+  '&Map;': "\U2905", '&lbarr;': "\U290C", '&rbarr;': "\U290D",
+  '&lBarr;': "\U290E", '&rBarr;': "\U290F", '&RBarr;': "\U2910",
+  '&DDotrahd;': "\U2911", '&UpArrowBar;': "\U2912", '&DownArrowBar;': "\U2913",
+  '&Rarrtl;': "\U2916", '&latail;': "\U2919", '&ratail;': "\U291A",
+  '&lAtail;': "\U291B", '&rAtail;': "\U291C", '&larrfs;': "\U291D",
+  '&rarrfs;': "\U291E", '&larrbfs;': "\U291F", '&rarrbfs;': "\U2920",
+  '&nwarhk;': "\U2923", '&nearhk;': "\U2924", '&searhk;': "\U2925",
+  '&swarhk;': "\U2926", '&nwnear;': "\U2927", '&nesear;': "\U2928",
+  '&seswar;': "\U2929", '&swnwar;': "\U292A", '&rarrc;': "\U2933",
+  '&cudarrr;': "\U2935", '&ldca;': "\U2936", '&rdca;': "\U2937",
+  '&cudarrl;': "\U2938", '&larrpl;': "\U2939", '&curarrm;': "\U293C",
+  '&cularrp;': "\U293D", '&rarrpl;': "\U2945", '&harrcir;': "\U2948",
+  '&Uarrocir;': "\U2949", '&lurdshar;': "\U294A", '&ldrushar;': "\U294B",
+  '&LeftRightVector;': "\U294E", '&RightUpDownVector;': "\U294F", '&DownLeftRightVector;': "\U2950",
+  '&LeftUpDownVector;': "\U2951", '&LeftVectorBar;': "\U2952", '&RightVectorBar;': "\U2953",
+  '&RightUpVectorBar;': "\U2954", '&RightDownVectorBar;': "\U2955", '&DownLeftVectorBar;': "\U2956",
+  '&DownRightVectorBar;': "\U2957", '&LeftUpVectorBar;': "\U2958", '&LeftDownVectorBar;': "\U2959",
+  '&LeftTeeVector;': "\U295A", '&RightTeeVector;': "\U295B", '&RightUpTeeVector;': "\U295C",
+  '&RightDownTeeVector;': "\U295D", '&DownLeftTeeVector;': "\U295E", '&DownRightTeeVector;': "\U295F",
+  '&LeftUpTeeVector;': "\U2960", '&LeftDownTeeVector;': "\U2961", '&lHar;': "\U2962",
+  '&uHar;': "\U2963", '&rHar;': "\U2964", '&dHar;': "\U2965",
+  '&luruhar;': "\U2966", '&ldrdhar;': "\U2967", '&ruluhar;': "\U2968",
+  '&rdldhar;': "\U2969", '&lharul;': "\U296A", '&llhard;': "\U296B",
+  '&rharul;': "\U296C", '&lrhard;': "\U296D", '&udhar;': "\U296E",
+  '&duhar;': "\U296F", '&RoundImplies;': "\U2970", '&erarr;': "\U2971",
+  '&simrarr;': "\U2972", '&larrsim;': "\U2973", '&rarrsim;': "\U2974",
+  '&rarrap;': "\U2975", '&ltlarr;': "\U2976", '&gtrarr;': "\U2978",
+  '&subrarr;': "\U2979", '&suplarr;': "\U297B", '&lfisht;': "\U297C",
+  '&rfisht;': "\U297D", '&ufisht;': "\U297E", '&dfisht;': "\U297F",
+  '&lopar;': "\U2985", '&ropar;': "\U2986", '&lbrke;': "\U298B",
+  '&rbrke;': "\U298C", '&lbrkslu;': "\U298D", '&rbrksld;': "\U298E",
+  '&lbrksld;': "\U298F", '&rbrkslu;': "\U2990", '&langd;': "\U2991",
+  '&rangd;': "\U2992", '&lparlt;': "\U2993", '&rpargt;': "\U2994",
+  '&gtlPar;': "\U2995", '&ltrPar;': "\U2996", '&vzigzag;': "\U299A",
+  '&vangrt;': "\U299C", '&angrtvbd;': "\U299D", '&ange;': "\U29A4",
+  '&range;': "\U29A5", '&dwangle;': "\U29A6", '&uwangle;': "\U29A7",
+  '&angmsdaa;': "\U29A8", '&angmsdab;': "\U29A9", '&angmsdac;': "\U29AA",
+  '&angmsdad;': "\U29AB", '&angmsdae;': "\U29AC", '&angmsdaf;': "\U29AD",
+  '&angmsdag;': "\U29AE", '&angmsdah;': "\U29AF", '&bemptyv;': "\U29B0",
+  '&demptyv;': "\U29B1", '&cemptyv;': "\U29B2", '&raemptyv;': "\U29B3",
+  '&laemptyv;': "\U29B4", '&ohbar;': "\U29B5", '&omid;': "\U29B6",
+  '&opar;': "\U29B7", '&operp;': "\U29B9", '&olcross;': "\U29BB",
+  '&odsold;': "\U29BC", '&olcir;': "\U29BE", '&ofcir;': "\U29BF",
+  '&olt;': "\U29C0", '&ogt;': "\U29C1", '&cirscir;': "\U29C2",
+  '&cirE;': "\U29C3", '&solb;': "\U29C4", '&bsolb;': "\U29C5",
+  '&boxbox;': "\U29C9", '&trisb;': "\U29CD", '&rtriltri;': "\U29CE",
+  '&LeftTriangleBar;': "\U29CF", '&RightTriangleBar;': "\U29D0", '&race;': "\U29DA",
+  '&iinfin;': "\U29DC", '&infintie;': "\U29DD", '&nvinfin;': "\U29DE",
+  '&eparsl;': "\U29E3", '&smeparsl;': "\U29E4", '&eqvparsl;': "\U29E5",
+  '&lozf;': "\U29EB", '&RuleDelayed;': "\U29F4", '&dsol;': "\U29F6",
+  '&xodot;': "\U2A00", '&xoplus;': "\U2A01", '&xotime;': "\U2A02",
+  '&xuplus;': "\U2A04", '&xsqcup;': "\U2A06", '&qint;': "\U2A0C",
+  '&fpartint;': "\U2A0D", '&cirfnint;': "\U2A10", '&awint;': "\U2A11",
+  '&rppolint;': "\U2A12", '&scpolint;': "\U2A13", '&npolint;': "\U2A14",
+  '&pointint;': "\U2A15", '&quatint;': "\U2A16", '&intlarhk;': "\U2A17",
+  '&pluscir;': "\U2A22", '&plusacir;': "\U2A23", '&simplus;': "\U2A24",
+  '&plusdu;': "\U2A25", '&plussim;': "\U2A26", '&plustwo;': "\U2A27",
+  '&mcomma;': "\U2A29", '&minusdu;': "\U2A2A", '&loplus;': "\U2A2D",
+  '&roplus;': "\U2A2E", '&Cross;': "\U2A2F", '&timesd;': "\U2A30",
+  '&timesbar;': "\U2A31", '&smashp;': "\U2A33", '&lotimes;': "\U2A34",
+  '&rotimes;': "\U2A35", '&otimesas;': "\U2A36", '&Otimes;': "\U2A37",
+  '&odiv;': "\U2A38", '&triplus;': "\U2A39", '&triminus;': "\U2A3A",
+  '&tritime;': "\U2A3B", '&iprod;': "\U2A3C", '&amalg;': "\U2A3F",
+  '&capdot;': "\U2A40", '&ncup;': "\U2A42", '&ncap;': "\U2A43",
+  '&capand;': "\U2A44", '&cupor;': "\U2A45", '&cupcap;': "\U2A46",
+  '&capcup;': "\U2A47", '&cupbrcap;': "\U2A48", '&capbrcup;': "\U2A49",
+  '&cupcup;': "\U2A4A", '&capcap;': "\U2A4B", '&ccups;': "\U2A4C",
+  '&ccaps;': "\U2A4D", '&ccupssm;': "\U2A50", '&And;': "\U2A53",
+  '&Or;': "\U2A54", '&andand;': "\U2A55", '&oror;': "\U2A56",
+  '&orslope;': "\U2A57", '&andslope;': "\U2A58", '&andv;': "\U2A5A",
+  '&orv;': "\U2A5B", '&andd;': "\U2A5C", '&ord;': "\U2A5D",
+  '&wedbar;': "\U2A5F", '&sdote;': "\U2A66", '&simdot;': "\U2A6A",
+  '&congdot;': "\U2A6D", '&easter;': "\U2A6E", '&apacir;': "\U2A6F",
+  '&apE;': "\U2A70", '&eplus;': "\U2A71", '&pluse;': "\U2A72",
+  '&Esim;': "\U2A73", '&Colone;': "\U2A74", '&Equal;': "\U2A75",
+  '&eDDot;': "\U2A77", '&equivDD;': "\U2A78", '&ltcir;': "\U2A79",
+  '&gtcir;': "\U2A7A", '&ltquest;': "\U2A7B", '&gtquest;': "\U2A7C",
+  '&les;': "\U2A7D", '&ges;': "\U2A7E", '&lesdot;': "\U2A7F",
+  '&gesdot;': "\U2A80", '&lesdoto;': "\U2A81", '&gesdoto;': "\U2A82",
+  '&lesdotor;': "\U2A83", '&gesdotol;': "\U2A84", '&lap;': "\U2A85",
+  '&gap;': "\U2A86", '&lne;': "\U2A87", '&gne;': "\U2A88",
+  '&lnap;': "\U2A89", '&gnap;': "\U2A8A", '&lEg;': "\U2A8B",
+  '&gEl;': "\U2A8C", '&lsime;': "\U2A8D", '&gsime;': "\U2A8E",
+  '&lsimg;': "\U2A8F", '&gsiml;': "\U2A90", '&lgE;': "\U2A91",
+  '&glE;': "\U2A92", '&lesges;': "\U2A93", '&gesles;': "\U2A94",
+  '&els;': "\U2A95", '&egs;': "\U2A96", '&elsdot;': "\U2A97",
+  '&egsdot;': "\U2A98", '&el;': "\U2A99", '&eg;': "\U2A9A",
+  '&siml;': "\U2A9D", '&simg;': "\U2A9E", '&simlE;': "\U2A9F",
+  '&simgE;': "\U2AA0", '&LessLess;': "\U2AA1", '&GreaterGreater;': "\U2AA2",
+  '&glj;': "\U2AA4", '&gla;': "\U2AA5", '&ltcc;': "\U2AA6",
+  '&gtcc;': "\U2AA7", '&lescc;': "\U2AA8", '&gescc;': "\U2AA9",
+  '&smt;': "\U2AAA", '&lat;': "\U2AAB", '&smte;': "\U2AAC",
+  '&late;': "\U2AAD", '&bumpE;': "\U2AAE", '&pre;': "\U2AAF",
+  '&sce;': "\U2AB0", '&prE;': "\U2AB3", '&scE;': "\U2AB4",
+  '&prnE;': "\U2AB5", '&scnE;': "\U2AB6", '&prap;': "\U2AB7",
+  '&scap;': "\U2AB8", '&prnap;': "\U2AB9", '&scnap;': "\U2ABA",
+  '&Pr;': "\U2ABB", '&Sc;': "\U2ABC", '&subdot;': "\U2ABD",
+  '&supdot;': "\U2ABE", '&subplus;': "\U2ABF", '&supplus;': "\U2AC0",
+  '&submult;': "\U2AC1", '&supmult;': "\U2AC2", '&subedot;': "\U2AC3",
+  '&supedot;': "\U2AC4", '&subE;': "\U2AC5", '&supE;': "\U2AC6",
+  '&subsim;': "\U2AC7", '&supsim;': "\U2AC8", '&subnE;': "\U2ACB",
+  '&supnE;': "\U2ACC", '&csub;': "\U2ACF", '&csup;': "\U2AD0",
+  '&csube;': "\U2AD1", '&csupe;': "\U2AD2", '&subsup;': "\U2AD3",
+  '&supsub;': "\U2AD4", '&subsub;': "\U2AD5", '&supsup;': "\U2AD6",
+  '&suphsub;': "\U2AD7", '&supdsub;': "\U2AD8", '&forkv;': "\U2AD9",
+  '&topfork;': "\U2ADA", '&mlcp;': "\U2ADB", '&Dashv;': "\U2AE4",
+  '&Vdashl;': "\U2AE6", '&Barv;': "\U2AE7", '&vBar;': "\U2AE8",
+  '&vBarv;': "\U2AE9", '&Vbar;': "\U2AEB", '&Not;': "\U2AEC",
+  '&bNot;': "\U2AED", '&rnmid;': "\U2AEE", '&cirmid;': "\U2AEF",
+  '&midcir;': "\U2AF0", '&topcir;': "\U2AF1", '&nhpar;': "\U2AF2",
+  '&parsim;': "\U2AF3", '&parsl;': "\U2AFD", '&fflig;': "\UFB00",
+  '&filig;': "\UFB01", '&fllig;': "\UFB02", '&ffilig;': "\UFB03",
+  '&ffllig;': "\UFB04", '&Ascr;': "\U1D49C", '&Cscr;': "\U1D49E",
+  '&Dscr;': "\U1D49F", '&Gscr;': "\U1D4A2", '&Jscr;': "\U1D4A5",
+  '&Kscr;': "\U1D4A6", '&Nscr;': "\U1D4A9", '&Oscr;': "\U1D4AA",
+  '&Pscr;': "\U1D4AB", '&Qscr;': "\U1D4AC", '&Sscr;': "\U1D4AE",
+  '&Tscr;': "\U1D4AF", '&Uscr;': "\U1D4B0", '&Vscr;': "\U1D4B1",
+  '&Wscr;': "\U1D4B2", '&Xscr;': "\U1D4B3", '&Yscr;': "\U1D4B4",
+  '&Zscr;': "\U1D4B5", '&ascr;': "\U1D4B6", '&bscr;': "\U1D4B7",
+  '&cscr;': "\U1D4B8", '&dscr;': "\U1D4B9", '&fscr;': "\U1D4BB",
+  '&hscr;': "\U1D4BD", '&iscr;': "\U1D4BE", '&jscr;': "\U1D4BF",
+  '&kscr;': "\U1D4C0", '&lscr;': "\U1D4C1", '&mscr;': "\U1D4C2",
+  '&nscr;': "\U1D4C3", '&pscr;': "\U1D4C5", '&qscr;': "\U1D4C6",
+  '&rscr;': "\U1D4C7", '&sscr;': "\U1D4C8", '&tscr;': "\U1D4C9",
+  '&uscr;': "\U1D4CA", '&vscr;': "\U1D4CB", '&wscr;': "\U1D4CC",
+  '&xscr;': "\U1D4CD", '&yscr;': "\U1D4CE", '&zscr;': "\U1D4CF",
+  '&Afr;': "\U1D504", '&Bfr;': "\U1D505", '&Dfr;': "\U1D507",
+  '&Efr;': "\U1D508", '&Ffr;': "\U1D509", '&Gfr;': "\U1D50A",
+  '&Jfr;': "\U1D50D", '&Kfr;': "\U1D50E", '&Lfr;': "\U1D50F",
+  '&Mfr;': "\U1D510", '&Nfr;': "\U1D511", '&Ofr;': "\U1D512",
+  '&Pfr;': "\U1D513", '&Qfr;': "\U1D514", '&Sfr;': "\U1D516",
+  '&Tfr;': "\U1D517", '&Ufr;': "\U1D518", '&Vfr;': "\U1D519",
+  '&Wfr;': "\U1D51A", '&Xfr;': "\U1D51B", '&Yfr;': "\U1D51C",
+  '&afr;': "\U1D51E", '&bfr;': "\U1D51F", '&cfr;': "\U1D520",
+  '&dfr;': "\U1D521", '&efr;': "\U1D522", '&ffr;': "\U1D523",
+  '&gfr;': "\U1D524", '&hfr;': "\U1D525", '&ifr;': "\U1D526",
+  '&jfr;': "\U1D527", '&kfr;': "\U1D528", '&lfr;': "\U1D529",
+  '&mfr;': "\U1D52A", '&nfr;': "\U1D52B", '&ofr;': "\U1D52C",
+  '&pfr;': "\U1D52D", '&qfr;': "\U1D52E", '&rfr;': "\U1D52F",
+  '&sfr;': "\U1D530", '&tfr;': "\U1D531", '&ufr;': "\U1D532",
+  '&vfr;': "\U1D533", '&wfr;': "\U1D534", '&xfr;': "\U1D535",
+  '&yfr;': "\U1D536", '&zfr;': "\U1D537", '&Aopf;': "\U1D538",
+  '&Bopf;': "\U1D539", '&Dopf;': "\U1D53B", '&Eopf;': "\U1D53C",
+  '&Fopf;': "\U1D53D", '&Gopf;': "\U1D53E", '&Iopf;': "\U1D540",
+  '&Jopf;': "\U1D541", '&Kopf;': "\U1D542", '&Lopf;': "\U1D543",
+  '&Mopf;': "\U1D544", '&Oopf;': "\U1D546", '&Sopf;': "\U1D54A",
+  '&Topf;': "\U1D54B", '&Uopf;': "\U1D54C", '&Vopf;': "\U1D54D",
+  '&Wopf;': "\U1D54E", '&Xopf;': "\U1D54F", '&Yopf;': "\U1D550",
+  '&aopf;': "\U1D552", '&bopf;': "\U1D553", '&copf;': "\U1D554",
+  '&dopf;': "\U1D555", '&eopf;': "\U1D556", '&fopf;': "\U1D557",
+  '&gopf;': "\U1D558", '&hopf;': "\U1D559", '&iopf;': "\U1D55A",
+  '&jopf;': "\U1D55B", '&kopf;': "\U1D55C", '&lopf;': "\U1D55D",
+  '&mopf;': "\U1D55E", '&nopf;': "\U1D55F", '&oopf;': "\U1D560",
+  '&popf;': "\U1D561", '&qopf;': "\U1D562", '&ropf;': "\U1D563",
+  '&sopf;': "\U1D564", '&topf;': "\U1D565", '&uopf;': "\U1D566",
+  '&vopf;': "\U1D567", '&wopf;': "\U1D568", '&xopf;': "\U1D569",
+  '&yopf;': "\U1D56A", '&zopf;': "\U1D56B"
 }
 var DictCharToEntities: dict<string>
 DictEntitiesToChar->mapnew(
@@ -748,13 +759,15 @@ def HTML#EncodeString(str: string, code: string = ''): string
   var out = str
 
   if code == ''
-    out = out->substitute('.', '\=submatch(0)->CharToEntity()', 'g')
+    #out = out->substitute('.', '\=submatch(0)->CharToEntity()', 'g')
+    out = out->split('\zs')->mapnew((_, char) => char->CharToEntity())->join('')
   elseif code == 'x'
-    out = out->substitute('.', '\=printf("&#x%x;", submatch(0)->char2nr())', 'g')
+    #out = out->substitute('.', '\=printf("&#x%x;", submatch(0)->char2nr())', 'g')
+    out = out->split('\zs')->mapnew((_, char) => printf("&#x%x;", char->char2nr()))->join('')
   elseif code == '%'
     out = out->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
   elseif code =~? '^d\(ecode\)\=$'
-    out = out->substitute('\(&#x\x\+;\|&#\d\+;\|&\a\+;\|%\x\x\)', '\=submatch(1)->HTML#DecodeSymbol()', 'g')
+    out = out->substitute('\(&\a\+;\|&#x\x\+;\|&#\d\+;\|%\x\x\)', '\=submatch(1)->HTML#DecodeSymbol()', 'g')
   endif
 
   return out
@@ -811,8 +824,6 @@ const MODES = {  # {{{
     }  # }}}
 
 def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
-  g:tmpopts = opts
-
   if exists('g:html_map_leader') == 0 && map =~? '^<lead>'
     HTMLERROR g:html_map_leader is not set! No mapping defined.
     return false
@@ -823,12 +834,18 @@ def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
     return false
   endif
 
+  if cmd =~# '^no' || cmd =~# '^map$'
+    execute 'HTMLERROR ' .. expand('<sfile>') .. ' must have one of the modes explicitly stated. No mapping defined.'
+    return false
+  endif
+
   var mode = cmd->strpart(0, 1)
   var newarg = arg
   var newmap = map->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), '')
   newmap = newmap->substitute('^<elead>\c', g:html_map_entity_leader->escape('&~\'), '')
 
   if MODES->has_key(mode) && newmap->MapCheck(mode) >= 2
+    # MapCheck() will echo the necessary message, so just return here
     return false
   endif
 
@@ -841,41 +858,45 @@ def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
   if mode == 'v'
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
-    newarg = newarg->substitute("`>a\\C", "`>i<C-R>=HTML#VI()<CR>", 'g')
+    newarg = newarg->substitute('`>a\C', '`>i<C-R>=HTML#VI()<CR>', 'g')
 
     # Note that <C-c>:-command is necessary instead of just <Cmd> because
     # <Cmd> doesn't update visual marks, which the mappings rely on:
-    if exists('g:tmpopts["extra"]') && ! g:tmpopts['extra']
-      execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
-    elseif exists('g:tmpopts["insert"]') && g:tmpopts['insert'] && exists('g:tmpopts["reindent"]')
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:vim9cmd HTML#TO(v:false)<CR><C-O>gv" .. newarg
-        .. "<C-O>:vim9cmd HTML#TO(v:true)<CR><C-O>m'<C-O>:vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
-        .. g:tmpopts['reindent'] .. ")<CR><C-O>``"
-    elseif exists('g:tmpopts["insert"]') && g:tmpopts['insert']
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:vim9cmd HTML#TO(v:false)<CR>gv" .. newarg
-        .. "<C-O>:vim9cmd HTML#TO(v:true)<CR>"
-    elseif exists('g:tmpopts["reindent"]')
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:vim9cmd HTML#TO(v:false)<CR>gv" .. newarg
-        .. ":vim9cmd HTML#TO(v:true)<CR>m':vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), " .. g:tmpopts['reindent'] .. ")<CR>``"
+    if opts->has_key('extra') && ! opts['extra']
+      execute cmd .. ' <buffer> <silent> ' .. newmap .. " " .. newarg
+    elseif opts->has_key('insert') && opts['insert'] && opts->has_key('reindent')
+      execute cmd .. ' <buffer> <silent> ' .. newmap
+        .. ' <C-c>:vim9cmd HTML#TO(false)<CR><C-O>gv' .. newarg
+        .. "<C-O>:vim9cmd HTML#TO(true)<CR><C-O>m'<C-O>:vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. opts['reindent'] .. ')<CR><C-O>``'
+    elseif opts->has_key('insert') && opts['insert']
+      execute cmd .. ' <buffer> <silent> ' .. newmap
+        .. ' <C-c>:vim9cmd HTML#TO(false)<CR>gv' .. newarg
+        .. '<C-O>:vim9cmd HTML#TO(true)<CR>'
+    elseif opts->has_key('reindent')
+      execute cmd .. ' <buffer> <silent> ' .. newmap
+        .. ' <C-c>:vim9cmd HTML#TO(false)<CR>gv' .. newarg
+        .. ":vim9cmd HTML#TO(true)<CR>m':vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. opts['reindent'] .. ')<CR>``'
     else
-      execute cmd .. " <buffer> <silent> " .. newmap .. " <C-c>:vim9cmd HTML#TO(v:false)<CR>gv" .. newarg
-        .. ":vim9cmd HTML#TO(v:true)<CR>"
+      execute cmd .. ' <buffer> <silent> ' .. newmap
+        .. ' <C-c>:vim9cmd HTML#TO(false)<CR>gv' .. newarg
+        .. ':vim9cmd HTML#TO(true)<CR>'
     endif
   else
-    execute cmd .. " <buffer> <silent> " .. newmap .. " " .. newarg
+    execute cmd .. ' <buffer> <silent> ' .. newmap .. " " .. newarg
   endif
 
   if MODES->has_key(mode)
-    add(b:HTMLclearMappings, ':' .. mode .. "unmap <buffer> " .. newmap)
+    add(b:HTMLclearMappings, ':' .. mode .. 'unmap <buffer> ' .. newmap)
   else
-    add(b:HTMLclearMappings, ":unmap <buffer> " .. newmap)
+    add(b:HTMLclearMappings, ':unmap <buffer> ' .. newmap)
   endif
 
   # Save extra mappings so they can be restored if we need to later:
   ExtraMappingsAdd(':vim9cmd HTML#Map("' .. cmd .. '", "' .. map->escape('"\')
-    .. '", "' .. arg->escape('"\') .. (g:tmpopts != {} ? string(g:tmpopts) : '') .. ')')
-
-  unlet g:tmpopts
+    .. '", "' .. arg->escape('"\') .. '"'
+    .. (opts != {} ? ', ' .. string(opts) : '') .. ')')
 
   return true
 enddef
@@ -887,10 +908,11 @@ enddef
 #
 # Arguments:
 #  1 - String:  The mapping.
-#  2 - Boolean: Whether to enter insert mode after the mapping has executed.
+#  2 - Boolean: Optional - Whether to enter insert mode after the mapping has
+#                          executed. Default false.
 # Return Value:
 #  Boolean: Whether a mapping was defined
-def HTML#Mapo(map: string, insert: bool): bool
+def HTML#Mapo(map: string, insert: bool = false): bool
   if exists('g:html_map_leader') == 0 && map =~? '^<lead>'
     HTMLERROR g:html_map_leader is not set! No mapping defined.
     return false
@@ -908,7 +930,8 @@ def HTML#Mapo(map: string, insert: bool): bool
     .. ':vim9cmd &operatorfunc = "HTML#WR"<CR>g@'
 
   add(b:HTMLclearMappings, ':nunmap <buffer> ' .. newmap)
-  ExtraMappingsAdd(':vim9cmd HTML#Mapo("' .. map->escape('"\') .. '", ' .. insert .. ')')
+  ExtraMappingsAdd(':vim9cmd HTML#Mapo("' .. map->escape('"\')
+    .. '", ' .. insert .. ')')
 
   return true
 enddef
@@ -937,7 +960,7 @@ def MapCheck(map: string, mode: string): number
     if HTML#BoolVar('g:no_html_map_override') && g:doing_internal_html_mappings
       return 2
     else
-      execute "HTMLWARN WARNING: A mapping to \"" .. map .. "\" for " .. MODES[mode] .. " mode has been overridden for this buffer."
+      execute 'HTMLWARN WARNING: A mapping to "' .. map .. '" for ' .. MODES[mode] .. ' mode has been overridden for this buffer.'
       return 1
     endif
   endif
@@ -965,21 +988,21 @@ enddef
 # HTML#WR()  {{{1
 # Function set in 'operatorfunc' for mappings that take an operator:
 def HTML#WR(type: string)
-  var sel_save = &selection
-  &selection = "inclusive"
+  saveopts['selection'] = &selection
+  &selection = 'inclusive'
 
   if type == 'line'
-    execute "normal `[V`]" .. b:htmltagaction
+    execute 'normal! `[V`]' .. b:htmltagaction
   elseif type == 'block'
-    execute "normal `[\<C-V>`]" .. b:htmltagaction
+    execute "normal! `[\<C-V>`]" .. b:htmltagaction
   else
-    execute "normal `[v`]" .. b:htmltagaction
+    execute 'normal! `[v`]' .. b:htmltagaction
   endif
 
-  &selection = sel_save
+  &selection = saveopts['selection']
 
   if b:htmltaginsert
-    execute "normal \<Right>"
+    execute "normal! \<Right>"
     silent startinsert
   endif
 enddef
@@ -992,9 +1015,7 @@ enddef
 #  1 - String: The command necessary to re-define the mapping.
 def ExtraMappingsAdd(arg: string)
   if ! g:doing_internal_html_mappings && ! doing_extra_html_mappings
-    if ! exists('b:HTMLextraMappings')
-      b:HTMLextraMappings = []
-    endif
+    HTML#SetIfUnset('b:HTMLextraMappings', '[]')
     add(b:HTMLextraMappings, arg)
   endif
 enddef
@@ -1008,32 +1029,35 @@ enddef
 # Arguments:
 #  1 - Boolean: false - Turn options off.
 #               true  - Turn options back on, if they were on before.
-var savesm: bool
-var saveinde: string
-var savefo: string
-var visualmode_save: string
 def HTML#TO(which: bool)
   if which
-    &l:sm = savesm
-    &l:inde = saveinde
-    &l:fo = savefo
+    if saveopts->has_key('formatoptions') && saveopts['formatoptions'] != ''
+      &l:showmatch = saveopts['showmatch']
+      &l:indentexpr = saveopts['indentexpr']
+      &l:formatoptions = saveopts['formatoptions']
+    endif
 
     # Restore the last visual mode if it was changed:
-    if visualmode_save != ''
-      execute "normal gv" .. visualmode_save .. "\<C-C>"
-      visualmode_save = ''
+    if saveopts->has_key('visualmode') && saveopts['visualmode'] != ''
+      execute 'normal! gv' .. saveopts['visualmode'] .. "\<C-c>"
+      saveopts->remove('visualmode')
     endif
   else
-    savesm = &l:sm | &l:sm = false
-    saveinde = &l:inde | &l:inde = ''
-    savefo = &l:fo | &l:fo = ''
+    if &l:formatoptions != ''
+      saveopts['showmatch'] = &l:showmatch
+      saveopts['indentexpr'] = &l:indentexpr
+      saveopts['formatoptions'] = &l:formatoptions
+    endif
+    &l:showmatch = false
+    &l:indentexpr = ''
+    &l:formatoptions = ''
 
     # A trick to make leading indent on the first line of visual-line
     # selections is handled properly (turn it into a character-wise
     # selection and exclude the leading indent):
     if visualmode() ==# 'V'
-      visualmode_save = visualmode()
-      execute "normal `<^v`>\<C-C>"
+      saveopts['visualmode'] = visualmode()
+      execute "normal! `<^v`>\<C-c>"
     endif
   endif
 enddef
@@ -1044,14 +1068,18 @@ enddef
 # certain mappings from inserting unwanted comment leaders.
 #
 # Arguments:
-#  1 - Boolean: false - Turn option off.
-#               true  - Turn option back on, if they were on before.
-var savecom: string
+#  1 - Boolean: false - Clear option
+#               true  - Restore option
 def HTML#TC(s: bool)
   if s
-    &l:com = savecom
+    if saveopts->has_key('comments') && saveopts['comments'] != ''
+      &l:comments = saveopts['comments']
+    endif
   else
-    savecom = &l:com | &l:com = ''
+    if &l:comments != ''
+      saveopts['comments'] = &l:comments
+      &l:comments = ''
+    endif
   endif
 enddef
 
@@ -1070,7 +1098,7 @@ def HTML#ToggleClipboard(i: number)
   var newi = i
 
   if newi == 2
-    if exists("b:did_html_mappings")
+    if exists('b:did_html_mappings')
       newi = 1
     else
       newi = 0
@@ -1127,9 +1155,7 @@ def HTML#ConvertCase(str: any): any
     newstr = [str]
   endif
 
-  if ! exists('b:html_tag_case')
-    b:html_tag_case = g:html_tag_case
-  endif
+  HTML#SetIfUnset('b:html_tag_case', g:html_tag_case)
 
   if b:html_tag_case =~? '^u\(pper\(case\)\?\)\?'
     newnewstr = newstr->mapnew(
@@ -1144,7 +1170,7 @@ def HTML#ConvertCase(str: any): any
       }
     )
   else
-    execute "HTMLWARN WARNING: b:html_tag_case = '" .. b:html_tag_case .. "' invalid, overriding to 'lowercase'."
+    execute 'HTMLWARN WARNING: b:html_tag_case = "' .. b:html_tag_case .. '" invalid, overriding to "lowercase".'
     b:html_tag_case = 'lowercase'
     newstr = newstr->HTML#ConvertCase()
   endif
@@ -1173,7 +1199,9 @@ def HTML#ReIndent(first: number, last: number, extralines: number = 0, prelines:
   var filetypeoutput: string
 
   # To find out if filetype indenting is enabled:
-  silent! redir =>filetypeoutput | silent! filetype | redir END
+  silent! redir =>filetypeoutput
+  silent! filetype
+  redir END
 
   if filetypeoutput =~ "indent:OFF" && &indentexpr == ''
     return
@@ -1181,14 +1209,29 @@ def HTML#ReIndent(first: number, last: number, extralines: number = 0, prelines:
 
   # Make sure the range is in the proper order:
   if last >= first
-    firstline = first - prelines
-    lastline = last + extralines
+    firstline = first
+    lastline = last
   else
-    firstline = last - prelines
-    lastline = first + extralines
+    firstline = last
+    lastline = first
   endif
 
-  execute ':' .. firstline .. ',' .. lastline .. 'norm =='
+  # Behavior of visual mappings can be unpredictable without this:
+  if firstline == lastline
+    lastline += 1
+  endif
+
+  firstline -= prelines
+  lastline += extralines
+
+  if firstline < 1
+    firstline = 1
+  endif
+  if lastline > line('$')
+    lastline = line('$')
+  endif
+
+  execute ':' .. firstline .. ',' .. lastline .. 'normal! =='
 enddef
 
 # ByteOffset()  {{{1
@@ -1239,7 +1282,7 @@ def HTML#NextInsertPoint(mode: string = 'n')
 
   # Tab in insert mode on the beginning of a closing tag jumps us to
   # after the tag:
-  if mode == 'i'
+  if mode =~? '^i'
     if line('.')->getline()->strpart(col('.') - 1, 2) == '</'
       normal! %
       done = true
@@ -1272,7 +1315,7 @@ def HTML#NextInsertPoint(mode: string = 'n')
       go 1
     else
       execute 'go ' .. byteoffset
-      if mode == 'i' && col('.') == col('$') - 1
+      if mode =~? '^i' && col('.') == col('$') - 1
         startinsert!
       endif
     endif
@@ -1386,23 +1429,30 @@ const SMARTTAGS = {
 
 def HTML#SmartTag(tag: string, mode: string): string
   var attr = synID(line('.'), col('.') - 1, 1)->synIDattr('name')
+  var newmode = mode->strpart(0, 1)->tolower()
+  var newtag = tag->tolower()
   var ret: string
 
-  if ( tag == 'i' && attr =~? 'italic' )
-        || ( tag == 'em' && attr =~? 'italic' )
-        || ( tag == 'b' && attr =~? 'bold' )
-        || ( tag == 'strong' && attr =~? 'bold' )
-        || ( tag == 'u' && attr =~? 'underline' )
-        || ( tag == 'comment' && attr =~? 'comment' )
-    ret = SMARTTAGS[tag][mode]['c']->HTML#ConvertCase()
-  else
-    ret = SMARTTAGS[tag][mode]['o']->HTML#ConvertCase()
+  if ! SMARTTAGS->has_key(newtag)
+    execute 'HTMLERROR Unknown smart tag: ' .. newtag
+    return ''
   endif
 
-  if mode == 'v'
+  if ( newtag == 'i' && attr =~? 'italic$' )
+      || ( newtag == 'em' && attr =~? 'italic$' )
+      || ( newtag == 'b' && attr =~? 'bold$' )
+      || ( newtag == 'strong' && attr =~? 'bold$' )
+      || ( newtag == 'u' && attr =~? 'underline$' )
+      || ( newtag == 'comment' && attr =~? 'comment$' )
+    ret = SMARTTAGS[newtag][newmode]['c']->HTML#ConvertCase()
+  else
+    ret = SMARTTAGS[newtag][newmode]['o']->HTML#ConvertCase()
+  endif
+
+  if newmode == 'v'
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
-    ret = ret->substitute("`>a\\C", "`>i" .. HTML#VI(), 'g')
+    ret = ret->substitute('`>a\C', '`>i' .. HTML#VI(), 'g')
   endif
 
   return ret
@@ -1433,7 +1483,7 @@ const CHARSETS = {
 def HTML#DetectCharset(): string
   var enc: string
 
-  if exists("g:html_charset")
+  if exists('g:html_charset')
     return g:html_charset
   endif
 
@@ -1564,7 +1614,7 @@ def HTML#GenerateTable(rows: number = -1, columns: number = -1, border: number =
 
   lines->append('.')
 
-  execute ':' .. (line('.') + 1) .. ',' .. (line('.') + lines->len()) .. 'normal =='
+  execute ':' .. (line('.') + 1) .. ',' .. (line('.') + lines->len()) .. 'normal! =='
 
   setcharpos('.', charpos)
 
@@ -1655,7 +1705,7 @@ def HTML#MappingsControl(dowhat: string): bool
   if dowhat =~? '^\(d\(isable\)\=\|off\)$'
     if exists('b:did_html_mappings') == 1
       ClearMappings()
-      if exists("g:did_html_menus") == 1
+      if exists('g:did_html_menus') == 1
         HTML#MenuControl('disable')
       endif
     elseif quiet_errors
@@ -1665,7 +1715,7 @@ def HTML#MappingsControl(dowhat: string): bool
     if exists('b:did_html_mappings') == 1
       HTMLERROR The HTML mappings are already enabled.
     else
-      execute "source " .. g:html_plugin_file
+      execute 'source ' .. g:html_plugin_file
       if exists('b:HTMLextraMappings') == 1
         DoExtraMappings()
       endif
@@ -1695,7 +1745,7 @@ def HTML#MappingsControl(dowhat: string): bool
     b:did_html_mappings_init = -1
     HTML#MappingsControl('on')
   else
-    execute "HTMLERROR Invalid argument: " .. dowhat
+    execute 'HTMLERROR Invalid argument: ' .. dowhat
     return false
   endif
 
@@ -1713,13 +1763,13 @@ enddef
 #                "enable": Enable the menu and toolbar
 # Return Value:
 #  Boolean: False if an error occurred, true otherwise
-def HTML#MenuControl(which: string="detect"): bool
+def HTML#MenuControl(which: string='detect'): bool
   if which !~? '^disable$\|^enable$\|^detect$'
     exe 'HTMLERROR Invalid argument: ' .. which
     return false
   endif
 
-  if which == 'disable' || exists("b:did_html_mappings") == 0
+  if which == 'disable' || exists('b:did_html_mappings') == 0
     amenu disable HTML
     amenu disable HTML.*
     if exists('g:did_html_toolbar') == 1
@@ -1743,9 +1793,9 @@ def HTML#MenuControl(which: string="detect"): bool
       amenu enable HTML.Control.Enable\ Mappings
       amenu enable HTML.Control.Reload\ Mappings
     endif
-  elseif which == 'enable' || exists("b:did_html_mappings_init") == 1
+  elseif which == 'enable' || exists('b:did_html_mappings_init') == 1
     amenu enable HTML
-    if exists("b:did_html_mappings") == 1
+    if exists('b:did_html_mappings') == 1
       amenu enable HTML.*
       amenu enable HTML.Control.*
       amenu disable HTML.Control.Enable\ Mappings
@@ -1832,7 +1882,7 @@ def HTML#ShowColors(str: string='')
       ])
   go 1
   execute ':1,3center ' .. ((maxw + 13) * 2)
-  norm }
+  normal! }
 
   setlocal nomodifiable
 
@@ -1893,7 +1943,7 @@ def ColorSelect(bufnr: number, which: string = 'i')
     execute ':' .. bufnr->bufwinnr() .. 'wincmd w'
   endif
 
-  execute 'normal ' .. which .. colora[1]
+  execute 'normal! ' .. which .. colora[1]
   stopinsert
   echo color
 enddef
@@ -1909,8 +1959,8 @@ enddef
 #  1 - The cursor is on an insert point.
 def HTML#Template(): bool
   var ret = false
-  var save_ruler = &ruler
-  var save_showcmd = &showcmd
+  var saveruler = &ruler
+  var saveshowcmd = &showcmd
   set noruler noshowcmd
 
   if line('$') == 1 && getline(1) == ''
@@ -1924,8 +1974,8 @@ def HTML#Template(): bool
       ret = InsertTemplate()
     endif
   endif
-  &ruler = save_ruler
-  &showcmd = save_showcmd
+  &ruler = saveruler
+  &showcmd = saveshowcmd
   return ret
 enddef
 
@@ -1955,10 +2005,10 @@ def InsertTemplate(): bool
 
   if template != ''
     if template->expand()->filereadable()
-      silent execute ":0read " .. template
+      silent execute ':0read ' .. template
     else
-      execute "HTMLERROR Unable to insert template file: " .. template
-      HTMLERROR "Either it doesn't exist or it isn't readable."
+      execute 'HTMLERROR Unable to insert template file: ' .. template
+      HTMLERROR 'Either it doesn't exist or it isn't readable.'
       return false
     endif
   else
@@ -1966,11 +2016,11 @@ def InsertTemplate(): bool
   endif
 
   if getline('$') =~ '^\s*$'
-    execute ":$delete"
+    execute ':$delete'
   endif
 
   if getline(1) =~ '^\s*$'
-    execute ":1delete"
+    execute ':1delete'
   endif
 
   # Replace the various tokens with appropriate values:
@@ -2042,7 +2092,7 @@ def HTML#EntityMenu(name: string, item: string, symb: string = '')
 
   # Makes it so UTF8 characters don't have to be hardcoded:
   if newsymb =~# '^\\[xuU]\x\+$'
-    newsymb = newsymb->substitute('^\\[xuU]', '', '')->str2nr(16)->nr2char(v:true)
+    newsymb = newsymb->substitute('^\\[xuU]', '', '')->str2nr(16)->nr2char(true)
   endif
 
   if newsymb == '-'
