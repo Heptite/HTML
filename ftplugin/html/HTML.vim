@@ -11,8 +11,8 @@ endif
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         https://christianrobinson.name/HTML/
-# Last Change: July 29, 2021
-# Version:     1.0.18
+# Last Change: July 31, 2021
+# Version:     1.1.0
 # Original Concept: Doug Renze
 #
 #
@@ -286,18 +286,31 @@ HTML#Map('nnoremap', '<lead>' .. g:html_map_leader, g:html_map_leader)
 HTML#Map('inoremap', '<lead>' .. g:html_map_entity_leader, g:html_map_entity_leader)
 
 if ! HTML#BoolVar('g:no_html_tab_mapping')
-  # Allow hard tabs to be inserted:
+  # Allow hard tabs to be used:
   HTML#Map('inoremap', '<lead><tab>', '<tab>')
   HTML#Map('nnoremap', '<lead><tab>', '<tab>')
+  HTML#Map('vnoremap', '<lead><tab>', '<tab>', {'extra': false})
+  # And shift-tabs too:
+  HTML#Map('inoremap', '<lead><s-tab>', '<s-tab>')
+  HTML#Map('nnoremap', '<lead><s-tab>', '<s-tab>')
+  HTML#Map('vnoremap', '<lead><s-tab>', '<s-tab>', {'extra': false})
 
   # Tab takes us to a (hopefully) reasonable next insert point:
   HTML#Map('inoremap', '<tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i')<CR>")
   HTML#Map('nnoremap', '<tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>")
   HTML#Map('vnoremap', '<tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>", {'extra': false})
+  # ...And shift-tab goes backwards:
+  HTML#Map('inoremap', '<s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i', 'b')<CR>")
+  HTML#Map('nnoremap', '<s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n', 'b')<CR>")
+  HTML#Map('vnoremap', '<s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n', 'b')<CR>", {'extra': false})
 else
   HTML#Map('inoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i')<CR>")
   HTML#Map('nnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>")
   HTML#Map('vnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>", {'extra': false})
+
+  HTML#Map('inoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i', 'b')<CR>")
+  HTML#Map('nnoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n', 'b')<CR>")
+  HTML#Map('vnoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n', 'b')<CR>", {'extra': false})
 endif
 
 # Update an image tag's WIDTH & HEIGHT attributes:
@@ -347,10 +360,12 @@ HTML#Map('vnoremap', '<lead>cm', "<C-c>:execute 'normal! ' .. HTML#SmartTag('com
 HTML#Mapo('<lead>cm')
 
 #       A HREF  Anchor Hyperlink        HTML 2.0
-HTML#Map('inoremap', '<lead>ah', '<[{A HREF=""></A}]><C-O>F"')
+# HTML#Map('inoremap', '<lead>ah', '<[{A HREF=""></A}]><C-O>F"')
+HTML#Map('inoremap', '<lead>ah', "<C-R>=HTML#SmartTag('a', 'i')<CR>")
 HTML#Map('inoremap', '<lead>aH', '<[{A HREF="<C-R>*"></A}]><C-O>F<')
 # Visual mappings:
-HTML#Map('vnoremap', '<lead>ah', '<ESC>`>a</[{A}]><C-O>`<<[{A HREF}]=""><C-O>F"', {'insert': true})
+# HTML#Map('vnoremap', '<lead>ah', '<ESC>`>a</[{A}]><C-O>`<<[{A HREF}]=""><C-O>F"', {'insert': true})
+HTML#Map('vnoremap', '<lead>ah', "<C-c>:execute 'normal! ' .. HTML#SmartTag('a', 'v')<CR>", {'insert': true})
 HTML#Map('vnoremap', '<lead>aH', '<ESC>`>a"></[{A}]><C-O>`<<[{A HREF}]="<C-O>f<', {'insert': true})
 # Motion mappings:
 HTML#Mapo('<lead>ah', true)
@@ -458,9 +473,11 @@ HTML#Map('vnoremap', '<lead>bi', '<ESC>`>a</[{SPAN}]><C-O>`<<[{SPAN STYLE}]="fon
 HTML#Mapo('<lead>bi')
 
 #       BLOCKQUOTE                      HTML 2.0
-HTML#Map('inoremap', '<lead>bl', '<[{BLOCKQUOTE}]><CR></[{BLOCKQUOTE}]><ESC>O')
+# HTML#Map('inoremap', '<lead>bl', '<[{BLOCKQUOTE}]><CR></[{BLOCKQUOTE}]><ESC>O')
+HTML#Map('inoremap', '<lead>bl', "<C-R>=HTML#SmartTag('blockquote', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>bl', '<ESC>`>a<CR></[{BLOCKQUOTE}]><C-O>`<<[{BLOCKQUOTE}]><CR><ESC>', {'reindent': 1})
+# HTML#Map('vnoremap', '<lead>bl', '<ESC>`>a<CR></[{BLOCKQUOTE}]><C-O>`<<[{BLOCKQUOTE}]><CR><ESC>', {'reindent': 1})
+HTML#Map('vnoremap', '<lead>bl', "<C-c>:execute 'normal! ' .. HTML#SmartTag('blockquote', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>bl')
 
@@ -499,16 +516,20 @@ HTML#Map('vnoremap', '<lead>ce', '<ESC>`>a<CR></[{DIV}]><C-O>`<<[{DIV STYLE}]="t
 HTML#Mapo('<lead>ce')
 
 #       CITE                            HTML 2.0
-HTML#Map('inoremap', '<lead>ci', '<[{CITE></CITE}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>ci', '<[{CITE></CITE}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ci', "<C-R>=HTML#SmartTag('cite', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>ci', '<ESC>`>a</[{CITE}]><C-O>`<<[{CITE}]><ESC>')
+# HTML#Map('vnoremap', '<lead>ci', '<ESC>`>a</[{CITE}]><C-O>`<<[{CITE}]><ESC>')
+HTML#Map('vnoremap', '<lead>ci', "<C-c>:execute 'normal! ' .. HTML#SmartTag('cite', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>ci')
 
 #       CODE                            HTML 2.0
-HTML#Map('inoremap', '<lead>co', '<[{CODE></CODE}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>co', '<[{CODE></CODE}]><C-O>F<')
+HTML#Map('inoremap', '<lead>co', "<C-R>=HTML#SmartTag('code', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>co', '<ESC>`>a</[{CODE}]><C-O>`<<[{CODE}]><ESC>')
+# HTML#Map('vnoremap', '<lead>co', '<ESC>`>a</[{CODE}]><C-O>`<<[{CODE}]><ESC>')
+HTML#Map('vnoremap', '<lead>co', "<C-c>:execute 'normal! ' .. HTML#SmartTag('code', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>co')
 
@@ -529,9 +550,11 @@ HTML#Mapo('<lead>dt')
 HTML#Mapo('<lead>dd')
 
 #       DEL     Deleted Text            HTML 3.0
-HTML#Map('inoremap', '<lead>de', '<lt>[{DEL></DEL}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>de', '<lt>[{DEL></DEL}]><C-O>F<')
+HTML#Map('inoremap', '<lead>de', "<C-R>=HTML#SmartTag('del', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>de', '<ESC>`>a</[{DEL}]><C-O>`<<lt>[{DEL}]><ESC>')
+# HTML#Map('vnoremap', '<lead>de', '<ESC>`>a</[{DEL}]><C-O>`<<lt>[{DEL}]><ESC>')
+HTML#Map('vnoremap', '<lead>de', "<C-c>:execute 'normal! ' .. HTML#SmartTag('del', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>de')
 
@@ -543,9 +566,11 @@ HTML#Map('vnoremap', '<lead>ds', '<ESC>`>a<CR></[{DETAILS}]><C-O>`<<[{DETAILS}]>
 HTML#Mapo('<lead>ds', true)
 
 #       DFN     Defining Instance       HTML 3.0
-HTML#Map('inoremap', '<lead>df', '<[{DFN></DFN}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>df', '<[{DFN></DFN}]><C-O>F<')
+HTML#Map('inoremap', '<lead>df', "<C-R>=HTML#SmartTag('dfn', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>df', '<ESC>`>a</[{DFN}]><C-O>`<<[{DFN}]><ESC>')
+# HTML#Map('vnoremap', '<lead>df', '<ESC>`>a</[{DFN}]><C-O>`<<[{DFN}]><ESC>')
+HTML#Map('vnoremap', '<lead>df', "<C-c>:execute 'normal! ' .. HTML#SmartTag('dfn', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>df')
 
@@ -709,9 +734,11 @@ HTML#Mapo('<lead>im', true)
 HTML#Mapo('<lead>iM', true)
 
 #       INS     Inserted Text           HTML 3.0
-HTML#Map('inoremap', '<lead>in', '<lt>[{INS></INS}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>in', '<lt>[{INS></INS}]><C-O>F<')
+HTML#Map('inoremap', '<lead>in', "<C-R>=HTML#SmartTag('ins', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>in', '<ESC>`>a</[{INS}]><C-O>`<<lt>[{INS}]><ESC>')
+# HTML#Map('vnoremap', '<lead>in', '<ESC>`>a</[{INS}]><C-O>`<<lt>[{INS}]><ESC>')
+HTML#Map('vnoremap', '<lead>in', "<C-c>:execute 'normal! ' .. HTML#SmartTag('ins', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>in')
 
@@ -751,9 +778,11 @@ HTML#Map('vnoremap', '<lead>mt', '<ESC>`>a</[{METER}]><C-O>`<<[{METER VALUE="" M
 HTML#Mapo('<lead>mt', true)
 
 #       MARK                            HTML 5
-HTML#Map('inoremap', '<lead>mk', '<[{MARK></MARK}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>mk', '<[{MARK></MARK}]><C-O>F<')
+HTML#Map('inoremap', '<lead>mk', "<C-R>=HTML#SmartTag('mark', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>mk', '<ESC>`>a</[{MARK}]><C-O>`<<[{MARK}]><ESC>')
+# HTML#Map('vnoremap', '<lead>mk', '<ESC>`>a</[{MARK}]><C-O>`<<[{MARK}]><ESC>')
+HTML#Map('vnoremap', '<lead>mk', "<C-c>:execute 'normal! ' .. HTML#SmartTag('mark', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>mk')
 
@@ -789,9 +818,11 @@ HTML#Map('vnoremap', '<lead>ol', '<ESC>`>a<CR></[{OL}]><C-O>`<<[{OL}]><CR><ESC>'
 HTML#Mapo('<lead>ol')
 
 #       P       Paragraph               HTML 3.0
-HTML#Map('inoremap', '<lead>pp', '<[{P}]><CR></[{P}]><ESC>O')
+# HTML#Map('inoremap', '<lead>pp', '<[{P}]><CR></[{P}]><ESC>O')
+HTML#Map('inoremap', '<lead>pp', "<C-R>=HTML#SmartTag('p', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>pp', '<ESC>`>a<CR></[{P}]><C-O>`<<[{P}]><CR><ESC>', {'reindent': 1})
+# HTML#Map('vnoremap', '<lead>pp', '<ESC>`>a<CR></[{P}]><C-O>`<<[{P}]><CR><ESC>', {'reindent': 1})
+HTML#Map('vnoremap', '<lead>pp', "<C-c>:execute 'normal! ' .. HTML#SmartTag('p', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>pp')
 # A special mapping... If you're between <P> and </P> this will insert the
@@ -799,9 +830,11 @@ HTML#Mapo('<lead>pp')
 HTML#Map('inoremap', '<lead>/p', '</[{P}]><CR><CR><[{P}]><CR>')
 
 #       PRE     Preformatted Text       HTML 2.0
-HTML#Map('inoremap', '<lead>pr', '<[{PRE}]><CR></[{PRE}]><ESC>O')
+# HTML#Map('inoremap', '<lead>pr', '<[{PRE}]><CR></[{PRE}]><ESC>O')
+HTML#Map('inoremap', '<lead>pr', "<C-R>=HTML#SmartTag('pre', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>pr', '<ESC>`>a<CR></[{PRE}]><C-O>`<<[{PRE}]><CR><ESC>', {'reindent': 1})
+# HTML#Map('vnoremap', '<lead>pr', '<ESC>`>a<CR></[{PRE}]><C-O>`<<[{PRE}]><CR><ESC>', {'reindent': 1})
+HTML#Map('vnoremap', '<lead>pr', "<C-c>:execute 'normal! ' .. HTML#SmartTag('pre', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>pr')
 
@@ -813,9 +846,11 @@ HTML#Map('vnoremap', '<lead>pg', '<ESC>`>a" [{MAX=""></PROGRESS}]><C-O>`<<[{PROG
 HTML#Mapo('<lead>pg', true)
 
 #       Q       Quote                   HTML 3.0
-HTML#Map('inoremap', '<lead>qu', '<[{Q></Q}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>qu', '<[{Q></Q}]><C-O>F<')
+HTML#Map('inoremap', '<lead>qu', "<C-R>=HTML#SmartTag('q', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>qu', '<ESC>`>a</[{Q}]><C-O>`<<[{Q}]><ESC>')
+# HTML#Map('vnoremap', '<lead>qu', '<ESC>`>a</[{Q}]><C-O>`<<[{Q}]><ESC>')
+HTML#Map('vnoremap', '<lead>qu', "<C-c>:execute 'normal! ' .. HTML#SmartTag('q', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>qu')
 
@@ -828,9 +863,11 @@ HTML#Mapo('<lead>qu')
 # HTML#Mapo('<lead>sk')
 
 #       SAMP    Sample Text             HTML 2.0
-HTML#Map('inoremap', '<lead>sa', '<[{SAMP></SAMP}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>sa', '<[{SAMP></SAMP}]><C-O>F<')
+HTML#Map('inoremap', '<lead>sa', "<C-R>=HTML#SmartTag('samp', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>sa', '<ESC>`>a</[{SAMP}]><C-O>`<<[{SAMP}]><ESC>')
+# HTML#Map('vnoremap', '<lead>sa', '<ESC>`>a</[{SAMP}]><C-O>`<<[{SAMP}]><ESC>')
+HTML#Map('vnoremap', '<lead>sa', "<C-c>:execute 'normal! ' .. HTML#SmartTag('samp', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>sa')
 
@@ -873,16 +910,20 @@ HTML#Map('vnoremap', '<lead>ls', '<ESC>`>a" /><C-O>`<<[{LINK REL}]="stylesheet" 
 HTML#Mapo('<lead>ls')
 
 #       SUB     Subscript               HTML 3.0
-HTML#Map('inoremap', '<lead>sb', '<[{SUB></SUB}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>sb', '<[{SUB></SUB}]><C-O>F<')
+HTML#Map('inoremap', '<lead>sb', "<C-R>=HTML#SmartTag('sub', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>sb', '<ESC>`>a</[{SUB}]><C-O>`<<[{SUB}]><ESC>')
+# HTML#Map('vnoremap', '<lead>sb', '<ESC>`>a</[{SUB}]><C-O>`<<[{SUB}]><ESC>')
+HTML#Map('vnoremap', '<lead>sb', "<C-c>:execute 'normal! ' .. HTML#SmartTag('sub', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>sb')
 
 #       SUP     Superscript             HTML 3.0
-HTML#Map('inoremap', '<lead>sp', '<[{SUP></SUP}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>sp', '<[{SUP></SUP}]><C-O>F<')
+HTML#Map('inoremap', '<lead>sp', "<C-R>=HTML#SmartTag('sup', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>sp', '<ESC>`>a</[{SUP}]><C-O>`<<[{SUP}]><ESC>')
+# HTML#Map('vnoremap', '<lead>sp', '<ESC>`>a</[{SUP}]><C-O>`<<[{SUP}]><ESC>')
+HTML#Map('vnoremap', '<lead>sp', "<C-c>:execute 'normal! ' .. HTML#SmartTag('sup', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>sp')
 
@@ -925,9 +966,11 @@ HTML#Map('vnoremap', '<lead>ul', '<ESC>`>a<CR></[{UL}]><C-O>`<<[{UL}]><CR><ESC>'
 HTML#Mapo('<lead>ul')
 
 #       VAR     Variable                HTML 3.0
-HTML#Map('inoremap', '<lead>va', '<[{VAR></VAR}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>va', '<[{VAR></VAR}]><C-O>F<')
+HTML#Map('inoremap', '<lead>va', "<C-R>=HTML#SmartTag('var', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>va', '<ESC>`>a</[{VAR}]><C-O>`<<[{VAR}]><ESC>')
+# HTML#Map('vnoremap', '<lead>va', '<ESC>`>a</[{VAR}]><C-O>`<<[{VAR}]><ESC>')
+HTML#Map('vnoremap', '<lead>va', "<C-c>:execute 'normal! ' .. HTML#SmartTag('var', 'v')<CR>")
 # Motion mapping:
 HTML#Mapo('<lead>va')
 

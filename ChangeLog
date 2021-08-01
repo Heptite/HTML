@@ -1,3 +1,6 @@
+Fri, 30 Jul 2021 00:53:37 -0600 Christian J. Robinson
+ * Bug fixes. Improve code for flexibility. ;mi mapping now works in more contexts.
+
 Tue, 27 Jul 2021 19:31:17 -0600 Christian J. Robinson
  * Bug fixes and many code improvements
 

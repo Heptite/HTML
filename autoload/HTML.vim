@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: July 29, 2021
+# Last Change: July 31, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -49,6 +49,7 @@ endif  # }}}1
 
 # Used by some of the functions to save then restore some options:
 var saveopts: dict<any>
+var thisscript = expand('<SID>')
 
 # HTML#SetIfUnset()  {{{1
 #
@@ -247,7 +248,7 @@ def EntityToChar(entity: string): string
 enddef
 
 # https://dev.w3.org/html5/html-author/charref
-var DictEntitiesToChar = { # {{{
+const DictEntitiesToChar = { # {{{
   '&Tab;': "\x9", '&NewLine;': "\xA", '&excl;': "\x21",
   '&quot;': "\x22", '&num;': "\x23", '&dollar;': "\x24",
   '&percnt;': "\x25", '&amp;': "\x26", '&apos;': "\x27",
@@ -858,7 +859,7 @@ def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
   if mode == 'v'
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
-    newarg = newarg->substitute('`>a\C', '`>i<C-R>=HTML#VI()<CR>', 'g')
+    newarg = newarg->substitute('`>a\C', '`>i<C-R>=' .. thisscript .. 'VI()<CR>', 'g')
 
     # Note that <C-c>:-command is necessary instead of just <Cmd> because
     # <Cmd> doesn't update visual marks, which the mappings rely on:
@@ -866,22 +867,24 @@ def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
       execute cmd .. ' <buffer> <silent> ' .. newmap .. " " .. newarg
     elseif opts->has_key('insert') && opts['insert'] && opts->has_key('reindent')
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c>:vim9cmd HTML#TO(false)<CR><C-O>gv' .. newarg
-        .. "<C-O>:vim9cmd HTML#TO(true)<CR><C-O>m'<C-O>:vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. ' <C-c>:vim9cmd ' .. thisscript .. 'TO(false)<CR><C-O>gv' .. newarg
+        .. "<C-O>:vim9cmd " .. thisscript
+        .. "TO(true)<CR><C-O>m'<C-O>:vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
         .. opts['reindent'] .. ')<CR><C-O>``'
     elseif opts->has_key('insert') && opts['insert']
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c>:vim9cmd HTML#TO(false)<CR>gv' .. newarg
-        .. '<C-O>:vim9cmd HTML#TO(true)<CR>'
+        .. ' <C-c>:vim9cmd ' .. thisscript .. 'TO(false)<CR>gv' .. newarg
+        .. '<C-O>:vim9cmd ' .. thisscript .. 'TO(true)<CR>'
     elseif opts->has_key('reindent')
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c>:vim9cmd HTML#TO(false)<CR>gv' .. newarg
-        .. ":vim9cmd HTML#TO(true)<CR>m':vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. ' <C-c>:vim9cmd ' .. thisscript .. 'TO(false)<CR>gv' .. newarg
+        .. ":vim9cmd " .. thisscript
+        .. "TO(true)<CR>m':vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
         .. opts['reindent'] .. ')<CR>``'
     else
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c>:vim9cmd HTML#TO(false)<CR>gv' .. newarg
-        .. ':vim9cmd HTML#TO(true)<CR>'
+        .. ' <C-c>:vim9cmd ' .. thisscript .. 'TO(false)<CR>gv' .. newarg
+        .. ':vim9cmd ' .. thisscript .. 'TO(true)<CR>'
     endif
   else
     execute cmd .. ' <buffer> <silent> ' .. newmap .. " " .. newarg
@@ -927,7 +930,7 @@ def HTML#Mapo(map: string, insert: bool = false): bool
   execute 'nnoremap <buffer> <silent> ' .. newmap
     .. " :vim9cmd b:htmltagaction = '" .. newmap .. "'<CR>"
     .. ':vim9cmd b:htmltaginsert = ' .. insert .. "<CR>"
-    .. ':vim9cmd &operatorfunc = "HTML#WR"<CR>g@'
+    .. ':vim9cmd &operatorfunc = "' .. thisscript .. 'WR"<CR>g@'
 
   add(b:HTMLclearMappings, ':nunmap <buffer> ' .. newmap)
   ExtraMappingsAdd(':vim9cmd HTML#Mapo("' .. map->escape('"\')
@@ -985,24 +988,24 @@ def HTML#SI(str: string): string
   return str->substitute('[^\x00\x20-\x7E]', '\="\x16" .. submatch(0)', 'g')
 enddef
 
-# HTML#WR()  {{{1
+# WR()  {{{1
 # Function set in 'operatorfunc' for mappings that take an operator:
-def HTML#WR(type: string)
+def WR(type: string)
   saveopts['selection'] = &selection
   &selection = 'inclusive'
 
   if type == 'line'
-    execute 'normal! `[V`]' .. b:htmltagaction
+    execute 'normal `[V`]' .. b:htmltagaction
   elseif type == 'block'
-    execute "normal! `[\<C-V>`]" .. b:htmltagaction
+    execute "normal `[\<C-V>`]" .. b:htmltagaction
   else
-    execute 'normal! `[v`]' .. b:htmltagaction
+    execute 'normal `[v`]' .. b:htmltagaction
   endif
 
   &selection = saveopts['selection']
 
   if b:htmltaginsert
-    execute "normal! \<Right>"
+    normal! l
     silent startinsert
   endif
 enddef
@@ -1020,7 +1023,7 @@ def ExtraMappingsAdd(arg: string)
   endif
 enddef
 
-# HTML#TO()  {{{1
+# TO()  {{{1
 #
 # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
 # are off temporarily to prevent the visual mappings from causing a
@@ -1029,7 +1032,7 @@ enddef
 # Arguments:
 #  1 - Boolean: false - Turn options off.
 #               true  - Turn options back on, if they were on before.
-def HTML#TO(which: bool)
+def TO(which: bool)
   if which
     if saveopts->has_key('formatoptions') && saveopts['formatoptions'] != ''
       &l:showmatch = saveopts['showmatch']
@@ -1119,7 +1122,7 @@ def HTML#ToggleClipboard(i: number)
   endif
 enddef
 
-# HTML#VI()  {{{1
+# VI()  {{{1
 #
 # Used by HTML#Map() to enter insert mode in Visual mappings in the
 # right place, depending on what 'selection' is set to.
@@ -1128,7 +1131,7 @@ enddef
 #   None
 # Return Value:
 #   The proper movement command based on the value of 'selection'.
-def HTML#VI(): string
+def VI(): string
   if &selection == 'inclusive'
     return "\<right>"
   else
@@ -1247,18 +1250,18 @@ enddef
 #   2 - Number: The column of the specified line to get the byte offset from
 # Return Value:
 #  The byte offset, a negative value means the specified mark is not set.
-def ByteOffset(lineormark: any = -1, column: number = -1): number
-  if type(lineormark) == 1 && lineormark =~ "^'.$"
-    return lineormark->line()->line2byte() + lineormark->col() - 1
-  elseif type(lineormark) == 0 && lineormark < 0 && column < 0
-    return line('.')->line2byte() + col('.') - 1
-  elseif type(lineormark) == 0 && lineormark > 0 && column > 0
-    return lineormark->line2byte() + column - 1
-  else
-    execute 'HTMLERROR Invalid argument(s) for ' .. expand('<sfile>')
-    return -1
-  endif
-enddef
+#def ByteOffset(lineormark: any = -1, column: number = -1): number
+#  if type(lineormark) == 1 && lineormark =~ "^'.$"
+#    return lineormark->line()->line2byte() + lineormark->col() - 1
+#  elseif type(lineormark) == 0 && lineormark < 0 && column < 0
+#    return line('.')->line2byte() + col('.') - 1
+#  elseif type(lineormark) == 0 && lineormark > 0 && column > 0
+#    return lineormark->line2byte() + column - 1
+#  else
+#    execute 'HTMLERROR Invalid argument(s) for ' .. expand('<sfile>')
+#    return -1
+#  endif
+#enddef
 
 # HTML#NextInsertPoint()  {{{1
 #
@@ -1270,19 +1273,19 @@ enddef
 #                 enables an extra feature where if the cursor is on the start
 #                 of a closing tag it places the cursor after the tag.
 #                 Default is 'n'.
+#  2 - Character: Optional, the direction to search in, 'f' for forward and
+#                 'b' for backward.  Default, of course, is forward.
 # Return Value:
-#  None.
+#  True if the cursor was repositioned, false otherwise.
 # Known Limitations:
-#  It is impossible to cycle through all of the unfilled tags in a file; the
-#  cursor will just jump back to the nearest unfilled tag if it is on the same
-#  line as the cursor when the function is invoked.
-def HTML#NextInsertPoint(mode: string = 'n')
-  var byteoffset = ByteOffset()
+#  Sometimes this will skip an insert point on the same line if there are
+#  multiple matches.
+def HTML#NextInsertPoint(mode: string = 'n', direction: string = 'f'): bool
   var done: bool
 
   # Tab in insert mode on the beginning of a closing tag jumps us to
   # after the tag:
-  if mode =~? '^i'
+  if mode =~? '^i' && direction =~? '^f'
     if line('.')->getline()->strpart(col('.') - 1, 2) == '</'
       normal! %
       done = true
@@ -1300,42 +1303,13 @@ def HTML#NextInsertPoint(mode: string = 'n')
         normal! l
       endif
 
-      return
+      return true
     endif
   endif
 
-  # Move to the end of the previous line, if possible, to allow the search()
-  # to work as intended:
-  normal! 0
-  silent! execute "go " .. (ByteOffset() - 1)
-
-  if '<\([^ <>]\+\)\_[^<>]*>\_s*<\/\1>\|<\_[^<>]*""\_[^<>]*>\|<!--\_s*-->'->search('wz') == 0
-    # Nothing matched, so move the cursor back where it was:
-    if byteoffset < 1
-      go 1
-    else
-      execute 'go ' .. byteoffset
-      if mode =~? '^i' && col('.') == col('$') - 1
-        startinsert!
-      endif
-    endif
-  else
-    # There was a match, so position the cursor appropriately:
-    '>\_s*<\|""\|<!--\_s*-->'->search('e')
-
-    # ...and handle cursor positioning for comments or open+close tags
-    # spanning multiple lines:
-    if getline('.') =~ '<!-- \+-->'
-      execute "normal! F\<space>"
-    elseif getline('.') =~ '^ *-->' && getline(line('.') - 1) =~ '<!-- *$'
-      normal! 0
-      normal! t-
-    elseif getline('.') =~ '^ *-->' && getline(line('.') - 1) =~ '^ *$'
-      normal! k$
-    elseif getline('.') =~ '^ *<\/[^<>]\+>' && getline(line('.') - 1) =~ '^ *$'
-      normal! k$
-    endif
-  endif
+  # This regexp looks like someone ran their fingers along the keyboard
+  # randomly, but it does work and even correctly positions the cursor:
+  return '<\_[^<>]*"\zs"\_[^<>]*>\|<\([^ <>]\+\)\_[^<>]*>\_s\{-}\zs\n\?\s\{-}<\/\1>\|<!--\_s\{-}\zs\_s\?-->'->search('w' .. (direction =~? '^b' ? 'b' : '')) > 0
 enddef
 
 # HTML#SmartTag()  {{{1
@@ -1360,25 +1334,15 @@ enddef
 #               o = When not inside an equivalent tag
 #  keystrokes - The mapping keystrokes to execute
 const SMARTTAGS = {
-  'i': {
+  'a': {
     'i': {
-      'o': "<[{I></I}]>\<C-O>F<",
-      'c': "<[{/I><I}]>\<C-O>F<",
+      'o': "<[{A HREF=\"\"></A}]>\<C-O>F<",
+      'c': "<[{/A><A HREF=\"\"}]>\<C-O>F<",
     },
     'v': {
-      'o': "`>a</[{I}]>\<C-O>`<<[{I}]>",
-      'c': "`>a<[{I}]>\<C-O>`<</[{I}]>",
-    }
-  },
-
-  'em': {
-    'i': {
-      'o': "<[{EM></EM}]>\<C-O>F<",
-      'c': "<[{/EM><EM}]>\<C-O>F<",
-    },
-    'v': {
-      'o': "`>a</[{EM}]>\<C-O>`<<[{EM}]>",
-      'c': "`>a<[{EM}]>\<C-O>`<</[{EM}]>",
+      'o': "`>a</[{A}]>\<C-O>`<<[{A HREF=\"\"}]>\<ESC>F\"",
+      'c': "`>a<[{A HREF=\"\"}]>\<C-O>`<</[{A}]>\<C-O>F\"",
+      'insert': true
     }
   },
 
@@ -1393,6 +1357,209 @@ const SMARTTAGS = {
     }
   },
 
+  'blockquote': {
+    'i': {
+      'o': "<[{BLOCKQUOTE}]>\<cr></[{BLOCKQUOTE}]>\<Esc>O",
+      'c': "</[{BLOCKQUOTE}]>\<cr>\<cr><[{BLOCKQUOTE}]>\<cr>",
+    },
+    'v': {
+      'o': "`>a\<cr></[{BLOCKQUOTE}]>\<C-O>`<<[{BLOCKQUOTE}]>\<cr>",
+      'c': "`>a\<cr><[{BLOCKQUOTE}]>\<C-O>`<</[{BLOCKQUOTE}]>\<cr>",
+      'reindent': 1
+    }
+  },
+
+  'cite': {
+    'i': {
+      'o': "<[{CITE></CITE}]>\<C-O>F<",
+      'c': "<[{/CITE><CITE}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{CITE}]>\<C-O>`<<[{CITE}]>",
+      'c': "`>a<[{CITE}]>\<C-O>`<</[{CITE}]>",
+    }
+  },
+
+  'code': {
+    'i': {
+      'o': "<[{CODE></CODE}]>\<C-O>F<",
+      'c': "<[{/CODE><CODE}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{CODE}]>\<C-O>`<<[{CODE}]>",
+      'c': "`>a<[{CODE}]>\<C-O>`<</[{CODE}]>",
+    }
+  },
+
+  'comment': {
+    'i': {
+      'o': "<!--  -->\<C-O>F ",
+      'c': " --><!-- \<C-O>F<",
+    },
+    'v': {
+      'o': "`>a -->\<C-O>`<<!-- ",
+      'c': "`>a<!-- \<C-O>`< -->",
+    }
+  },
+
+  'del': {
+    'i': {
+      'o': "<[{DEL></DEL}]>\<C-O>F<",
+      'c': "<[{/DEL><DEL}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{DEL}]>\<C-O>`<<[{DEL}]>",
+      'c': "`>a<[{DEL}]>\<C-O>`<</[{DEL}]>",
+    }
+  },
+
+  'dfn': {
+    'i': {
+      'o': "<[{DFN></DFN}]>\<C-O>F<",
+      'c': "<[{/DFN><DFN}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{DFN}]>\<C-O>`<<[{DFN}]>",
+      'c': "`>a<[{DFN}]>\<C-O>`<</[{DFN}]>",
+    }
+  },
+
+  'div': {
+    'i': {
+      'o': "<[{DIV}]>\<cr></[{DIV}]>\<Esc>O",
+      'c': "</[{DIV}]>\<cr>\<cr><[{DIV}]>\<cr>",
+    },
+    'v': {
+      'o': "`>a\<cr></[{DIV}]>\<C-O>`<<[{DIV}]>\<cr>",
+      'c': "`>a\<cr><[{DIV}]>\<C-O>`<</[{DIV}]>\<cr>",
+      'reindent': 1
+    }
+  },
+
+  'em': {
+    'i': {
+      'o': "<[{EM></EM}]>\<C-O>F<",
+      'c': "<[{/EM><EM}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{EM}]>\<C-O>`<<[{EM}]>",
+      'c': "`>a<[{EM}]>\<C-O>`<</[{EM}]>",
+    }
+  },
+
+  'i': {
+    'i': {
+      'o': "<[{I></I}]>\<C-O>F<",
+      'c': "<[{/I><I}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{I}]>\<C-O>`<<[{I}]>",
+      'c': "`>a<[{I}]>\<C-O>`<</[{I}]>",
+    }
+  },
+
+  'ins': {
+    'i': {
+      'o': "<[{INS></INS}]>\<C-O>F<",
+      'c': "<[{/INS><INS}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{INS}]>\<C-O>`<<[{INS}]>",
+      'c': "`>a<[{INS}]>\<C-O>`<</[{INS}]>",
+    }
+  },
+
+  'li': {
+    'i': {
+      'o': "<[{LI></LI}]>\<C-O>F<",
+      'c': "<[{/LI><LI}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{LI}]>\<C-O>`<<[{LI}]>",
+      'c': "`>a<[{LI}]>\<C-O>`<</[{LI}]>",
+    }
+  },
+
+  'mark': {
+    'i': {
+      'o': "<[{MARK></MARK}]>\<C-O>F<",
+      'c': "<[{/MARK><MARK}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{MARK}]>\<C-O>`<<[{MARK}]>",
+      'c': "`>a<[{MARK}]>\<C-O>`<</[{MARK}]>",
+    }
+  },
+
+  'ol': {
+    'i': {
+      'o': "<[{OL}]>\<cr></[{OL}]>\<Esc>O",
+      'c': "</[{OL}]>\<cr>\<cr><[{OL}]>\<cr>",
+    },
+    'v': {
+      'o': "`>a\<cr></[{OL}]>\<C-O>`<<[{OL}]>\<cr>",
+      'c': "`>a\<cr><[{OL}]>\<C-O>`<</[{OL}]>\<cr>",
+      'reindent': 1
+    }
+  },
+
+  'p': {
+    'i': {
+      'o': "<[{P}]>\<cr></[{P}]>\<Esc>O",
+      'c': "</[{P}]>\<cr>\<cr><[{P}]>\<cr>",
+    },
+    'v': {
+      'o': "`>a\<cr></[{P}]>\<C-O>`<<[{P}]>\<cr>",
+      'c': "`>a\<cr><[{P}]>\<C-O>`<</[{P}]>\<cr>",
+      'reindent': 1
+    }
+  },
+
+  'pre': {
+    'i': {
+      'o': "<[{PRE}]>\<cr></[{PRE}]>\<Esc>O",
+      'c': "</[{PRE}]>\<cr>\<cr><[{PRE}]>\<cr>",
+    },
+    'v': {
+      'o': "`>a\<cr></[{PRE}]>\<C-O>`<<[{PRE}]>\<cr>",
+      'c': "`>a\<cr><[{PRE}]>\<C-O>`<</[{PRE}]>\<cr>",
+      'reindent': 1
+    }
+  },
+
+  'q': {
+    'i': {
+      'o': "<[{Q></Q}]>\<C-O>F<",
+      'c': "<[{/Q><Q}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{Q}]>\<C-O>`<<[{Q}]>",
+      'c': "`>a<[{Q}]>\<C-O>`<</[{Q}]>",
+    }
+  },
+
+  'samp': {
+    'i': {
+      'o': "<[{SAMP></SAMP}]>\<C-O>F<",
+      'c': "<[{/SAMP><SAMP}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{SAMP}]>\<C-O>`<<[{SAMP}]>",
+      'c': "`>a<[{SAMP}]>\<C-O>`<</[{SAMP}]>",
+    }
+  },
+
+  'span': {
+    'i': {
+      'o': "<[{SPAN CLASS=\"\"></SPAN}]>\<C-O>F<",
+      'c': "<[{/SPAN><SPAN CLASS=\"\"}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{SPAN}]>\<C-O>`<<[{SPAN CLASS=\"\"}]>",
+      'c': "`>a<[{SPAN CLASS=\"\"}]>\<C-O>`<</[{SPAN}]>",
+    }
+  },
+
   'strong': {
     'i': {
       'o': "<[{STRONG></STRONG}]>\<C-O>F<",
@@ -1401,6 +1568,28 @@ const SMARTTAGS = {
     'v': {
       'o': "`>a</[{STRONG}]>\<C-O>`<<[{STRONG}]>",
       'c': "`>a<[{STRONG}]>\<C-O>`<</[{STRONG}]>",
+    }
+  },
+
+  'sub': {
+    'i': {
+      'o': "<[{SUB></SUB}]>\<C-O>F<",
+      'c': "<[{/SUB><SUB}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{SUB}]>\<C-O>`<<[{SUB}]>",
+      'c': "`>a<[{SUB}]>\<C-O>`<</[{SUB}]>",
+    }
+  },
+
+  'sup': {
+    'i': {
+      'o': "<[{SUP></SUP}]>\<C-O>F<",
+      'c': "<[{/SUP><SUP}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{SUP}]>\<C-O>`<<[{SUP}]>",
+      'c': "`>a<[{SUP}]>\<C-O>`<</[{SUP}]>",
     }
   },
 
@@ -1415,44 +1604,83 @@ const SMARTTAGS = {
     }
   },
 
-  'comment': {
+  'ul': {
     'i': {
-      'o': "<!--  -->\<C-O>F ",
-      'c': " --><!-- \<C-O>F<",
+      'o': "<[{UL}]>\<cr></[{UL}]>\<Esc>O",
+      'c': "</[{UL}]>\<cr>\<cr><[{UL}]>\<cr>",
     },
     'v': {
-      'o': "`>a -->\<C-O>`<<!-- ",
-      'c': "`>a<!-- \<C-O>`< -->",
+      'o': "`>a\<cr></[{UL}]>\<C-O>`<<[{UL}]>\<cr>",
+      'c': "`>a\<cr><[{UL}]>\<C-O>`<</[{UL}]>\<cr>",
+      'reindent': 1
     }
-  }
+  },
+
+  'var': {
+    'i': {
+      'o': "<[{VAR></VAR}]>\<C-O>F<",
+      'c': "<[{/VAR><VAR}]>\<C-O>F<",
+    },
+    'v': {
+      'o': "`>a</[{VAR}]>\<C-O>`<<[{VAR}]>",
+      'c': "`>a<[{VAR}]>\<C-O>`<</[{VAR}]>",
+    }
+  },
 } # }}}
 
 def HTML#SmartTag(tag: string, mode: string): string
-  var attr = synID(line('.'), col('.') - 1, 1)->synIDattr('name')
   var newmode = mode->strpart(0, 1)->tolower()
   var newtag = tag->tolower()
+  var moved = false
   var ret: string
+  var line: number
+  var column: number
 
   if ! SMARTTAGS->has_key(newtag)
     execute 'HTMLERROR Unknown smart tag: ' .. newtag
     return ''
   endif
 
-  if ( newtag == 'i' && attr =~? 'italic$' )
-      || ( newtag == 'em' && attr =~? 'italic$' )
-      || ( newtag == 'b' && attr =~? 'bold$' )
-      || ( newtag == 'strong' && attr =~? 'bold$' )
-      || ( newtag == 'u' && attr =~? 'underline$' )
-      || ( newtag == 'comment' && attr =~? 'comment$' )
-    ret = SMARTTAGS[newtag][newmode]['c']->HTML#ConvertCase()
+  saveopts['ignorecase'] = &l:ignorecase
+  &l:ignorecase = true
+
+  if getline('.')[col('.') - 1 : col('.')] == '</'
+    normal! h
+    moved = true
+  endif
+
+  if newtag == 'comment'
+    [line, column] = searchpairpos('<!--', '', '-->', 'nW')
   else
+    [line, column] = searchpairpos('<' .. tag .. '\>[^>]*>', '', '<\/' .. tag .. '>', 'nW')
+  endif
+
+  if line == 0 && column == 0
     ret = SMARTTAGS[newtag][newmode]['o']->HTML#ConvertCase()
+  else
+    ret = SMARTTAGS[newtag][newmode]['c']->HTML#ConvertCase()
+  endif
+
+  &l:ignorecase = saveopts['ignorecase']
+
+  if moved == true
+    ret = "\<right>" .. ret
   endif
 
   if newmode == 'v'
+    if SMARTTAGS[newtag][newmode]->has_key('reindent')
+      ret ..= "\<C-O>m'\<C-O>:vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. SMARTTAGS[newtag][newmode]['reindent'] .. ")\<cr>\<C-O>``"
+    endif
+
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
-    ret = ret->substitute('`>a\C', '`>i' .. HTML#VI(), 'g')
+    ret = ret->substitute('`>a\C', '`>i' .. VI(), 'g')
+
+    if SMARTTAGS[newtag][newmode]->has_key('insert') && SMARTTAGS[newtag][newmode]['insert'] 
+      b:htmltaginsert = true
+      silent startinsert
+    endif
   endif
 
   return ret
@@ -1908,13 +2136,13 @@ def HTML#ShowColors(str: string='')
   endif
 
   execute 'noremap <silent> <buffer> <cr> <Cmd>vim9cmd '
-    .. expand('<SID>') .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
+    .. thisscript .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
   execute 'inoremap <silent> <buffer> <cr> <Cmd>vim9cmd '
-    .. expand('<SID>') .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
+    .. thisscript .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
   execute 'noremap <silent> <buffer> <2-leftmouse> <Cmd>vim9cmd '
-    .. expand('<SID>') .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
+    .. thisscript .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
   execute 'inoremap <silent> <buffer> <2-leftmouse> <Cmd>vim9cmd '
-    .. expand('<SID>') .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
+    .. thisscript .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
 
   stopinsert
 enddef
@@ -1955,12 +2183,11 @@ enddef
 # Arguments:
 #  None
 # Return Value:
-#  0 - The cursor is not on an insert point.
-#  1 - The cursor is on an insert point.
+#  Boolean - Whether the cursor is not on an insert point.
 def HTML#Template(): bool
   var ret = false
-  var saveruler = &ruler
-  var saveshowcmd = &showcmd
+  saveopts['ruler'] = &ruler
+  saveopts['showcmd'] = &showcmd
   set noruler noshowcmd
 
   if line('$') == 1 && getline(1) == ''
@@ -1974,8 +2201,8 @@ def HTML#Template(): bool
       ret = InsertTemplate()
     endif
   endif
-  &ruler = saveruler
-  &showcmd = saveshowcmd
+  &ruler = saveopts['ruler']
+  &showcmd = saveopts['showcmd']
   return ret
 enddef
 
@@ -1986,8 +2213,7 @@ enddef
 # Arguments:
 #  None
 # Return Value:
-#  0 - The cursor is not on an insert point.
-#  1 - The cursor is on an insert point.
+#  Boolean - Whether the cursor is not on an insert point.
 def InsertTemplate(): bool
   if g:html_authoremail != ''
     g:html_authoremail_encoded = g:html_authoremail->HTML#EncodeString()
@@ -2042,8 +2268,8 @@ def InsertTemplate(): bool
   go 1
 
   HTML#NextInsertPoint('n')
-  if getline('.')[col('.') - 2] .. getline('.')[col('.') - 1] == '><'
-        || (getline('.') =~ '^\s*$' && line('.') != 1)
+  if getline('.')[col('.') - 2 : col('.') - 1] == '><'
+      || (getline('.') =~ '^\s*$' && line('.') != 1)
     return true
   else
     return false

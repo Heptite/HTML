@@ -1,9 +1,10 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Jul 30
+		Last change: 2021 Jul 31
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
 						*HTML-macros*	*XHTML-macros*
+						*HTML-plugin*
 
 This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim 9 or
 later to make editing HTML files easier. The original Copyright goes to Doug
@@ -42,17 +43,10 @@ I have tried to keep the tags in mostly alphabetical order, but related tags
 are grouped in various ways, which interferes with that ordering.
 
 							*html-smart-tag*
-The noted tags are "smart"; if syntax highlighting is enabled it can be used
-to detect whether to close then open a tag instead of open then close the tag.
-For example, if the cursor is in italicized text and you type ;it, it will
-insert </I><I> instead of <I></I>.
-
-This can not be done on most tags due to its dependence on Vim's syntax
-highlighting rules.
-
-NOTE: Some tags are synonyms and Vim can not distinguish between them. For
-example, if you are within <I></I> and type ;em it will assume you want
-</EM><EM> rather than <EM></EM>, which you should not be doing.
+The noted tags are "smart", meaning Vim will detect whether to close then open
+a tag instead of open then close the tag.  For example, if the cursor is
+inside italicized text and you type ;it, it will insert </I><I> instead of
+<I></I>.
 
 							*n_;;* *i_;;* *v_;;*
 ;;	Most of the mappings start with ; so ;; is mapped to insert a single
@@ -91,12 +85,19 @@ example, if you are within <I></I> and type ;em it will assume you want
 
 	[I think the use of tab is acceptable because I do not like the idea
 	of hard tabs or indentation greater than one or two spaces in HTML.]
+			*html-<S-Tab>* *html-shift-tab* *html-SHIFT-CTRL-I*
+			*i_html-<S-Tab>* *i_html-shift-tab* *i_html-SHIFT-CTRL-I*
+			*v_html-<S-Tab>* *v_html-shift-tab* *v_html-SHIFT-CTRL-I*
+	This is much like the above <Tab> mapping but goes in reverse.
 
-					*i_;<Tab>* *i_;tab* *i_;CTRL-I*
-					*n_;<Tab>* *n_;tab* *n_;CTRL-I*
+				*i_;<Tab>* *i_;tab* *i_;CTRL-I*
+				*n_;<Tab>* *n_;tab* *n_;CTRL-I*
+				*i_;<S-Tab>* *i_;shift-tab* *i_;SHIFT-CTRL-I*
+				*n_;<S-Tab>* *n_;shift-tab* *n_;SHIFT-CTRL-I*
 ;<Tab>	To insert a hard tab (; then the tab key). If |g:no_html_tab_mapping|
 	is set this mapping replaces the normal |html-tab| mapping instead.
-	(See |g:html_map_leader|)
+	(See |g:html_map_leader|) And likewise, ;<S-Tab> (shift-tab) can be
+	used.
 
 								*n_;html*
 ;html	This macro inserts a basic template at the top of the file. If the
@@ -475,7 +476,7 @@ another character of your preference. See |g:html_map_leader|.
 ;ah	Anchor hyper link: >
 	<A HREF=""></A>
 <	Visual mode puts the visually selected text <A HREF="">here</A> and
-	positions the cursor on the second ". (|n_;|)
+	positions the cursor on the second ". (|html-smart-tag|) (|n_;|)
 							*i_;aH* *v_;aH* *n_;aH*
 ;aH	Same as |i_;ah|, but puts the visually selected text <A HREF="here">
 	and places the cursor on the < of </A>. If this is used in insert mode
@@ -543,7 +544,7 @@ another character of your preference. See |g:html_map_leader|.
 ;bl	Block quote: >
 	<BLOCKQUOTE>
 	</BLOCKQUOTE>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;bd* *v_;bd* *n_;bd*
 ;bd	Document body: >
 	<BODY>
@@ -568,11 +569,11 @@ another character of your preference. See |g:html_map_leader|.
 							*i_;ci* *v_;ci* *n_;ci*
 ;ci	Citation: >
 	<CITE></CITE>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;co* *v_;co* *n_;co*
 ;co	Code: >
 	<CODE></CODE>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 
 						*html-definition-lists*
 							*i_;dl* *v_;dl* *n_;dl*
@@ -591,7 +592,7 @@ another character of your preference. See |g:html_map_leader|.
 							*i_;de* *v_;de* *n_;de*
 ;de	Deleted text: >
 	<DEL></DEL>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;ds* *v_;ds* *n_;ds*
 ;ds	Details with summmary: >
 	<DETAILS>
@@ -603,7 +604,7 @@ another character of your preference. See |g:html_map_leader|.
 							*i_;df* *v_;df* *n_;df*
 ;df	Defining instance: >
 	<DFN></DFN>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;dv* *v_;dv* *n_;dv*
 ;dv	Document Division: >
 	<DIV>
@@ -719,7 +720,7 @@ another character of your preference. See |g:html_map_leader|.
 							*i_;in* *v_;in* *n_;in*
 ;in	Inserted text: >
 	<INS></INS>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;it* *v_;it* *n_;it*
 ;it	Italicized text: >
 	<I></I>
@@ -759,7 +760,7 @@ another character of your preference. See |g:html_map_leader|.
 							*i_;mk* *v_;mk* *n_;mk*
 ;mk	Marked/highlighted text: >
 	<MARK></MARK>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;me* *v_;me* *n_;me*
 ;me	Meta information: >
 	<META NAME="" CONTENT="">
@@ -794,7 +795,7 @@ another character of your preference. See |g:html_map_leader|.
 ;pp	Paragraph: >
 	<P>
 	</P>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;/p*
 ;/p	Like above, but inserts: >
 	</P>
@@ -802,12 +803,13 @@ another character of your preference. See |g:html_map_leader|.
 	<P>
 <	This is intended to be used when the cursor is between <P> and </P> in
 	insert mode and you want to start a new paragraph without having to
-	move the cursor.
+	move the cursor.  This shouldn't be necessary now that the |;pp| tag
+	is smart.
 							*i_;pr* *v_;pr* *n_;pr*
 ;pr	Preformatted text: >
 	<PRE>
 	</PRE>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;pg* *v_;pg* *n_;pg*
 ;pg	Progress bar indicator: >
 	<PROGRESS VALUE="" MAX=""></PROGRESS>
@@ -815,11 +817,11 @@ another character of your preference. See |g:html_map_leader|.
 							*i_;qu* *v_;qu* *n_;qu*
 ;qu	Quoted text: >
 	<Q></Q>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;sa* *v_;sa* *n_;sa*
 ;sa	Sample text: >
 	<SAMP></SAMP>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;sc* *v_;sc* *n_;sc*
 ;sc	Page section: >
 	<SECTION>
@@ -832,8 +834,8 @@ another character of your preference. See |g:html_map_leader|.
 							*i_;sn* *v_;sn* *n_;sn*
 ;sn	Span: >
 	<SPAN CLASS=""></SPAN>
-<	Visual mode puts the selected text <SPAN CLASS="">here</SPAN>. (|n_;|)
-	(See the note on |i_;ss|)
+<	Visual mode puts the selected text <SPAN CLASS="">here</SPAN>.
+	(|n_;|) (See the note on |i_;ss|)
 							*i_;ss* *v_;ss* *n_;ss*
 ;ss	Span: >
 	<SPAN STYLE=""></SPAN>
@@ -859,17 +861,17 @@ another character of your preference. See |g:html_map_leader|.
 							*i_;sb* *v_;sb* *n_;sb*
 ;sb	Subscript: >
 	<SUB></SUB>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;sp* *v_;sp* *n_;sp*
 ;sp	Superscript: >
 	<SUP></SUP>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;ti* *v_;ti* *n_;ti*
 ;ti	Title: >
 	<TITLE></TITLE>
 <	(|n_;|)
 							*i_;tm* *v_;tm* *n_;tm*
-;tm	Title: >
+;tm	Time: >
 	<TIME DATETIME=""></TIME>
 <	(|n_;|)
 							*i_;tt* *v_;tt* *n_;tt*
@@ -888,7 +890,7 @@ another character of your preference. See |g:html_map_leader|.
 							*i_;va* *v_;va* *n_;va*
 ;va	Variable: >
 	<VAR></VAR>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*i_;wb*
 ;wb	Possible line break (work break opportunity): >
 	<WBR>
@@ -1536,6 +1538,8 @@ HTML#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 	also be inserted.  Note that the header and footer is exclusive of the
 	row count.
 
+	This function returns true if a table was generated, false otherwise.
+
 HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 	This function defines a mapping, local to the buffer and silent.
 	{maptype} is any map command. {lhs} and {rhs} are equivalent to :map
@@ -1569,21 +1573,32 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 	Re-indent the visually selected lines, plus N lines below. This value
 	is usally going to be 1, and sometimes 2; very rarely other values.
 
+	This function returns true if a map was defined, false otherwise.
+
 HTML#Mapo({map} [, {insert}])				*HTML#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
 	visual mapping by the same name. {insert} is a boolean value that
 	indicates whether to end in insert mode, default false.
 
-HTML#NextInsertPoint([{mode}])				*HTML#NextInsertPoint()*
+	This function returns true if a map was defined, false otherwise.
+
+HTML#NextInsertPoint([{mode}, {direction}])		*HTML#NextInsertPoint()*
 	This is normally called by the |i_;<Tab>| mapping, but it works the
 	same if called any other way. The {mode} argument is either 'i' or 'n'
 	(default) which means |Insert| or |Normal|. In insert mode, if the
 	cursor is on the start of a closing tag it places the cursor after the
-	tag.
+	tag.  The {direction} argument is either 'f' or 'b', which means
+	search forward or backward, respectively. The defaults for the two
+	options are 'n' and 'f'.
+
+	This function returns true if the cursor was moved, false otherwise.
 
 HTML#Template()						*HTML#Template()*
 	This is normally called by the |n_;html| mapping, but it works
 	the same if called any other way.
+
+	This function returns true if the cursor is on an insert point, false
+	otherwise.
 
 HTML#SetIfUnset({variable}, {value})			*HTML#SetIfUnset()*
 	This function sets {variable} to {value} if the variable is not
@@ -1592,6 +1607,9 @@ HTML#SetIfUnset({variable}, {value})			*HTML#SetIfUnset()*
 	value of {} initializes to an empty dictionary. Be sure to enclose
 	the variable name in quotes. This function will not work for
 	function-local variables (|l:var|).
+
+	This function returns 1 if the variable was set, 0 if it already
+	existed, and -1 for an error.
 
 
 Author's notes:						*html-author-notes*

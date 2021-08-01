@@ -39,38 +39,20 @@ if exists(':HTMLERROR') != 2  # {{{1
     }
 endif  # }}}1
 
-def MangleImageTag#Update() # {{{1
-  var start_linenr = line('.')
-  var end_linenr = start_linenr
-  var col = col('.') - 1
-  var line = getline(start_linenr)
+def MangleImageTag#Update(): bool  # {{{1
+  var start_linenr: number
+  var end_linenr: number
+  var col: number
+  var line: string
 
-  normal m'
+  # Find out if we're inside an <img ...> tag, and get its first line, etc.:
+  [start_linenr, col] = searchpairpos('<', '', '>', 'bnW')
+  end_linenr = start_linenr
+  line = getline(start_linenr)
 
   if line !~? '<img'
-    var attr = synID(line('.'), col('.') - 1, 1)->synIDattr('name')
-
-    if attr ==? 'htmlTag' || attr ==? 'htmlArg' || attr ==? 'htmlString'
-      while getline('.')->strpart(col('.') - 1, 1) != '<'
-        execute 'keepjumps go ' .. (line('.')->line2byte() + col('.') - 2)
-      endwhile
-
-      start_linenr = line('.')
-      end_linenr = start_linenr
-      line = getline(start_linenr)
-      col = col('.') - 1
-
-      if line !~? '<img'
-        HTMLERROR The cursor isn't on an IMG tag.
-        normal ``
-        return
-      endif
-
-    else
-      HTMLERROR The cursor isn't on an IMG tag.
-      normal ``
-      return
-    endif
+    HTMLERROR The cursor is not on an IMG tag.
+    return false
   endif
 
   # Get the rest of the tag if we have a partial tag:
@@ -95,8 +77,7 @@ def MangleImageTag#Update() # {{{1
 
   if tag[0] != '<' || col > strlen(savestart .. tag) - 1
     HTMLERROR The cursor is not on an IMG tag.
-    normal ``
-    return
+    return false
   endif
 
   var case: bool
@@ -110,8 +91,7 @@ def MangleImageTag#Update() # {{{1
     endif
   else
     HTMLERROR Image SRC not specified in the tag.
-    normal ``
-    return
+    return false
   endif
 
   if ! src->filereadable()
@@ -119,15 +99,13 @@ def MangleImageTag#Update() # {{{1
       src = expand("%:p:h") .. '/' .. src
     else
       execute 'HTMLERROR Can not find image file (or it is not readable): ' .. src
-      normal ``
-      return
+      return false
     endif
   endif
 
   var size = ImageSize(src)
   if len(size) != 2
-    normal ``
-    return
+    return false
   endif
 
   if tag =~? "height=\\(\"\\d\\+\"\\|'\\d\\+\'\\|\\d\\+\\)"
@@ -159,10 +137,10 @@ def MangleImageTag#Update() # {{{1
 
   &autoindent = saveautoindent
 
-  normal ``
+  return true
 enddef
 
-def ImageSize(image: string): list<number> # {{{1
+def ImageSize(image: string): list<number>  # {{{1
   var ext = fnamemodify(image, ':e')
   var size: list<number>
 
@@ -208,7 +186,7 @@ def ImageSize(image: string): list<number> # {{{1
   return size
 enddef
 
-def SizeGif(lines: list<number>): list<number> # {{{1
+def SizeGif(lines: list<number>): list<number>  # {{{1
   var i = 0
   var len = len(lines)
 
@@ -228,7 +206,7 @@ def SizeGif(lines: list<number>): list<number> # {{{1
   return []
 enddef
 
-def SizeJpg(lines: list<number>): list<number> # {{{1
+def SizeJpg(lines: list<number>): list<number>  # {{{1
   var i = 0
   var len = len(lines)
 
@@ -247,7 +225,7 @@ def SizeJpg(lines: list<number>): list<number> # {{{1
   return []
 enddef
 
-def SizePng(lines: list<number>): list<number> # {{{1
+def SizePng(lines: list<number>): list<number>  # {{{1
   var i = 0
   var len = len(lines)
 
@@ -266,7 +244,7 @@ def SizePng(lines: list<number>): list<number> # {{{1
   return []
 enddef
 
-def Vec(numbers: list<number>): number # {{{1
+def Vec(numbers: list<number>): number  # {{{1
   var n = 0
   numbers->mapnew(
     (_, i) => {

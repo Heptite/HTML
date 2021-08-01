@@ -30,6 +30,7 @@ HTML-macros-reload	HTML.txt	/*HTML-macros-reload*
 HTML-mappings-disable	HTML.txt	/*HTML-mappings-disable*
 HTML-mappings-enable	HTML.txt	/*HTML-mappings-enable*
 HTML-mappings-reload	HTML.txt	/*HTML-mappings-reload*
+HTML-plugin	HTML.txt	/*HTML-plugin*
 HTML-reload-functions	HTML.txt	/*HTML-reload-functions*
 HTML-reload-macros	HTML.txt	/*HTML-reload-macros*
 HTML-reload-mappings	HTML.txt	/*HTML-reload-mappings*
@@ -75,8 +76,10 @@ g:no_html_maps	HTML.txt	/*g:no_html_maps*
 g:no_html_menu	HTML.txt	/*g:no_html_menu*
 g:no_html_tab_mapping	HTML.txt	/*g:no_html_tab_mapping*
 g:no_html_toolbar	HTML.txt	/*g:no_html_toolbar*
+html-<S-Tab>	HTML.txt	/*html-<S-Tab>*
 html-<Tab>	HTML.txt	/*html-<Tab>*
 html-CTRL-I	HTML.txt	/*html-CTRL-I*
+html-SHIFT-CTRL-I	HTML.txt	/*html-SHIFT-CTRL-I*
 html-author-notes	HTML.txt	/*html-author-notes*
 html-commands	HTML.txt	/*html-commands*
 html-configuration	HTML.txt	/*html-configuration*
@@ -89,6 +92,7 @@ html-intro	HTML.txt	/*html-intro*
 html-misc	HTML.txt	/*html-misc*
 html-motion-mappings	HTML.txt	/*html-motion-mappings*
 html-operator-mappings	HTML.txt	/*html-operator-mappings*
+html-shift-tab	HTML.txt	/*html-shift-tab*
 html-smart-tag	HTML.txt	/*html-smart-tag*
 html-tab	HTML.txt	/*html-tab*
 html-tables	HTML.txt	/*html-tables*
@@ -326,6 +330,7 @@ i_;3	HTML.txt	/*i_;3*
 i_;4	HTML.txt	/*i_;4*
 i_;5	HTML.txt	/*i_;5*
 i_;;	HTML.txt	/*i_;;*
+i_;<S-Tab>	HTML.txt	/*i_;<S-Tab>*
 i_;<Tab>	HTML.txt	/*i_;<Tab>*
 i_;<space>	HTML.txt	/*i_;<space>*
 i_;@	HTML.txt	/*i_;@*
@@ -337,6 +342,7 @@ i_;H4	HTML.txt	/*i_;H4*
 i_;H5	HTML.txt	/*i_;H5*
 i_;H6	HTML.txt	/*i_;H6*
 i_;Hr	HTML.txt	/*i_;Hr*
+i_;SHIFT-CTRL-I	HTML.txt	/*i_;SHIFT-CTRL-I*
 i_;aB	HTML.txt	/*i_;aB*
 i_;aH	HTML.txt	/*i_;aH*
 i_;aT	HTML.txt	/*i_;aT*
@@ -445,6 +451,7 @@ i_;sa	HTML.txt	/*i_;sa*
 i_;sb	HTML.txt	/*i_;sb*
 i_;sc	HTML.txt	/*i_;sc*
 i_;se	HTML.txt	/*i_;se*
+i_;shift-tab	HTML.txt	/*i_;shift-tab*
 i_;sj	HTML.txt	/*i_;sj*
 i_;sm	HTML.txt	/*i_;sm*
 i_;sn	HTML.txt	/*i_;sn*
@@ -473,8 +480,11 @@ i_;ur	HTML.txt	/*i_;ur*
 i_;va	HTML.txt	/*i_;va*
 i_;vi	HTML.txt	/*i_;vi*
 i_;wb	HTML.txt	/*i_;wb*
+i_html-<S-Tab>	HTML.txt	/*i_html-<S-Tab>*
 i_html-<Tab>	HTML.txt	/*i_html-<Tab>*
 i_html-CTRL-I	HTML.txt	/*i_html-CTRL-I*
+i_html-SHIFT-CTRL-I	HTML.txt	/*i_html-SHIFT-CTRL-I*
+i_html-shift-tab	HTML.txt	/*i_html-shift-tab*
 i_html-tab	HTML.txt	/*i_html-tab*
 n_;	HTML.txt	/*n_;*
 n_;#	HTML.txt	/*n_;#*
@@ -484,6 +494,7 @@ n_;3	HTML.txt	/*n_;3*
 n_;4	HTML.txt	/*n_;4*
 n_;5	HTML.txt	/*n_;5*
 n_;;	HTML.txt	/*n_;;*
+n_;<S-Tab>	HTML.txt	/*n_;<S-Tab>*
 n_;<Tab>	HTML.txt	/*n_;<Tab>*
 n_;@	HTML.txt	/*n_;@*
 n_;CTRL-I	HTML.txt	/*n_;CTRL-I*
@@ -493,6 +504,7 @@ n_;H3	HTML.txt	/*n_;H3*
 n_;H4	HTML.txt	/*n_;H4*
 n_;H5	HTML.txt	/*n_;H5*
 n_;H6	HTML.txt	/*n_;H6*
+n_;SHIFT-CTRL-I	HTML.txt	/*n_;SHIFT-CTRL-I*
 n_;^	HTML.txt	/*n_;^*
 n_;aB	HTML.txt	/*n_;aB*
 n_;aH	HTML.txt	/*n_;aH*
@@ -615,6 +627,7 @@ n_;sb	HTML.txt	/*n_;sb*
 n_;sc	HTML.txt	/*n_;sc*
 n_;se	HTML.txt	/*n_;se*
 n_;sf	HTML.txt	/*n_;sf*
+n_;shift-tab	HTML.txt	/*n_;shift-tab*
 n_;sm	HTML.txt	/*n_;sm*
 n_;sn	HTML.txt	/*n_;sn*
 n_;sp	HTML.txt	/*n_;sp*
@@ -793,6 +806,9 @@ v_;un	HTML.txt	/*v_;un*
 v_;ur	HTML.txt	/*v_;ur*
 v_;va	HTML.txt	/*v_;va*
 v_;vi	HTML.txt	/*v_;vi*
+v_html-<S-Tab>	HTML.txt	/*v_html-<S-Tab>*
 v_html-<Tab>	HTML.txt	/*v_html-<Tab>*
 v_html-CTRL-I	HTML.txt	/*v_html-CTRL-I*
+v_html-SHIFT-CTRL-I	HTML.txt	/*v_html-SHIFT-CTRL-I*
+v_html-shift-tab	HTML.txt	/*v_html-shift-tab*
 v_html-tab	HTML.txt	/*v_html-tab*
