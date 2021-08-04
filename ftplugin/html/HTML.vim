@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023236
+if v:version < 802 || v:versionlong < 8023270
   echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.3236'
   sleep 3
   finish
@@ -11,8 +11,8 @@ endif
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         https://christianrobinson.name/HTML/
-# Last Change: July 31, 2021
-# Version:     1.1.0
+# Last Change: August 04, 2021
+# Version:     1.1.1
 # Original Concept: Doug Renze
 #
 #
@@ -101,9 +101,6 @@ if ! exists('g:did_html_commands') || ! g:did_html_commands
   if exists(':CS') != 2
     command! -nargs=? CS HTML#ShowColors(<f-args>)
   endif
-  command! -nargs=+ HTMLmenu HTML#LeadMenu(<f-args>)
-  command! -nargs=+ HTMLemenu HTML#EntityMenu(<f-args>)
-  command! -nargs=+ HTMLcmenu HTML#ColorsMenu(<f-args>)
   command! HTMLReloadFunctions {
       if exists('g:html_function_files')
         for f in copy(g:html_function_files)
@@ -140,7 +137,7 @@ if ! exists('b:did_html_mappings_init')
   # variables are set:
   SetIfUnset g:html_authorname        ''
   SetIfUnset g:html_authoremail       ''
-  # END user configurable variables
+  # END configurable variables
 
   # Intitialize some necessary variables:  {{{2
   SetIfUnset g:html_color_list {}
@@ -361,22 +358,28 @@ HTML#Mapo('<lead>cm')
 
 #       A HREF  Anchor Hyperlink        HTML 2.0
 # HTML#Map('inoremap', '<lead>ah', '<[{A HREF=""></A}]><C-O>F"')
-HTML#Map('inoremap', '<lead>ah', "<C-R>=HTML#SmartTag('a', 'i')<CR>")
-HTML#Map('inoremap', '<lead>aH', '<[{A HREF="<C-R>*"></A}]><C-O>F<')
+# HTML#Map('inoremap', '<lead>aH', '<[{A HREF="<C-R>*"></A}]><C-O>F<')
+HTML#Map('inoremap', '<lead>ah', "<C-R>=HTML#SmartTag('a1', 'i')<CR>")
+HTML#Map('inoremap', '<lead>aH', "<C-R>=HTML#SmartTag('a2', 'i')<CR>")
 # Visual mappings:
 # HTML#Map('vnoremap', '<lead>ah', '<ESC>`>a</[{A}]><C-O>`<<[{A HREF}]=""><C-O>F"', {'insert': true})
-HTML#Map('vnoremap', '<lead>ah', "<C-c>:execute 'normal! ' .. HTML#SmartTag('a', 'v')<CR>", {'insert': true})
-HTML#Map('vnoremap', '<lead>aH', '<ESC>`>a"></[{A}]><C-O>`<<[{A HREF}]="<C-O>f<', {'insert': true})
+# HTML#Map('vnoremap', '<lead>aH', '<ESC>`>a"></[{A}]><C-O>`<<[{A HREF}]="<C-O>f<', {'insert': true})
+HTML#Map('vnoremap', '<lead>ah', "<C-c>:execute 'normal! ' .. HTML#SmartTag('a1', 'v')<CR>", {'insert': true})
+HTML#Map('vnoremap', '<lead>aH', "<C-c>:execute 'normal! ' .. HTML#SmartTag('a2', 'v')<CR>", {'insert': true})
 # Motion mappings:
 HTML#Mapo('<lead>ah', true)
 HTML#Mapo('<lead>aH', true)
 
 #       A HREF  Anchor Hyperlink, with TARGET=""
-HTML#Map('inoremap', '<lead>at', '<[{A HREF="" TARGET=""></A}]><C-O>3F"')
-HTML#Map('inoremap', '<lead>aT', '<[{A HREF="<C-R>*" TARGET=""></A}]><C-O>F"')
+# HTML#Map('inoremap', '<lead>at', '<[{A HREF="" TARGET=""></A}]><C-O>3F"')
+# HTML#Map('inoremap', '<lead>aT', '<[{A HREF="<C-R>*" TARGET=""></A}]><C-O>F"')
+HTML#Map('inoremap', '<lead>at', "<C-R>=HTML#SmartTag('a3', 'i')<CR>")
+HTML#Map('inoremap', '<lead>aT', "<C-R>=HTML#SmartTag('a4', 'i')<CR>")
 # Visual mappings:
-HTML#Map('vnoremap', '<lead>at', '<ESC>`>a</[{A}]><C-O>`<<[{A HREF="" TARGET}]=""><C-O>3F"', {'insert': true})
-HTML#Map('vnoremap', '<lead>aT', '<ESC>`>a" [{TARGET=""></A}]><C-O>`<<[{A HREF}]="<C-O>3f"', {'insert': true})
+# HTML#Map('vnoremap', '<lead>at', '<ESC>`>a</[{A}]><C-O>`<<[{A HREF="" TARGET}]=""><C-O>3F"', {'insert': true})
+# HTML#Map('vnoremap', '<lead>aT', '<ESC>`>a" [{TARGET=""></A}]><C-O>`<<[{A HREF}]="<C-O>3f"', {'insert': true})
+HTML#Map('vnoremap', '<lead>at', "<C-c>:execute 'normal! ' .. HTML#SmartTag('a3', 'v')<CR>", {'insert': true})
+HTML#Map('vnoremap', '<lead>aT', "<C-c>:execute 'normal! ' .. HTML#SmartTag('a4', 'v')<CR>", {'insert': true})
 # Motion mappings:
 HTML#Mapo('<lead>at', true)
 HTML#Mapo('<lead>aT', true)
@@ -822,11 +825,12 @@ HTML#Mapo('<lead>ol')
 HTML#Map('inoremap', '<lead>pp', "<C-R>=HTML#SmartTag('p', 'i')<CR>")
 # Visual mapping:
 # HTML#Map('vnoremap', '<lead>pp', '<ESC>`>a<CR></[{P}]><C-O>`<<[{P}]><CR><ESC>', {'reindent': 1})
-HTML#Map('vnoremap', '<lead>pp', "<C-c>:execute 'normal! ' .. HTML#SmartTag('p', 'v')<CR>")
+HTML#Map('vnoremap', '<lead>pp', "<C-c>:execute 'normal! ' .. HTML#SmartTag('p', 'v')<CR>", {'reindent': 1})
 # Motion mapping:
 HTML#Mapo('<lead>pp')
 # A special mapping... If you're between <P> and </P> this will insert the
-# close tag and then the open tag in insert mode:
+# close tag and then the open tag in insert mode (probably unnecessary now
+# that the ;pp tag is smart):
 HTML#Map('inoremap', '<lead>/p', '</[{P}]><CR><CR><[{P}]><CR>')
 
 #       PRE     Preformatted Text       HTML 2.0
@@ -975,9 +979,11 @@ HTML#Map('vnoremap', '<lead>va', "<C-c>:execute 'normal! ' .. HTML#SmartTag('var
 HTML#Mapo('<lead>va')
 
 #       Embedded JavaScript
-HTML#Map('inoremap', '<lead>js', '<C-O>:vim9cmd HTML#TC(false)<CR><[{SCRIPT TYPE}]="text/javascript"><ESC>==o<!--<CR>// --><CR></[{SCRIPT}]><ESC>:vim9cmd HTML#TC(true)<CR>kko')
+#HTML#Map('inoremap', '<lead>js', '<C-O>:vim9cmd HTML#TC(false)<CR><[{SCRIPT TYPE}]="text/javascript"><ESC>==o<!--<CR>// --><CR></[{SCRIPT}]><ESC>:vim9cmd HTML#TC(true)<CR>kko')
+HTML#Map('inoremap', '<lead>js', "<C-R>=HTML#SmartTag('script', 'i')<CR>")
 # Visual mapping:
-HTML#Map('vnoremap', '<lead>js', '<C-c>:vim9cmd HTML#TC(false)<CR><C-O>`>a<CR>// --><CR></[{SCRIPT}]><C-O>`<<[{SCRIPT TYPE}]="text/javascript"><CR><!--<CR><ESC>:vim9cmd HTML#TC(true)<CR>', {'reindent': 2})
+#HTML#Map('vnoremap', '<lead>js', '<C-c>:vim9cmd HTML#TC(false)<CR>`>a<CR>// --><CR></[{SCRIPT}]><C-O>`<<[{SCRIPT TYPE}]="text/javascript"><CR><!--<CR><ESC>:vim9cmd HTML#TC(true)<CR>', {'reindent': 2})
+HTML#Map('vnoremap', '<lead>js', "<C-c>:execute 'normal! ' .. HTML#SmartTag('script', 'v')<CR>", {'reindent': 3})
 # Motion mapping:
 HTML#Mapo('<lead>js')
 
@@ -1213,7 +1219,7 @@ HTML#Mapo('<lead>*')
 HTML#Map('vnoremap', '<lead>%', "s<C-R>=HTML#EncodeString(@\", '%')->HTML#SI()<CR><Esc>", {'extra': false})
 HTML#Mapo('<lead>%')
 
-# Decode a &#...; or %XX encoded string:
+# Decode a &...;, &#...;, or %XX encoded string:
 HTML#Map('vnoremap', '<lead>^', "s<C-R>=HTML#EncodeString(@\", 'd')->HTML#SI()<CR><Esc>", {'extra': false})
 HTML#Mapo('<lead>^')
 
@@ -1713,41 +1719,41 @@ if ! HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
    menu               1.50  ToolBar.-sep1-       <Nop>
 
   tmenu               1.60  ToolBar.Template     Insert Template
-  HTMLmenu amenu      1.60  ToolBar.Template     html
+  HTML#LeadMenu('amenu', '1.60', 'ToolBar.Template', 'html')
 
    menu               1.65  ToolBar.-sep2-       <Nop>
 
   tmenu               1.70  ToolBar.Paragraph    Create Paragraph
-  HTMLmenu imenu      1.70  ToolBar.Paragraph    pp
-  HTMLmenu vmenu      -     ToolBar.Paragraph    pp
-  HTMLmenu nmenu      -     ToolBar.Paragraph    pp i
+  HTML#LeadMenu('imenu', '1.70', 'ToolBar.Paragraph', 'pp')
+  HTML#LeadMenu('vmenu', '-', 'ToolBar.Paragraph', 'pp')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Paragraph', 'pp i')
   tmenu               1.80  ToolBar.Break        Line Break
-  HTMLmenu imenu      1.80  ToolBar.Break        br
-  HTMLmenu vmenu      -     ToolBar.Break        br
-  HTMLmenu nmenu      -     ToolBar.Break        br i
+  HTML#LeadMenu('imenu', '1.80', 'ToolBar.Break', 'br')
+  HTML#LeadMenu('vmenu', '-', 'ToolBar.Break', 'br')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Break', 'br i')
 
    menu               1.85  ToolBar.-sep3-       <Nop>
 
   tmenu               1.90  ToolBar.Link         Create Hyperlink
-  HTMLmenu imenu      1.90  ToolBar.Link         ah
-  HTMLmenu vmenu      -     ToolBar.Link         ah
-  HTMLmenu nmenu      -     ToolBar.Link         ah i
+  HTML#LeadMenu('imenu', '1.90', 'ToolBar.Link', 'ah')
+  HTML#LeadMenu('vmenu', '-', 'ToolBar.Link', 'ah')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Link', 'ah i')
   tmenu               1.100 ToolBar.Image        Insert Image
-  HTMLmenu imenu      1.100 ToolBar.Image        im
-  HTMLmenu vmenu      -     ToolBar.Image        im
-  HTMLmenu nmenu      -     ToolBar.Image        im i
+  HTML#LeadMenu('imenu', '1.100', 'ToolBar.Image', 'im')
+  HTML#LeadMenu('vmenu', '-', 'ToolBar.Image', 'im')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Image', 'im i')
 
    menu               1.105 ToolBar.-sep4-       <Nop>
 
   tmenu               1.110 ToolBar.Hline        Create Horizontal Rule
-  HTMLmenu imenu      1.110 ToolBar.Hline        hr
-  HTMLmenu nmenu      -     ToolBar.Hline        hr i
+  HTML#LeadMenu('imenu', '1.110', 'ToolBar.Hline', 'hr')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Hline', 'hr i')
 
    menu               1.115 ToolBar.-sep5-       <Nop>
 
   tmenu               1.120 ToolBar.Table        Create Table
-  HTMLmenu imenu      1.120 ToolBar.Table        tA <ESC>
-  HTMLmenu nmenu      -     ToolBar.Table        tA
+  HTML#LeadMenu('imenu', '1.120', 'ToolBar.Table', 'tA <ESC>')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Table', 'tA')
 
    menu               1.125 ToolBar.-sep6-       <Nop>
 
@@ -1760,23 +1766,23 @@ if ! HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
   execute 'vnoremenu        ToolBar.Nlist'       g:html_map_leader .. 'oli' .. g:html_map_leader .. 'li<ESC>'
   execute 'nnoremenu        ToolBar.Nlist'       'i' .. g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li'
   tmenu               1.150 ToolBar.Litem        Add List Item
-  HTMLmenu imenu      1.150 ToolBar.Litem        li
-  HTMLmenu nmenu      -     ToolBar.Litem        li i
+  HTML#LeadMenu('imenu', '1.150', 'ToolBar.Litem', 'li')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Litem', 'li i')
 
    menu               1.155 ToolBar.-sep7-       <Nop>
 
   tmenu               1.160 ToolBar.Bold         Bold
-  HTMLmenu imenu      1.160 ToolBar.Bold         bo
-  HTMLmenu vmenu      -     ToolBar.Bold         bo
-  HTMLmenu nmenu      -     ToolBar.Bold         bo i
+  HTML#LeadMenu('imenu', '1.160', 'ToolBar.Bold', 'bo')
+  HTML#LeadMenu('vmenu', '-', 'ToolBar.Bold', 'bo')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Bold', 'bo i')
   tmenu               1.170 ToolBar.Italic       Italic
-  HTMLmenu imenu      1.170 ToolBar.Italic       it
-  HTMLmenu vmenu      -     ToolBar.Italic       it
-  HTMLmenu nmenu      -     ToolBar.Italic       it i
+  HTML#LeadMenu('imenu', '1.170', 'ToolBar.Italic', 'it')
+  HTML#LeadMenu('vmenu', '-', 'ToolBar.Italic', 'it')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Italic', 'it i')
   tmenu               1.180 ToolBar.Underline    Underline
-  HTMLmenu imenu      1.180 ToolBar.Underline    un
-  HTMLmenu vmenu      -     ToolBar.Underline    un
-  HTMLmenu nmenu      -     ToolBar.Underline    un i
+  HTML#LeadMenu('imenu', '1.180', 'ToolBar.Underline', 'un')
+  HTML#LeadMenu('vmenu', '-', 'ToolBar.Underline', 'un')
+  HTML#LeadMenu('nmenu', '-', 'ToolBar.Underline', 'un i')
 
    menu               1.185 ToolBar.-sep8-       <Nop>
 
@@ -1815,47 +1821,47 @@ if ! HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
 
   if maparg(g:html_map_leader .. 'db', 'n') != ''
     tmenu          1.510 ToolBar.Browser Launch the Default Browser on the Current File
-    HTMLmenu amenu 1.510 ToolBar.Browser db
+    HTML#LeadMenu('amenu', '1.510', 'ToolBar.Browser', 'db')
   endif
 
   if maparg(g:html_map_leader .. 'ff', 'n') != ''
     tmenu           1.520 ToolBar.Firefox   Launch Firefox on the Current File
-    HTMLmenu amenu  1.520 ToolBar.Firefox   ff
+    HTML#LeadMenu('amenu', '1.520', 'ToolBar.Firefox', 'ff')
   endif
 
   if maparg(g:html_map_leader .. 'gc', 'n') != ''
     tmenu           1.530 ToolBar.Chrome    Launch Chrome on the Current File
-    HTMLmenu amenu  1.530 ToolBar.Chrome    gc
+    HTML#LeadMenu('amenu', '1.530', 'ToolBar.Chrome', 'gc')
   endif
 
   if maparg(g:html_map_leader .. 'ed', 'n') != ''
     tmenu           1.540 ToolBar.Edge      Launch Edge on the Current File
-    HTMLmenu amenu  1.540 ToolBar.Edge      ed
+    HTML#LeadMenu('amenu', '1.540', 'ToolBar.Edge', 'ed')
   endif
 
   if maparg(g:html_map_leader .. 'oa', 'n') != ''
     tmenu           1.550 ToolBar.Opera     Launch Opera on the Current File
-    HTMLmenu amenu  1.550 ToolBar.Opera     oa
+    HTML#LeadMenu('amenu', '1.550', 'ToolBar.Opera', 'oa')
   endif
 
   if maparg(g:html_map_leader .. 'sf', 'n') != ''
     tmenu           1.560 ToolBar.Safari    Launch Safari on the Current File
-    HTMLmenu amenu  1.560 ToolBar.Safari    sf
+    HTML#LeadMenu('amenu', '1.560', 'ToolBar.Safari', 'sf')
   endif
 
   if maparg(g:html_map_leader .. 'w3', 'n') != ''
     tmenu           1.570 ToolBar.w3m       Launch w3m on the Current File
-    HTMLmenu amenu  1.570 ToolBar.w3m       w3
+    HTML#LeadMenu('amenu', '1.570', 'ToolBar.w3m', 'w3')
   endif
 
   if maparg(g:html_map_leader .. 'ly', 'n') != ''
     tmenu           1.580 ToolBar.Lynx      Launch Lynx on the Current File
-    HTMLmenu amenu  1.580 ToolBar.Lynx      ly
+    HTML#LeadMenu('amenu', '1.580', 'ToolBar.Lynx', 'ly')
   endif
 
   if maparg(g:html_map_leader .. 'ln', 'n') != ''
     tmenu           1.580 ToolBar.Links     Launch Links on the Current File
-    HTMLmenu amenu  1.580 ToolBar.Links     ln
+    HTML#LeadMenu('amenu', '1.580', 'ToolBar.Links', 'ln')
   endif
 
    menu     1.998 ToolBar.-sep99- <Nop>
@@ -1884,7 +1890,10 @@ cnoremenu      PopUp.Select\ &Inner\ Ta&g <C-c>vit
 
 augroup HTMLmenu
 au!
-  autocmd BufEnter,WinEnter * HTML#MenuControl() | HTML#ToggleClipboard(2)
+  autocmd BufEnter,WinEnter * {
+    HTML#MenuControl()
+    HTML#ToggleClipboard(2)
+  }
 augroup END
 
 amenu HTM&L.HTML\ Help<TAB>:help\ HTML\.txt :help HTML.txt<CR>
@@ -1906,888 +1915,888 @@ else
 endif
 
 if maparg(g:html_map_leader .. 'db', 'n') != ''
-  HTMLmenu amenu - HTML.&Preview.&Default\ Browser       db
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.&Default Browser', 'db')
 endif
 if maparg(g:html_map_leader .. 'ff', 'n') != ''
-   menu HTML.Preview.-sep1-                              <nop>
-  HTMLmenu amenu - HTML.&Preview.&Firefox                ff
-  HTMLmenu amenu - HTML.&Preview.Firefox\ (New\ Window)  nff
-  HTMLmenu amenu - HTML.&Preview.Firefox\ (New\ Tab)     tff
+  menu HTML.Preview.-sep1- <nop>
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.&Firefox', 'ff')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Firefox (New Window)', 'nff')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Firefox (New Tab)', 'tff')
 endif
 if maparg(g:html_map_leader .. 'gc', 'n') != ''
-   menu HTML.Preview.-sep2-                              <nop>
-  HTMLmenu amenu - HTML.&Preview.&Chrome                 gc
-  HTMLmenu amenu - HTML.&Preview.Chrome\ (New\ Window)   ngc
-  HTMLmenu amenu - HTML.&Preview.Chrome\ (New\ Tab)      tgc
+  menu HTML.Preview.-sep2- <nop>
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.&Chrome', 'gc')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Chrome (New Window)', 'ngc')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Chrome (New Tab)', 'tgc')
 endif
 if maparg(g:html_map_leader .. 'ed', 'n') != ''
-   menu HTML.Preview.-sep3-                              <nop>
-  HTMLmenu amenu - HTML.&Preview.&Edge                   ed
-  HTMLmenu amenu - HTML.&Preview.Edge\ (New\ Window)     ned
-  HTMLmenu amenu - HTML.&Preview.Edge\ (New\ Tab)        ted
+  menu HTML.Preview.-sep3- <nop>
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.&Edge', 'ed')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Edge (New Window)', 'ned')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Edge (New Tab)', 'ted')
 endif
 if maparg(g:html_map_leader .. 'oa', 'n') != ''
-   menu HTML.Preview.-sep4-                              <nop>
-  HTMLmenu amenu - HTML.&Preview.&Opera                  oa
-  HTMLmenu amenu - HTML.&Preview.Opera\ (New\ Window)    noa
-  HTMLmenu amenu - HTML.&Preview.Opera\ (New\ Tab)       toa
+  menu HTML.Preview.-sep4- <nop>
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.&Opera', 'oa')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Opera (New Window)', 'noa')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Opera (New Tab)', 'toa')
 endif
 if maparg(g:html_map_leader .. 'sf', 'n') != ''
-   menu HTML.Preview.-sep5-                              <nop>
-  HTMLmenu amenu - HTML.&Preview.&Safari                 sf
-  HTMLmenu amenu - HTML.&Preview.Safari\ (New\ Window)   nsf
-  HTMLmenu amenu - HTML.&Preview.Safari\ (New\ Tab)      tsf
+  menu HTML.Preview.-sep5- <nop>
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.&Safari', 'sf')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Safari (New Window)', 'nsf')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Safari (New Tab)', 'tsf')
 endif
 if maparg(g:html_map_leader .. 'ly', 'n') != ''
-   menu HTML.Preview.-sep6-                              <nop>
-  HTMLmenu amenu - HTML.&Preview.&Lynx                   ly
-  HTMLmenu amenu - HTML.&Preview.Lynx\ (New\ Window)     nly
-  HTMLmenu amenu - HTML.&Preview.Lynx\ (:terminal)       tly
+  menu HTML.Preview.-sep6- <nop>
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.&Lynx', 'ly')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Lynx (New Window)', 'nly')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Lynx (:terminal)', 'tly')
 endif
 if maparg(g:html_map_leader .. 'w3', 'n') != ''
-   menu HTML.Preview.-sep7-                              <nop>
-  HTMLmenu amenu - HTML.&Preview.&w3m                    w3
-  HTMLmenu amenu - HTML.&Preview.w3m\ (New\ Window)      nw3
-  HTMLmenu amenu - HTML.&Preview.w3m\ (:terminal)        tw3
+  menu HTML.Preview.-sep7- <nop>
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.&w3m', 'w3')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.w3m (New Window)', 'nw3')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.w3m (:terminal)', 'tw3')
 endif
 if maparg(g:html_map_leader .. 'ln', 'n') != ''
-   menu HTML.Preview.-sep8-                              <nop>
-  HTMLmenu amenu - HTML.&Preview.Li&nks                  ln
-  HTMLmenu amenu - HTML.&Preview.Links\ (New\ Window)    nln
-  HTMLmenu amenu - HTML.&Preview.Links\ (:terminal)      tln
+  menu HTML.Preview.-sep8- <nop>
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Li&nks', 'ln')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Links (New Window)', 'nln')
+  HTML#LeadMenu('amenu', '-', 'HTML.&Preview.Links (:terminal)', 'tln')
 endif
 
- menu HTML.-sep4- <Nop>
+menu HTML.-sep4- <Nop>
 
-HTMLmenu amenu - HTML.Template html
+HTML#LeadMenu('amenu', '-', 'HTML.Template', 'html')
 
- menu HTML.-sep5- <Nop>
+menu HTML.-sep5- <Nop>
 
 # Character Entities menu:   {{{2
 
-HTMLmenu vmenu - HTML.Character\ &Entities.Convert\ to\ Entity                &
-HTMLmenu vmenu - HTML.Character\ &Entities.Convert\ to\ %XX\ (URI\ Encode\)   %
-HTMLmenu vmenu - HTML.Character\ &Entities.Convert\ from\ Entities/%XX        ^
+HTML#LeadMenu('vmenu', '-', 'HTML.Character &Entities.Convert to Entity', '&')
+HTML#LeadMenu('vmenu', '-', 'HTML.Character &Entities.Convert to %XX (URI Encode)', '%')
+HTML#LeadMenu('vmenu', '-', 'HTML.Character &Entities.Convert from Entities/%XX', '^')
 
- menu HTML.Character\ Entities.-sep0- <Nop>
-HTMLemenu HTML.Character\ Entities.Ampersand            &        -
-HTMLemenu HTML.Character\ Entities.Greaterthan          >        >
-HTMLemenu HTML.Character\ Entities.Lessthan             <        <
-HTMLemenu HTML.Character\ Entities.Space                <space>  nonbreaking
- menu HTML.Character\ Entities.-sep1- <Nop>
-HTMLemenu HTML.Character\ Entities.Cent                 c\|      \\xA2
-HTMLemenu HTML.Character\ Entities.Pound                #        \\xA3
-HTMLemenu HTML.Character\ Entities.Euro                 E=       \\u20AC
-HTMLemenu HTML.Character\ Entities.Yen                  Y=       \\xA5
- menu HTML.Character\ Entities.-sep2- <Nop>
-HTMLemenu HTML.Character\ Entities.Copyright            cO       \\xA9
-HTMLemenu HTML.Character\ Entities.Registered           rO       \\xAE
-HTMLemenu HTML.Character\ Entities.Trademark            tm       \\u2122
- menu HTML.Character\ Entities.-sep3- <Nop>
-HTMLemenu HTML.Character\ Entities.Inverted\ Exlamation !        \\xA1
-HTMLemenu HTML.Character\ Entities.Inverted\ Question   ?        \\xBF
-HTMLemenu HTML.Character\ Entities.Paragraph            pa       \\xB6
-HTMLemenu HTML.Character\ Entities.Section              se       \\xA7
-HTMLemenu HTML.Character\ Entities.Middle\ Dot          \.       \\xB7
-HTMLemenu HTML.Character\ Entities.Bullet               *        \\u2022
-HTMLemenu HTML.Character\ Entities.En\ dash             n-       \\u2013
-HTMLemenu HTML.Character\ Entities.Em\ dash             m-       \\u2014
-HTMLemenu HTML.Character\ Entities.Ellipsis             3\.      \\u2026
- menu HTML.Character\ Entities.-sep5- <Nop>
-HTMLemenu HTML.Character\ Entities.Math.Multiply        x   \\xD7
-HTMLemenu HTML.Character\ Entities.Math.Divide          /   \\xF7
-HTMLemenu HTML.Character\ Entities.Math.Degree          dg  \\xB0
-HTMLemenu HTML.Character\ Entities.Math.Micro           mi  \\xB5
-HTMLemenu HTML.Character\ Entities.Math.Plus/Minus      +-  \\xB1
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 1    R1    \\u2160
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 2    R2    \\u2161
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 3    R3    \\u2162
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 4    R4    \\u2163
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 5    R5    \\u2164
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 6    R6    \\u2165
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 7    R7    \\u2166
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 8    R8    \\u2167
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 9    R9    \\u2168
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 10   R10   \\u2169
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 11   R11   \\u216A
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 12   R12   \\u216B
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 50   R50   \\u216C
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 100  R100  \\u216D
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 500  R500  \\u216E
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Uppercase\ 1000 R1000 \\u216F
- menu HTML.Character\ Entities.Math.Roman\ Numerals.-sep1- <Nop>
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 1    r1    \\u2170
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 2    r2    \\u2171
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 3    r3    \\u2172
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 4    r4    \\u2173
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 5    r5    \\u2174
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 6    r6    \\u2175
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 7    r7    \\u2176
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 8    r8    \\u2177
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 9    r9    \\u2178
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 10   r10   \\u2179
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 11   r11   \\u217A
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 12   r12   \\u217B
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 50   r50   \\u217C
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 100  r100  \\u217D
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 500  r500  \\u217E
-HTMLemenu HTML.Character\ Entities.Math.Roman\ Numerals.Lowercase\ 1000 r1000 \\u217F
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 0  0^  \\u2070
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 1  1^  \\xB9
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 2  2^  \\xB2
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 3  3^  \\xB3
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 4  4^  \\u2074
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 5  5^  \\u2075
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 6  6^  \\u2076
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 7  7^  \\u2077
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 8  8^  \\u2078
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Superscript\ 9  9^  \\u2079
- menu HTML.Character\ Entities.Math.Super/Subscript.-sep1- <Nop>
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 0    0v  \\u2080
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 1    1v  \\u2081
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 2    2v  \\u2082
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 3    3v  \\u2083
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 4    4v  \\u2084
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 5    5v  \\u2085
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 6    6v  \\u2086
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 7    7v  \\u2087
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 8    8v  \\u2088
-HTMLemenu HTML.Character\ Entities.Math.Super/Subscript.Subscript\ 9    9v  \\u2089
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Quarter    14  \\xBC
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Half       12  \\xBD
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Three\ Quarters 34  \\xBE
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Third      13  \\u2153
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Two\ Thirds     23  \\u2154
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Fifth      15  \\u2155
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Two\ Fifths     25  \\u2156
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Three\ Fifths   35  \\u2157
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Four\ Fiftsh    45  \\u2158
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Sixth      16  \\u2159
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Five\ Sixths    56  \\u215A
-HTMLemenu HTML.Character\ Entities.Math.Fractions.One\ Eigth      18  \\u215B
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Three\ Eigths   38  \\u215C
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Five\ Eigths    58  \\u215D
-HTMLemenu HTML.Character\ Entities.Math.Fractions.Seven\ Eigths   78  \\u215E
-HTMLemenu HTML.Character\ Entities.&Graves.A-grave  A`  \\xC0
-HTMLemenu HTML.Character\ Entities.&Graves.a-grave  a`  \\xE0
-HTMLemenu HTML.Character\ Entities.&Graves.E-grave  E`  \\xC8
-HTMLemenu HTML.Character\ Entities.&Graves.e-grave  e`  \\xE8
-HTMLemenu HTML.Character\ Entities.&Graves.I-grave  I`  \\xCC
-HTMLemenu HTML.Character\ Entities.&Graves.i-grave  i`  \\xEC
-HTMLemenu HTML.Character\ Entities.&Graves.O-grave  O`  \\xD2
-HTMLemenu HTML.Character\ Entities.&Graves.o-grave  o`  \\xF2
-HTMLemenu HTML.Character\ Entities.&Graves.U-grave  U`  \\xD9
-HTMLemenu HTML.Character\ Entities.&Graves.u-grave  u`  \\xF9
-HTMLemenu HTML.Character\ Entities.&Acutes.A-acute  A'  \\xC1
-HTMLemenu HTML.Character\ Entities.&Acutes.a-acute  a'  \\xE1
-HTMLemenu HTML.Character\ Entities.&Acutes.E-acute  E'  \\xC9
-HTMLemenu HTML.Character\ Entities.&Acutes.e-acute  e'  \\xE9
-HTMLemenu HTML.Character\ Entities.&Acutes.I-acute  I'  \\xCD
-HTMLemenu HTML.Character\ Entities.&Acutes.i-acute  i'  \\xED
-HTMLemenu HTML.Character\ Entities.&Acutes.O-acute  O'  \\xD3
-HTMLemenu HTML.Character\ Entities.&Acutes.o-acute  o'  \\xF3
-HTMLemenu HTML.Character\ Entities.&Acutes.U-acute  U'  \\xDA
-HTMLemenu HTML.Character\ Entities.&Acutes.u-acute  u'  \\xFA
-HTMLemenu HTML.Character\ Entities.&Acutes.Y-acute  Y'  \\xDD
-HTMLemenu HTML.Character\ Entities.&Acutes.y-acute  y'  \\xFD
-HTMLemenu HTML.Character\ Entities.&Tildes.A-tilde  A~  \\xC3
-HTMLemenu HTML.Character\ Entities.&Tildes.a-tilde  a~  \\xE3
-HTMLemenu HTML.Character\ Entities.&Tildes.N-tilde  N~  \\xD1
-HTMLemenu HTML.Character\ Entities.&Tildes.n-tilde  n~  \\xF1
-HTMLemenu HTML.Character\ Entities.&Tildes.O-tilde  O~  \\xD5
-HTMLemenu HTML.Character\ Entities.&Tildes.o-tilde  o~  \\xF5
-HTMLemenu HTML.Character\ Entities.&Circumflexes.A-circumflex  A^  \\xC2
-HTMLemenu HTML.Character\ Entities.&Circumflexes.a-circumflex  a^  \\xE2
-HTMLemenu HTML.Character\ Entities.&Circumflexes.E-circumflex  E^  \\xCA
-HTMLemenu HTML.Character\ Entities.&Circumflexes.e-circumflex  e^  \\xEA
-HTMLemenu HTML.Character\ Entities.&Circumflexes.I-circumflex  I^  \\xCE
-HTMLemenu HTML.Character\ Entities.&Circumflexes.i-circumflex  i^  \\xEE
-HTMLemenu HTML.Character\ Entities.&Circumflexes.O-circumflex  O^  \\xD4
-HTMLemenu HTML.Character\ Entities.&Circumflexes.o-circumflex  o^  \\xF4
-HTMLemenu HTML.Character\ Entities.&Circumflexes.U-circumflex  U^  \\xDB
-HTMLemenu HTML.Character\ Entities.&Circumflexes.u-circumflex  u^  \\xFB
-HTMLemenu HTML.Character\ Entities.&Umlauts.A-umlaut  A"  \\xC4
-HTMLemenu HTML.Character\ Entities.&Umlauts.a-umlaut  a"  \\xE4
-HTMLemenu HTML.Character\ Entities.&Umlauts.E-umlaut  E"  \\xCB
-HTMLemenu HTML.Character\ Entities.&Umlauts.e-umlaut  e"  \\xEB
-HTMLemenu HTML.Character\ Entities.&Umlauts.I-umlaut  I"  \\xCF
-HTMLemenu HTML.Character\ Entities.&Umlauts.i-umlaut  i"  \\xEF
-HTMLemenu HTML.Character\ Entities.&Umlauts.O-umlaut  O"  \\xD6
-HTMLemenu HTML.Character\ Entities.&Umlauts.o-umlaut  o"  \\xF6
-HTMLemenu HTML.Character\ Entities.&Umlauts.U-umlaut  U"  \\xDC
-HTMLemenu HTML.Character\ Entities.&Umlauts.u-umlaut  u"  \\xFC
-HTMLemenu HTML.Character\ Entities.&Umlauts.y-umlaut  y"  \\xFF
-HTMLemenu HTML.Character\ Entities.&Umlauts.Umlaut    "   \\xA8
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Alpha    Al \\u391
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Beta     Be \\u392
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Gamma    Ga \\u393
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Delta    De \\u394
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Epsilon  Ep \\u395
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Zeta     Ze \\u396
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Eta      Et \\u397
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Theta    Th \\u398
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Iota     Io \\u399
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Kappa    Ka \\u39A
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Lambda   Lm \\u39B
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Mu       Mu \\u39C
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Nu       Nu \\u39D
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Xi       Xi \\u39E
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Omicron  Oc \\u39F
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Pi       Pi \\u3A0
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Rho      Rh \\u3A1
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Sigma    Si \\u3A3
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Tau      Ta \\u3A4
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Upsilon  Up \\u3A5
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Phi      Ph \\u3A6
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Chi      Ch \\u3A7
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Uppercase.Psi      Ps \\u3A8
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.alpha    al \\u3B1
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.beta     be \\u3B2
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.gamma    ga \\u3B3
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.delta    de \\u3B4
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.epsilon  ep \\u3B5
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.zeta     ze \\u3B6
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.eta      et \\u3B7
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.theta    th \\u3B8
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.iota     io \\u3B9
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.kappa    ka \\u3BA
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.lambda   lm \\u3BB
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.mu       mu \\u3BC
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.nu       nu \\u3BD
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.xi       xi \\u3BE
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.omicron  oc \\u3BF
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.pi       pi \\u3C0
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.rho      rh \\u3C1
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.sigma    si \\u3C3
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.sigmaf   sf \\u3C2
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.tau      ta \\u3C4
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.upsilon  up \\u3C5
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.phi      ph \\u3C6
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.chi      ch \\u3C7
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.psi      ps \\u3C8
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.omega    og \\u3C9
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.thetasym ts \\u3D1
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.upsih    uh \\u3D2
-HTMLemenu HTML.Character\ Entities.Greek\ &Letters.&Lowercase.piv      pv \\u3D6
-HTMLemenu HTML.Character\ Entities.A&rrows.Left\ single\ arrow        la \\u2190
-HTMLemenu HTML.Character\ Entities.A&rrows.Right\ single\ arrow       ra \\u2192
-HTMLemenu HTML.Character\ Entities.A&rrows.Up\ single\ arrow          ua \\u2191
-HTMLemenu HTML.Character\ Entities.A&rrows.Down\ single\ arrow        da \\u2193
-HTMLemenu HTML.Character\ Entities.A&rrows.Left-right\ single\ arrow  ha \\u2194
- menu HTML.Character\ Entities.Arrows.-sep1- <Nop>
-HTMLemenu HTML.Character\ Entities.A&rrows.Left\ double\ arrow        lA \\u21D0
-HTMLemenu HTML.Character\ Entities.A&rrows.Right\ double\ arrow       rA \\u21D2
-HTMLemenu HTML.Character\ Entities.A&rrows.Up\ double\ arrow          uA \\u21D1
-HTMLemenu HTML.Character\ Entities.A&rrows.Down\ double\ arrow        dA \\u21D3
-HTMLemenu HTML.Character\ Entities.A&rrows.Left-right\ double\ arrow  hA \\u21D4
-HTMLemenu HTML.Character\ Entities.&Quotes.Quotation\ mark            '  x22
-HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Single\ Quote        l' \\u2018
-HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Single\ Quote       r' \\u2019
-HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Double\ Quote        l" \\u201C
-HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Double\ Quote       r" \\u201D
-HTMLemenu HTML.Character\ Entities.&Quotes.Left\ Angle\ Quote         2< \\xAB
-HTMLemenu HTML.Character\ Entities.&Quotes.Right\ Angle\ Quote        2> \\xBB
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..A-ring      Ao \\xC5
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..a-ring      ao \\xE5
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..AE-ligature AE \\xC6
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..ae-ligature ae \\xE6
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..C-cedilla   C, \\xC7
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..c-cedilla   c, \\xE7
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..O-slash     O/ \\xD8
-HTMLemenu HTML.Character\ Entities.\ \ \ \ \ \ \ &etc\.\.\..o-slash     o/ \\xF8
+menu HTML.Character\ Entities.-sep0- <Nop>
+HTML#EntityMenu('HTML.Character Entities.Ampersand', '&', '-')
+HTML#EntityMenu('HTML.Character Entities.Greaterthan', '>', '>')
+HTML#EntityMenu('HTML.Character Entities.Lessthan', '<', '<')
+HTML#EntityMenu('HTML.Character Entities.Space', '<space>', 'nonbreaking')
+menu HTML.Character\ Entities.-sep1- <Nop>
+HTML#EntityMenu('HTML.Character Entities.Cent', 'c\|', '\xA2')
+HTML#EntityMenu('HTML.Character Entities.Pound', '#', '\xA3')
+HTML#EntityMenu('HTML.Character Entities.Euro', 'E=', '\u20AC')
+HTML#EntityMenu('HTML.Character Entities.Yen', 'Y=', '\xA5')
+menu HTML.Character\ Entities.-sep2- <Nop>
+HTML#EntityMenu('HTML.Character Entities.Copyright', 'cO', '\xA9')
+HTML#EntityMenu('HTML.Character Entities.Registered', 'rO', '\xAE')
+HTML#EntityMenu('HTML.Character Entities.Trademark', 'tm', '\u2122')
+menu HTML.Character\ Entities.-sep3- <Nop>
+HTML#EntityMenu('HTML.Character Entities.Inverted Exlamation', '!', '\xA1')
+HTML#EntityMenu('HTML.Character Entities.Inverted Question', '?', '\xBF')
+HTML#EntityMenu('HTML.Character Entities.Paragraph', 'pa', '\xB6')
+HTML#EntityMenu('HTML.Character Entities.Section', 'se', '\xA7')
+HTML#EntityMenu('HTML.Character Entities.Middle Dot', '\.', '\xB7')
+HTML#EntityMenu('HTML.Character Entities.Bullet', '*', '\u2022')
+HTML#EntityMenu('HTML.Character Entities.En dash', 'n-', '\u2013')
+HTML#EntityMenu('HTML.Character Entities.Em dash', 'm-', '\u2014')
+HTML#EntityMenu('HTML.Character Entities.Ellipsis', '3\.', '\u2026')
+menu HTML.Character\ Entities.-sep5- <Nop>
+HTML#EntityMenu('HTML.Character Entities.Math.Multiply', 'x', '\xD7')
+HTML#EntityMenu('HTML.Character Entities.Math.Divide', '/', '\xF7')
+HTML#EntityMenu('HTML.Character Entities.Math.Degree', 'dg', '\xB0')
+HTML#EntityMenu('HTML.Character Entities.Math.Micro', 'mi', '\xB5')
+HTML#EntityMenu('HTML.Character Entities.Math.Plus/Minus', '+-', '\xB1')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 1', 'R1', '\u2160')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 2', 'R2', '\u2161')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 3', 'R3', '\u2162')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 4', 'R4', '\u2163')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 5', 'R5', '\u2164')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 6', 'R6', '\u2165')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 7', 'R7', '\u2166')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 8', 'R8', '\u2167')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 9', 'R9', '\u2168')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 10', 'R10', '\u2169')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 11', 'R11', '\u216A')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 12', 'R12', '\u216B')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 50', 'R50', '\u216C')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 100', 'R100', '\u216D')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 500', 'R500', '\u216E')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Uppercase 1000', 'R1000', '\u216F')
+menu HTML.Character\ Entities.Math.Roman\ Numerals.-sep1- <Nop>
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 1', 'r1', '\u2170')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 2', 'r2', '\u2171')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 3', 'r3', '\u2172')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 4', 'r4', '\u2173')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 5', 'r5', '\u2174')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 6', 'r6', '\u2175')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 7', 'r7', '\u2176')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 8', 'r8', '\u2177')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 9', 'r9', '\u2178')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 10', 'r10', '\u2179')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 11', 'r11', '\u217A')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 12', 'r12', '\u217B')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 50', 'r50', '\u217C')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 100', 'r100', '\u217D')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 500', 'r500', '\u217E')
+HTML#EntityMenu('HTML.Character Entities.Math.Roman Numerals.Lowercase 1000', 'r1000', '\u217F')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 0', '0^', '\u2070')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 1', '1^', '\xB9')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 2', '2^', '\xB2')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 3', '3^', '\xB3')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 4', '4^', '\u2074')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 5', '5^', '\u2075')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 6', '6^', '\u2076')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 7', '7^', '\u2077')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 8', '8^', '\u2078')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Superscript 9', '9^', '\u2079')
+menu HTML.Character\ Entities.Math.Super/Subscript.-sep1- <Nop>
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 0', '0v', '\u2080')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 1', '1v', '\u2081')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 2', '2v', '\u2082')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 3', '3v', '\u2083')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 4', '4v', '\u2084')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 5', '5v', '\u2085')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 6', '6v', '\u2086')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 7', '7v', '\u2087')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 8', '8v', '\u2088')
+HTML#EntityMenu('HTML.Character Entities.Math.Super/Subscript.Subscript 9', '9v', '\u2089')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.One Quarter', '14', '\xBC')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.One Half', '12', '\xBD')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.Three Quarters', '34', '\xBE')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.One Third', '13', '\u2153')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.Two Thirds', '23', '\u2154')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.One Fifth', '15', '\u2155')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.Two Fifths', '25', '\u2156')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.Three Fifths', '35', '\u2157')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.Four Fiftsh', '45', '\u2158')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.One Sixth', '16', '\u2159')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.Five Sixths', '56', '\u215A')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.One Eigth', '18', '\u215B')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.Three Eigths', '38', '\u215C')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.Five Eigths', '58', '\u215D')
+HTML#EntityMenu('HTML.Character Entities.Math.Fractions.Seven Eigths', '78', '\u215E')
+HTML#EntityMenu('HTML.Character Entities.&Graves.A-grave', 'A`', '\xC0')
+HTML#EntityMenu('HTML.Character Entities.&Graves.a-grave', 'a`', '\xE0')
+HTML#EntityMenu('HTML.Character Entities.&Graves.E-grave', 'E`', '\xC8')
+HTML#EntityMenu('HTML.Character Entities.&Graves.e-grave', 'e`', '\xE8')
+HTML#EntityMenu('HTML.Character Entities.&Graves.I-grave', 'I`', '\xCC')
+HTML#EntityMenu('HTML.Character Entities.&Graves.i-grave', 'i`', '\xEC')
+HTML#EntityMenu('HTML.Character Entities.&Graves.O-grave', 'O`', '\xD2')
+HTML#EntityMenu('HTML.Character Entities.&Graves.o-grave', 'o`', '\xF2')
+HTML#EntityMenu('HTML.Character Entities.&Graves.U-grave', 'U`', '\xD9')
+HTML#EntityMenu('HTML.Character Entities.&Graves.u-grave', 'u`', '\xF9')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.A-acute', "A'", '\xC1')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.a-acute', "a'", '\xE1')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.E-acute', "E'", '\xC9')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.e-acute', "e'", '\xE9')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.I-acute', "I'", '\xCD')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.i-acute', "i'", '\xED')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.O-acute', "O'", '\xD3')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.o-acute', "o'", '\xF3')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.U-acute', "U'", '\xDA')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.u-acute', "u'", '\xFA')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.Y-acute', "Y'", '\xDD')
+HTML#EntityMenu('HTML.Character Entities.&Acutes.y-acute', "y'", '\xFD')
+HTML#EntityMenu('HTML.Character Entities.&Tildes.A-tilde', 'A~', '\xC3')
+HTML#EntityMenu('HTML.Character Entities.&Tildes.a-tilde', 'a~', '\xE3')
+HTML#EntityMenu('HTML.Character Entities.&Tildes.N-tilde', 'N~', '\xD1')
+HTML#EntityMenu('HTML.Character Entities.&Tildes.n-tilde', 'n~', '\xF1')
+HTML#EntityMenu('HTML.Character Entities.&Tildes.O-tilde', 'O~', '\xD5')
+HTML#EntityMenu('HTML.Character Entities.&Tildes.o-tilde', 'o~', '\xF5')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.A-circumflex', 'A^', '\xC2')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.a-circumflex', 'a^', '\xE2')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.E-circumflex', 'E^', '\xCA')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.e-circumflex', 'e^', '\xEA')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.I-circumflex', 'I^', '\xCE')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.i-circumflex', 'i^', '\xEE')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.O-circumflex', 'O^', '\xD4')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.o-circumflex', 'o^', '\xF4')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.U-circumflex', 'U^', '\xDB')
+HTML#EntityMenu('HTML.Character Entities.&Circumflexes.u-circumflex', 'u^', '\xFB')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.A-umlaut', 'A"', '\xC4')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.a-umlaut', 'a"', '\xE4')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.E-umlaut', 'E"', '\xCB')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.e-umlaut', 'e"', '\xEB')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.I-umlaut', 'I"', '\xCF')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.i-umlaut', 'i"', '\xEF')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.O-umlaut', 'O"', '\xD6')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.o-umlaut', 'o"', '\xF6')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.U-umlaut', 'U"', '\xDC')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.u-umlaut', 'u"', '\xFC')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.y-umlaut', 'y"', '\xFF')
+HTML#EntityMenu('HTML.Character Entities.&Umlauts.Umlaut', '"', '\xA8')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Alpha', 'Al', '\u391')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Beta', 'Be', '\u392')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Gamma', 'Ga', '\u393')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Delta', 'De', '\u394')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Epsilon', 'Ep', '\u395')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Zeta', 'Ze', '\u396')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Eta', 'Et', '\u397')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Theta', 'Th', '\u398')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Iota', 'Io', '\u399')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Kappa', 'Ka', '\u39A')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Lambda', 'Lm', '\u39B')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Mu', 'Mu', '\u39C')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Nu', 'Nu', '\u39D')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Xi', 'Xi', '\u39E')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Omicron', 'Oc', '\u39F')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Pi', 'Pi', '\u3A0')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Rho', 'Rh', '\u3A1')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Sigma', 'Si', '\u3A3')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Tau', 'Ta', '\u3A4')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Upsilon', 'Up', '\u3A5')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Phi', 'Ph', '\u3A6')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Chi', 'Ch', '\u3A7')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Uppercase.Psi', 'Ps', '\u3A8')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.alpha', 'al', '\u3B1')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.beta', 'be', '\u3B2')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.gamma', 'ga', '\u3B3')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.delta', 'de', '\u3B4')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.epsilon', 'ep', '\u3B5')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.zeta', 'ze', '\u3B6')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.eta', 'et', '\u3B7')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.theta', 'th', '\u3B8')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.iota', 'io', '\u3B9')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.kappa', 'ka', '\u3BA')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.lambda', 'lm', '\u3BB')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.mu', 'mu', '\u3BC')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.nu', 'nu', '\u3BD')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.xi', 'xi', '\u3BE')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.omicron', 'oc', '\u3BF')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.pi', 'pi', '\u3C0')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.rho', 'rh', '\u3C1')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.sigma', 'si', '\u3C3')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.sigmaf', 'sf', '\u3C2')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.tau', 'ta', '\u3C4')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.upsilon', 'up', '\u3C5')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.phi', 'ph', '\u3C6')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.chi', 'ch', '\u3C7')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.psi', 'ps', '\u3C8')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.omega', 'og', '\u3C9')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.thetasym', 'ts', '\u3D1')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.upsih', 'uh', '\u3D2')
+HTML#EntityMenu('HTML.Character Entities.Greek &Letters.&Lowercase.piv', 'pv', '\u3D6')
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Left single arrow', 'la', '\u2190')
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Right single arrow', 'ra', '\u2192')
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Up single arrow', 'ua', '\u2191')
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Down single arrow', 'da', '\u2193')
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Left-right single arrow', 'ha', '\u2194')
+menu HTML.Character\ Entities.Arrows.-sep1- <Nop>
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Left double arrow', 'lA', '\u21D0')
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Right double arrow', 'rA', '\u21D2')
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Up double arrow', 'uA', '\u21D1')
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Down double arrow', 'dA', '\u21D3')
+HTML#EntityMenu('HTML.Character Entities.A&rrows.Left-right double arrow', 'hA', '\u21D4')
+HTML#EntityMenu('HTML.Character Entities.&Quotes.Quotation mark', "'", 'x22')
+HTML#EntityMenu('HTML.Character Entities.&Quotes.Left Single Quote', "l'", '\u2018')
+HTML#EntityMenu('HTML.Character Entities.&Quotes.Right Single Quote', "r'", '\u2019')
+HTML#EntityMenu('HTML.Character Entities.&Quotes.Left Double Quote', 'l"', '\u201C')
+HTML#EntityMenu('HTML.Character Entities.&Quotes.Right Double Quote', 'r"', '\u201D')
+HTML#EntityMenu('HTML.Character Entities.&Quotes.Left Angle Quote', '2<', '\xAB')
+HTML#EntityMenu('HTML.Character Entities.&Quotes.Right Angle Quote', '2>', '\xBB')
+HTML#EntityMenu('HTML.Character Entities.       &etc\.\.\..A-ring', 'Ao', '\xC5')
+HTML#EntityMenu('HTML.Character Entities.       &etc\.\.\..a-ring', 'ao', '\xE5')
+HTML#EntityMenu('HTML.Character Entities.       &etc\.\.\..AE-ligature', 'AE', '\xC6')
+HTML#EntityMenu('HTML.Character Entities.       &etc\.\.\..ae-ligature', 'ae', '\xE6')
+HTML#EntityMenu('HTML.Character Entities.       &etc\.\.\..C-cedilla', 'C,', '\xC7')
+HTML#EntityMenu('HTML.Character Entities.       &etc\.\.\..c-cedilla', 'c,', '\xE7')
+HTML#EntityMenu('HTML.Character Entities.       &etc\.\.\..O-slash', 'O/', '\xD8')
+HTML#EntityMenu('HTML.Character Entities.       &etc\.\.\..o-slash', 'o/', '\xF8')
 
 # Colors menu:   {{{2
 
-HTMLmenu amenu - HTML.&Colors.Display\ All\ &&\ Select 3
+HTML#LeadMenu('amenu', '-', 'HTML.&Colors.Display All && Select', '3')
 amenu HTML.Colors.-sep1- <Nop>
 
-HTMLcmenu AliceBlue            #F0F8FF
-HTMLcmenu AntiqueWhite         #FAEBD7
-HTMLcmenu Aqua                 #00FFFF
-HTMLcmenu Aquamarine           #7FFFD4
-HTMLcmenu Azure                #F0FFFF
+HTML#ColorsMenu('Alice Blue', '#F0F8FF')
+HTML#ColorsMenu('Antique White', '#FAEBD7')
+HTML#ColorsMenu('Aqua', '#00FFFF')
+HTML#ColorsMenu('Aquamarine', '#7FFFD4')
+HTML#ColorsMenu('Azure', '#F0FFFF')
 
-HTMLcmenu Beige                #F5F5DC
-HTMLcmenu Bisque               #FFE4C4
-HTMLcmenu Black                #000000
-HTMLcmenu BlanchedAlmond       #FFEBCD
-HTMLcmenu Blue                 #0000FF
-HTMLcmenu BlueViolet           #8A2BE2
-HTMLcmenu Brown                #A52A2A
-HTMLcmenu Burlywood            #DEB887
+HTML#ColorsMenu('Beige', '#F5F5DC')
+HTML#ColorsMenu('Bisque', '#FFE4C4')
+HTML#ColorsMenu('Black', '#000000')
+HTML#ColorsMenu('Blanched Almond', '#FFEBCD')
+HTML#ColorsMenu('Blue', '#0000FF')
+HTML#ColorsMenu('Blue Violet', '#8A2BE2')
+HTML#ColorsMenu('Brown', '#A52A2A')
+HTML#ColorsMenu('Burlywood', '#DEB887')
 
-HTMLcmenu CadetBlue            #5F9EA0
-HTMLcmenu Chartreuse           #7FFF00
-HTMLcmenu Chocolate            #D2691E
-HTMLcmenu Coral                #FF7F50
-HTMLcmenu CornflowerBlue       #6495ED
-HTMLcmenu Cornsilk             #FFF8DC
-HTMLcmenu Crimson              #DC143C
-HTMLcmenu Cyan                 #00FFFF
+HTML#ColorsMenu('Cadet Blue', '#5F9EA0')
+HTML#ColorsMenu('Chartreuse', '#7FFF00')
+HTML#ColorsMenu('Chocolate', '#D2691E')
+HTML#ColorsMenu('Coral', '#FF7F50')
+HTML#ColorsMenu('Cornflower Blue', '#6495ED')
+HTML#ColorsMenu('Cornsilk', '#FFF8DC')
+HTML#ColorsMenu('Crimson', '#DC143C')
+HTML#ColorsMenu('Cyan', '#00FFFF')
 
-HTMLcmenu DarkBlue             #00008B
-HTMLcmenu DarkCyan             #008B8B
-HTMLcmenu DarkGoldenrod        #B8860B
-HTMLcmenu DarkGray             #A9A9A9
-HTMLcmenu DarkGreen            #006400
-HTMLcmenu DarkKhaki            #BDB76B
-HTMLcmenu DarkMagenta          #8B008B
-HTMLcmenu DarkOliveGreen       #556B2F
-HTMLcmenu DarkOrange           #FF8C00
-HTMLcmenu DarkOrchid           #9932CC
-HTMLcmenu DarkRed              #8B0000
-HTMLcmenu DarkSalmon           #E9967A
-HTMLcmenu DarkSeagreen         #8FBC8F
-HTMLcmenu DarkSlateBlue        #483D8B
-HTMLcmenu DarkSlateGray        #2F4F4F
-HTMLcmenu DarkTurquoise        #00CED1
-HTMLcmenu DarkViolet           #9400D3
-HTMLcmenu DeepPink             #FF1493
-HTMLcmenu DeepSkyblue          #00BFFF
-HTMLcmenu DimGray              #696969
-HTMLcmenu DodgerBlue           #1E90FF
+HTML#ColorsMenu('Dark Blue', '#00008B')
+HTML#ColorsMenu('Dark Cyan', '#008B8B')
+HTML#ColorsMenu('Dark Goldenrod', '#B8860B')
+HTML#ColorsMenu('Dark Gray', '#A9A9A9')
+HTML#ColorsMenu('Dark Green', '#006400')
+HTML#ColorsMenu('Dark Khaki', '#BDB76B')
+HTML#ColorsMenu('Dark Magenta', '#8B008B')
+HTML#ColorsMenu('Dark Olive Green', '#556B2F')
+HTML#ColorsMenu('Dark Orange', '#FF8C00')
+HTML#ColorsMenu('Dark Orchid', '#9932CC')
+HTML#ColorsMenu('Dark Red', '#8B0000')
+HTML#ColorsMenu('Dark Salmon', '#E9967A')
+HTML#ColorsMenu('Dark Seagreen', '#8FBC8F')
+HTML#ColorsMenu('Dark Slate Blue', '#483D8B')
+HTML#ColorsMenu('Dark Slate Gray', '#2F4F4F')
+HTML#ColorsMenu('Dark Turquoise', '#00CED1')
+HTML#ColorsMenu('Dark Violet', '#9400D3')
+HTML#ColorsMenu('Deep Pink', '#FF1493')
+HTML#ColorsMenu('Deep Skyblue', '#00BFFF')
+HTML#ColorsMenu('Dim Gray', '#696969')
+HTML#ColorsMenu('Dodger Blue', '#1E90FF')
 
-HTMLcmenu Firebrick            #B22222
-HTMLcmenu FloralWhite          #FFFAF0
-HTMLcmenu ForestGreen          #228B22
-HTMLcmenu Fuchsia              #FF00FF
-HTMLcmenu Gainsboro            #DCDCDC
-HTMLcmenu GhostWhite           #F8F8FF
-HTMLcmenu Gold                 #FFD700
-HTMLcmenu Goldenrod            #DAA520
-HTMLcmenu Gray                 #808080
-HTMLcmenu Green                #008000
-HTMLcmenu GreenYellow          #ADFF2F
+HTML#ColorsMenu('Firebrick', '#B22222')
+HTML#ColorsMenu('Floral White', '#FFFAF0')
+HTML#ColorsMenu('Forest Green', '#228B22')
+HTML#ColorsMenu('Fuchsia', '#FF00FF')
+HTML#ColorsMenu('Gainsboro', '#DCDCDC')
+HTML#ColorsMenu('Ghost White', '#F8F8FF')
+HTML#ColorsMenu('Gold', '#FFD700')
+HTML#ColorsMenu('Goldenrod', '#DAA520')
+HTML#ColorsMenu('Gray', '#808080')
+HTML#ColorsMenu('Green', '#008000')
+HTML#ColorsMenu('Green Yellow', '#ADFF2F')
 
-HTMLcmenu Honeydew             #F0FFF0
-HTMLcmenu HotPink              #FF69B4
-HTMLcmenu IndianRed            #CD5C5C
-HTMLcmenu Indigo               #4B0082
-HTMLcmenu Ivory                #FFFFF0
-HTMLcmenu Khaki                #F0E68C
+HTML#ColorsMenu('Honeydew', '#F0FFF0')
+HTML#ColorsMenu('Hot Pink', '#FF69B4')
+HTML#ColorsMenu('Indian Red', '#CD5C5C')
+HTML#ColorsMenu('Indigo', '#4B0082')
+HTML#ColorsMenu('Ivory', '#FFFFF0')
+HTML#ColorsMenu('Khaki', '#F0E68C')
 
-HTMLcmenu Lavender             #E6E6FA
-HTMLcmenu LavenderBlush        #FFF0F5
-HTMLcmenu LawnGreen            #7CFC00
-HTMLcmenu LemonChiffon         #FFFACD
-HTMLcmenu LightBlue            #ADD8E6
-HTMLcmenu LightCoral           #F08080
-HTMLcmenu LightCyan            #E0FFFF
-HTMLcmenu LightGoldenrodYellow #FAFAD2
-HTMLcmenu LightGreen           #90EE90
-HTMLcmenu LightGrey            #D3D3D3
-HTMLcmenu LightPink            #FFB6C1
-HTMLcmenu LightSalmon          #FFA07A
-HTMLcmenu LightSeaGreen        #20B2AA
-HTMLcmenu LightSkyBlue         #87CEFA
-HTMLcmenu LightSlateGray       #778899
-HTMLcmenu LightSteelBlue       #B0C4DE
-HTMLcmenu LightYellow          #FFFFE0
-HTMLcmenu Lime                 #00FF00
-HTMLcmenu LimeGreen            #32CD32
-HTMLcmenu Linen                #FAF0E6
+HTML#ColorsMenu('Lavender', '#E6E6FA')
+HTML#ColorsMenu('Lavender Blush', '#FFF0F5')
+HTML#ColorsMenu('Lawn Green', '#7CFC00')
+HTML#ColorsMenu('Lemon Chiffon', '#FFFACD')
+HTML#ColorsMenu('Light Blue', '#ADD8E6')
+HTML#ColorsMenu('Light Coral', '#F08080')
+HTML#ColorsMenu('Light Cyan', '#E0FFFF')
+HTML#ColorsMenu('Light Goldenrod Yellow', '#FAFAD2')
+HTML#ColorsMenu('Light Green', '#90EE90')
+HTML#ColorsMenu('Light Grey', '#D3D3D3')
+HTML#ColorsMenu('Light Pink', '#FFB6C1')
+HTML#ColorsMenu('Light Salmon', '#FFA07A')
+HTML#ColorsMenu('Light Sea Green', '#20B2AA')
+HTML#ColorsMenu('Light Sky Blue', '#87CEFA')
+HTML#ColorsMenu('Light Slate Gray', '#778899')
+HTML#ColorsMenu('Light Steel Blue', '#B0C4DE')
+HTML#ColorsMenu('Light Yellow', '#FFFFE0')
+HTML#ColorsMenu('Lime', '#00FF00')
+HTML#ColorsMenu('Lime Green', '#32CD32')
+HTML#ColorsMenu('Linen', '#FAF0E6')
 
-HTMLcmenu Magenta              #FF00FF
-HTMLcmenu Maroon               #800000
-HTMLcmenu MediumAquamarine     #66CDAA
-HTMLcmenu MediumBlue           #0000CD
-HTMLcmenu MediumOrchid         #BA55D3
-HTMLcmenu MediumPurple         #9370DB
-HTMLcmenu MediumSeaGreen       #3CB371
-HTMLcmenu MediumSlateBlue      #7B68EE
-HTMLcmenu MediumSpringGreen    #00FA9A
-HTMLcmenu MediumTurquoise      #48D1CC
-HTMLcmenu MediumVioletRed      #C71585
-HTMLcmenu MidnightBlue         #191970
-HTMLcmenu Mintcream            #F5FFFA
-HTMLcmenu Mistyrose            #FFE4E1
-HTMLcmenu Moccasin             #FFE4B5
+HTML#ColorsMenu('Magenta', '#FF00FF')
+HTML#ColorsMenu('Maroon', '#800000')
+HTML#ColorsMenu('Medium Aquamarine', '#66CDAA')
+HTML#ColorsMenu('Medium Blue', '#0000CD')
+HTML#ColorsMenu('Medium Orchid', '#BA55D3')
+HTML#ColorsMenu('Medium Purple', '#9370DB')
+HTML#ColorsMenu('Medium Sea Green', '#3CB371')
+HTML#ColorsMenu('Medium Slate Blue', '#7B68EE')
+HTML#ColorsMenu('Medium Spring Green', '#00FA9A')
+HTML#ColorsMenu('Medium Turquoise', '#48D1CC')
+HTML#ColorsMenu('Medium Violet Red', '#C71585')
+HTML#ColorsMenu('Midnight Blue', '#191970')
+HTML#ColorsMenu('Mintcream', '#F5FFFA')
+HTML#ColorsMenu('Mistyrose', '#FFE4E1')
+HTML#ColorsMenu('Moccasin', '#FFE4B5')
 
-HTMLcmenu NavajoWhite          #FFDEAD
-HTMLcmenu Navy                 #000080
-HTMLcmenu OldLace              #FDF5E6
-HTMLcmenu Olive                #808000
-HTMLcmenu OliveDrab            #6B8E23
-HTMLcmenu Orange               #FFA500
-HTMLcmenu OrangeRed            #FF4500
-HTMLcmenu Orchid               #DA70D6
+HTML#ColorsMenu('Navajo White', '#FFDEAD')
+HTML#ColorsMenu('Navy', '#000080')
+HTML#ColorsMenu('Old Lace', '#FDF5E6')
+HTML#ColorsMenu('Olive', '#808000')
+HTML#ColorsMenu('Olive Drab', '#6B8E23')
+HTML#ColorsMenu('Orange', '#FFA500')
+HTML#ColorsMenu('Orange Red', '#FF4500')
+HTML#ColorsMenu('Orchid', '#DA70D6')
 
-HTMLcmenu PaleGoldenrod        #EEE8AA
-HTMLcmenu PaleGreen            #98FB98
-HTMLcmenu PaleTurquoise        #AFEEEE
-HTMLcmenu PaleVioletred        #DB7093
-HTMLcmenu Papayawhip           #FFEFD5
-HTMLcmenu Peachpuff            #FFDAB9
-HTMLcmenu Peru                 #CD853F
-HTMLcmenu Pink                 #FFC0CB
-HTMLcmenu Plum                 #DDA0DD
-HTMLcmenu PowderBlue           #B0E0E6
-HTMLcmenu Purple               #800080
+HTML#ColorsMenu('Pale Goldenrod', '#EEE8AA')
+HTML#ColorsMenu('Pale Green', '#98FB98')
+HTML#ColorsMenu('Pale Turquoise', '#AFEEEE')
+HTML#ColorsMenu('Pale Violetred', '#DB7093')
+HTML#ColorsMenu('Papayawhip', '#FFEFD5')
+HTML#ColorsMenu('Peachpuff', '#FFDAB9')
+HTML#ColorsMenu('Peru', '#CD853F')
+HTML#ColorsMenu('Pink', '#FFC0CB')
+HTML#ColorsMenu('Plum', '#DDA0DD')
+HTML#ColorsMenu('Powder Blue', '#B0E0E6')
+HTML#ColorsMenu('Purple', '#800080')
 
-HTMLcmenu Red                  #FF0000
-HTMLcmenu RosyBrown            #BC8F8F
-HTMLcmenu RoyalBlue            #4169E1
+HTML#ColorsMenu('Red', '#FF0000')
+HTML#ColorsMenu('Rosy Brown', '#BC8F8F')
+HTML#ColorsMenu('Royal Blue', '#4169E1')
 
-HTMLcmenu SaddleBrown          #8B4513
-HTMLcmenu Salmon               #FA8072
-HTMLcmenu SandyBrown           #F4A460
-HTMLcmenu SeaGreen             #2E8B57
-HTMLcmenu Seashell             #FFF5EE
-HTMLcmenu Sienna               #A0522D
-HTMLcmenu Silver               #C0C0C0
-HTMLcmenu SkyBlue              #87CEEB
-HTMLcmenu SlateBlue            #6A5ACD
-HTMLcmenu SlateGray            #708090
-HTMLcmenu Snow                 #FFFAFA
-HTMLcmenu SpringGreen          #00FF7F
-HTMLcmenu SteelBlue            #4682B4
+HTML#ColorsMenu('Saddle Brown', '#8B4513')
+HTML#ColorsMenu('Salmon', '#FA8072')
+HTML#ColorsMenu('Sandy Brown', '#F4A460')
+HTML#ColorsMenu('Sea Green', '#2E8B57')
+HTML#ColorsMenu('Seashell', '#FFF5EE')
+HTML#ColorsMenu('Sienna', '#A0522D')
+HTML#ColorsMenu('Silver', '#C0C0C0')
+HTML#ColorsMenu('Sky Blue', '#87CEEB')
+HTML#ColorsMenu('Slate Blue', '#6A5ACD')
+HTML#ColorsMenu('Slate Gray', '#708090')
+HTML#ColorsMenu('Snow', '#FFFAFA')
+HTML#ColorsMenu('Spring Green', '#00FF7F')
+HTML#ColorsMenu('Steel Blue', '#4682B4')
 
-HTMLcmenu Tan                  #D2B48C
-HTMLcmenu Teal                 #008080
-HTMLcmenu Thistle              #D8BFD8
-HTMLcmenu Tomato               #FF6347
-HTMLcmenu Turquoise            #40E0D0
-HTMLcmenu Violet               #EE82EE
+HTML#ColorsMenu('Tan', '#D2B48C')
+HTML#ColorsMenu('Teal', '#008080')
+HTML#ColorsMenu('Thistle', '#D8BFD8')
+HTML#ColorsMenu('Tomato', '#FF6347')
+HTML#ColorsMenu('Turquoise', '#40E0D0')
+HTML#ColorsMenu('Violet', '#EE82EE')
 
 # Font Styles menu:   {{{2
 
-HTMLmenu imenu - HTML.Font\ &Styles.Bold      bo
-HTMLmenu vmenu - HTML.Font\ &Styles.Bold      bo
-HTMLmenu nmenu - HTML.Font\ &Styles.Bold      bo i
-HTMLmenu imenu - HTML.Font\ &Styles.Strong    st
-HTMLmenu vmenu - HTML.Font\ &Styles.Strong    st
-HTMLmenu nmenu - HTML.Font\ &Styles.Strong    st i
-HTMLmenu imenu - HTML.Font\ &Styles.Italics   it
-HTMLmenu vmenu - HTML.Font\ &Styles.Italics   it
-HTMLmenu nmenu - HTML.Font\ &Styles.Italics   it i
-HTMLmenu imenu - HTML.Font\ &Styles.Emphasis  em
-HTMLmenu vmenu - HTML.Font\ &Styles.Emphasis  em
-HTMLmenu nmenu - HTML.Font\ &Styles.Emphasis  em i
-HTMLmenu imenu - HTML.Font\ &Styles.Underline un
-HTMLmenu vmenu - HTML.Font\ &Styles.Underline un
-HTMLmenu nmenu - HTML.Font\ &Styles.Underline un i
-HTMLmenu imenu - HTML.Font\ &Styles.Big       bi
-HTMLmenu vmenu - HTML.Font\ &Styles.Big       bi
-HTMLmenu nmenu - HTML.Font\ &Styles.Big       bi i
-HTMLmenu imenu - HTML.Font\ &Styles.Small     sm
-HTMLmenu vmenu - HTML.Font\ &Styles.Small     sm
-HTMLmenu nmenu - HTML.Font\ &Styles.Small     sm i
- menu HTML.Font\ Styles.-sep1- <Nop>
-HTMLmenu imenu - HTML.Font\ &Styles.Font\ Size  fo
-HTMLmenu vmenu - HTML.Font\ &Styles.Font\ Size  fo
-HTMLmenu nmenu - HTML.Font\ &Styles.Font\ Size  fo i
-HTMLmenu imenu - HTML.Font\ &Styles.Font\ Color fc
-HTMLmenu vmenu - HTML.Font\ &Styles.Font\ Color fc
-HTMLmenu nmenu - HTML.Font\ &Styles.Font\ Color fc i
- menu HTML.Font\ Styles.-sep2- <Nop>
-HTMLmenu imenu - HTML.Font\ &Styles.CITE           ci
-HTMLmenu vmenu - HTML.Font\ &Styles.CITE           ci
-HTMLmenu nmenu - HTML.Font\ &Styles.CITE           ci i
-HTMLmenu imenu - HTML.Font\ &Styles.CODE           co
-HTMLmenu vmenu - HTML.Font\ &Styles.CODE           co
-HTMLmenu nmenu - HTML.Font\ &Styles.CODE           co i
-HTMLmenu imenu - HTML.Font\ &Styles.Inserted\ Text in
-HTMLmenu vmenu - HTML.Font\ &Styles.Inserted\ Text in
-HTMLmenu nmenu - HTML.Font\ &Styles.Inserted\ Text in i
-HTMLmenu imenu - HTML.Font\ &Styles.Deleted\ Text  de
-HTMLmenu vmenu - HTML.Font\ &Styles.Deleted\ Text  de
-HTMLmenu nmenu - HTML.Font\ &Styles.Deleted\ Text  de i
-HTMLmenu imenu - HTML.Font\ &Styles.Emphasize      em
-HTMLmenu vmenu - HTML.Font\ &Styles.Emphasize      em
-HTMLmenu nmenu - HTML.Font\ &Styles.Emphasize      em i
-HTMLmenu imenu - HTML.Font\ &Styles.Keyboard\ Text kb
-HTMLmenu vmenu - HTML.Font\ &Styles.Keyboard\ Text kb
-HTMLmenu nmenu - HTML.Font\ &Styles.Keyboard\ Text kb i
-HTMLmenu imenu - HTML.Font\ &Styles.Sample\ Text   sa
-HTMLmenu vmenu - HTML.Font\ &Styles.Sample\ Text   sa
-HTMLmenu nmenu - HTML.Font\ &Styles.Sample\ Text   sa i
-# HTMLmenu imenu - HTML.Font\ &Styles.Strikethrough  sk
-# HTMLmenu vmenu - HTML.Font\ &Styles.Strikethrough  sk
-# HTMLmenu nmenu - HTML.Font\ &Styles.Strikethrough  sk i
-HTMLmenu imenu - HTML.Font\ &Styles.STRONG         st
-HTMLmenu vmenu - HTML.Font\ &Styles.STRONG         st
-HTMLmenu nmenu - HTML.Font\ &Styles.STRONG         st i
-HTMLmenu imenu - HTML.Font\ &Styles.Subscript      sb
-HTMLmenu vmenu - HTML.Font\ &Styles.Subscript      sb
-HTMLmenu nmenu - HTML.Font\ &Styles.Subscript      sb i
-HTMLmenu imenu - HTML.Font\ &Styles.Superscript    sp
-HTMLmenu vmenu - HTML.Font\ &Styles.Superscript    sp
-HTMLmenu nmenu - HTML.Font\ &Styles.Superscript    sp i
-HTMLmenu imenu - HTML.Font\ &Styles.Teletype\ Text tt
-HTMLmenu vmenu - HTML.Font\ &Styles.Teletype\ Text tt
-HTMLmenu nmenu - HTML.Font\ &Styles.Teletype\ Text tt i
-HTMLmenu imenu - HTML.Font\ &Styles.Variable       va
-HTMLmenu vmenu - HTML.Font\ &Styles.Variable       va
-HTMLmenu nmenu - HTML.Font\ &Styles.Variable       va i
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Bold', 'bo')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Bold', 'bo')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Bold', 'bo', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Strong', 'st')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Strong', 'st')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Strong', 'st', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Italics', 'it')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Italics', 'it')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Italics', 'it', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Emphasis', 'em')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Emphasis', 'em')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Emphasis', 'em', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Underline', 'un')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Underline', 'un')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Underline', 'un', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Big', 'bi')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Big', 'bi')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Big', 'bi', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Small', 'sm')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Small', 'sm')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Small', 'sm', 'i')
+menu HTML.Font\ Styles.-sep1- <Nop>
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Font Size', 'fo')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Font Size', 'fo')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Font Size', 'fo', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Font Color', 'fc')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Font Color', 'fc')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Font Color', 'fc', 'i')
+menu HTML.Font\ Styles.-sep2- <Nop>
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.CITE', 'ci')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.CITE', 'ci')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.CITE', 'ci', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.CODE', 'co')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.CODE', 'co')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.CODE', 'co', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Inserted Text', 'in')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Inserted Text', 'in')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Inserted Text', 'in', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Deleted Text', 'de')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Deleted Text', 'de')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Deleted Text', 'de', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Emphasize', 'em')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Emphasize', 'em')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Emphasize', 'em', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Keyboard Text', 'kb')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Keyboard Text', 'kb')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Keyboard Text', 'kb', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Sample Text', 'sa')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Sample Text', 'sa')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Sample Text', 'sa', 'i')
+# HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Strikethrough', 'sk')
+# HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Strikethrough', 'sk')
+# HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Strikethrough', 'sk', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.STRONG', 'st')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.STRONG', 'st')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.STRONG', 'st', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Subscript', 'sb')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Subscript', 'sb')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Subscript', 'sb', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Superscript', 'sp')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Superscript', 'sp')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Superscript', 'sp', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Teletype Text', 'tt')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Teletype Text', 'tt')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Teletype Text', 'tt', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Font &Styles.Variable', 'va')
+HTML#LeadMenu('vmenu', '-', 'HTML.Font &Styles.Variable', 'va')
+HTML#LeadMenu('nmenu', '-', 'HTML.Font &Styles.Variable', 'va', 'i')
 
 
 # Frames menu:   {{{2
 
-# HTMLmenu imenu - HTML.&Frames.FRAMESET fs
-# HTMLmenu vmenu - HTML.&Frames.FRAMESET fs
-# HTMLmenu nmenu - HTML.&Frames.FRAMESET fs i
-# HTMLmenu imenu - HTML.&Frames.FRAME    fr
-# HTMLmenu vmenu - HTML.&Frames.FRAME    fr
-# HTMLmenu nmenu - HTML.&Frames.FRAME    fr i
-# HTMLmenu imenu - HTML.&Frames.NOFRAMES nf
-# HTMLmenu vmenu - HTML.&Frames.NOFRAMES nf
-# HTMLmenu nmenu - HTML.&Frames.NOFRAMES nf i
+# HTML#LeadMenu('imenu', '-', 'HTML.&Frames.FRAMESET', 'fs')
+# HTML#LeadMenu('vmenu', '-', 'HTML.&Frames.FRAMESET', 'fs')
+# HTML#LeadMenu('nmenu', '-', 'HTML.&Frames.FRAMESET', 'fs', 'i')
+# HTML#LeadMenu('imenu', '-', 'HTML.&Frames.FRAME', 'fr')
+# HTML#LeadMenu('vmenu', '-', 'HTML.&Frames.FRAME', 'fr')
+# HTML#LeadMenu('nmenu', '-', 'HTML.&Frames.FRAME', 'fr', 'i')
+# HTML#LeadMenu('imenu', '-', 'HTML.&Frames.NOFRAMES', 'nf')
+# HTML#LeadMenu('vmenu', '-', 'HTML.&Frames.NOFRAMES', 'nf')
+# HTML#LeadMenu('nmenu', '-', 'HTML.&Frames.NOFRAMES', 'nf', 'i')
 #
 # IFRAME menu item has been moved
 
 
 # Headings menu:   {{{2
 
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 1 h1
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 2 h2
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 3 h3
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 4 h4
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 5 h5
-HTMLmenu imenu - HTML.&Headings.Heading\ Level\ 6 h6
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 1 h1
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 2 h2
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 3 h3
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 4 h4
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 5 h5
-HTMLmenu vmenu - HTML.&Headings.Heading\ Level\ 6 h6
-HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 1 h1 i
-HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 2 h2 i
-HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 3 h3 i
-HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 4 h4 i
-HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 5 h5 i
-HTMLmenu nmenu - HTML.&Headings.Heading\ Level\ 6 h6 i
-HTMLmenu imenu - HTML.&Headings.Heading\ Grouping hg
-HTMLmenu vmenu - HTML.&Headings.Heading\ Grouping hg
-HTMLmenu nmenu - HTML.&Headings.Heading\ Grouping hg i
+HTML#LeadMenu('imenu', '-', 'HTML.&Headings.Heading Level 1', 'h1')
+HTML#LeadMenu('imenu', '-', 'HTML.&Headings.Heading Level 2', 'h2')
+HTML#LeadMenu('imenu', '-', 'HTML.&Headings.Heading Level 3', 'h3')
+HTML#LeadMenu('imenu', '-', 'HTML.&Headings.Heading Level 4', 'h4')
+HTML#LeadMenu('imenu', '-', 'HTML.&Headings.Heading Level 5', 'h5')
+HTML#LeadMenu('imenu', '-', 'HTML.&Headings.Heading Level 6', 'h6')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Headings.Heading Level 1', 'h1')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Headings.Heading Level 2', 'h2')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Headings.Heading Level 3', 'h3')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Headings.Heading Level 4', 'h4')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Headings.Heading Level 5', 'h5')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Headings.Heading Level 6', 'h6')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Headings.Heading Level 1', 'h1', 'i')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Headings.Heading Level 2', 'h2', 'i')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Headings.Heading Level 3', 'h3', 'i')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Headings.Heading Level 4', 'h4', 'i')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Headings.Heading Level 5', 'h5', 'i')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Headings.Heading Level 6', 'h6', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Headings.Heading Grouping', 'hg')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Headings.Heading Grouping', 'hg')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Headings.Heading Grouping', 'hg', 'i')
 
 
 # Lists menu:   {{{2
 
-HTMLmenu imenu - HTML.&Lists.Ordered\ List    ol
-HTMLmenu vmenu - HTML.&Lists.Ordered\ List    ol
-HTMLmenu nmenu - HTML.&Lists.Ordered\ List    ol i
-HTMLmenu imenu - HTML.&Lists.Unordered\ List  ul
-HTMLmenu vmenu - HTML.&Lists.Unordered\ List  ul
-HTMLmenu nmenu - HTML.&Lists.Unordered\ List  ul i
-HTMLmenu imenu - HTML.&Lists.List\ Item       li
-HTMLmenu vmenu - HTML.&Lists.List\ Item       li
-HTMLmenu nmenu - HTML.&Lists.List\ Item       li i
- menu HTML.Lists.-sep1- <Nop>
-HTMLmenu imenu - HTML.&Lists.Definition\ List dl
-HTMLmenu vmenu - HTML.&Lists.Definition\ List dl
-HTMLmenu nmenu - HTML.&Lists.Definition\ List dl i
-HTMLmenu imenu - HTML.&Lists.Definition\ Term dt
-HTMLmenu vmenu - HTML.&Lists.Definition\ Term dt
-HTMLmenu nmenu - HTML.&Lists.Definition\ Term dt i
-HTMLmenu imenu - HTML.&Lists.Definition\ Body dd
-HTMLmenu vmenu - HTML.&Lists.Definition\ Body dd
-HTMLmenu nmenu - HTML.&Lists.Definition\ Body dd i
+HTML#LeadMenu('imenu', '-', 'HTML.&Lists.Ordered List', 'ol')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Lists.Ordered List', 'ol')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Lists.Ordered List', 'ol', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Lists.Unordered List', 'ul')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Lists.Unordered List', 'ul')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Lists.Unordered List', 'ul', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Lists.List Item', 'li')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Lists.List Item', 'li')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Lists.List Item', 'li', 'i')
+menu HTML.Lists.-sep1- <Nop>
+HTML#LeadMenu('imenu', '-', 'HTML.&Lists.Definition List', 'dl')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Lists.Definition List', 'dl')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Lists.Definition List', 'dl', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Lists.Definition Term', 'dt')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Lists.Definition Term', 'dt')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Lists.Definition Term', 'dt', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Lists.Definition Body', 'dd')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Lists.Definition Body', 'dd')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Lists.Definition Body', 'dd', 'i')
 
 
 # Tables menu:   {{{2
 
-HTMLmenu nmenu - HTML.&Tables.Interactive\ Table      tA
-HTMLmenu imenu - HTML.&Tables.TABLE                   ta
-HTMLmenu vmenu - HTML.&Tables.TABLE                   ta
-HTMLmenu nmenu - HTML.&Tables.TABLE                   ta i
-HTMLmenu imenu - HTML.&Tables.Header\ Row             tH
-HTMLmenu vmenu - HTML.&Tables.Header\ Row             tH
-HTMLmenu nmenu - HTML.&Tables.Header\ Row             tH i
-HTMLmenu imenu - HTML.&Tables.Row                     tr
-HTMLmenu vmenu - HTML.&Tables.Row                     tr
-HTMLmenu nmenu - HTML.&Tables.Row                     tr i
-HTMLmenu imenu - HTML.&Tables.Footer\ Row             tf
-HTMLmenu vmenu - HTML.&Tables.Footer\ Row             tf
-HTMLmenu nmenu - HTML.&Tables.Footer\ Row             tf i
-HTMLmenu imenu - HTML.&Tables.Column\ Header          th
-HTMLmenu vmenu - HTML.&Tables.Column\ Header          th
-HTMLmenu nmenu - HTML.&Tables.Column\ Header          th i
-HTMLmenu imenu - HTML.&Tables.Data\ (Column\ Element) td
-HTMLmenu vmenu - HTML.&Tables.Data\ (Column\ Element) td
-HTMLmenu nmenu - HTML.&Tables.Data\ (Column\ Element) td i
-HTMLmenu imenu - HTML.&Tables.CAPTION                 ca
-HTMLmenu vmenu - HTML.&Tables.CAPTION                 ca
-HTMLmenu nmenu - HTML.&Tables.CAPTION                 ca i
+HTML#LeadMenu('nmenu', '-', 'HTML.&Tables.Interactive Table', 'tA')
+HTML#LeadMenu('imenu', '-', 'HTML.&Tables.TABLE', 'ta')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Tables.TABLE', 'ta')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Tables.TABLE', 'ta', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Tables.Header Row', 'tH')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Tables.Header Row', 'tH')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Tables.Header Row', 'tH', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Tables.Row', 'tr')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Tables.Row', 'tr')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Tables.Row', 'tr', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Tables.Footer Row', 'tf')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Tables.Footer Row', 'tf')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Tables.Footer Row', 'tf i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Tables.Column Header', 'th')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Tables.Column Header', 'th')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Tables.Column Header', 'th', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Tables.Data (Column Element)', 'td')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Tables.Data (Column Element)', 'td')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Tables.Data (Column Element)', 'td', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&Tables.CAPTION', 'ca')
+HTML#LeadMenu('vmenu', '-', 'HTML.&Tables.CAPTION', 'ca')
+HTML#LeadMenu('nmenu', '-', 'HTML.&Tables.CAPTION', 'ca', 'i')
 
 
 # Forms menu:   {{{2
 
-HTMLmenu imenu - HTML.F&orms.FORM             fm
-HTMLmenu vmenu - HTML.F&orms.FORM             fm
-HTMLmenu nmenu - HTML.F&orms.FORM             fm i
-HTMLmenu imenu - HTML.F&orms.FIELDSET         fd
-HTMLmenu vmenu - HTML.F&orms.FIELDSET         fd
-HTMLmenu nmenu - HTML.F&orms.FIELDSET         fd i
-HTMLmenu imenu - HTML.F&orms.BUTTON           bu
-HTMLmenu vmenu - HTML.F&orms.BUTTON           bu
-HTMLmenu nmenu - HTML.F&orms.BUTTON           bu i
-HTMLmenu imenu - HTML.F&orms.CHECKBOX         ch
-HTMLmenu vmenu - HTML.F&orms.CHECKBOX         ch
-HTMLmenu nmenu - HTML.F&orms.CHECKBOX         ch i
-HTMLmenu imenu - HTML.F&orms.DATALIST         da
-HTMLmenu vmenu - HTML.F&orms.DATALIST         da
-HTMLmenu nmenu - HTML.F&orms.DATALIST         da i
-HTMLmenu imenu - HTML.F&orms.DATE             cl
-HTMLmenu vmenu - HTML.F&orms.DATE             cl
-HTMLmenu nmenu - HTML.F&orms.DATE             cl i
-HTMLmenu imenu - HTML.F&orms.RADIO            ra
-HTMLmenu vmenu - HTML.F&orms.RADIO            ra
-HTMLmenu nmenu - HTML.F&orms.RADIO            ra i
-HTMLmenu imenu - HTML.F&orms.RANGE            rn
-HTMLmenu vmenu - HTML.F&orms.RANGE            rn
-HTMLmenu nmenu - HTML.F&orms.RANGE            rn i
-HTMLmenu imenu - HTML.F&orms.HIDDEN           hi
-HTMLmenu vmenu - HTML.F&orms.HIDDEN           hi
-HTMLmenu nmenu - HTML.F&orms.HIDDEN           hi i
-HTMLmenu imenu - HTML.F&orms.EMAIL            @
-HTMLmenu vmenu - HTML.F&orms.EMAIL            @
-HTMLmenu nmenu - HTML.F&orms.EMAIL            @ i
-HTMLmenu imenu - HTML.F&orms.NUMBER           nu
-HTMLmenu vmenu - HTML.F&orms.NUMBER           nu
-HTMLmenu nmenu - HTML.F&orms.NUMBER           nu i
-HTMLmenu imenu - HTML.F&orms.OPTION           op
-HTMLmenu vmenu - HTML.F&orms.OPTION           op
-HTMLmenu nmenu - HTML.F&orms.OPTION           op i
-HTMLmenu imenu - HTML.F&orms.OPTGROUP         og
-HTMLmenu vmenu - HTML.F&orms.OPTGROUP         og
-HTMLmenu nmenu - HTML.F&orms.OPTGROUP         og i
-HTMLmenu imenu - HTML.F&orms.PASSWORD         pa
-HTMLmenu vmenu - HTML.F&orms.PASSWORD         pa
-HTMLmenu nmenu - HTML.F&orms.PASSWORD         pa i
-HTMLmenu imenu - HTML.F&orms.TIME             nt
-HTMLmenu vmenu - HTML.F&orms.TIME             nt
-HTMLmenu nmenu - HTML.F&orms.TIME             nt i
-HTMLmenu imenu - HTML.F&orms.TEL              #
-HTMLmenu vmenu - HTML.F&orms.TEL              #
-HTMLmenu nmenu - HTML.F&orms.TEL              # i
-HTMLmenu imenu - HTML.F&orms.TEXT             te
-HTMLmenu vmenu - HTML.F&orms.TEXT             te
-HTMLmenu nmenu - HTML.F&orms.TEXT             te i
-HTMLmenu imenu - HTML.F&orms.FILE             fi
-HTMLmenu vmenu - HTML.F&orms.FILE             fi
-HTMLmenu nmenu - HTML.F&orms.FILE             fi i
-HTMLmenu imenu - HTML.F&orms.SELECT           se
-HTMLmenu vmenu - HTML.F&orms.SELECT           se
-HTMLmenu nmenu - HTML.F&orms.SELECT           se i
-HTMLmenu imenu - HTML.F&orms.SELECT\ MULTIPLE ms
-HTMLmenu vmenu - HTML.F&orms.SELECT\ MULTIPLE ms
-HTMLmenu nmenu - HTML.F&orms.SELECT\ MULTIPLE ms i
-HTMLmenu imenu - HTML.F&orms.TEXTAREA         tx
-HTMLmenu vmenu - HTML.F&orms.TEXTAREA         tx
-HTMLmenu nmenu - HTML.F&orms.TEXTAREA         tx i
-HTMLmenu imenu - HTML.F&orms.URL              ur
-HTMLmenu vmenu - HTML.F&orms.URL              ur
-HTMLmenu nmenu - HTML.F&orms.URL              ur i
-HTMLmenu imenu - HTML.F&orms.SUBMIT           su
-HTMLmenu nmenu - HTML.F&orms.SUBMIT           su i
-HTMLmenu imenu - HTML.F&orms.RESET            re
-HTMLmenu nmenu - HTML.F&orms.RESET            re i
-HTMLmenu imenu - HTML.F&orms.LABEL            la
-HTMLmenu vmenu - HTML.F&orms.LABEL            la
-HTMLmenu nmenu - HTML.F&orms.LABEL            la i
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.FORM', 'fm')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.FORM', 'fm')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.FORM', 'fm', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.FIELDSET', 'fd')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.FIELDSET', 'fd')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.FIELDSET', 'fd', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.BUTTON', 'bu')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.BUTTON', 'bu')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.BUTTON', 'bu', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.CHECKBOX', 'ch')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.CHECKBOX', 'ch')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.CHECKBOX', 'ch', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.DATALIST', 'da')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.DATALIST', 'da')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.DATALIST', 'da', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.DATE', 'cl')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.DATE', 'cl')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.DATE', 'cl', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.RADIO', 'ra')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.RADIO', 'ra')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.RADIO', 'ra', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.RANGE', 'rn')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.RANGE', 'rn')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.RANGE', 'rn', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.HIDDEN', 'hi')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.HIDDEN', 'hi')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.HIDDEN', 'hi', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.EMAIL', '@')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.EMAIL', '@')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.EMAIL', '@', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.NUMBER', 'nu')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.NUMBER', 'nu')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.NUMBER', 'nu', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.OPTION', 'op')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.OPTION', 'op')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.OPTION', 'op', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.OPTGROUP', 'og')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.OPTGROUP', 'og')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.OPTGROUP', 'og', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.PASSWORD', 'pa')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.PASSWORD', 'pa')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.PASSWORD', 'pa', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.TIME', 'nt')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.TIME', 'nt')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.TIME', 'nt', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.TEL', '#')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.TEL', '#')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.TEL', '#', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.TEXT', 'te')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.TEXT', 'te')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.TEXT', 'te', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.FILE', 'fi')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.FILE', 'fi')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.FILE', 'fi', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.SELECT', 'se')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.SELECT', 'se')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.SELECT', 'se', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.SELECT MULTIPLE', 'ms')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.SELECT MULTIPLE', 'ms')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.SELECT MULTIPLE', 'ms', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.TEXTAREA', 'tx')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.TEXTAREA', 'tx')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.TEXTAREA', 'tx', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.URL', 'ur')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.URL', 'ur')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.URL', 'ur', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.SUBMIT', 'su')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.SUBMIT', 'su', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.RESET', 're')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.RESET', 're', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.F&orms.LABEL', 'la')
+HTML#LeadMenu('vmenu', '-', 'HTML.F&orms.LABEL', 'la')
+HTML#LeadMenu('nmenu', '-', 'HTML.F&orms.LABEL', 'la', 'i')
 
 
 # HTML 5 Tags Menu: {{{2
 
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&ARTICLE                ar
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&ARTICLE                ar
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&ARTICLE                ar i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.AS&IDE                  as
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.AS&IDE                  as
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.AS&IDE                  as i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.A&udio\ with\ controls  au
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.A&udio\ with\ controls  au
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.A&udio\ with\ controls  au i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&Video\ with\ controls  vi
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&Video\ with\ controls  vi
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&Video\ with\ controls  vi i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&CANVAS                 cv
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&CANVAS                 cv
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&CANVAS                 cv i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&DETAILS\ with\ SUMMARY ds
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&DETAILS\ with\ SUMMARY ds
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&DETAILS\ with\ SUMMARY ds i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&EMBED                  eb
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&EMBED                  eb
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&EMBED                  eb i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&FIGURE                 fg
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&FIGURE                 fg
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&FIGURE                 fg i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.F&igure\ Caption        fp
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.F&igure\ Caption        fp
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.F&igure\ Caption        fp i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&FOOTER                 ft
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&FOOTER                 ft
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&FOOTER                 ft i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&HEADER                 hd
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&HEADER                 hd
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&HEADER                 hd i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&MAIN                   ma
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&MAIN                   ma
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&MAIN                   ma i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.MA&RK                   mk
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.MA&RK                   mk
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.MA&RK                   mk i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.METE&R                  mt
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.METE&R                  mt
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.METE&R                  mt i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&NAV                    na
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&NAV                    na
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&NAV                    na i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&PROGRESS               pg
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&PROGRESS               pg
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&PROGRESS               pg i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&SECTION                sc
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&SECTION                sc
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&SECTION                sc i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&TIME                   tm
-HTMLmenu vmenu - HTML.HTML\ &5\ Tags.&TIME                   tm
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&TIME                   tm i
-HTMLmenu imenu - HTML.HTML\ &5\ Tags.&WBR                    wb
-HTMLmenu nmenu - HTML.HTML\ &5\ Tags.&WBR                    wb i
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&ARTICLE', 'ar')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&ARTICLE', 'ar')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&ARTICLE', 'ar', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.AS&IDE', 'as')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.AS&IDE', 'as')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.AS&IDE', 'as', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.A&udio with controls', 'au')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.A&udio with controls', 'au')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.A&udio with controls', 'au i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&Video with controls', 'vi')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&Video with controls', 'vi')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&Video with controls', 'vi', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&CANVAS', 'cv')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&CANVAS', 'cv')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&CANVAS', 'cv', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&DETAILS with SUMMARY', 'ds')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&DETAILS with SUMMARY', 'ds')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&DETAILS with SUMMARY', 'ds', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&EMBED', 'eb')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&EMBED', 'eb')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&EMBED', 'eb', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&FIGURE', 'fg')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&FIGURE', 'fg')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&FIGURE', 'fg', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.F&igure Caption', 'fp')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.F&igure Caption', 'fp')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.F&igure Caption', 'fp', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&FOOTER', 'ft')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&FOOTER', 'ft')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&FOOTER', 'ft', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&HEADER', 'hd')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&HEADER', 'hd')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&HEADER', 'hd', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&MAIN', 'ma')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&MAIN', 'ma')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&MAIN', 'ma', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.MA&RK', 'mk')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.MA&RK', 'mk')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.MA&RK', 'mk', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.METE&R', 'mt')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.METE&R', 'mt')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.METE&R', 'mt', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&NAV', 'na')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&NAV', 'na')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&NAV', 'na', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&PROGRESS', 'pg')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&PROGRESS', 'pg')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&PROGRESS', 'pg', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&SECTION', 'sc')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&SECTION', 'sc')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&SECTION', 'sc', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&TIME', 'tm')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML &5 Tags.&TIME', 'tm')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&TIME', 'tm', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML &5 Tags.&WBR', 'wb')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML &5 Tags.&WBR', 'wb', 'i')
 
 
 # SSI directives: {{{2
 
-HTMLmenu imenu - HTML.SSI\ Directi&ves.&config\ timefmt      cf
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.&config\ timefmt      cf
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.&config\ timefmt      cf i
-HTMLmenu imenu - HTML.SSI\ Directi&ves.config\ sizefmt       cz
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.config\ sizefmt       cz
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.config\ sizefmt       cz i
-HTMLmenu imenu - HTML.SSI\ Directi&ves.&echo\ var            ev
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.&echo\ var            ev
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.&echo\ var            ev i
-HTMLmenu imenu - HTML.SSI\ Directi&ves.&include\ virtual     iv
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.&include\ virtual     iv
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.&include\ virtual     iv i
-HTMLmenu imenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fv
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fv
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.&flastmod\ virtual    fv i
-HTMLmenu imenu - HTML.SSI\ Directi&ves.fsi&ze\ virtual       fz
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.fsi&ze\ virtual       fz
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.fsi&ze\ virtual       fz i
-HTMLmenu imenu - HTML.SSI\ Directi&ves.e&xec\ cmd            ec
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.e&xec\ cmd            ec
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.e&xec\ cmd            ec i
-HTMLmenu imenu - HTML.SSI\ Directi&ves.&set\ var             sv
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.&set\ var             sv
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.&set\ var             sv i
-HTMLmenu imenu - HTML.SSI\ Directi&ves.if\ e&lse             ie
-HTMLmenu vmenu - HTML.SSI\ Directi&ves.if\ e&lse             ie
-HTMLmenu nmenu - HTML.SSI\ Directi&ves.if\ e&lse             ie i
+HTML#LeadMenu('imenu', '-', 'HTML.SSI Directi&ves.&config timefmt', 'cf')
+HTML#LeadMenu('vmenu', '-', 'HTML.SSI Directi&ves.&config timefmt', 'cf')
+HTML#LeadMenu('nmenu', '-', 'HTML.SSI Directi&ves.&config timefmt', 'cf', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.SSI Directi&ves.config sizefmt', 'cz')
+HTML#LeadMenu('vmenu', '-', 'HTML.SSI Directi&ves.config sizefmt', 'cz')
+HTML#LeadMenu('nmenu', '-', 'HTML.SSI Directi&ves.config sizefmt', 'cz', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.SSI Directi&ves.&echo var', 'ev')
+HTML#LeadMenu('vmenu', '-', 'HTML.SSI Directi&ves.&echo var', 'ev')
+HTML#LeadMenu('nmenu', '-', 'HTML.SSI Directi&ves.&echo var', 'ev', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.SSI Directi&ves.&include virtual', 'iv')
+HTML#LeadMenu('vmenu', '-', 'HTML.SSI Directi&ves.&include virtual', 'iv')
+HTML#LeadMenu('nmenu', '-', 'HTML.SSI Directi&ves.&include virtual', 'iv', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.SSI Directi&ves.&flastmod virtual', 'fv')
+HTML#LeadMenu('vmenu', '-', 'HTML.SSI Directi&ves.&flastmod virtual', 'fv')
+HTML#LeadMenu('nmenu', '-', 'HTML.SSI Directi&ves.&flastmod virtual', 'fv', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.SSI Directi&ves.fsi&ze virtual', 'fz')
+HTML#LeadMenu('vmenu', '-', 'HTML.SSI Directi&ves.fsi&ze virtual', 'fz')
+HTML#LeadMenu('nmenu', '-', 'HTML.SSI Directi&ves.fsi&ze virtual', 'fz', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.SSI Directi&ves.e&xec cmd', 'ec')
+HTML#LeadMenu('vmenu', '-', 'HTML.SSI Directi&ves.e&xec cmd', 'ec')
+HTML#LeadMenu('nmenu', '-', 'HTML.SSI Directi&ves.e&xec cmd', 'ec', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.SSI Directi&ves.&set var', 'sv')
+HTML#LeadMenu('vmenu', '-', 'HTML.SSI Directi&ves.&set var', 'sv')
+HTML#LeadMenu('nmenu', '-', 'HTML.SSI Directi&ves.&set var', 'sv', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.SSI Directi&ves.if then e&lse', 'ie')
+HTML#LeadMenu('vmenu', '-', 'HTML.SSI Directi&ves.if then e&lse', 'ie')
+HTML#LeadMenu('nmenu', '-', 'HTML.SSI Directi&ves.if then e&lse', 'ie', 'i')
 
 # }}}2
 
- menu HTML.-sep6- <Nop>
+menu HTML.-sep6- <Nop>
 
-HTMLmenu nmenu - HTML.Doctype\ (4\.01\ transitional) 4
-HTMLmenu nmenu - HTML.Doctype\ (4\.01\ strict)       s4
-HTMLmenu nmenu - HTML.Doctype\ (HTML\ 5)             5
-HTMLmenu imenu - HTML.Content-Type                   ct
-HTMLmenu nmenu - HTML.Content-Type                   ct i
+HTML#LeadMenu('nmenu', '-', 'HTML.Doctype (4\.01 transitional)', '4')
+HTML#LeadMenu('nmenu', '-', 'HTML.Doctype (4\.01 strict)', 's4')
+HTML#LeadMenu('nmenu', '-', 'HTML.Doctype (HTML 5)', '5')
+HTML#LeadMenu('imenu', '-', 'HTML.Content-Type', 'ct')
+HTML#LeadMenu('nmenu', '-', 'HTML.Content-Type', 'ct', 'i')
 
- menu HTML.-sep7- <Nop>
+menu HTML.-sep7- <Nop>
 
-HTMLmenu imenu - HTML.BODY               bd
-HTMLmenu vmenu - HTML.BODY               bd
-HTMLmenu nmenu - HTML.BODY               bd i
-HTMLmenu imenu - HTML.BUTTON             bn
-HTMLmenu vmenu - HTML.BUTTON             bn
-HTMLmenu nmenu - HTML.BUTTON             bn i
-HTMLmenu imenu - HTML.CENTER             ce
-HTMLmenu vmenu - HTML.CENTER             ce
-HTMLmenu nmenu - HTML.CENTER             ce i
-HTMLmenu imenu - HTML.HEAD               he
-HTMLmenu vmenu - HTML.HEAD               he
-HTMLmenu nmenu - HTML.HEAD               he i
-HTMLmenu imenu - HTML.Horizontal\ Rule   hr
-HTMLmenu nmenu - HTML.Horizontal\ Rule   hr i
-HTMLmenu imenu - HTML.HTML               ht
-HTMLmenu vmenu - HTML.HTML               ht
-HTMLmenu nmenu - HTML.HTML               ht i
-HTMLmenu imenu - HTML.Hyperlink          ah
-HTMLmenu vmenu - HTML.Hyperlink          ah
-HTMLmenu nmenu - HTML.Hyperlink          ah i
-HTMLmenu imenu - HTML.Inline\ Image      im
-HTMLmenu vmenu - HTML.Inline\ Image      im
-HTMLmenu nmenu - HTML.Inline\ Image      im i
-HTMLmenu imenu - HTML.Update\ Image\ Size\ Attributes mi
-HTMLmenu vmenu - HTML.Update\ Image\ Size\ Attributes mi
-HTMLmenu nmenu - HTML.Update\ Image\ Size\ Attributes mi
-HTMLmenu imenu - HTML.Line\ Break        br
-HTMLmenu nmenu - HTML.Line\ Break        br i
-# HTMLmenu imenu - HTML.Named\ Anchor      an
-# HTMLmenu vmenu - HTML.Named\ Anchor      an
-# HTMLmenu nmenu - HTML.Named\ Anchor      an i
-HTMLmenu imenu - HTML.Paragraph          pp
-HTMLmenu vmenu - HTML.Paragraph          pp
-HTMLmenu nmenu - HTML.Paragraph          pp i
-HTMLmenu imenu - HTML.Preformatted\ Text pr
-HTMLmenu vmenu - HTML.Preformatted\ Text pr
-HTMLmenu nmenu - HTML.Preformatted\ Text pr i
-HTMLmenu imenu - HTML.TITLE              ti
-HTMLmenu vmenu - HTML.TITLE              ti
-HTMLmenu nmenu - HTML.TITLE              ti i
+HTML#LeadMenu('imenu', '-', 'HTML.BODY', 'bd')
+HTML#LeadMenu('vmenu', '-', 'HTML.BODY', 'bd')
+HTML#LeadMenu('nmenu', '-', 'HTML.BODY', 'bd', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.BUTTON', 'bn')
+HTML#LeadMenu('vmenu', '-', 'HTML.BUTTON', 'bn')
+HTML#LeadMenu('nmenu', '-', 'HTML.BUTTON', 'bn', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.CENTER', 'ce')
+HTML#LeadMenu('vmenu', '-', 'HTML.CENTER', 'ce')
+HTML#LeadMenu('nmenu', '-', 'HTML.CENTER', 'ce', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HEAD', 'he')
+HTML#LeadMenu('vmenu', '-', 'HTML.HEAD', 'he')
+HTML#LeadMenu('nmenu', '-', 'HTML.HEAD', 'he', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Horizontal Rule', 'hr')
+HTML#LeadMenu('nmenu', '-', 'HTML.Horizontal Rule', 'hr', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.HTML', 'ht')
+HTML#LeadMenu('vmenu', '-', 'HTML.HTML', 'ht')
+HTML#LeadMenu('nmenu', '-', 'HTML.HTML', 'ht', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Hyperlink', 'ah')
+HTML#LeadMenu('vmenu', '-', 'HTML.Hyperlink', 'ah')
+HTML#LeadMenu('nmenu', '-', 'HTML.Hyperlink', 'ah', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Inline Image', 'im')
+HTML#LeadMenu('vmenu', '-', 'HTML.Inline Image', 'im')
+HTML#LeadMenu('nmenu', '-', 'HTML.Inline Image', 'im', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Update Image Size Attributes', 'mi')
+HTML#LeadMenu('vmenu', '-', 'HTML.Update Image Size Attributes', 'mi')
+HTML#LeadMenu('nmenu', '-', 'HTML.Update Image Size Attributes', 'mi')
+HTML#LeadMenu('imenu', '-', 'HTML.Line Break', 'br')
+HTML#LeadMenu('nmenu', '-', 'HTML.Line Break', 'br', 'i')
+# HTML#LeadMenu('imenu', '-', 'HTML.Named Anchor', 'an')
+# HTML#LeadMenu('vmenu', '-', 'HTML.Named Anchor', 'an')
+# HTML#LeadMenu('nmenu', '-', 'HTML.Named Anchor', 'an', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Paragraph', 'pp')
+HTML#LeadMenu('vmenu', '-', 'HTML.Paragraph', 'pp')
+HTML#LeadMenu('nmenu', '-', 'HTML.Paragraph', 'pp', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.Preformatted Text', 'pr')
+HTML#LeadMenu('vmenu', '-', 'HTML.Preformatted Text', 'pr')
+HTML#LeadMenu('nmenu', '-', 'HTML.Preformatted Text', 'pr', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.TITLE', 'ti')
+HTML#LeadMenu('vmenu', '-', 'HTML.TITLE', 'ti')
+HTML#LeadMenu('nmenu', '-', 'HTML.TITLE', 'ti', 'i')
 
-HTMLmenu imenu - HTML.&More\.\.\..ADDRESS                   ad
-HTMLmenu vmenu - HTML.&More\.\.\..ADDRESS                   ad
-HTMLmenu nmenu - HTML.&More\.\.\..ADDRESS                   ad i
-HTMLmenu imenu - HTML.&More\.\.\..BASE\ HREF                bh
-HTMLmenu vmenu - HTML.&More\.\.\..BASE\ HREF                bh
-HTMLmenu nmenu - HTML.&More\.\.\..BASE\ HREF                bh i
-HTMLmenu imenu - HTML.&More\.\.\..BASE\ TARGET              bt
-HTMLmenu vmenu - HTML.&More\.\.\..BASE\ TARGET              bt
-HTMLmenu nmenu - HTML.&More\.\.\..BASE\ TARGET              bt i
-HTMLmenu imenu - HTML.&More\.\.\..BLOCKQUTE                 bl
-HTMLmenu vmenu - HTML.&More\.\.\..BLOCKQUTE                 bl
-HTMLmenu nmenu - HTML.&More\.\.\..BLOCKQUTE                 bl i
-HTMLmenu imenu - HTML.&More\.\.\..Comment                   cm
-HTMLmenu vmenu - HTML.&More\.\.\..Comment                   cm
-HTMLmenu nmenu - HTML.&More\.\.\..Comment                   cm i
-HTMLmenu imenu - HTML.&More\.\.\..Defining\ Instance        df
-HTMLmenu vmenu - HTML.&More\.\.\..Defining\ Instance        df
-HTMLmenu nmenu - HTML.&More\.\.\..Defining\ Instance        df i
-HTMLmenu imenu - HTML.&More\.\.\..Document\ Division        dv
-HTMLmenu vmenu - HTML.&More\.\.\..Document\ Division        dv
-HTMLmenu nmenu - HTML.&More\.\.\..Document\ Division        dv i
-HTMLmenu imenu - HTML.&More\.\.\..Inline\ Frame             if
-HTMLmenu vmenu - HTML.&More\.\.\..Inline\ Frame             if
-HTMLmenu nmenu - HTML.&More\.\.\..Inline\ Frame             if i
-HTMLmenu imenu - HTML.&More\.\.\..JavaScript                js
-HTMLmenu nmenu - HTML.&More\.\.\..JavaScript                js i
-HTMLmenu imenu - HTML.&More\.\.\..Sourced\ JavaScript       sj
-HTMLmenu nmenu - HTML.&More\.\.\..Sourced\ JavaScript       sj i
-HTMLmenu imenu - HTML.&More\.\.\..LINK\ HREF                lk
-HTMLmenu vmenu - HTML.&More\.\.\..LINK\ HREF                lk
-HTMLmenu nmenu - HTML.&More\.\.\..LINK\ HREF                lk i
-HTMLmenu imenu - HTML.&More\.\.\..META                      me
-HTMLmenu vmenu - HTML.&More\.\.\..META                      me
-HTMLmenu nmenu - HTML.&More\.\.\..META                      me i
-HTMLmenu imenu - HTML.&More\.\.\..META\ HTTP-EQUIV          mh
-HTMLmenu vmenu - HTML.&More\.\.\..META\ HTTP-EQUIV          mh
-HTMLmenu nmenu - HTML.&More\.\.\..META\ HTTP-EQUIV          mh i
-HTMLmenu imenu - HTML.&More\.\.\..NOSCRIPT                  nj
-HTMLmenu vmenu - HTML.&More\.\.\..NOSCRIPT                  nj
-HTMLmenu nmenu - HTML.&More\.\.\..NOSCRIPT                  nj i
-HTMLmenu imenu - HTML.&More\.\.\..Generic\ Embedded\ Object ob
-HTMLmenu vmenu - HTML.&More\.\.\..Generic\ Embedded\ Object ob
-HTMLmenu nmenu - HTML.&More\.\.\..Generic\ Embedded\ Object ob i
-HTMLmenu imenu - HTML.&More\.\.\..Object\ Parameter         pm
-HTMLmenu vmenu - HTML.&More\.\.\..Object\ Parameter         pm
-HTMLmenu nmenu - HTML.&More\.\.\..Object\ Parameter         pm i
-HTMLmenu imenu - HTML.&More\.\.\..Quoted\ Text              qu
-HTMLmenu vmenu - HTML.&More\.\.\..Quoted\ Text              qu
-HTMLmenu nmenu - HTML.&More\.\.\..Quoted\ Text              qu i
-HTMLmenu imenu - HTML.&More\.\.\..SPAN                      sn
-HTMLmenu vmenu - HTML.&More\.\.\..SPAN                      sn
-HTMLmenu nmenu - HTML.&More\.\.\..SPAN                      sn i
-HTMLmenu imenu - HTML.&More\.\.\..STYLE\ (Internal\ CSS\)   cs
-HTMLmenu vmenu - HTML.&More\.\.\..STYLE\ (Internal\ CSS\)   cs
-HTMLmenu nmenu - HTML.&More\.\.\..STYLE\ (Internal\ CSS\)   cs i
-HTMLmenu imenu - HTML.&More\.\.\..Linked\ CSS               ls
-HTMLmenu vmenu - HTML.&More\.\.\..Linked\ CSS               ls
-HTMLmenu nmenu - HTML.&More\.\.\..Linked\ CSS               ls i
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..ADDRESS', 'ad')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..ADDRESS', 'ad')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..ADDRESS', 'ad', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..BASE HREF', 'bh')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..BASE HREF', 'bh')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..BASE HREF', 'bh', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..BASE TARGET', 'bt')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..BASE TARGET', 'bt')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..BASE TARGET', 'bt', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..BLOCKQUTE', 'bl')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..BLOCKQUTE', 'bl')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..BLOCKQUTE', 'bl', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..Comment', 'cm')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..Comment', 'cm')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..Comment', 'cm', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..Defining Instance', 'df')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..Defining Instance', 'df')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..Defining Instance', 'df', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..Document Division', 'dv')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..Document Division', 'dv')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..Document Division', 'dv', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..Inline Frame', 'if')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..Inline Frame', 'if')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..Inline Frame', 'if', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..JavaScript', 'js')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..JavaScript', 'js', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..Sourced JavaScript', 'sj')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..Sourced JavaScript', 'sj', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..LINK HREF', 'lk')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..LINK HREF', 'lk')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..LINK HREF', 'lk', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..META', 'me')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..META', 'me')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..META', 'me', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..META HTTP-EQUIV', 'mh')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..META HTTP-EQUIV', 'mh')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..META HTTP-EQUIV', 'mh', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..NOSCRIPT', 'nj')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..NOSCRIPT', 'nj')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..NOSCRIPT', 'nj', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..Generic Embedded Object', 'ob')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..Generic Embedded Object', 'ob')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..Generic Embedded Object', 'ob', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..Object Parameter', 'pm')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..Object Parameter', 'pm')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..Object Parameter', 'pm', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..Quoted Text', 'qu')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..Quoted Text', 'qu')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..Quoted Text', 'qu', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..SPAN', 'sn')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..SPAN', 'sn')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..SPAN', 'sn', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..STYLE (Internal CSS)', 'cs')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..STYLE (Internal CSS)', 'cs')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..STYLE (Internal CSS)', 'cs', 'i')
+HTML#LeadMenu('imenu', '-', 'HTML.&More\.\.\..Linked CSS', 'ls')
+HTML#LeadMenu('vmenu', '-', 'HTML.&More\.\.\..Linked CSS', 'ls')
+HTML#LeadMenu('nmenu', '-', 'HTML.&More\.\.\..Linked CSS', 'ls', 'i')
 
 g:did_html_menus = true
 endif

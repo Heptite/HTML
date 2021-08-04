@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Jul 31
+		Last change: 2021 Aug 02
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -85,6 +85,7 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 
 	[I think the use of tab is acceptable because I do not like the idea
 	of hard tabs or indentation greater than one or two spaces in HTML.]
+
 			*html-<S-Tab>* *html-shift-tab* *html-SHIFT-CTRL-I*
 			*i_html-<S-Tab>* *i_html-shift-tab* *i_html-SHIFT-CTRL-I*
 			*v_html-<S-Tab>* *v_html-shift-tab* *v_html-SHIFT-CTRL-I*
@@ -1077,25 +1078,44 @@ highlighted text is inserted between the ""'s for visual mode, except the
 |v_;ie| mapping, where text is inserted between the if and else lines.
 
 							*i_;cf* *v_;cf* *n_;cf*
-;cf	<!--#config timefmt="" -->  (|n_;|)
+;cf	Config time format: >
+	<!--#config timefmt="" -->
+<	(|n_;|)
 							*i_;cz* *v_;cz* *n_;cz*
-;cz	<!--#config sizefmt="" -->  (|n_;|)
+;cz	Config size format: >
+	<!--#config sizefmt="" -->
+<	(|n_;|)
 							*i_;ev* *v_;ev* *n_;ev*
-;ev	<!--#echo var="" -->  (|n_;|)
+;ev	Echo contents of an environmenetal variable: >
+	<!--#echo var="" -->
+<	(|n_;|)
 							*i_;iv* *v_;iv* *n_;iv*
-;iv	<!--#include virtual="" -->  (|n_;|)
+;iv	Include file relative to the document root: >
+	<!--#include virtual="" -->
+<	(|n_;|)
 							*i_;fl* *v_;fl* *n_;fl*
-;fv	<!--#flastmod virtual="" -->  (|n_;|)
+;fv	Output the last modified timestamp of a file relative to the document
+	root: >
+	<!--#flastmod virtual="" -->
+<	(|n_;|)
 							*i_;fz* *v_;fz* *n_;fz*
-;fz	<!--#fsize virtual="" -->  (|n_;|)
+;fz	Output the file size of a file relative to the document root: >
+	<!--#fsize virtual="" -->
+<	(|n_;|)
 							*i_;ec* *v_;ec* *n_;ec*
-;ec	<!--#exec cmd="" -->  (|n_;|)
+;ec	Print the output of a specified command: >
+	<!--#exec cmd="" -->
+<	(|n_;|)
 							*i_;sv* *v_;sv* *n_;sv*
-;sv	<!--#set var="" value="" -->  (|n_;|)
+;sv	Set an environmental variable to a specified value: >
+	<!--#set var="" value="" -->
+<	(|n_;|)
 							*i_;ie* *v_;ie* *n_;ie*
-;ie	<!--#if expr="" -->
+;ie	If/then/else conditional: >
+	<!--#if expr="" -->
 	<!--#else -->
-	<!--#endif -->  (|n_;|)
+	<!--#endif -->
+<	(|n_;|)
 
 ==============================================================================
 5. Mappings for &...; Codes		*character-codes* *character-entities*
@@ -1105,9 +1125,11 @@ characters into the HTML buffer. These are known as characters entities.
 
 							*n_;&* *v_;&*
 ;&	This mapping converts the motion or visually selected characters to
-	their &#...; entities, where "..." is equivalent to the ASCII decimal
-	representation. For example, "foo bar" would become
-	"&#102;&#111;&#111;&#32;&#98;&#97;&#114;". (See |i_;&|) (|n_;|)
+	their &...; (name) or &#...; (decimal) entities if a name for that
+	character doesn't exist, where "..." is equivalent to the ASCII
+	decimal representation. For example, "Fish & Chips" would become:
+	"&#70;&#105;&#115;&#104;&#32;&amp;&#32;&#67;&#104;&#105;&#112;&#115;".
+	(See |i_;&|) (|n_;|)
 
 	This can be very slow if you translate a long string and syntax
 	highlighting is enabled.
@@ -1115,11 +1137,14 @@ characters into the HTML buffer. These are known as characters entities.
 	(Note that the "&" in this mapping is not translated to whatever
 	|g:html_map_entity_leader| is set to.)
 							*n_;star* *v_;star*
-;*	Similar to |n_;&| / |v_;&| but encodes to hexadecimal versions instead.
+;*	Similar to |n_;&| / |v_;&| but encodes to purely hexadecimal codes
+	instead.
 							*n_;%* *v_;%*
 ;%	This mapping converts the motion or visually selected characters to
-	their %XX hexadecimal string for URIs. For example, "foo bar" would
-	become "%66%6F%6F%20%62%61%72". (|n_;|)
+	their %XX hexadecimal string for URIs. For example, "Fish & Chips"
+	would become:
+	"%46%69%73%68%20%26%20%43%68%69%70%73".
+	(|n_;|)
 
 	(Note that this will not touch Unicode characters. See
 	|HTML#EncodeString()|)
@@ -1129,8 +1154,9 @@ and operated on the character "under" the cursor. This was changed for
 multiple reasons. Type ;&l or ;%l to emulate the old behavior.
 
 							*n_;^* *v_;^*
-;^	This mapping will decode the &#...; and %XX elements of the motion or
-	visually selected characters to their actual characters. (|n_;|)
+;^	This mapping will decode the &..., &#...; and %XX elements of the
+	motion or visually selected characters to their actual characters.
+	(|n_;|)
 
 
 The following mappings work in insert mode only.

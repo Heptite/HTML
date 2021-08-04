@@ -1,3 +1,6 @@
+Sat, 31 Jul 2021 21:29:22 -0600 Christian J. Robinson
+ * Overhaul smart tag code, allowing many more tags to be "smart". Optimizations. Documentation updates.
+
 Fri, 30 Jul 2021 00:53:37 -0600 Christian J. Robinson
  * Bug fixes. Improve code for flexibility. ;mi mapping now works in more contexts.
 

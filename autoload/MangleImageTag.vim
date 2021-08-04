@@ -1,18 +1,18 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023236
+if v:version < 802 || v:versionlong < 8023270
   finish
 endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: July 30, 2021
+# Last Change: August 01, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright (C) 2004-2021 Christian J. Robinson <heptite@gmail.com>
+# Copyright © 2004-2021 Christian J. Robinson <heptite@gmail.com>
 #
 # Based on "mangleImageTag" by Devin Weaver <ktohg@tritarget.com>
 #

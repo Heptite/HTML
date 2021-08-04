@@ -1,18 +1,18 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023236
+if v:version < 802 || v:versionlong < 8023270
   finish
 endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: July 31, 2021
+# Last Change: August 03, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright (C) 2004-2021 Christian J. Robinson <heptite@gmail.com>
+# Copyright © 2004-2021 Christian J. Robinson <heptite@gmail.com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -49,6 +49,8 @@ endif  # }}}1
 
 # Used by some of the functions to save then restore some options:
 var saveopts: dict<any>
+# Used in a bunch of places so some functions don't have to be globally
+# exposed:
 var thisscript = expand('<SID>')
 
 # HTML#SetIfUnset()  {{{1
@@ -77,7 +79,7 @@ def HTML#SetIfUnset(variable: string, ...args: list<any>): number
   if args->len() == 0
     execute 'HTMLERROR E119: Not enough arguments for ' .. expand('<sfile>')
     return -1
-  elseif type(args[0]) == type([]) || type(args[0]) == type({})
+  elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict
     val = args[0]
   else
     val = args->join(' ')
@@ -87,7 +89,7 @@ def HTML#SetIfUnset(variable: string, ...args: list<any>): number
     return 0
   endif
 
-  if type(val) == type('')
+  if type(val) == v:t_string
     if val == '""' || val == "''"
       execute newvariable .. ' = ""'
     elseif val == '[]'
@@ -118,6 +120,33 @@ enddef
 # Limitations:
 #  This /will not/ work on function-local variable names.
 def HTML#BoolVar(variable: string): bool
+
+  # Bool()  {{{2
+  #
+  # Helper to HTML#BoolVar() -- Test the string passed to it and
+  # return true/false based on that string.
+  #
+  # Arguments:
+  #  1 - String:  1|true|yes / 0|false|no|n
+  # Return Value:
+  #  Boolean
+  def Bool(value: any): bool
+    var regexp = '^no\?$\|^\(v:\)\?\(false\|none\|null\)$\|^0\(\.0\)\?$\|^$'
+    if value->type() == v:t_string
+      return value !~? regexp
+    elseif value->type() == v:t_bool || value->type() == v:t_none
+        || value->type() == v:t_number || value->type() == v:t_float
+      return value->string() !~? regexp
+    elseif value->type() == v:t_list
+      return value != []
+    elseif value->type() == v:t_dict
+      return value != {}
+    endif
+
+    echoerr 'Unknown type for Bool(): ' .. value->typename()
+    return false
+  enddef  # }}}2
+
   var newvariable = variable
 
   if variable !~ '^[bgstvw]:'
@@ -128,25 +157,13 @@ def HTML#BoolVar(variable: string): bool
     # Unfortunately this is a suboptimal way to do this, but Vim9script
     # doesn't allow me to do it any other way:
     execute 'g:tmpvarval = ' .. newvariable
-    var varval = g:tmpvarval .. ''
+    var varval = g:tmpvarval
     unlet g:tmpvarval
+
     return varval->Bool()
   else
     return false
   endif
-enddef
-
-# Bool() {{{1
-#
-# Helper to HTML#BoolVar() -- Test the string passed to it and
-# return true/false based on that string.
-#
-# Arguments:
-#  1 - String:  1|true|yes / 0|false|no|n
-# Return Value:
-#  Boolean
-def Bool(str: string): bool
-  return str !~? '^no\?$\|^\(v:\)\?false$\|^0$\|^$'
 enddef
 
 # IsSet() {{{1
@@ -248,7 +265,7 @@ def EntityToChar(entity: string): string
 enddef
 
 # https://dev.w3.org/html5/html-author/charref
-const DictEntitiesToChar = { # {{{
+const DictEntitiesToChar = {  # {{{
   '&Tab;': "\x9", '&NewLine;': "\xA", '&excl;': "\x21",
   '&quot;': "\x22", '&num;': "\x23", '&dollar;': "\x24",
   '&percnt;': "\x25", '&amp;': "\x26", '&apos;': "\x27",
@@ -739,7 +756,7 @@ DictEntitiesToChar->mapnew(
     DictCharToEntities[value] = key
     return
   }
-) # }}}
+)  # }}}
 
 # HTML#EncodeString()  {{{1
 #
@@ -1152,7 +1169,7 @@ enddef
 def HTML#ConvertCase(str: any): any
   var newstr: list<string>
   var newnewstr: list<string>
-  if type(str) == type([])
+  if type(str) == v:t_list
     newstr = str
   else
     newstr = [str]
@@ -1178,7 +1195,7 @@ def HTML#ConvertCase(str: any): any
     newstr = newstr->HTML#ConvertCase()
   endif
 
-  if type(str) == type([])
+  if type(str) == v:t_list
     return newnewstr
   else
     return newnewstr[0]
@@ -1251,11 +1268,11 @@ enddef
 # Return Value:
 #  The byte offset, a negative value means the specified mark is not set.
 #def ByteOffset(lineormark: any = -1, column: number = -1): number
-#  if type(lineormark) == 1 && lineormark =~ "^'.$"
+#  if type(lineormark) == v:t_string && lineormark =~ "^'.$"
 #    return lineormark->line()->line2byte() + lineormark->col() - 1
-#  elseif type(lineormark) == 0 && lineormark < 0 && column < 0
+#  elseif type(lineormark) == v:t_number && lineormark < 0 && column < 0
 #    return line('.')->line2byte() + col('.') - 1
-#  elseif type(lineormark) == 0 && lineormark > 0 && column > 0
+#  elseif type(lineormark) == v:t_number && lineormark > 0 && column > 0
 #    return lineormark->line2byte() + column - 1
 #  else
 #    execute 'HTMLERROR Invalid argument(s) for ' .. expand('<sfile>')
@@ -1326,22 +1343,63 @@ enddef
 # Return Value:
 #  The string to be executed to insert the tag.
 
-# SMARTTAGS[tag][mode][open/close] = keystrokes  {{{
-#  tag        - The literal tag, without the <>'s
+# SMARTTAGS[tag][mode][open/close/insert/reindent] = value  {{{
+#  tag        - The literal tag, lowercase and without the <>'s
+#               Numbers at the end of the literal tag name are stripped,
+#               allowing there to be multiple mappings for the same tag but
+#               with different effects
 #  mode       - i = insert, v = visual
 #               (no "o", because o-mappings invoke visual mode)
 #  open/close - c = When inside an equivalent tag, close then open it
 #               o = When not inside an equivalent tag
 #  keystrokes - The mapping keystrokes to execute
+#  insert     - Behave slightly differently in visual mappings if this is set
+#               to true
 const SMARTTAGS = {
-  'a': {
+  'a1': {
     'i': {
-      'o': "<[{A HREF=\"\"></A}]>\<C-O>F<",
-      'c': "<[{/A><A HREF=\"\"}]>\<C-O>F<",
+      'o': "<[{A HREF=\"\"></A}]>\<C-O>F\"",
+      'c': "<[{/A><A HREF=\"\"}]>\<C-O>F\"",
     },
     'v': {
-      'o': "`>a</[{A}]>\<C-O>`<<[{A HREF=\"\"}]>\<ESC>F\"",
-      'c': "`>a<[{A HREF=\"\"}]>\<C-O>`<</[{A}]>\<C-O>F\"",
+      'o': "`>a</[{A}]>\<C-O>`<<[{A HREF=\"\"}]>\<C-O>F\"",
+      'c': "`>a<[{A HREF=\"\"}]>\<C-O>`<</[{A}]>\<C-O>2f\"",
+      'insert': true
+    }
+  },
+
+  'a2': {
+    'i': {
+      'o': "<[{A HREF=\"\<C-R>*\"></A}]>\<C-O>F<",
+      'c': "<[{/A><A HREF=\"\<C-R>*\"}]>",
+    },
+    'v': {
+      'o': "`>a\"></[{A}]>\<C-O>`<<[{A HREF}]=\"\<C-O>f<",
+      'c': "`>a\">\<C-O>`<</[{A><A HREF}]=\"\<C-O>f<",
+      'insert': true
+    }
+  },
+
+  'a3': {
+    'i': {
+      'o': "<[{A HREF=\"\" TARGET=\"\"></A}]>\<C-O>3F\"",
+      'c': "<[{/A><A HREF=\"\" TARGET=\"\"}]>\<C-O>3F\"",
+    },
+    'v': {
+      'o': "`>a</[{A}]>\<C-O>`<<[{A HREF=\"\" TARGET=\"\"}]>\<C-O>3F\"",
+      'c': "`>a<[{A HREF=\"\" TARGET=\"\"}]>\<C-O>`<</[{A}]>\<C-O>2f\"",
+      'insert': true
+    }
+  },
+
+  'a4': {
+    'i': {
+      'o': "<[{A HREF=\"\<C-R>*\" TARGET=\"\"></A}]>\<C-O>F\"",
+      'c': "<[{/A><A HREF=\"\<C-R>*\" TARGET=\"\"}]>\<C-O>F\"",
+    },
+    'v': {
+      'o': "`>a\" [{TARGET=\"\"></A}]>\<C-O>`<<[{A HREF}]=\"\<C-O>3f\"",
+      'c': "`>a\" [{TARGET=\"\"}]>\<C-O>`<</[{A><A HREF}]=\"\<C-O>3f\"",
       'insert': true
     }
   },
@@ -1359,13 +1417,12 @@ const SMARTTAGS = {
 
   'blockquote': {
     'i': {
-      'o': "<[{BLOCKQUOTE}]>\<cr></[{BLOCKQUOTE}]>\<Esc>O",
-      'c': "</[{BLOCKQUOTE}]>\<cr>\<cr><[{BLOCKQUOTE}]>\<cr>",
+      'o': "<[{BLOCKQUOTE}]>\<CR></[{BLOCKQUOTE}]>\<Esc>O",
+      'c': "</[{BLOCKQUOTE}]>\<CR>\<CR><[{BLOCKQUOTE}]>\<CR>",
     },
     'v': {
-      'o': "`>a\<cr></[{BLOCKQUOTE}]>\<C-O>`<<[{BLOCKQUOTE}]>\<cr>",
-      'c': "`>a\<cr><[{BLOCKQUOTE}]>\<C-O>`<</[{BLOCKQUOTE}]>\<cr>",
-      'reindent': 1
+      'o': "`>a\<CR></[{BLOCKQUOTE}]>\<C-O>`<<[{BLOCKQUOTE}]>\<CR>",
+      'c': "`>a\<CR><[{BLOCKQUOTE}]>\<C-O>`<</[{BLOCKQUOTE}]>\<CR>",
     }
   },
 
@@ -1424,15 +1481,15 @@ const SMARTTAGS = {
     }
   },
 
+  # Not actually used, since <div> can nest:
   'div': {
     'i': {
-      'o': "<[{DIV}]>\<cr></[{DIV}]>\<Esc>O",
-      'c': "</[{DIV}]>\<cr>\<cr><[{DIV}]>\<cr>",
+      'o': "<[{DIV}]>\<CR></[{DIV}]>\<Esc>O",
+      'c': "</[{DIV}]>\<CR>\<CR><[{DIV}]>\<CR>",
     },
     'v': {
-      'o': "`>a\<cr></[{DIV}]>\<C-O>`<<[{DIV}]>\<cr>",
-      'c': "`>a\<cr><[{DIV}]>\<C-O>`<</[{DIV}]>\<cr>",
-      'reindent': 1
+      'o': "`>a\<CR></[{DIV}]>\<C-O>`<<[{DIV}]>\<CR>",
+      'c': "`>a\<CR><[{DIV}]>\<C-O>`<</[{DIV}]>\<CR>",
     }
   },
 
@@ -1469,6 +1526,18 @@ const SMARTTAGS = {
     }
   },
 
+  'script': {
+    'i': {
+      'o': "\<C-O>:vim9cmd HTML#TC(false)\<CR>i<[{SCRIPT TYPE}]=\"text/javascript\">\<ESC>==o<!--\<CR>// -->\<CR></[{SCRIPT}]>\<ESC>:vim9cmd HTML#TC(true)\<CR>kko",
+      'c': "\<C-O>:vim9cmd HTML#TC(false)\<CR>i// -->\<CR></[{SCRIPT}]>\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\<CR><!--\<CR>\<C-O>:vim9cmd HTML#TC(true)\<CR>",
+    },
+    'v': {
+      'o': ":vim9cmd HTML#TC(false)\<CR>`>a\<CR>// -->\<CR></[{SCRIPT}]>\<C-O>`<<[{SCRIPT TYPE}]=\"text/javascript\">\<CR><!--\<CR>\<ESC>:vim9cmd HTML#TC(true)\<CR>",
+      'c': ":vim9cmd HTML#TC(false)\<CR>`>a\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\<CR><!--\<C-O>`<// -->\<CR></[{SCRIPT}]>\<CR>\<ESC>:vim9cmd HTML#TC(true)\<CR>",
+    }
+  },
+
+  # Not actually used, since <li> can nest:
   'li': {
     'i': {
       'o': "<[{LI></LI}]>\<C-O>F<",
@@ -1491,39 +1560,37 @@ const SMARTTAGS = {
     }
   },
 
+  # Not actually used, since <ol> can nest:
   'ol': {
     'i': {
-      'o': "<[{OL}]>\<cr></[{OL}]>\<Esc>O",
-      'c': "</[{OL}]>\<cr>\<cr><[{OL}]>\<cr>",
+      'o': "<[{OL}]>\<CR></[{OL}]>\<Esc>O",
+      'c': "</[{OL}]>\<CR>\<CR><[{OL}]>\<CR>",
     },
     'v': {
-      'o': "`>a\<cr></[{OL}]>\<C-O>`<<[{OL}]>\<cr>",
-      'c': "`>a\<cr><[{OL}]>\<C-O>`<</[{OL}]>\<cr>",
-      'reindent': 1
+      'o': "`>a\<CR></[{OL}]>\<C-O>`<<[{OL}]>\<CR>",
+      'c': "`>a\<CR><[{OL}]>\<C-O>`<</[{OL}]>\<CR>",
     }
   },
 
   'p': {
     'i': {
-      'o': "<[{P}]>\<cr></[{P}]>\<Esc>O",
-      'c': "</[{P}]>\<cr>\<cr><[{P}]>\<cr>",
+      'o': "<[{P}]>\<CR></[{P}]>\<Esc>O",
+      'c': "</[{P}]>\<CR>\<CR><[{P}]>\<CR>",
     },
     'v': {
-      'o': "`>a\<cr></[{P}]>\<C-O>`<<[{P}]>\<cr>",
-      'c': "`>a\<cr><[{P}]>\<C-O>`<</[{P}]>\<cr>",
-      'reindent': 1
+      'o': "`>a\<CR></[{P}]>\<C-O>`<<[{P}]>\<CR>",
+      'c': "`>a\<CR><[{P}]>\<C-O>`<</[{P}]>\<CR>",
     }
   },
 
   'pre': {
     'i': {
-      'o': "<[{PRE}]>\<cr></[{PRE}]>\<Esc>O",
-      'c': "</[{PRE}]>\<cr>\<cr><[{PRE}]>\<cr>",
+      'o': "<[{PRE}]>\<CR></[{PRE}]>\<Esc>O",
+      'c': "</[{PRE}]>\<CR>\<CR><[{PRE}]>\<CR>",
     },
     'v': {
-      'o': "`>a\<cr></[{PRE}]>\<C-O>`<<[{PRE}]>\<cr>",
-      'c': "`>a\<cr><[{PRE}]>\<C-O>`<</[{PRE}]>\<cr>",
-      'reindent': 1
+      'o': "`>a\<CR></[{PRE}]>\<C-O>`<<[{PRE}]>\<CR>",
+      'c': "`>a\<CR><[{PRE}]>\<C-O>`<</[{PRE}]>\<CR>",
     }
   },
 
@@ -1549,6 +1616,7 @@ const SMARTTAGS = {
     }
   },
 
+  # Not actually used, since <span> can nest:
   'span': {
     'i': {
       'o': "<[{SPAN CLASS=\"\"></SPAN}]>\<C-O>F<",
@@ -1604,15 +1672,15 @@ const SMARTTAGS = {
     }
   },
 
+  # Not actually used, since <ul> can nest:
   'ul': {
     'i': {
-      'o': "<[{UL}]>\<cr></[{UL}]>\<Esc>O",
-      'c': "</[{UL}]>\<cr>\<cr><[{UL}]>\<cr>",
+      'o': "<[{UL}]>\<CR></[{UL}]>\<Esc>O",
+      'c': "</[{UL}]>\<CR>\<CR><[{UL}]>\<CR>",
     },
     'v': {
-      'o': "`>a\<cr></[{UL}]>\<C-O>`<<[{UL}]>\<cr>",
-      'c': "`>a\<cr><[{UL}]>\<C-O>`<</[{UL}]>\<cr>",
-      'reindent': 1
+      'o': "`>a\<CR></[{UL}]>\<C-O>`<<[{UL}]>\<CR>",
+      'c': "`>a\<CR><[{UL}]>\<C-O>`<</[{UL}]>\<CR>",
     }
   },
 
@@ -1626,12 +1694,12 @@ const SMARTTAGS = {
       'c': "`>a<[{VAR}]>\<C-O>`<</[{VAR}]>",
     }
   },
-} # }}}
+}  # }}}
 
 def HTML#SmartTag(tag: string, mode: string): string
   var newmode = mode->strpart(0, 1)->tolower()
   var newtag = tag->tolower()
-  var moved = false
+  var which: string
   var ret: string
   var line: number
   var column: number
@@ -1641,44 +1709,26 @@ def HTML#SmartTag(tag: string, mode: string): string
     return ''
   endif
 
-  saveopts['ignorecase'] = &l:ignorecase
-  &l:ignorecase = true
-
-  if getline('.')[col('.') - 1 : col('.')] == '</'
-    normal! h
-    moved = true
-  endif
-
   if newtag == 'comment'
-    [line, column] = searchpairpos('<!--', '', '-->', 'nW')
+    [line, column] = searchpairpos('<!--', '', '-->', 'ncW')
   else
-    [line, column] = searchpairpos('<' .. tag .. '\>[^>]*>', '', '<\/' .. tag .. '>', 'nW')
+    var realtag = tag->substitute('\d\+$', '', '')
+    [line, column] = searchpairpos('\c<' .. realtag
+      .. '\>[^>]*>', '', '\c<\/' .. realtag .. '>', 'ncW')
   endif
 
-  if line == 0 && column == 0
-    ret = SMARTTAGS[newtag][newmode]['o']->HTML#ConvertCase()
-  else
-    ret = SMARTTAGS[newtag][newmode]['c']->HTML#ConvertCase()
-  endif
+  which = (line == 0 && column == 0 ? 'o' : 'c')
 
-  &l:ignorecase = saveopts['ignorecase']
-
-  if moved == true
-    ret = "\<right>" .. ret
-  endif
+  ret = SMARTTAGS[newtag][newmode][which]->HTML#ConvertCase()
 
   if newmode == 'v'
-    if SMARTTAGS[newtag][newmode]->has_key('reindent')
-      ret ..= "\<C-O>m'\<C-O>:vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
-        .. SMARTTAGS[newtag][newmode]['reindent'] .. ")\<cr>\<C-O>``"
-    endif
-
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
     ret = ret->substitute('`>a\C', '`>i' .. VI(), 'g')
 
-    if SMARTTAGS[newtag][newmode]->has_key('insert') && SMARTTAGS[newtag][newmode]['insert'] 
-      b:htmltaginsert = true
+    if SMARTTAGS[newtag][newmode]->has_key('insert')
+        && SMARTTAGS[newtag][newmode]['insert'] 
+      ret ..= "\<right>"
       silent startinsert
     endif
   endif
@@ -1706,7 +1756,7 @@ const CHARSETS = {
   'euc_jp':    'EUC-JP',
   'cp950':     'Big5',
   'big5':      'Big5',
-} # }}}
+}  # }}}
 
 def HTML#DetectCharset(): string
   var enc: string
@@ -1855,47 +1905,6 @@ def HTML#GenerateTable(rows: number = -1, columns: number = -1, border: number =
   return true
 enddef
 
-# ClearMappings() {{{1
-#
-# Iterate over all the commands to clear the mappings.  This used to be just
-# one long single command but that had drawbacks, so now it's a List that must
-# be looped over:
-#
-# Arguments:
-#  None
-# Return Value:
-#  None
-def ClearMappings()
-  b:HTMLclearMappings->mapnew(
-    (_, mapping) => {
-      silent! execute mapping
-      return
-    }
-  )
-  b:HTMLclearMappings = []
-  unlet b:did_html_mappings
-enddef
-
-# DoExtraMappings() {{{1
-#
-# Iterate over all the commands to define extra mappings (those that weren't
-# defined by the plugin):
-#
-# Arguments:
-#  None
-# Return Value:
-#  None
-def DoExtraMappings()
-  doing_extra_html_mappings = true
-  b:HTMLextraMappings->mapnew(
-    (_, mapping) => {
-      silent! execute mapping
-      return
-    }
-  )
-  doing_extra_html_mappings = false
-enddef
-
 # HTML#MappingsControl()  {{{1
 #
 # Disable/enable all the mappings defined by
@@ -1916,6 +1925,48 @@ enddef
 var doing_extra_html_mappings = false
 var quiet_errors: bool
 def HTML#MappingsControl(dowhat: string): bool
+
+  # DoExtraMappings()  {{{2
+  #
+  # Iterate over all the commands to define extra mappings (those that weren't
+  # defined by the plugin):
+  #
+  # Arguments:
+  #  None
+  # Return Value:
+  #  None
+  def DoExtraMappings()
+    doing_extra_html_mappings = true
+    b:HTMLextraMappings->mapnew(
+      (_, mapping) => {
+        silent! execute mapping
+        return
+      }
+    )
+    doing_extra_html_mappings = false
+  enddef
+
+  # ClearMappings() {{{2
+  #
+  # Iterate over all the commands to clear the mappings.  This used to be just
+  # one long single command but that had drawbacks, so now it's a List that must
+  # be looped over:
+  #
+  # Arguments:
+  #  None
+  # Return Value:
+  #  None
+  def ClearMappings()
+    b:HTMLclearMappings->mapnew(
+      (_, mapping) => {
+        silent! execute mapping
+        return
+      }
+    )
+    b:HTMLclearMappings = []
+    unlet b:did_html_mappings
+  enddef  # }}}2
+
   if exists('b:did_html_mappings_init') == 0
     HTMLERROR The HTML mappings were not sourced for this buffer.
     return false
@@ -1991,7 +2042,7 @@ enddef
 #                "enable": Enable the menu and toolbar
 # Return Value:
 #  Boolean: False if an error occurred, true otherwise
-def HTML#MenuControl(which: string='detect'): bool
+def HTML#MenuControl(which: string = 'detect'): bool
   if which !~? '^disable$\|^enable$\|^detect$'
     exe 'HTMLERROR Invalid argument: ' .. which
     return false
@@ -2055,7 +2106,7 @@ enddef
 #  1 - String: Default is "i", how to insert the chosen color
 # Return Value:
 #  None
-def HTML#ShowColors(str: string='')
+def HTML#ShowColors(str: string = '')
   if exists('g:did_html_menus') == 0
     HTMLERROR The HTML menu was not created, and it is necessary for color parsing.
     return
@@ -2185,6 +2236,77 @@ enddef
 # Return Value:
 #  Boolean - Whether the cursor is not on an insert point.
 def HTML#Template(): bool
+
+  # InsertTemplate()  {{{2
+  #
+  # Actually insert the HTML template.
+  #
+  # Arguments:
+  #  None
+  # Return Value:
+  #  Boolean - Whether the cursor is not on an insert point.
+  def InsertTemplate(): bool
+    if g:html_authoremail != ''
+      g:html_authoremail_encoded = g:html_authoremail->HTML#EncodeString()
+    else
+      g:html_authoremail_encoded = ''
+    endif
+
+    var template = ''
+
+    if exists('b:html_template') && b:html_template != ''
+      template = b:html_template
+    elseif exists('g:html_template') && g:html_template != ''
+      template = g:html_template
+    endif
+
+    if template != ''
+      if template->expand()->filereadable()
+        silent execute ':0read ' .. template
+      else
+        execute 'HTMLERROR Unable to insert template file: ' .. template
+        HTMLERROR 'Either it doesn't exist or it isn't readable.'
+        return false
+      endif
+    else
+      :0put =b:internal_html_template
+    endif
+
+    if getline('$') =~ '^\s*$'
+      execute ':$delete'
+    endif
+
+    if getline(1) =~ '^\s*$'
+      execute ':1delete'
+    endif
+
+    # Replace the various tokens with appropriate values:
+    :silent! :%s/\C%authorname%/\=g:html_authorname/g
+    :silent! :%s/\C%authoremail%/\=g:html_authoremail_encoded/g
+    :silent! :%s/\C%bgcolor%/\=g:html_bgcolor/g
+    :silent! :%s/\C%textcolor%/\=g:html_textcolor/g
+    :silent! :%s/\C%linkcolor%/\=g:html_linkcolor/g
+    :silent! :%s/\C%alinkcolor%/\=g:html_alinkcolor/g
+    :silent! :%s/\C%vlinkcolor%/\=g:html_vlinkcolor/g
+    :silent! :%s/\C%date%/\=strftime('%B %d, %Y')/g
+    :silent! :%s/\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%/\=submatch(1)->substitute('\\%', '%%', 'g')->substitute('\\\@<!!', '%', 'g')->strftime()/g
+    :silent! :%s/\C%time%/\=strftime('%r %Z')/g
+    :silent! :%s/\C%time12%/\=strftime('%r %Z')/g
+    :silent! :%s/\C%time24%/\=strftime('%T')/g
+    :silent! :%s/\C%charset%/\=HTML#DetectCharset()/g
+    :silent! :%s#\C%vimversion%#\=(v:version / 100) .. '.' .. (v:version % 100) .. '.' .. (v:versionlong % 10000)#g
+
+    go 1
+
+    HTML#NextInsertPoint('n')
+    if getline('.')[col('.') - 2 : col('.') - 1] == '><'
+        || (getline('.') =~ '^\s*$' && line('.') != 1)
+      return true
+    else
+      return false
+    endif
+  enddef  # }}}2
+
   var ret = false
   saveopts['ruler'] = &ruler
   saveopts['showcmd'] = &showcmd
@@ -2201,79 +2323,11 @@ def HTML#Template(): bool
       ret = InsertTemplate()
     endif
   endif
+
   &ruler = saveopts['ruler']
   &showcmd = saveopts['showcmd']
+
   return ret
-enddef
-
-# InsertTemplate()  {{{1
-#
-# Actually insert the HTML template.
-#
-# Arguments:
-#  None
-# Return Value:
-#  Boolean - Whether the cursor is not on an insert point.
-def InsertTemplate(): bool
-  if g:html_authoremail != ''
-    g:html_authoremail_encoded = g:html_authoremail->HTML#EncodeString()
-  else
-    g:html_authoremail_encoded = ''
-  endif
-
-  var template = ''
-
-  if exists('b:html_template') && b:html_template != ''
-    template = b:html_template
-  elseif exists('g:html_template') && g:html_template != ''
-    template = g:html_template
-  endif
-
-  if template != ''
-    if template->expand()->filereadable()
-      silent execute ':0read ' .. template
-    else
-      execute 'HTMLERROR Unable to insert template file: ' .. template
-      HTMLERROR 'Either it doesn't exist or it isn't readable.'
-      return false
-    endif
-  else
-    :0put =b:internal_html_template
-  endif
-
-  if getline('$') =~ '^\s*$'
-    execute ':$delete'
-  endif
-
-  if getline(1) =~ '^\s*$'
-    execute ':1delete'
-  endif
-
-  # Replace the various tokens with appropriate values:
-  :silent! :%s/\C%authorname%/\=g:html_authorname/g
-  :silent! :%s/\C%authoremail%/\=g:html_authoremail_encoded/g
-  :silent! :%s/\C%bgcolor%/\=g:html_bgcolor/g
-  :silent! :%s/\C%textcolor%/\=g:html_textcolor/g
-  :silent! :%s/\C%linkcolor%/\=g:html_linkcolor/g
-  :silent! :%s/\C%alinkcolor%/\=g:html_alinkcolor/g
-  :silent! :%s/\C%vlinkcolor%/\=g:html_vlinkcolor/g
-  :silent! :%s/\C%date%/\=strftime('%B %d, %Y')/g
-  :silent! :%s/\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%/\=submatch(1)->substitute('\\%', '%%', 'g')->substitute('\\\@<!!', '%', 'g')->strftime()/g
-  :silent! :%s/\C%time%/\=strftime('%r %Z')/g
-  :silent! :%s/\C%time12%/\=strftime('%r %Z')/g
-  :silent! :%s/\C%time24%/\=strftime('%T')/g
-  :silent! :%s/\C%charset%/\=HTML#DetectCharset()/g
-  :silent! :%s#\C%vimversion%#\=(v:version / 100) .. '.' .. (v:version % 100) .. '.' .. (v:versionlong % 10000)#g
-
-  go 1
-
-  HTML#NextInsertPoint('n')
-  if getline('.')[col('.') - 2 : col('.') - 1] == '><'
-      || (getline('.') =~ '^\s*$' && line('.') != 1)
-    return true
-  else
-    return false
-  endif
 enddef
 
 # HTML#LeadMenu()  {{{1

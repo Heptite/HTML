@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023236
+if v:version < 802 || v:versionlong < 8023270
   finish
 endif
 
@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 29, 2021
+# Last Change: August 02, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -61,7 +61,7 @@ endif
 # Requirements:
 #  * Vim 9 or later
 #
-# Copyright (C) 2004-2021 Christian J. Robinson <heptite@gmail.com>
+# Copyright © 2004-2021 Christian J. Robinson <heptite@gmail.com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -159,7 +159,7 @@ if has('mac') || has('macunix')  # {{{1
         return false
       endif
 
-      add(MacBrowsersExist, app->tolower())->sort()->uniq()
+      MacBrowsersExist->add(app->tolower())->sort()->uniq()
       return true
     endif
   enddef # }}}
@@ -338,7 +338,7 @@ elseif has('unix') && ! has('win32unix') # {{{1
   var temppath: string
 
   for tempkey in keys(Browsers)
-    for tempname in (type(Browsers[tempkey][0]) == type([]) ? Browsers[tempkey][0] : [Browsers[tempkey][0]])
+    for tempname in (type(Browsers[tempkey][0]) == v:t_list ? Browsers[tempkey][0] : [Browsers[tempkey][0]])
       temppath = system('which ' .. tempname)->trim()
       if v:shell_error == 0
         Browsers[tempkey][0] = tempname
@@ -430,6 +430,19 @@ enddef
 #  false - Failure (No browser was launched/controlled.)
 #  true  - Success (A browser was launched/controlled.)
 def BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): bool
+
+  # Cap() {{{2
+  #
+  # Capitalize the first letter of every word in a string
+  #
+  # Args:
+  #  1 - String: The words
+  # Return value:
+  #  String: The words capitalized
+  def Cap(arg: string): string
+    return arg->substitute('\<.', '\U&', 'g')
+  enddef # }}}2
+
   var which = browser
   var donew = new
   var command: string
@@ -571,18 +584,6 @@ def BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): 
   HTMLERROR Something went wrong, we should never get here...
   return false
 enddef
-
-# Cap() {{{1
-#
-# Capitalize the first letter of every word in a string
-#
-# Args:
-#  1 - String: The words
-# Return value:
-#  String: The words capitalized
-def Cap(arg: string): string
-  return arg->substitute('\<.', '\U&', 'g')
-enddef # }}}1
 
 defcompile
 
