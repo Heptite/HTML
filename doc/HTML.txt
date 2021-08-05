@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Aug 02
+		Last change: 2021 Aug 04
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -100,6 +100,7 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 	(See |g:html_map_leader|) And likewise, ;<S-Tab> (shift-tab) can be
 	used.
 
+								*html-template*
 								*n_;html*
 ;html	This macro inserts a basic template at the top of the file. If the
 	buffer already contains some text you are asked if you want to replace
@@ -222,6 +223,12 @@ in the console (see |console-menus|). This variable is ignored if
 sourced. e.g.: >
 	:let g:force_html_menu = 'yes'
 Note: Setting this variable will also force the system menu.vim to load.
+
+*g:html_toplevel_menu*
+Set this to the toplevel menu where you want the HTML menu to become a
+submenu. The value must be a |List|, and there is no way to override the
+"HTML" menu name. e.g.: >
+	:let g:html_toplevel_menu = ['Plugins']
 
 *g:html_template* *b:html_template*
 Set this variable to the location of your template file to be used by the
@@ -442,6 +449,7 @@ Note that you can change the leader character for these mappings from ';' to
 another character of your preference. See |g:html_map_leader|.
 
 
+							*html-doctype*
 							*n_;4* *i_;4*
 ;4	Inserts >
 	<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -460,6 +468,7 @@ another character of your preference. See |g:html_map_leader|.
 	<!DOCTYPE html>
 <	at the top of the file, for HTML 5. (Note there is no transitional or
 	strict version of this.)
+							*html-content-type*
 							*i_;ct*
 ;ct	Inserts >
 	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
@@ -469,10 +478,12 @@ another character of your preference. See |g:html_map_leader|.
 	'fileencoding' or 'encoding' option. This can be overridden--see
 	|g:html_default_charset| and |g:html_charset|. (If this doesn't
 	insert the correct charset value, see |html-author-notes|.)
+							*html-comment*
 							*i_;cm* *v_;cm* *n_;cm*
 ;cm	Comment tag: >
 	<!-- -->
 <	(|html-smart-tag|) (|n_;|)
+							*html-a-href*
 							*i_;ah* *v_;ah* *n_;ah*
 ;ah	Anchor hyper link: >
 	<A HREF=""></A>
@@ -483,20 +494,23 @@ another character of your preference. See |g:html_map_leader|.
 	and places the cursor on the < of </A>. If this is used in insert mode
 	rather than visual mode, the contents of the |clipboard| are placed
 	between the quotes. (|n_;|)
+							*i_;at* *v_;at* *n_;at*
+;at	Like |i_;ah| but include TARGET="" in the tag. (|n_;|)
+							*i_;aT* *v_;aT* *n_;aT*
+;aT	Like |i_;aH| but include TARGET="" in the tag. (|n_;|)
+							*html-article*
 							*i_;ar* *v_;ar* *n_;ar*
 ;ar	Self-contained article: >
 	<ARTICLE>
 	</ARTICLE>
 <	(|n_;|)
+							*html-aside*
 							*i_;as* *v_;as* *n_;as*
 ;as	Content aside from surrounding context: >
 	<ASIDE>
 	</ASIDE>
 <	(|n_;|)
-							*i_;at* *v_;at* *n_;at*
-;at	Like |i_;ah| but include TARGET="" in the tag. (|n_;|)
-							*i_;aT* *v_;aT* *n_;aT*
-;aT	Like |i_;aH| but include TARGET="" in the tag. (|n_;|)
+							*html-abbreviation*
 							*i_;ab* *v_;ab* *n_;ab*
 ;ab	Abbreviation: >
 	<ABBR TITLE=""></ABBR>
@@ -507,10 +521,12 @@ another character of your preference. See |g:html_map_leader|.
 	and places the cursor on the < of </ABBREV>. If this is used in
 	insert mode rather than visual mode, the contents of the |clipboard| are
 	placed between the quotes. (|n_;|)
+							*html-address*
 							*i_;ad* *v_;ad* *n_;ad*
 ;ad	Address: >
 	<ADDRESS></ADDRESS>
 <	(|n_;|)
+							*html-audio*
 							*i_;au* *v_;au* *n_;au*
 ;au	Audio with controls (|n_;|) >
         <AUDIO CONTROLS>
@@ -518,6 +534,7 @@ another character of your preference. See |g:html_map_leader|.
         Your browser does not support the audio tag.
         </AUDIO>
 <        See: https://www.w3schools.com/tags/tag_audio.asp
+							*html-video*
 							*i_;vi* *v_;vi* *n_;vi*
 ;vi	Video with controls (|n_;|) >
         <VIDEO WIDTH="" HEIGHT="" CONTROLS>
@@ -525,75 +542,94 @@ another character of your preference. See |g:html_map_leader|.
         Your browser does not support the video tag.
         </VIDEO>
 <        See: https://www.w3schools.com/tags/tag_video.asp
+							*html-bold*
 							*i_;bo* *v_;bo* *n_;bo*
 ;bo	Boldfaced Text: >
 	<B></B>
 <	(|html-smart-tag|) (|n_;|)
+							*html-base-href*
 							*i_;bh* *v_;bh* *n_;bh*
 ;bh	Base URL: >
 	<BASE HREF="">
 <	(|n_;|)
+							*html-base-target*
 							*i_;bt* *v_;bt* *n_;bt*
 ;bt	Base target: >
 	<BASE TARGET="">
 <	(|n_;|)
+							*html-bigger*
 							*i_;bi* *v_;bi* *n_;bi*
 ;bi	Bigger text: >
 	<SPAN STYLE="font-size: larger;"></SPAN>
 <	(Note <BIG> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
+							*html-blockquote*
 							*i_;bl* *v_;bl* *n_;bl*
 ;bl	Block quote: >
 	<BLOCKQUOTE>
 	</BLOCKQUOTE>
 <	(|html-smart-tag|) (|n_;|)
+							*html-body*
 							*i_;bd* *v_;bd* *n_;bd*
 ;bd	Document body: >
 	<BODY>
 	</BODY>
 <	(|n_;|)
+							*html-line-break*
 							*i_;br*
 ;br	Line break: >
 	<BR>
-<							*i_;cv* *v_;cv* *n_;cv*
+<							*html-canvas*
+							*i_;cv* *v_;cv* *n_;cv*
 ;cv	Canvas: >
 	<CANVAS WIDTH="" HEIGHT=""></CANVAS>
 <	(|n_;|)
+							*html-generic-button*
 							*i_;bn* *v_;bn* *n_;bn*
 ;bn	Generic Button: >
 	<BUTTON TYPE="button"></BUTTON>
 <	If you want a form button, see |n_;bu|. (|n_;|)
+							*html-center*
 							*i_;ce* *v_;ce* *n_;ce*
 ;ce	Center: >
 	<DIV STYLE="text-align: center;"></DIV>
 <	(Note <CENTER> is not HTML 5 compatible, so we use CSS instead.)
 	(|n_;|)
+							*html-citation*
 							*i_;ci* *v_;ci* *n_;ci*
 ;ci	Citation: >
 	<CITE></CITE>
 <	(|html-smart-tag|) (|n_;|)
+							*html-code*
 							*i_;co* *v_;co* *n_;co*
 ;co	Code: >
 	<CODE></CODE>
 <	(|html-smart-tag|) (|n_;|)
 
 						*html-definition-lists*
+						*html-dl*
 							*i_;dl* *v_;dl* *n_;dl*
 ;dl	Definition list: >
 	<DL>
 	</DL>
 <	(|n_;|)
+							*html-definition-term*
+							*html-dt*
 							*i_;dt* *v_;dt* *n_;dt*
 ;dt	Definition term: >
 	<DT></DT>
 <	(|n_;|)
+							*html-definition-body*
+							*html-dd*
 							*i_;dd* *v_;dd* *n_;dd*
 ;dd	Definition body: >
 	<DD></DD>
 <	(|n_;|)
+							*html-deleted*
 							*i_;de* *v_;de* *n_;de*
 ;de	Deleted text: >
 	<DEL></DEL>
 <	(|html-smart-tag|) (|n_;|)
+							*html-details*
 							*i_;ds* *v_;ds* *n_;ds*
 ;ds	Details with summmary: >
 	<DETAILS>
@@ -602,19 +638,24 @@ another character of your preference. See |g:html_map_leader|.
 	</P>
 	</DETAILS>
 <	Visual mode puts the selected text in place of the <P></P>. (|n_;|)
+							*html-defining-instance*
+							*html-dfn*
 							*i_;df* *v_;df* *n_;df*
 ;df	Defining instance: >
 	<DFN></DFN>
 <	(|html-smart-tag|) (|n_;|)
+							*html-division*
 							*i_;dv* *v_;dv* *n_;dv*
 ;dv	Document Division: >
 	<DIV>
 	</DIV>
 <	(|n_;|)
+							*html-embed*
 							*i_;eb* *v_;eb* *n_;eb*
 ;eb	Embedded element: >
 	<EMBED TYPE="" SRC="" WIDTH="" HEIGHT="">
 <	Visual mode puts the selected text SRC="here". (|n_;|)
+							*html-object*
 							*i_;ob* *v_;ob* *n_;ob*
 ;ob	Generic embedded object: >
 	<OBJECT DATA="" WIDTH="" HEIGHT="">
@@ -624,36 +665,44 @@ another character of your preference. See |g:html_map_leader|.
 <	here >
 	</OBJECT>.
 <	(|n_;|)
+							*html-object-parameter*
 							*i_;pm* *v_;pm* *n_;pm*
 ;pm	Object parameter: >
 	<PARAM NAME="" VALUE="">
 <	Visual mode puts the selected text NAME="here". (|n_;|)
+							*html-emphasize*
 							*i_;em* *v_;em* *n_;em*
 ;em	Emphasize: >
 	<EM></EM>
 <	(|html-smart-tag|) (|n_;|)
+							*html-font-size*
 							*i_;fo* *v_;fo* *n_;fo*
 ;fo	Font size: >
 	<SPAN STYLE="font-size: ;"></SPAN>
 <	(Note <FONT> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
+							*html-font-color*
 							*i_;fc* *v_;fc* *n_;fc*
 ;fc	Font color: >
 	<SPAN STYLE="color: ;"></SPAN>
 <	(Note <FONT> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
+							*html-figure*
 							*i_;fg* *v_;fg* *n_;fg*
 ;fg	Figure element: >
 	<FIGURE>
 	</FIGURE>
 <	(|n_;|)
+							*html-figure-caption*
 							*i_;fp* *v_;fp* *n_;fp*
 ;fp	Figure caption: >
 	<FIGCAPTION></FIGCAPTION>
 <	(|n_;|)
+							*html-footer*
 							*i_;ft* *v_;ft* *n_;ft*
 ;ft	Footer: >
 	<FOOTER>
 	</FOOTER>
 <	(|n_;|)
+							*html-header*
 							*i_;hd* *v_;hd* *n_;hd*
 ;hd	Header: >
 	<HEADER>
@@ -686,27 +735,32 @@ another character of your preference. See |g:html_map_leader|.
 	<HGROUP>
 	</HGROUP>
 <	(|n_;|)
+							*html-head*
 							*i_;he* *v_;he* *n_;he*
 ;he	Head: >
 	<HEAD>
 	</HEAD>
 <	(|n_;|)
+							*html-horizontal-rule*
 							*i_;hr*
 ;hr	Horizontal rule: >
 	<HR>
 <							*i_;Hr*
 ;Hr	Horizontal rule: >
 	<HR STYLE="width: 75%;">
-<							*i_;ht* *v_;ht* *n_;ht*
+^							*html-html*
+							*i_;ht* *v_;ht* *n_;ht*
 ;ht	HTML document: >
 	<HTML>
 	</HTML>
 <	(|n_;|)
+							*html-inline-frame*
 							*i_;if* *v_;if* *n_;if*
 ;if	Inline frame: >
 	<IFRAME SRC="">
 	</IFRAME>
 <	(|n_;|)
+							*html-image*
 							*i_;im* *v_;im* *n_;im*
 ;im	Image: >
 	<IMG SRC="" ALT="">
@@ -718,14 +772,17 @@ another character of your preference. See |g:html_map_leader|.
 	ALT=""> and places the cursor on the second " of ALT="". If this is
 	used in insert mode rather than visual mode, the contents of the
 	|clipboard| are placed between the quotes.   (|n_;|)
+							*html-inserted*
 							*i_;in* *v_;in* *n_;in*
 ;in	Inserted text: >
 	<INS></INS>
 <	(|html-smart-tag|) (|n_;|)
+							*html-italics*
 							*i_;it* *v_;it* *n_;it*
 ;it	Italicized text: >
 	<I></I>
 <	(|html-smart-tag|) (|n_;|)
+							*html-inline-javascript*
 							*i_;js*
 ;js	Inline JavaScript: >
 	<SCRIPT TYPE="text/javascript" LANGUAGE="javascript">
@@ -733,35 +790,43 @@ another character of your preference. See |g:html_map_leader|.
 
 	 // -->
 	</SCRIPT>
-<							*i_;sj*
+<							*html-sourced-javascript*
+							*i_;sj*
 ;sj	External (sourced) JavaScript: >
 	<SCRIPT SRC="" TYPE="text/javascript" LANGUAGE="javascript"></SCRIPT>
-<							*i_;ns* *v_;ns* *n_;ns*
+<							*html-noscript*
+							*i_;ns* *v_;ns* *n_;ns*
 ;ns	Alternate content for browsers with script handling turned off: >
 	<NOSCRIPT>
 	</NOSCRIPT>
 <	(|n_;|)
+							*html-list-item*
 							*i_;li* *v_;li* *n_;li*
 ;li	List item: >
 	<LI></LI>
 <	inside <UL> or <OL>. (|n_;|)
+							*html-header-link*
 							*i_;lk* *v_;lk* *n_;lk*
 ;lk	Link, inside the header: >
 	<LINK HREF="">
 <	(|n_;|)
+							*html-main*
 							*i_;ma* *v_;ma* *n_;ma*
 ;ma	Main document content: >
 	<MAIN>
 	</MAIN>
 <	(|n_;|)
+							*html-meter*
 							*i_;mt* *v_;mt* *n_;mt*
 ;mt	Meter bar indicator (not for progress, use |n_;pg| instead): >
 	<METER VALUE="" MIN="" MAX=""></METER>
 <	(|n_;|)
+							*html-mark*
 							*i_;mk* *v_;mk* *n_;mk*
 ;mk	Marked/highlighted text: >
 	<MARK></MARK>
 <	(|html-smart-tag|) (|n_;|)
+							*html-meta*
 							*i_;me* *v_;me* *n_;me*
 ;me	Meta information: >
 	<META NAME="" CONTENT="">
@@ -773,25 +838,30 @@ another character of your preference. See |g:html_map_leader|.
 	CONTENT="here"> and places the cursor on the second " of NAME="". If
 	this is used in insert mode rather than visual mode, the contents of
 	the |clipboard| are placed between the quotes. (|n_;|)
+							*html-http-equiv*
 							*i_;mh* *v_;mh* *n_;mh*
 ;mh	Meta http-equiv: >
 	<META HTTP-EQUIV="" CONTENT="">
 <	Places the cursor on the second " of HTTP-EQUIV="". Visual mode puts
 	the visually selected text <META HTTP-EQUIV="" CONTENT="here">.
 	(|n_;|)
+							*html-update-image-size*
 							*i_;mi* *v_;mi* *n_;mi*
 ;mi	Automatically add or update the WIDTH and HEIGHT attributes of the
 	<IMG> tag under the cursor.
+							*html-navigation*
 							*i_;na* *v_;na* *n_;na*
 ;na	Navigation links: >
 	<NAV>
 	</NAV>
 <	(|n_;|)
+							*html-ordered-list*
 							*i_;ol* *v_;ol* *n_;ol*
 ;ol	Ordered (numbered) list: >
 	<OL>
 	</OL>
 <	(|n_;|)
+							*html-paragraph*
 							*i_;pp* *v_;pp* *n_;pp*
 ;pp	Paragraph: >
 	<P>
@@ -806,32 +876,39 @@ another character of your preference. See |g:html_map_leader|.
 	insert mode and you want to start a new paragraph without having to
 	move the cursor.  This shouldn't be necessary now that the |;pp| tag
 	is smart.
+							*html-preformatted-text*
 							*i_;pr* *v_;pr* *n_;pr*
 ;pr	Preformatted text: >
 	<PRE>
 	</PRE>
 <	(|html-smart-tag|) (|n_;|)
+							*html-progress*
 							*i_;pg* *v_;pg* *n_;pg*
 ;pg	Progress bar indicator: >
 	<PROGRESS VALUE="" MAX=""></PROGRESS>
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-quote*
 							*i_;qu* *v_;qu* *n_;qu*
 ;qu	Quoted text: >
 	<Q></Q>
 <	(|html-smart-tag|) (|n_;|)
+							*html-sample*
 							*i_;sa* *v_;sa* *n_;sa*
 ;sa	Sample text: >
 	<SAMP></SAMP>
 <	(|html-smart-tag|) (|n_;|)
+							*html-section*
 							*i_;sc* *v_;sc* *n_;sc*
 ;sc	Page section: >
 	<SECTION>
 	</SECTION>
 <	(|n_;|)
+							*html-small*
 							*i_;sm* *v_;sm* *n_;sm*
 ;sm	Small text: >
 	<SPAN STYLE="font-size: smaller;"></SPAN>
 <	(Note <SMALL> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
+							*html-span*
 							*i_;sn* *v_;sn* *n_;sn*
 ;sn	Span: >
 	<SPAN CLASS=""></SPAN>
@@ -843,10 +920,12 @@ another character of your preference. See |g:html_map_leader|.
 <	Visual mode puts the selected text <SPAN STYLE="">here</SPAN>. (|n_;|)
 	(Note that it is assumed that a SPAN tag will require a CLASS or a
 	STYLE to be useful, so there is no mapping for just <SPAN></SPAN>.)
+							*html-strong*
 							*i_;st* *v_;st* *n_;st*
 ;st	Strong text: >
 	<STRONG></STRONG>
 <	(|html-smart-tag|) (|n_;|)
+							*html-inline-css*
 							*i_;cs* *v_;cs* *n_;cs*
 ;cs	Inline CSS Style: >
 	<STYLE TYPE="text/css">
@@ -855,43 +934,54 @@ another character of your preference. See |g:html_map_leader|.
 	-->
 	</STYLE>
 <	(|n_;|)
+							*html-linked-css*
 							*i_;ls* *v_;ls* *n_;ls*
 ;ls	Linked CSS style sheet: >
 	<LINK REL="stylesheet" TYPE="text/css" HREF="">
 <	(|n_;|)
+							*html-subscript*
 							*i_;sb* *v_;sb* *n_;sb*
 ;sb	Subscript: >
 	<SUB></SUB>
 <	(|html-smart-tag|) (|n_;|)
+							*html-superscript*
 							*i_;sp* *v_;sp* *n_;sp*
 ;sp	Superscript: >
 	<SUP></SUP>
 <	(|html-smart-tag|) (|n_;|)
+							*html-title*
 							*i_;ti* *v_;ti* *n_;ti*
 ;ti	Title: >
 	<TITLE></TITLE>
 <	(|n_;|)
+							*html-time*
 							*i_;tm* *v_;tm* *n_;tm*
 ;tm	Time: >
 	<TIME DATETIME=""></TIME>
 <	(|n_;|)
+							*html-teletype*
 							*i_;tt* *v_;tt* *n_;tt*
 ;tt	Teletype Text (monospaced): >
 	<SPAN STYLE="font-family: monospace;"></SPAN>
 <	(Note <TT> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
+							*html-underline*
 							*i_;un* *v_;un* *n_;un*
 ;un	Underlined text: >
 	<U></U>
 <	(|html-smart-tag|) (|n_;|)
+							*html-unordered-list*
 							*i_;ul* *v_;ul* *n_;ul*
 ;ul	Unordered list: >
 	<UL>
 	</UL>
 <	(|n_;|)
+							*html-variable*
 							*i_;va* *v_;va* *n_;va*
 ;va	Variable: >
 	<VAR></VAR>
 <	(|html-smart-tag|) (|n_;|)
+							*html-word-break*
+							*html-wbr*
 							*i_;wb*
 ;wb	Possible line break (work break opportunity): >
 	<WBR>
@@ -908,31 +998,38 @@ another character of your preference. See |g:html_map_leader|.
 	rows, columns, border width, table header and table footer. (Note that
 	border width is not HTML 5 compatible; leave it empty and use CSS
 	instead.)
+							*html-table-header*
 							*i_;tH* *v_;tH* *n_;tH*
 ;tH	Table header row: >
 	<THEAD></THEAD>
 <	(|n_;|)
+							*html-table-body*
 							*i_;tb* *v_;tb* *n_;tb*
 ;tb	Table body: >
 	<TBODY></TBODY>
 <	(|n_;|)
+							*html-table-footer*
 							*i_;tf* *v_;tf* *n_;tf*
 ;tf	Table footer row: >
 	<TFOOT></TFOOT>
 <	(|n_;|)
+							*html-table-caption*
 							*i_;ca* *v_;ca* *n_;ca*
 ;ca	Table caption: >
 	<CAPTION></CAPTION>
 <	(|n_;|)
+							*html-table-row*
 							*i_;tr* *v_;tr* *n_;tr*
 ;tr	Table row: >
 	<TR>
 	</TR>
 <	(|n_;|)
+							*html-table-data*
 							*i_;td* *v_;td* *n_;td*
 ;td	Table data (column element): >
 	<TD></TD>
 <	(|n_;|)
+							*html-table-header*
 							*i_;th* *v_;th* *n_;th*
 ;th	Table column header: >
 	<TH></TH>
@@ -944,18 +1041,22 @@ another character of your preference. See |g:html_map_leader|.
 	<FORM ACTION="">
 	</FORM>
 <	(|n_;|)
+							*html-form-button*
 							*i_;bu* *v_;bu* *n_;bu*
 ;bu	Form button: >
 	<INPUT TYPE="BUTTON" NAME="" VALUE="">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-form-checkbox*
 							*i_;ch* *v_;ch* *n_;ch*
-;ch	Form check box: >
+;ch	Form checkbox: >
 	<INPUT TYPE="CHECKBOX" NAME="" VALUE="">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-form-date-input*
 							*i_;cl* *v_;cl* *n_;cl*
 ;cl	Form date input field: >
 	<INPUT TYPE="DATE" NAME="">
 <	Visual mode puts the selected text NAME="here". (|n_;|)
+							*html-form-datalist*
 							*i_;da* *v_;da* *n_;da*
 ;da	Form text input field with a datalist: >
 	<INPUT LIST="">
@@ -964,56 +1065,69 @@ another character of your preference. See |g:html_map_leader|.
 	</INPUT>
 <	Visual mode puts the selected text in the LIST value and the ID value.
 	(|n_;|)
+							*html-form-fieldset*
 							*i_;fd* *v_;fd* *n_;fd*
 ;fd	Fieldset container with legend: >
 	<FIELDSET>
 	<LEGEND></LEGEND>
 	</FIELDSET>
 <	Visual mode puts the selected text after the LEGEND. (|n_;|)
+							*html-form-file-input*
 							*i_;fi* *v_;fi* *n_;fi*
 ;fi	Form file input field: >
 	<INPUT TYPE="FILE" NAME="" VALUE="" SIZE="20">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-form-hidden*
 							*i_;hi* *v_;hi* *n_;hi*
 ;hi	Hidden form data: >
 	<INPUT TYPE="HIDDEN" NAME="" VALUE="">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-form-time-input*
 							*i_;nt* *v_;nt* *n_;nt*
 ;nt	Form time input field: >
 	<INPUT TYPE="TIME" NAME="">
 <	Visual mode puts the selected text NAME="here". (|n_;|)
+							*html-form-password*
 							*i_;pa* *v_;pa* *n_;pa*
 ;pa	Form password input field: >
 	<INPUT TYPE="PASSWORD" NAME="" VALUE="" SIZE="20">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-radio-button*
 							*i_;ra* *v_;ra* *n_;ra*
 ;ra	Form radio button: >
 	<INPUT TYPE="RADIO" NAME="" VALUE="">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-range-slider*
 							*i_;rn* *v_;rn* *n_;rn*
 ;rn	Range slider: >
 	<INPUT TYPE="RANGE" NAME="" MIN="" MAX="">
 <	Visual mode puts the selected text NAME="here". (|n_;|)
+							*html-form-text-input*
 							*i_;te* *v_;te* *n_;te*
 ;te	Form text input field: >
 	<INPUT TYPE="TEXT" NAME="" VALUE="" SIZE="20">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-form-email-input*
 							*i_;@* *v_;@* *n_;@*
 ;@	Form email input field: >
 	<INPUT TYPE="EMAIL" NAME="" VALUE="" SIZE="20">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+						*html-form-telephone-input*
 							*i_;#* *v_;#* *n_;#*
 ;#	Form telephone input field: >
 	<INPUT TYPE="TEL" NAME="" VALUE="" SIZE="20">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-form-number-input*
 							*i_;nu* *v_;nu* *n_;nu*
 ;nu	Form number input field: >
 	<INPUT TYPE="NUMBER" NAME="" VALUE="" STYLE="width: 5em;">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-form-url-input*
 							*i_;ur* *v_;ur* *n_;ur*
 ;ur	Form URL input field: >
 	<INPUT TYPE="URL" NAME="" VALUE="" SIZE="20">
 <	Visual mode puts the selected text VALUE="here". (|n_;|)
+							*html-form-selection*
 							*i_;se* *v_;se* *n_;se*
 ;se	Form selection box: >
 	<SELECT NAME="">
@@ -1023,6 +1137,7 @@ another character of your preference. See |g:html_map_leader|.
 <	here >
 	</SELECT>.
 <	(|n_;|)
+						*html-form-multple-selection*
 							*i_;ms* *v_;ms* *n_;ms*
 ;ms	Form multiple selection box: >
 	<SELECT NAME="" MULTIPLE>
@@ -1032,8 +1147,11 @@ another character of your preference. See |g:html_map_leader|.
 <	here >
 	</SELECT>.
 <	(|n_;|)
+						*html-form-selection-option*
 							*i_;op* *v_;op* *n_;op*
 ;op	Form selection option (<OPTION></OPTION>). (|n_;|)
+							*html-form-option-group*
+							*html-form-optgroup*
 							*i_;og* *v_;og* *n_;og*
 ;og	Form option group: >
 	<OPTGROUP LABEL="">
@@ -1043,8 +1161,10 @@ another character of your preference. See |g:html_map_leader|.
 <	here >
 	</OPTGROUP>.
 <	(|n_;|)
+							*html-form-output*
 							*i_;ou* *v_;ou* *n_;ou*
 ;ou	Form output (<OUTPUT NAME=""></OUTPUT>). (|n_;|)
+							*html-form-textarea*
 							*i_;tx* *v_;tx* *n_;tx*
 ;tx	Form text input area: >
 	<TEXTAREA NAME="" ROWS="10" COLS="50">
@@ -1054,13 +1174,16 @@ another character of your preference. See |g:html_map_leader|.
 <	here >
 	</TEXTAREA>.
 <	(|n_;|)
+							*html-form-submit*
 							*i_;su*
 ;su	Form submit button: >
 	<INPUT TYPE="SUBMIT">
-<							*i_;re*
+<							*html-form-reset*
+							*i_;re*
 ;re	Form reset button: >
 	<INPUT TYPE="RESET">
-<							*i_;la* *v_;la* *n_;la*
+<							*html-form-label*
+							*i_;la* *v_;la* *n_;la*
 ;la	Form element label: >
 	<LABEL FOR=""></LABEL>
 <	Visual mode puts the visually selected text <LABEL FOR="">here</LABEL>
@@ -1077,39 +1200,48 @@ For all of these the cursor is placed on the second " in insert mode, and
 highlighted text is inserted between the ""'s for visual mode, except the
 |v_;ie| mapping, where text is inserted between the if and else lines.
 
+							*html-ssi-timefmt*
 							*i_;cf* *v_;cf* *n_;cf*
 ;cf	Config time format: >
 	<!--#config timefmt="" -->
 <	(|n_;|)
+							*html-ssi_sizefmt*
 							*i_;cz* *v_;cz* *n_;cz*
 ;cz	Config size format: >
 	<!--#config sizefmt="" -->
 <	(|n_;|)
+							*html-ssi-echo*
 							*i_;ev* *v_;ev* *n_;ev*
 ;ev	Echo contents of an environmenetal variable: >
 	<!--#echo var="" -->
 <	(|n_;|)
+							*html-ssi-include*
 							*i_;iv* *v_;iv* *n_;iv*
 ;iv	Include file relative to the document root: >
 	<!--#include virtual="" -->
 <	(|n_;|)
+							*html-ssi-flastmod*
 							*i_;fl* *v_;fl* *n_;fl*
 ;fv	Output the last modified timestamp of a file relative to the document
 	root: >
 	<!--#flastmod virtual="" -->
 <	(|n_;|)
+							*html-ssi-fsize*
 							*i_;fz* *v_;fz* *n_;fz*
 ;fz	Output the file size of a file relative to the document root: >
 	<!--#fsize virtual="" -->
 <	(|n_;|)
+							*html-ssi-exec*
 							*i_;ec* *v_;ec* *n_;ec*
 ;ec	Print the output of a specified command: >
 	<!--#exec cmd="" -->
 <	(|n_;|)
+							*html-ssi-set*
 							*i_;sv* *v_;sv* *n_;sv*
 ;sv	Set an environmental variable to a specified value: >
 	<!--#set var="" value="" -->
 <	(|n_;|)
+							*html-ssi-if-else*
 							*i_;ie* *v_;ie* *n_;ie*
 ;ie	If/then/else conditional: >
 	<!--#if expr="" -->
@@ -1432,9 +1564,11 @@ The following mappings, aside from |n_;db| are only defined if you have
 installed the corresponding browsers in a standard location (i.e. on your C:\
 drive).
 
+							*html-default-browser*
 								*n_;db*
 ;db	Call the default browser on the current file. For Unix this requires
 	"xdg-open" to be installed.
+							*html-edge-browser*
 								*n_;ed*
 ;ed	Make Microsoft Edge view the current file, starting Edge if it is not
 	running. You will get an error dialog if Edge is not installed. (Only
@@ -1443,6 +1577,7 @@ drive).
 ;ned	Same as |n_;ed|, but start a new browser window. (Only on Windows.)
 								*n_;ted*
 ;ted	Same as |n_;ned|, but open a new tab. (Only on Windows.)
+							*html-firefox-browser*
 								*n_;ff*
 ;ff	Make Firefox view the current file, starting Firefox if it is not
 	running.
@@ -1450,6 +1585,7 @@ drive).
 ;nff	Same as |n_;ff|, but start a new browser window.
 								*n_;tff*
 ;tff	Same as |n_;nff|, but open a new tab.
+							*html-chrome-browser*
 								*n_;gc*
 ;gc	Make Google Chrome view the current file, starting Chrome if it is not
 	running. (May behave the same as |n_;tgc|.) (Currently not available
@@ -1460,12 +1596,14 @@ drive).
 								*n_;tgc*
 ;tgc	Same as |n_;ngc|, but open a new tab. (Currently not available on
 	MacOS. See |html-author-notes|.)
+							*html-opera-browser*
 								*n_;oa*
 ;oa	Make Opera view the current file, starting Opera if it is not running.
 								*n_;noa*
 ;noa	Same as |n_;oa|, but start a new browser window.
 								*n_;toa*
 ;toa	Same as |n_;noa|, but open a new tab.
+							*html-safari-browser*
 								*n_;sf*
 ;sf	Make Safari view the current file, starting Safari if it is not
 	running. (Only on MacOS.)
@@ -1473,6 +1611,7 @@ drive).
 ;nsf	Same as |n_;sf|, but start a new browser window. (Only on MacOS.)
 								*n_;tsf*
 ;tsf	Same as |n_;nsf|, but open a new tab. (Only on MacOS.)
+							*html-lynx-browser*
 								*n_;ly*
 ;ly	Use Lynx to view the current file. This behaves like |n_;nly| if the Vim
 	|GUI| is running. (Only on Unix and Cygwin.)
@@ -1484,6 +1623,7 @@ drive).
 								*n_;tly*
 ;tly	Same as |n_;ly|, but in a new Vim window, using |:terminal|.  (Only
 	on Unix and Cygwin.)
+							*html-w3m-browser*
 								*n_;w3*
 ;w3	Use w3m to view the current file. This behaves like |n_;nw3| if the Vim
 	|GUI| is running. (Only on Unix and Cygwin.)
@@ -1495,6 +1635,7 @@ drive).
 								*n_;tw3*
 ;tw3	Same as |n_;w3|, but in a new Vim window, using |:terminal|.  (Only
 	on Unix and Cygwin.)
+							*html-links-browser*
 								*n_;ln*
 ;ln	Use Links to view the current file. This behaves like |n_;nln| if the
 	Vim |GUI| is running. (Only on Unix and Cygwin.)

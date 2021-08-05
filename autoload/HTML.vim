@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: August 03, 2021
+# Last Change: August 04, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -2005,8 +2005,8 @@ def HTML#MappingsControl(dowhat: string): bool
     HTML#MappingsControl('off')
     b:did_html_mappings_init = -1
     silent! unlet g:did_html_menus g:did_html_toolbar g:did_html_commands
-    silent! unmenu HTML
-    silent! unmenu! HTML
+    execute 'silent! unmenu ' .. g:html_toplevel_menu_escaped
+    execute 'silent! unmenu! ' .. g:html_toplevel_menu_escaped
     HTML#MappingsControl('on')
     autocmd SafeState * ++once HTMLReloadFunctions
     quiet_errors = false
@@ -2049,8 +2049,8 @@ def HTML#MenuControl(which: string = 'detect'): bool
   endif
 
   if which == 'disable' || exists('b:did_html_mappings') == 0
-    amenu disable HTML
-    amenu disable HTML.*
+    execute 'amenu disable ' .. g:html_toplevel_menu_escaped
+      execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.*'
     if exists('g:did_html_toolbar') == 1
       amenu disable ToolBar.*
       amenu enable ToolBar.Open
@@ -2066,32 +2066,32 @@ def HTML#MenuControl(which: string = 'detect'): bool
       amenu enable ToolBar.FindPrev
     endif
     if exists('b:did_html_mappings_init') == 1 && exists('b:did_html_mappings') == 0
-      amenu enable HTML
-      amenu disable HTML.Control.*
-      amenu enable HTML.Control
-      amenu enable HTML.Control.Enable\ Mappings
-      amenu enable HTML.Control.Reload\ Mappings
+      execute 'amenu enable ' .. g:html_toplevel_menu_escaped
+      execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.*'
+      execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.Control'
+      execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.Control.Enable\ Mappings'
+      execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.Control.Reload\ Mappings'
     endif
   elseif which == 'enable' || exists('b:did_html_mappings_init') == 1
-    amenu enable HTML
+    execute 'amenu enable ' .. g:html_toplevel_menu_escaped
     if exists('b:did_html_mappings') == 1
-      amenu enable HTML.*
-      amenu enable HTML.Control.*
-      amenu disable HTML.Control.Enable\ Mappings
+      execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.*'
+      execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.Control.*'
+      execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Enable\ Mappings'
 
       if HTML#BoolVar('b:do_xhtml_mappings')
-        amenu disable HTML.Control.Switch\ to\ XHTML\ mode
-        amenu enable  HTML.Control.Switch\ to\ HTML\ mode
+        execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ XHTML\ mode'
+        execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ HTML\ mode'
       else
-        amenu enable  HTML.Control.Switch\ to\ XHTML\ mode
-        amenu disable HTML.Control.Switch\ to\ HTML\ mode
+        execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ XHTML\ mode'
+        execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ HTML\ mode'
       endif
 
       if exists('g:did_html_toolbar') == 1
         amenu enable ToolBar.*
       endif
     else
-      amenu enable HTML.Control.Enable\ Mappings
+      execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.Control.Enable\ Mappings'
     endif
   endif
 
@@ -2330,6 +2330,55 @@ def HTML#Template(): bool
   return ret
 enddef
 
+# MenuJoin()  {{{1
+#
+# Simple function to join menu name array into a valid menu name, escaped
+#
+# Arguments:
+#  1 - List: The menu name
+# Return Value:
+#  The menu name joined into a single string, escaped
+def MenuJoin(menuname: list<string>): string
+  return menuname->mapnew(
+    (key, value) => {
+      return value->escape(' .')
+    }
+  )->join('.')
+enddef
+
+# HTML#Menu()  {{{1
+#
+# Generate plain HTML menu items without any extra magic
+#
+# Arguments:
+#  1 - String: The menu type (amenu, imenu, omenu)
+#  2 - String: The menu numeric level(s) ("-" for automatic)
+#  3 - List:   The menu name, split into submenu heirarchy as a list
+# Return Value:
+#  None
+def HTML#Menu(type: string, level: string, name: list<string>, item: string)
+  var newlevel: string
+  var newname: list<string>
+  var leaderescaped = g:html_map_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
+  var nameescaped: string
+
+  if name[0] == 'ToolBar' || name[0] == 'PopUp'
+    newname = name
+  else
+    newname = name->extend(g:html_toplevel_menu, 0)
+  endif
+
+  nameescaped = newname->MenuJoin()
+
+  if level == '-' || level == ''
+    newlevel = ''
+  else
+    newlevel = level
+  endif
+
+  execute type .. ' ' .. newlevel .. ' ' .. nameescaped .. ' ' .. item
+enddef
+
 # HTML#LeadMenu()  {{{1
 #
 # Generate HTML menu items
@@ -2337,24 +2386,33 @@ enddef
 # Arguments:
 #  1 - String: The menu type (amenu, imenu, omenu)
 #  2 - String: The menu numeric level(s) ("-" for automatic)
-#  3 - String: The menu item
+#  3 - List:   The menu name, split into submenu heirarchy as a list
 #  4 - String: Optional, normal mode command to execute before running the
 #              menu command
 # Return Value:
 #  None
-def HTML#LeadMenu(type: string, level: string, name: string, item: string, pre: string = '')
+def HTML#LeadMenu(type: string, level: string, name: list<string>, item: string, pre: string = '')
   var newlevel: string
+  var newname: list<string>
+  var leaderescaped = g:html_map_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
+  var nameescaped: string
 
-  if level == '-'
+  if name[0] == 'ToolBar'
+    newname = name
+  else
+    newname = name->extend(g:html_toplevel_menu, 0)
+  endif
+
+  nameescaped = newname->MenuJoin()
+
+  if level == '-' || level == ''
     newlevel = ''
   else
     newlevel = level
   endif
 
-  var newname = name->escape(' ')
-
-  execute type .. ' ' .. newlevel .. ' ' .. newname .. '<tab>' .. g:html_map_leader
-      .. item .. ' ' .. pre .. g:html_map_leader .. item
+  execute type .. ' ' .. newlevel .. ' ' .. nameescaped .. '<tab>'
+    .. leaderescaped .. item .. ' ' .. pre .. g:html_map_leader .. item
 enddef
 
 # HTML#EntityMenu()  {{{1
@@ -2362,42 +2420,43 @@ enddef
 # Generate HTML character entity menu items
 #
 # Arguments:
-#  1 - String: The menu name
+#  1 - List: The menu name, split into submenu heirarchy as a list
 #  2 - String: The item
 #  3 - String: The symbol it generates
 # Return Value:
 #  None
-def HTML#EntityMenu(name: string, item: string, symb: string = '')
+def HTML#EntityMenu(name: list<string>, item: string, symb: string = '')
+  var newname = name->extend(['Character Entities'], 0)
+  var nameescaped: string
+
+  if g:html_toplevel_menu != []
+    newname = newname->extend(g:html_toplevel_menu, 0)
+  endif
+
+  nameescaped = newname->MenuJoin()
+
   var newsymb = symb
+  var leaderescaped = g:html_map_entity_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
+  var itemescaped = item->escape('&<.|')->substitute('\\&', '\&\&', 'g')
 
-  # Makes it so UTF8 characters don't have to be hardcoded:
-  if newsymb =~# '^\\[xuU]\x\+$'
-    newsymb = newsymb->substitute('^\\[xuU]', '', '')->str2nr(16)->nr2char(true)
-  endif
-
-  if newsymb == '-'
-    newsymb = ''
-  else
-    if newsymb == '\-'
-      newsymb = '\ (-)'
-    else
-      newsymb = '\ (' .. newsymb->escape(' &<.|') .. ')'
+  if newsymb != ''
+    # Makes it so UTF8 characters don't have to be hardcoded:
+    if newsymb =~# '^\\[xuU]\x\+$'
+      newsymb = newsymb->substitute('^\\[xuU]', '', '')->str2nr(16)->nr2char(true)
     endif
+
+    newsymb = '\ (' .. newsymb->escape(' &<.|') .. ')'
+    newsymb = newsymb->substitute('\\&', '\&\&', 'g')
   endif
 
-  var newname = name->escape(' ')
-
-  execute 'imenu ' .. newname .. newsymb .. '<tab>'
-    .. g:html_map_entity_leader->escape('\&')
-    .. item->escape('&<') .. ' '
+  execute 'imenu ' .. nameescaped .. newsymb .. '<tab>'
+    .. leaderescaped .. itemescaped .. ' '
     .. g:html_map_entity_leader .. item
-  execute 'nmenu ' .. newname .. newsymb .. '<tab>'
-    .. g:html_map_entity_leader->escape('\&')
-    .. item->escape('&<') .. ' ' .. 'i'
+  execute 'nmenu ' .. nameescaped .. newsymb .. '<tab>'
+    .. leaderescaped .. itemescaped .. ' ' .. 'i'
     .. g:html_map_entity_leader .. item .. '<esc>'
-  execute 'vmenu ' .. newname .. newsymb .. '<tab>'
-    .. g:html_map_entity_leader->escape('\&')
-    .. item->escape('&<') .. ' ' .. 's'
+  execute 'vmenu ' .. nameescaped .. newsymb .. '<tab>'
+    .. leaderescaped .. itemescaped .. ' ' .. 's'
     .. g:html_map_entity_leader .. item .. '<esc>'
 enddef
 
@@ -2424,14 +2483,18 @@ const colors_sort = {  # {{{
 
 def HTML#ColorsMenu(name: string, color: string)
   var c = name->strpart(0, 1)->toupper()
-  var newname = name->substitute('\C\([a-z]\)\([A-Z]\)', '\1\ \2', 'g')
+  var newname = [name]->extend(['&Colors', '&' .. colors_sort[c]], 0)
+  var nameescaped: string
 
-  execute 'inoremenu HTML.&Colors.&' .. colors_sort[c] .. '.'
-    .. newname->escape(' ') .. '<tab>(' .. color .. ') ' .. color
-  execute 'nnoremenu HTML.&Colors.&' .. colors_sort[c] .. '.'
-    .. newname->escape(' ') .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
-  execute 'vnoremenu HTML.&Colors.&' .. colors_sort[c] .. '.'
-    .. newname->escape(' ') .. '<tab>(' .. color .. ') s' .. color .. '<esc>'
+  if g:html_toplevel_menu != []
+    newname = newname->extend(g:html_toplevel_menu, 0)
+  endif
+
+  nameescaped = newname->MenuJoin()
+
+  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ') ' .. color
+  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ') i' .. color .. '<esc>'
+  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ') s' .. color .. '<esc>'
 
   g:html_color_list[name] = color
 enddef
