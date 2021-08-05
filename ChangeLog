@@ -1,3 +1,9 @@
+Thu, 5 Aug 2021 13:09:15 -0600 Christian J. Robinson
+ * Config option to allow the menu to be placed in another menu. Add more documentation tags.
+
+Wed, 4 Aug 2021 00:19:38 -0600 Christian J. Robinson
+ * More smart tags. More bug fixes. Overhaul some more code.
+
 Sat, 31 Jul 2021 21:29:22 -0600 Christian J. Robinson
  * Overhaul smart tag code, allowing many more tags to be "smart". Optimizations. Documentation updates.
 
