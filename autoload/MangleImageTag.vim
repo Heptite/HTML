@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: August 01, 2021
+# Last Change: August 06, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -108,23 +108,23 @@ def MangleImageTag#Update(): bool  # {{{1
     return false
   endif
 
-  if tag =~? "height=\\(\"\\d\\+\"\\|'\\d\\+\'\\|\\d\\+\\)"
+  if tag =~? 'height=\("\d\+"\|''\d\+''\|\d\+\)'
     tag = tag->substitute(
-      "\\c\\(height=\\)\\([\"']\\=\\)\\(\\d\\+\\)\\(\\2\\)",
-      '\1\2' .. size[1] .. '\4', '')
+      '\c\(height=\)\(["'']\=\)\d\+\2',
+      '\1\2' .. size[1] .. '\2', '')
   else
     tag = tag->substitute(
-      "\\csrc=\\([\"']\\)\\(.\\{-}\\|.\\{-}\\)\\1",
+      '\csrc=\(["'']\).\{-}\1',
       '\0 ' .. (case ? 'HEIGHT' : 'height') .. '="' .. size[1] .. '"', '')
   endif
 
-  if tag =~? "width=\\(\"\\d\\+\"\\|'\\d\\+\'\\|\\d\\+\\)"
+  if tag =~? 'width=\("\d\+"\|''\d\+''\|\d\+\)'
     tag = tag->substitute(
-      "\\c\\(width=\\)\\([\"']\\=\\)\\(\\d\\+\\)\\(\\2\\)",
-      '\1\2' .. size[0] .. '\4', '')
+      '\c\(width=\)\(["'']\=\)\d\+\2',
+      '\1\2' .. size[0] .. '\2', '')
   else
     tag = tag->substitute(
-      "\\csrc=\\([\"']\\)\\(.\\{-}\\|.\\{-}\\)\\1",
+      '\csrc=\(["'']\).\{-}\1',
       '\0 ' .. (case ? 'WIDTH' : 'width') .. '="' .. size[0] .. '"', '')
   endif
 

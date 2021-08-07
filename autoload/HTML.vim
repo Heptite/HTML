@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: August 04, 2021
+# Last Change: August 07, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -52,6 +52,9 @@ var saveopts: dict<any>
 # Used in a bunch of places so some functions don't have to be globally
 # exposed:
 var thisscript = expand('<SID>')
+
+const off = 'off'
+const on = 'on'
 
 # HTML#SetIfUnset()  {{{1
 #
@@ -110,7 +113,7 @@ enddef
 #
 # Given a string, test to see if a variable by that string name exists, and if
 # so, whether it's set to 1|true|yes / 0|false|no   (Actually, anything not
-# listed here also returns as 1.)
+# listed here also returns as true.)
 #
 # Arguments:
 #  1 - String:  The name of the variable to test (not its value!)
@@ -127,11 +130,11 @@ def HTML#BoolVar(variable: string): bool
   # return true/false based on that string.
   #
   # Arguments:
-  #  1 - String:  1|true|yes / 0|false|no|n
+  #  1 - String:  1|true|yes|y|on / 0|false|no|n|off
   # Return Value:
   #  Boolean
   def Bool(value: any): bool
-    var regexp = '^no\?$\|^\(v:\)\?\(false\|none\|null\)$\|^0\(\.0\)\?$\|^$'
+    var regexp = '^no\?$\|^off$\|^\(v:\)\?\(false\|none\|null\)$\|^0\(\.0\)\?$\|^$'
     if value->type() == v:t_string
       return value !~? regexp
     elseif value->type() == v:t_bool || value->type() == v:t_none
@@ -833,13 +836,13 @@ enddef
 # Return Value:
 #  Boolean: Whether a mapping was defined
 const MODES = {  # {{{
-      'n': 'normal',
-      'v': 'visual',
-      'o': 'operator-pending',
-      'i': 'insert',
-      'c': 'command-line',
-      'l': 'langmap',
-    }  # }}}
+  n: 'normal',
+  v: 'visual',
+  o: 'operator-pending',
+  i: 'insert',
+  c: 'command-line',
+  l: 'langmap',
+}  # }}}
 
 def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
   if exists('g:html_map_leader') == 0 && map =~? '^<lead>'
@@ -1326,7 +1329,7 @@ def HTML#NextInsertPoint(mode: string = 'n', direction: string = 'f'): bool
 
   # This regexp looks like someone ran their fingers along the keyboard
   # randomly, but it does work and even correctly positions the cursor:
-  return '<\_[^<>]*"\zs"\_[^<>]*>\|<\([^ <>]\+\)\_[^<>]*>\_s\{-}\zs\n\?\s\{-}<\/\1>\|<!--\_s\{-}\zs\_s\?-->'->search('w' .. (direction =~? '^b' ? 'b' : '')) > 0
+  return '<\_[^<>]\{-}\(["'']\)\zs\1\_[^<>]*>\|<\([^ <>]\+\)\_[^<>]*>\_s\{-}\zs\n\?\s\{-}<\/\2>\|<!--\_s\{-}\zs\_s\?-->'->search('w' .. (direction =~? '^b' ? 'b' : '')) > 0
 enddef
 
 # HTML#SmartTag()  {{{1
@@ -1356,342 +1359,342 @@ enddef
 #  insert     - Behave slightly differently in visual mappings if this is set
 #               to true
 const SMARTTAGS = {
-  'a1': {
-    'i': {
-      'o': "<[{A HREF=\"\"></A}]>\<C-O>F\"",
-      'c': "<[{/A><A HREF=\"\"}]>\<C-O>F\"",
+  a1: {
+    i: {
+      o: "<[{A HREF=\"\"></A}]>\<C-O>F\"",
+      c: "<[{/A><A HREF=\"\"}]>\<C-O>F\"",
     },
-    'v': {
-      'o': "`>a</[{A}]>\<C-O>`<<[{A HREF=\"\"}]>\<C-O>F\"",
-      'c': "`>a<[{A HREF=\"\"}]>\<C-O>`<</[{A}]>\<C-O>2f\"",
-      'insert': true
+    v: {
+      o: "`>a</[{A}]>\<C-O>`<<[{A HREF=\"\"}]>\<C-O>F\"",
+      c: "`>a<[{A HREF=\"\"}]>\<C-O>`<</[{A}]>\<C-O>2f\"",
+      insert: true
     }
   },
 
-  'a2': {
-    'i': {
-      'o': "<[{A HREF=\"\<C-R>*\"></A}]>\<C-O>F<",
-      'c': "<[{/A><A HREF=\"\<C-R>*\"}]>",
+  a2: {
+    i: {
+      o: "<[{A HREF=\"\<C-R>*\"></A}]>\<C-O>F<",
+      c: "<[{/A><A HREF=\"\<C-R>*\"}]>",
     },
-    'v': {
-      'o': "`>a\"></[{A}]>\<C-O>`<<[{A HREF}]=\"\<C-O>f<",
-      'c': "`>a\">\<C-O>`<</[{A><A HREF}]=\"\<C-O>f<",
-      'insert': true
+    v: {
+      o: "`>a\"></[{A}]>\<C-O>`<<[{A HREF}]=\"\<C-O>f<",
+      c: "`>a\">\<C-O>`<</[{A><A HREF}]=\"\<C-O>f<",
+      insert: true
     }
   },
 
-  'a3': {
-    'i': {
-      'o': "<[{A HREF=\"\" TARGET=\"\"></A}]>\<C-O>3F\"",
-      'c': "<[{/A><A HREF=\"\" TARGET=\"\"}]>\<C-O>3F\"",
+  a3: {
+    i: {
+      o: "<[{A HREF=\"\" TARGET=\"\"></A}]>\<C-O>3F\"",
+      c: "<[{/A><A HREF=\"\" TARGET=\"\"}]>\<C-O>3F\"",
     },
-    'v': {
-      'o': "`>a</[{A}]>\<C-O>`<<[{A HREF=\"\" TARGET=\"\"}]>\<C-O>3F\"",
-      'c': "`>a<[{A HREF=\"\" TARGET=\"\"}]>\<C-O>`<</[{A}]>\<C-O>2f\"",
-      'insert': true
+    v: {
+      o: "`>a</[{A}]>\<C-O>`<<[{A HREF=\"\" TARGET=\"\"}]>\<C-O>3F\"",
+      c: "`>a<[{A HREF=\"\" TARGET=\"\"}]>\<C-O>`<</[{A}]>\<C-O>2f\"",
+      insert: true
     }
   },
 
-  'a4': {
-    'i': {
-      'o': "<[{A HREF=\"\<C-R>*\" TARGET=\"\"></A}]>\<C-O>F\"",
-      'c': "<[{/A><A HREF=\"\<C-R>*\" TARGET=\"\"}]>\<C-O>F\"",
+  a4: {
+    i: {
+      o: "<[{A HREF=\"\<C-R>*\" TARGET=\"\"></A}]>\<C-O>F\"",
+      c: "<[{/A><A HREF=\"\<C-R>*\" TARGET=\"\"}]>\<C-O>F\"",
     },
-    'v': {
-      'o': "`>a\" [{TARGET=\"\"></A}]>\<C-O>`<<[{A HREF}]=\"\<C-O>3f\"",
-      'c': "`>a\" [{TARGET=\"\"}]>\<C-O>`<</[{A><A HREF}]=\"\<C-O>3f\"",
-      'insert': true
+    v: {
+      o: "`>a\" [{TARGET=\"\"></A}]>\<C-O>`<<[{A HREF}]=\"\<C-O>3f\"",
+      c: "`>a\" [{TARGET=\"\"}]>\<C-O>`<</[{A><A HREF}]=\"\<C-O>3f\"",
+      insert: true
     }
   },
 
-  'b': {
-    'i': {
-      'o': "<[{B></B}]>\<C-O>F<",
-      'c': "<[{/B><B}]>\<C-O>F<",
+  b: {
+    i: {
+      o: "<[{B></B}]>\<C-O>F<",
+      c: "<[{/B><B}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{B}]>\<C-O>`<<[{B}]>",
-      'c': "`>a<[{B}]>\<C-O>`<</[{B}]>",
+    v: {
+      o: "`>a</[{B}]>\<C-O>`<<[{B}]>",
+      c: "`>a<[{B}]>\<C-O>`<</[{B}]>",
     }
   },
 
-  'blockquote': {
-    'i': {
-      'o': "<[{BLOCKQUOTE}]>\<CR></[{BLOCKQUOTE}]>\<Esc>O",
-      'c': "</[{BLOCKQUOTE}]>\<CR>\<CR><[{BLOCKQUOTE}]>\<CR>",
+  blockquote: {
+    i: {
+      o: "<[{BLOCKQUOTE}]>\<CR></[{BLOCKQUOTE}]>\<Esc>O",
+      c: "</[{BLOCKQUOTE}]>\<CR>\<CR><[{BLOCKQUOTE}]>\<CR>",
     },
-    'v': {
-      'o': "`>a\<CR></[{BLOCKQUOTE}]>\<C-O>`<<[{BLOCKQUOTE}]>\<CR>",
-      'c': "`>a\<CR><[{BLOCKQUOTE}]>\<C-O>`<</[{BLOCKQUOTE}]>\<CR>",
+    v: {
+      o: "`>a\<CR></[{BLOCKQUOTE}]>\<C-O>`<<[{BLOCKQUOTE}]>\<CR>",
+      c: "`>a\<CR><[{BLOCKQUOTE}]>\<C-O>`<</[{BLOCKQUOTE}]>\<CR>",
     }
   },
 
-  'cite': {
-    'i': {
-      'o': "<[{CITE></CITE}]>\<C-O>F<",
-      'c': "<[{/CITE><CITE}]>\<C-O>F<",
+  cite: {
+    i: {
+      o: "<[{CITE></CITE}]>\<C-O>F<",
+      c: "<[{/CITE><CITE}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{CITE}]>\<C-O>`<<[{CITE}]>",
-      'c': "`>a<[{CITE}]>\<C-O>`<</[{CITE}]>",
+    v: {
+      o: "`>a</[{CITE}]>\<C-O>`<<[{CITE}]>",
+      c: "`>a<[{CITE}]>\<C-O>`<</[{CITE}]>",
     }
   },
 
-  'code': {
-    'i': {
-      'o': "<[{CODE></CODE}]>\<C-O>F<",
-      'c': "<[{/CODE><CODE}]>\<C-O>F<",
+  code: {
+    i: {
+      o: "<[{CODE></CODE}]>\<C-O>F<",
+      c: "<[{/CODE><CODE}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{CODE}]>\<C-O>`<<[{CODE}]>",
-      'c': "`>a<[{CODE}]>\<C-O>`<</[{CODE}]>",
+    v: {
+      o: "`>a</[{CODE}]>\<C-O>`<<[{CODE}]>",
+      c: "`>a<[{CODE}]>\<C-O>`<</[{CODE}]>",
     }
   },
 
-  'comment': {
-    'i': {
-      'o': "<!--  -->\<C-O>F ",
-      'c': " --><!-- \<C-O>F<",
+  comment: {
+    i: {
+      o: "<!--  -->\<C-O>F ",
+      c: " --><!-- \<C-O>F<",
     },
-    'v': {
-      'o': "`>a -->\<C-O>`<<!-- ",
-      'c': "`>a<!-- \<C-O>`< -->",
+    v: {
+      o: "`>a -->\<C-O>`<<!-- ",
+      c: "`>a<!-- \<C-O>`< -->",
     }
   },
 
-  'del': {
-    'i': {
-      'o': "<[{DEL></DEL}]>\<C-O>F<",
-      'c': "<[{/DEL><DEL}]>\<C-O>F<",
+  del: {
+    i: {
+      o: "<[{DEL></DEL}]>\<C-O>F<",
+      c: "<[{/DEL><DEL}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{DEL}]>\<C-O>`<<[{DEL}]>",
-      'c': "`>a<[{DEL}]>\<C-O>`<</[{DEL}]>",
+    v: {
+      o: "`>a</[{DEL}]>\<C-O>`<<[{DEL}]>",
+      c: "`>a<[{DEL}]>\<C-O>`<</[{DEL}]>",
     }
   },
 
-  'dfn': {
-    'i': {
-      'o': "<[{DFN></DFN}]>\<C-O>F<",
-      'c': "<[{/DFN><DFN}]>\<C-O>F<",
+  dfn: {
+    i: {
+      o: "<[{DFN></DFN}]>\<C-O>F<",
+      c: "<[{/DFN><DFN}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{DFN}]>\<C-O>`<<[{DFN}]>",
-      'c': "`>a<[{DFN}]>\<C-O>`<</[{DFN}]>",
+    v: {
+      o: "`>a</[{DFN}]>\<C-O>`<<[{DFN}]>",
+      c: "`>a<[{DFN}]>\<C-O>`<</[{DFN}]>",
     }
   },
 
   # Not actually used, since <div> can nest:
-  'div': {
-    'i': {
-      'o': "<[{DIV}]>\<CR></[{DIV}]>\<Esc>O",
-      'c': "</[{DIV}]>\<CR>\<CR><[{DIV}]>\<CR>",
+  div: {
+    i: {
+      o: "<[{DIV}]>\<CR></[{DIV}]>\<Esc>O",
+      c: "</[{DIV}]>\<CR>\<CR><[{DIV}]>\<CR>",
     },
-    'v': {
-      'o': "`>a\<CR></[{DIV}]>\<C-O>`<<[{DIV}]>\<CR>",
-      'c': "`>a\<CR><[{DIV}]>\<C-O>`<</[{DIV}]>\<CR>",
+    v: {
+      o: "`>a\<CR></[{DIV}]>\<C-O>`<<[{DIV}]>\<CR>",
+      c: "`>a\<CR><[{DIV}]>\<C-O>`<</[{DIV}]>\<CR>",
     }
   },
 
-  'em': {
-    'i': {
-      'o': "<[{EM></EM}]>\<C-O>F<",
-      'c': "<[{/EM><EM}]>\<C-O>F<",
+  em: {
+    i: {
+      o: "<[{EM></EM}]>\<C-O>F<",
+      c: "<[{/EM><EM}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{EM}]>\<C-O>`<<[{EM}]>",
-      'c': "`>a<[{EM}]>\<C-O>`<</[{EM}]>",
+    v: {
+      o: "`>a</[{EM}]>\<C-O>`<<[{EM}]>",
+      c: "`>a<[{EM}]>\<C-O>`<</[{EM}]>",
     }
   },
 
-  'i': {
-    'i': {
-      'o': "<[{I></I}]>\<C-O>F<",
-      'c': "<[{/I><I}]>\<C-O>F<",
+  i: {
+    i: {
+      o: "<[{I></I}]>\<C-O>F<",
+      c: "<[{/I><I}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{I}]>\<C-O>`<<[{I}]>",
-      'c': "`>a<[{I}]>\<C-O>`<</[{I}]>",
+    v: {
+      o: "`>a</[{I}]>\<C-O>`<<[{I}]>",
+      c: "`>a<[{I}]>\<C-O>`<</[{I}]>",
     }
   },
 
-  'ins': {
-    'i': {
-      'o': "<[{INS></INS}]>\<C-O>F<",
-      'c': "<[{/INS><INS}]>\<C-O>F<",
+  ins: {
+    i: {
+      o: "<[{INS></INS}]>\<C-O>F<",
+      c: "<[{/INS><INS}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{INS}]>\<C-O>`<<[{INS}]>",
-      'c': "`>a<[{INS}]>\<C-O>`<</[{INS}]>",
+    v: {
+      o: "`>a</[{INS}]>\<C-O>`<<[{INS}]>",
+      c: "`>a<[{INS}]>\<C-O>`<</[{INS}]>",
     }
   },
 
-  'script': {
-    'i': {
-      'o': "\<C-O>:vim9cmd HTML#TC(false)\<CR>i<[{SCRIPT TYPE}]=\"text/javascript\">\<ESC>==o<!--\<CR>// -->\<CR></[{SCRIPT}]>\<ESC>:vim9cmd HTML#TC(true)\<CR>kko",
-      'c': "\<C-O>:vim9cmd HTML#TC(false)\<CR>i// -->\<CR></[{SCRIPT}]>\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\<CR><!--\<CR>\<C-O>:vim9cmd HTML#TC(true)\<CR>",
+  script: {
+    i: {
+      o: "\<C-O>:vim9cmd HTML#TC(false)\<CR>i<[{SCRIPT TYPE}]=\"text/javascript\">\<ESC>==o<!--\<CR>// -->\<CR></[{SCRIPT}]>\<ESC>:vim9cmd HTML#TC(true)\<CR>kko",
+      c: "\<C-O>:vim9cmd HTML#TC(false)\<CR>i// -->\<CR></[{SCRIPT}]>\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\<CR><!--\<CR>\<C-O>:vim9cmd HTML#TC(true)\<CR>",
     },
-    'v': {
-      'o': ":vim9cmd HTML#TC(false)\<CR>`>a\<CR>// -->\<CR></[{SCRIPT}]>\<C-O>`<<[{SCRIPT TYPE}]=\"text/javascript\">\<CR><!--\<CR>\<ESC>:vim9cmd HTML#TC(true)\<CR>",
-      'c': ":vim9cmd HTML#TC(false)\<CR>`>a\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\<CR><!--\<C-O>`<// -->\<CR></[{SCRIPT}]>\<CR>\<ESC>:vim9cmd HTML#TC(true)\<CR>",
+    v: {
+      o: ":vim9cmd HTML#TC(false)\<CR>`>a\<CR>// -->\<CR></[{SCRIPT}]>\<C-O>`<<[{SCRIPT TYPE}]=\"text/javascript\">\<CR><!--\<CR>\<ESC>:vim9cmd HTML#TC(true)\<CR>",
+      c: ":vim9cmd HTML#TC(false)\<CR>`>a\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\<CR><!--\<C-O>`<// -->\<CR></[{SCRIPT}]>\<CR>\<ESC>:vim9cmd HTML#TC(true)\<CR>",
     }
   },
 
   # Not actually used, since <li> can nest:
-  'li': {
-    'i': {
-      'o': "<[{LI></LI}]>\<C-O>F<",
-      'c': "<[{/LI><LI}]>\<C-O>F<",
+  li: {
+    i: {
+      o: "<[{LI></LI}]>\<C-O>F<",
+      c: "<[{/LI><LI}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{LI}]>\<C-O>`<<[{LI}]>",
-      'c': "`>a<[{LI}]>\<C-O>`<</[{LI}]>",
+    v: {
+      o: "`>a</[{LI}]>\<C-O>`<<[{LI}]>",
+      c: "`>a<[{LI}]>\<C-O>`<</[{LI}]>",
     }
   },
 
-  'mark': {
-    'i': {
-      'o': "<[{MARK></MARK}]>\<C-O>F<",
-      'c': "<[{/MARK><MARK}]>\<C-O>F<",
+  mark: {
+    i: {
+      o: "<[{MARK></MARK}]>\<C-O>F<",
+      c: "<[{/MARK><MARK}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{MARK}]>\<C-O>`<<[{MARK}]>",
-      'c': "`>a<[{MARK}]>\<C-O>`<</[{MARK}]>",
+    v: {
+      o: "`>a</[{MARK}]>\<C-O>`<<[{MARK}]>",
+      c: "`>a<[{MARK}]>\<C-O>`<</[{MARK}]>",
     }
   },
 
   # Not actually used, since <ol> can nest:
-  'ol': {
-    'i': {
-      'o': "<[{OL}]>\<CR></[{OL}]>\<Esc>O",
-      'c': "</[{OL}]>\<CR>\<CR><[{OL}]>\<CR>",
+  ol: {
+    i: {
+      o: "<[{OL}]>\<CR></[{OL}]>\<Esc>O",
+      c: "</[{OL}]>\<CR>\<CR><[{OL}]>\<CR>",
     },
-    'v': {
-      'o': "`>a\<CR></[{OL}]>\<C-O>`<<[{OL}]>\<CR>",
-      'c': "`>a\<CR><[{OL}]>\<C-O>`<</[{OL}]>\<CR>",
+    v: {
+      o: "`>a\<CR></[{OL}]>\<C-O>`<<[{OL}]>\<CR>",
+      c: "`>a\<CR><[{OL}]>\<C-O>`<</[{OL}]>\<CR>",
     }
   },
 
-  'p': {
-    'i': {
-      'o': "<[{P}]>\<CR></[{P}]>\<Esc>O",
-      'c': "</[{P}]>\<CR>\<CR><[{P}]>\<CR>",
+  p: {
+    i: {
+      o: "<[{P}]>\<CR></[{P}]>\<Esc>O",
+      c: "</[{P}]>\<CR>\<CR><[{P}]>\<CR>",
     },
-    'v': {
-      'o': "`>a\<CR></[{P}]>\<C-O>`<<[{P}]>\<CR>",
-      'c': "`>a\<CR><[{P}]>\<C-O>`<</[{P}]>\<CR>",
+    v: {
+      o: "`>a\<CR></[{P}]>\<C-O>`<<[{P}]>\<CR>",
+      c: "`>a\<CR><[{P}]>\<C-O>`<</[{P}]>\<CR>",
     }
   },
 
-  'pre': {
-    'i': {
-      'o': "<[{PRE}]>\<CR></[{PRE}]>\<Esc>O",
-      'c': "</[{PRE}]>\<CR>\<CR><[{PRE}]>\<CR>",
+  pre: {
+    i: {
+      o: "<[{PRE}]>\<CR></[{PRE}]>\<Esc>O",
+      c: "</[{PRE}]>\<CR>\<CR><[{PRE}]>\<CR>",
     },
-    'v': {
-      'o': "`>a\<CR></[{PRE}]>\<C-O>`<<[{PRE}]>\<CR>",
-      'c': "`>a\<CR><[{PRE}]>\<C-O>`<</[{PRE}]>\<CR>",
+    v: {
+      o: "`>a\<CR></[{PRE}]>\<C-O>`<<[{PRE}]>\<CR>",
+      c: "`>a\<CR><[{PRE}]>\<C-O>`<</[{PRE}]>\<CR>",
     }
   },
 
-  'q': {
-    'i': {
-      'o': "<[{Q></Q}]>\<C-O>F<",
-      'c': "<[{/Q><Q}]>\<C-O>F<",
+  q: {
+    i: {
+      o: "<[{Q></Q}]>\<C-O>F<",
+      c: "<[{/Q><Q}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{Q}]>\<C-O>`<<[{Q}]>",
-      'c': "`>a<[{Q}]>\<C-O>`<</[{Q}]>",
+    v: {
+      o: "`>a</[{Q}]>\<C-O>`<<[{Q}]>",
+      c: "`>a<[{Q}]>\<C-O>`<</[{Q}]>",
     }
   },
 
-  'samp': {
-    'i': {
-      'o': "<[{SAMP></SAMP}]>\<C-O>F<",
-      'c': "<[{/SAMP><SAMP}]>\<C-O>F<",
+  samp: {
+    i: {
+      o: "<[{SAMP></SAMP}]>\<C-O>F<",
+      c: "<[{/SAMP><SAMP}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{SAMP}]>\<C-O>`<<[{SAMP}]>",
-      'c': "`>a<[{SAMP}]>\<C-O>`<</[{SAMP}]>",
+    v: {
+      o: "`>a</[{SAMP}]>\<C-O>`<<[{SAMP}]>",
+      c: "`>a<[{SAMP}]>\<C-O>`<</[{SAMP}]>",
     }
   },
 
   # Not actually used, since <span> can nest:
-  'span': {
-    'i': {
-      'o': "<[{SPAN CLASS=\"\"></SPAN}]>\<C-O>F<",
-      'c': "<[{/SPAN><SPAN CLASS=\"\"}]>\<C-O>F<",
+  span: {
+    i: {
+      o: "<[{SPAN CLASS=\"\"></SPAN}]>\<C-O>F<",
+      c: "<[{/SPAN><SPAN CLASS=\"\"}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{SPAN}]>\<C-O>`<<[{SPAN CLASS=\"\"}]>",
-      'c': "`>a<[{SPAN CLASS=\"\"}]>\<C-O>`<</[{SPAN}]>",
+    v: {
+      o: "`>a</[{SPAN}]>\<C-O>`<<[{SPAN CLASS=\"\"}]>",
+      c: "`>a<[{SPAN CLASS=\"\"}]>\<C-O>`<</[{SPAN}]>",
     }
   },
 
-  'strong': {
-    'i': {
-      'o': "<[{STRONG></STRONG}]>\<C-O>F<",
-      'c': "<[{/STRONG><STRONG}]>\<C-O>F<",
+  strong: {
+    i: {
+      o: "<[{STRONG></STRONG}]>\<C-O>F<",
+      c: "<[{/STRONG><STRONG}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{STRONG}]>\<C-O>`<<[{STRONG}]>",
-      'c': "`>a<[{STRONG}]>\<C-O>`<</[{STRONG}]>",
+    v: {
+      o: "`>a</[{STRONG}]>\<C-O>`<<[{STRONG}]>",
+      c: "`>a<[{STRONG}]>\<C-O>`<</[{STRONG}]>",
     }
   },
 
-  'sub': {
-    'i': {
-      'o': "<[{SUB></SUB}]>\<C-O>F<",
-      'c': "<[{/SUB><SUB}]>\<C-O>F<",
+  sub: {
+    i: {
+      o: "<[{SUB></SUB}]>\<C-O>F<",
+      c: "<[{/SUB><SUB}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{SUB}]>\<C-O>`<<[{SUB}]>",
-      'c': "`>a<[{SUB}]>\<C-O>`<</[{SUB}]>",
+    v: {
+      o: "`>a</[{SUB}]>\<C-O>`<<[{SUB}]>",
+      c: "`>a<[{SUB}]>\<C-O>`<</[{SUB}]>",
     }
   },
 
-  'sup': {
-    'i': {
-      'o': "<[{SUP></SUP}]>\<C-O>F<",
-      'c': "<[{/SUP><SUP}]>\<C-O>F<",
+  sup: {
+    i: {
+      o: "<[{SUP></SUP}]>\<C-O>F<",
+      c: "<[{/SUP><SUP}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{SUP}]>\<C-O>`<<[{SUP}]>",
-      'c': "`>a<[{SUP}]>\<C-O>`<</[{SUP}]>",
+    v: {
+      o: "`>a</[{SUP}]>\<C-O>`<<[{SUP}]>",
+      c: "`>a<[{SUP}]>\<C-O>`<</[{SUP}]>",
     }
   },
 
-  'u': {
-    'i': {
-      'o': "<[{U></U}]>\<C-O>F<",
-      'c': "<[{/U><U}]>\<C-O>F<",
+  u: {
+    i: {
+      o: "<[{U></U}]>\<C-O>F<",
+      c: "<[{/U><U}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{U}]>\<C-O>`<<[{U}]>",
-      'c': "`>a<[{U}]>\<C-O>`<</[{U}]>",
+    v: {
+      o: "`>a</[{U}]>\<C-O>`<<[{U}]>",
+      c: "`>a<[{U}]>\<C-O>`<</[{U}]>",
     }
   },
 
   # Not actually used, since <ul> can nest:
-  'ul': {
-    'i': {
-      'o': "<[{UL}]>\<CR></[{UL}]>\<Esc>O",
-      'c': "</[{UL}]>\<CR>\<CR><[{UL}]>\<CR>",
+  ul: {
+    i: {
+      o: "<[{UL}]>\<CR></[{UL}]>\<Esc>O",
+      c: "</[{UL}]>\<CR>\<CR><[{UL}]>\<CR>",
     },
-    'v': {
-      'o': "`>a\<CR></[{UL}]>\<C-O>`<<[{UL}]>\<CR>",
-      'c': "`>a\<CR><[{UL}]>\<C-O>`<</[{UL}]>\<CR>",
+    v: {
+      o: "`>a\<CR></[{UL}]>\<C-O>`<<[{UL}]>\<CR>",
+      c: "`>a\<CR><[{UL}]>\<C-O>`<</[{UL}]>\<CR>",
     }
   },
 
-  'var': {
-    'i': {
-      'o': "<[{VAR></VAR}]>\<C-O>F<",
-      'c': "<[{/VAR><VAR}]>\<C-O>F<",
+  var: {
+    i: {
+      o: "<[{VAR></VAR}]>\<C-O>F<",
+      c: "<[{/VAR><VAR}]>\<C-O>F<",
     },
-    'v': {
-      'o': "`>a</[{VAR}]>\<C-O>`<<[{VAR}]>",
-      'c': "`>a<[{VAR}]>\<C-O>`<</[{VAR}]>",
+    v: {
+      o: "`>a</[{VAR}]>\<C-O>`<<[{VAR}]>",
+      c: "`>a<[{VAR}]>\<C-O>`<</[{VAR}]>",
     }
   },
 }  # }}}
@@ -1749,13 +1752,13 @@ enddef
 
 # TODO: This table needs to be expanded:  {{{
 const CHARSETS = {
-  'latin1':    'iso-8859-1',
-  'utf_8':     'UTF-8',
-  'utf_16':    'UTF-16',
-  'shift_jis': 'Shift_JIS',
-  'euc_jp':    'EUC-JP',
-  'cp950':     'Big5',
-  'big5':      'Big5',
+  latin1:    'iso-8859-1',
+  utf_8:     'UTF-8',
+  utf_16:    'UTF-16',
+  shift_jis: 'Shift_JIS',
+  euc_jp:    'EUC-JP',
+  cp950:     'Big5',
+  big5:      'Big5',
 }  # }}}
 
 def HTML#DetectCharset(): string
@@ -1968,7 +1971,7 @@ def HTML#MappingsControl(dowhat: string): bool
   enddef  # }}}2
 
   if exists('b:did_html_mappings_init') == 0
-    HTMLERROR The HTML mappings were not sourced for this buffer.
+    HTMLERROR The HTML macros plugin was not sourced for this buffer.
     return false
   endif
 
@@ -1981,16 +1984,17 @@ def HTML#MappingsControl(dowhat: string): bool
     unlet b:did_html_mappings_init
   endif
 
-  if dowhat =~? '^\(d\(isable\)\=\|off\)$'
+  if dowhat =~? '^\(d\(isable\)\?\|off\|false\|0\)$'
     if exists('b:did_html_mappings') == 1
       ClearMappings()
       if exists('g:did_html_menus') == 1
         HTML#MenuControl('disable')
       endif
-    elseif quiet_errors
+    elseif !quiet_errors
       HTMLERROR The HTML mappings are already disabled.
+      return false
     endif
-  elseif dowhat =~? '^\(e\(nable\)\=\|on\)$'
+  elseif dowhat =~? '^\(e\(nable\)\?\|on\|true\|1\)$'
     if exists('b:did_html_mappings') == 1
       HTMLERROR The HTML mappings are already enabled.
     else
@@ -1999,30 +2003,56 @@ def HTML#MappingsControl(dowhat: string): bool
         DoExtraMappings()
       endif
     endif
-  elseif dowhat =~? '^\(r\(eload\|einit\)\=\)$'
+  elseif dowhat =~? '^\(r\(eload\|einit\)\?\)$'
     execute 'HTMLMESG Reloading: ' .. fnamemodify(g:html_plugin_file, ':t')
     quiet_errors = true
-    HTML#MappingsControl('off')
+    HTML#MappingsControl(off)
     b:did_html_mappings_init = -1
     silent! unlet g:did_html_menus g:did_html_toolbar g:did_html_commands
     execute 'silent! unmenu ' .. g:html_toplevel_menu_escaped
     execute 'silent! unmenu! ' .. g:html_toplevel_menu_escaped
-    HTML#MappingsControl('on')
+    HTML#MappingsControl(on)
     autocmd SafeState * ++once HTMLReloadFunctions
     quiet_errors = false
-  elseif dowhat =~? '^h\(tml\)\=$'
+  elseif dowhat =~? '^u\(pper\(case\)\?\)\?'
+    if b:do_xhtml_mappings
+      HTMLERROR Can't switch to uppercase while editing XHTML.
+      return false
+    endif
+    if exists('b:did_html_mappings') != 1
+      HTMLERROR The HTML mappings are disabled, changing case is not possible.
+      return false
+    endif
+    if b:html_tag_case =~? '^u\(pper\(case\)\?\)\?'
+      return false
+    endif
+    HTML#MappingsControl(off)
+    b:html_tag_case = 'uppercase'
+    HTML#MappingsControl(on)
+  elseif dowhat =~? '^l\(ower\(case\)\?\)\?'
+    if exists('b:did_html_mappings') != 1
+      HTMLERROR The HTML mappings are disabled, changing case is not possible.
+      return false
+    endif
+    if b:html_tag_case =~? '^l\(ower\(case\)\?\)\?'
+      return false
+    endif
+    HTML#MappingsControl(off)
+    b:html_tag_case = 'lowercase'
+    HTML#MappingsControl(on)
+  elseif dowhat =~? '^h\(tml\)\?$'
     if exists('b:html_tag_case_save') == 1
       b:html_tag_case = b:html_tag_case_save
     endif
     b:do_xhtml_mappings = false
-    HTML#MappingsControl('off')
+    HTML#MappingsControl(off)
     b:did_html_mappings_init = -1
-    HTML#MappingsControl('on')
-  elseif dowhat =~? '^x\(html\)\=$'
+    HTML#MappingsControl(on)
+  elseif dowhat =~? '^x\(html\)\?$'
     b:do_xhtml_mappings = true
-    HTML#MappingsControl('off')
+    HTML#MappingsControl(off)
     b:did_html_mappings_init = -1
-    HTML#MappingsControl('on')
+    HTML#MappingsControl(on)
   else
     execute 'HTMLERROR Invalid argument: ' .. dowhat
     return false
@@ -2050,7 +2080,7 @@ def HTML#MenuControl(which: string = 'detect'): bool
 
   if which == 'disable' || exists('b:did_html_mappings') == 0
     execute 'amenu disable ' .. g:html_toplevel_menu_escaped
-      execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.*'
+    execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.*'
     if exists('g:did_html_toolbar') == 1
       amenu disable ToolBar.*
       amenu enable ToolBar.Open
@@ -2082,9 +2112,17 @@ def HTML#MenuControl(which: string = 'detect'): bool
       if HTML#BoolVar('b:do_xhtml_mappings')
         execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ XHTML\ mode'
         execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ HTML\ mode'
+        execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
+        execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
       else
         execute 'amenu enable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ XHTML\ mode'
         execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ HTML\ mode'
+
+        if b:html_tag_case =~? '^u\(pper\(case\)\?\)\?'
+          execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
+        else
+          execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
+        endif
       endif
 
       if exists('g:did_html_toolbar') == 1
@@ -2330,7 +2368,7 @@ def HTML#Template(): bool
   return ret
 enddef
 
-# MenuJoin()  {{{1
+# HTML#MenuJoin()  {{{1
 #
 # Simple function to join menu name array into a valid menu name, escaped
 #
@@ -2338,12 +2376,8 @@ enddef
 #  1 - List: The menu name
 # Return Value:
 #  The menu name joined into a single string, escaped
-def MenuJoin(menuname: list<string>): string
-  return menuname->mapnew(
-    (key, value) => {
-      return value->escape(' .')
-    }
-  )->join('.')
+def HTML#MenuJoin(menuname: list<string>): string
+  return menuname->mapnew((key, value) => value->escape(' .'))->join('.')
 enddef
 
 # HTML#Menu()  {{{1
@@ -2368,7 +2402,7 @@ def HTML#Menu(type: string, level: string, name: list<string>, item: string)
     newname = name->extend(g:html_toplevel_menu, 0)
   endif
 
-  nameescaped = newname->MenuJoin()
+  nameescaped = newname->HTML#MenuJoin()
 
   if level == '-' || level == ''
     newlevel = ''
@@ -2403,7 +2437,7 @@ def HTML#LeadMenu(type: string, level: string, name: list<string>, item: string,
     newname = name->extend(g:html_toplevel_menu, 0)
   endif
 
-  nameescaped = newname->MenuJoin()
+  nameescaped = newname->HTML#MenuJoin()
 
   if level == '-' || level == ''
     newlevel = ''
@@ -2433,7 +2467,7 @@ def HTML#EntityMenu(name: list<string>, item: string, symb: string = '')
     newname = newname->extend(g:html_toplevel_menu, 0)
   endif
 
-  nameescaped = newname->MenuJoin()
+  nameescaped = newname->HTML#MenuJoin()
 
   var newsymb = symb
   var leaderescaped = g:html_map_entity_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
@@ -2470,15 +2504,15 @@ enddef
 # Return Value:
 #  None
 const colors_sort = {  # {{{
-  'A': 'A',   'B': 'B',   'C': 'C',
-  'D': 'D',   'E': 'E-G', 'F': 'E-G',
-  'G': 'E-G', 'H': 'H-K', 'I': 'H-K',
-  'J': 'H-K', 'K': 'H-K', 'L': 'L',
-  'M': 'M',   'N': 'N-O', 'O': 'N-O',
-  'P': 'P',   'Q': 'Q-R', 'R': 'Q-R',
-  'S': 'S',   'T': 'T-Z', 'U': 'T-Z',
-  'V': 'T-Z', 'W': 'T-Z', 'X': 'T-Z',
-  'Y': 'T-Z', 'Z': 'T-Z',
+  A: 'A',   B: 'B',   C: 'C',
+  D: 'D',   E: 'E-G', F: 'E-G',
+  G: 'E-G', H: 'H-K', I: 'H-K',
+  J: 'H-K', K: 'H-K', L: 'L',
+  M: 'M',   N: 'N-O', O: 'N-O',
+  P: 'P',   Q: 'Q-R', R: 'Q-R',
+  S: 'S',   T: 'T-Z', U: 'T-Z',
+  V: 'T-Z', W: 'T-Z', X: 'T-Z',
+  Y: 'T-Z', Z: 'T-Z',
 }  # }}}
 
 def HTML#ColorsMenu(name: string, color: string)
@@ -2490,7 +2524,7 @@ def HTML#ColorsMenu(name: string, color: string)
     newname = newname->extend(g:html_toplevel_menu, 0)
   endif
 
-  nameescaped = newname->MenuJoin()
+  nameescaped = newname->HTML#MenuJoin()
 
   execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ') ' .. color
   execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ') i' .. color .. '<esc>'

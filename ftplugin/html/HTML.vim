@@ -11,8 +11,8 @@ endif
 #
 # Author:      Christian J. Robinson <heptite@gmail.com>
 # URL:         https://christianrobinson.name/HTML/
-# Last Change: August 05, 2021
-# Version:     1.1.2
+# Last Change: August 07, 2021
+# Version:     1.1.3
 # Original Concept: Doug Renze
 #
 #
@@ -145,6 +145,10 @@ if ! exists('b:did_html_mappings_init')
   SetIfUnset g:html_color_list {}
   SetIfUnset g:html_function_files []
 
+  # Need to inerpolate the value, which the command form of SetIfUnset doesn't
+  # do:
+  HTML#SetIfUnset('g:html_save_clipboard', &clipboard)
+
   # Always set this, even if it was already set:
   g:html_plugin_file = expand('<sfile>:p')
 
@@ -155,15 +159,10 @@ if ! exists('b:did_html_mappings_init')
     g:html_toplevel_menu = []
   endif
 
-  g:html_toplevel_menu_escaped = g:html_toplevel_menu->add('HTM&L')->mapnew(
-    (key, value) => {
-      return value->escape(' .')
-    }
-  )->join('.')
-
-  # Need to inerpolate the value, which the command form of SetIfUnset doesn't
-  # do:
-  HTML#SetIfUnset('g:html_save_clipboard', &clipboard)
+  if !exists('g:html_toplevel_menu_escaped')
+    const g:html_toplevel_menu_escaped = g:html_toplevel_menu->add('HTM&L')->HTML#MenuJoin()
+    lockvar g:html_toplevel_menu
+  endif
 
   silent! setlocal clipboard+=html
   setlocal matchpairs+=<:>
@@ -1918,22 +1917,32 @@ au!
   }
 augroup END
 
-HTML#Menu('amenu', '-', ['HTML Help<TAB>:help HTML.txt'],                      ':help HTML.txt<CR>')
-HTML#Menu('menu',  '-', ['-sep1-'],                                            '<Nop>')
+HTML#Menu('amenu', '-', ['HTML Help<TAB>:help HTML.txt'],                        ':help HTML.txt<CR>')
+HTML#Menu('menu',  '-', ['-sep1-'],                                              '<Nop>')
 
-HTML#Menu('amenu', '-', ['Co&ntrol', '&Disable Mappings<tab>:HTML disable'],   ':HTMLmappings disable<CR>')
-HTML#Menu('amenu', '-', ['Co&ntrol', '&Enable Mappings<tab>:HTML enable'],     ':HTMLmappings enable<CR>')
+HTML#Menu('amenu', '-', ['Co&ntrol', '&Disable Mappings<tab>:HTML disable'],     ':HTMLmappings disable<CR>')
+HTML#Menu('amenu', '-', ['Co&ntrol', '&Enable Mappings<tab>:HTML enable'],       ':HTMLmappings enable<CR>')
 execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Enable\ Mappings'
-HTML#Menu('menu',  '-', ['Control',  '-sep1-'],                                '<Nop>')
-HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to &HTML mode<tab>:HTML html'],   ':HTMLmappings html<CR>')
-HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to &XHTML mode<tab>:HTML xhtml'], ':HTMLmappings xhtml<CR>')
-HTML#Menu('menu',  '-', ['Control',  '-sep2-'],                                '<Nop>')
-HTML#Menu('amenu', '-', ['Co&ntrol', '&Reload Mappings<tab>:HTML reload'],     ':HTMLmappings reload<CR>')
+HTML#Menu('menu',  '-', ['Control',  '-sep1-'],                                  '<Nop>')
+HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to &HTML mode<tab>:HTML html'],     ':HTMLmappings html<CR>')
+HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to &XHTML mode<tab>:HTML xhtml'],   ':HTMLmappings xhtml<CR>')
+HTML#Menu('menu',  '-', ['Control',  '-sep2-'],                                  '<Nop>')
+HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to lowercase<tab>:HTML lowercase'], ':HTMLmappings lowercase<CR>')
+HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to uppercase<tab>:HTML uppercase'], ':HTMLmappings uppercase<CR>')
+HTML#Menu('menu',  '-', ['Control',  '-sep3-'],                                  '<Nop>')
+HTML#Menu('amenu', '-', ['Co&ntrol', '&Reload Mappings<tab>:HTML reload'],       ':HTMLmappings reload<CR>')
 
 if HTML#BoolVar('b:do_xhtml_mappings')
   execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ XHTML\ mode'
+  execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
+  execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
 else
   execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ HTML\ mode'
+  if b:html_tag_case =~? '^u\(pper\(case\)\?\)\?'
+    execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
+  else
+    execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
+  endif
 endif
 
 if maparg(g:html_map_leader .. 'db', 'n') != ''
@@ -2092,7 +2101,7 @@ HTML#EntityMenu(['Math', 'Fractions', 'Two Thirds'],     '23', '\u2154')
 HTML#EntityMenu(['Math', 'Fractions', 'One Fifth'],      '15', '\u2155')
 HTML#EntityMenu(['Math', 'Fractions', 'Two Fifths'],     '25', '\u2156')
 HTML#EntityMenu(['Math', 'Fractions', 'Three Fifths'],   '35', '\u2157')
-HTML#EntityMenu(['Math', 'Fractions', 'Four Fiftsh'],    '45', '\u2158')
+HTML#EntityMenu(['Math', 'Fractions', 'Four Fifths'],    '45', '\u2158')
 HTML#EntityMenu(['Math', 'Fractions', 'One Sixth'],      '16', '\u2159')
 HTML#EntityMenu(['Math', 'Fractions', 'Five Sixths'],    '56', '\u215A')
 HTML#EntityMenu(['Math', 'Fractions', 'One Eigth'],      '18', '\u215B')

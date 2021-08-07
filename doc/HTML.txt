@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Aug 04
+		Last change: 2021 Aug 06
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -226,8 +226,9 @@ Note: Setting this variable will also force the system menu.vim to load.
 
 *g:html_toplevel_menu*
 Set this to the toplevel menu where you want the HTML menu to become a
-submenu. The value must be a |List|, and there is no way to override the
-"HTML" menu name. e.g.: >
+submenu. The value must be a |List|, must be set before the first time the
+script is sourced, and there is no way to override the "HTML" menu name.
+e.g.: >
 	:let g:html_toplevel_menu = ['Plugins']
 
 *g:html_template* *b:html_template*
