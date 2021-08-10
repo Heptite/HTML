@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023270
+if v:version < 802 || v:versionlong < 8023316
   finish
 endif
 
@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 02, 2021
+# Last Change: August 08, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -497,7 +497,7 @@ def BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): 
       if $DISPLAY != '' && xterm != '' && donew == 1
         command = xterm .. ' -T ' .. Browsers[which][0] .. ' -e '
           .. Browsers[which][1] .. ' ' .. file->shellescape() .. ' &'
-      elseif exists(':terminal') == 2
+      elseif exists_compiled(':terminal') == 2
         execute 'terminal ++close ' .. Browsers[which][1] .. ' ' .. file
         return true
       else

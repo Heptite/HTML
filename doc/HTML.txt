@@ -1,5 +1,5 @@
 *HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Aug 06
+		Last change: 2021 Aug 08
 		Author: Christian J. Robinson
 
 						*HTML.vim*	*HTML.zip*
@@ -231,6 +231,14 @@ script is sourced, and there is no way to override the "HTML" menu name.
 e.g.: >
 	:let g:html_toplevel_menu = ['Plugins']
 
+*g:html_toplevel_menu_priority*
+Set this to the priority (position) you want for the toplevel HTML menu.  If
+you placed the HTML menu in a submenu, it affects the HTML's menu within that
+submenu position.  The value must be a positive |Number|, and must be set
+before the first time the script is sourced, e.g., make the menu appear before
+all others: >
+	:let g:html_toplevel_menu_priority = 1
+
 *g:html_template* *b:html_template*
 Set this variable to the location of your template file to be used by the
 |n_;html| mapping. You can also set this on a per-buffer basis by using
@@ -413,18 +421,26 @@ You would get something like: >
 	plugin. This is normally called by |:HTMLmappings|.
 
 							*:ColorSelect* *:CS*
+							*:ColorChooser* *:CC*
 :ColorSelect
+:ColorChooser
 :CS
-	Open a window with all the colors that are defined in the HTML.Colors
-	menu displayed and highlighted with their respective color. (Note
-	that the highlighting only works in the |GUI| or a |'termguicolors'|
-	capable terminal.)  From this window you can select a color to be
-	inserted in the buffer from which the window was opened. This command
-	fails if you are not in an HTML buffer or the colors menu was not
-	defined. (See |g:force_html_menu|)
+:CC
+	Open a popup with the standard HTML color palette displayed and
+	highlighted with their respective color. (Note that the highlighting
+	only works in the |GUI| or a |'termguicolors'| capable terminal.)
 
-							*n_;3* *i_;3* *v_;3*
-;3	A shortcut mapping to call |:ColorSelect|.
+	Keyboard movement commands such as "j" and "k" apply in this popup.
+	Pressing enter selects the hexadecimal color number, shift-enter
+	selects the color name, and "r" selects the rgb() value. You can abort
+	by pressing escape or "q".  You can also either double-click on the
+	name to select it, or the color number to select that. Finally you can
+	hold down shift while you double click to insert the rgb() value.
+
+	This command fails if you are not in an HTML buffer.
+
+							*n_;cc* *i_;cc* *v_;cc*
+;cc	A shortcut mapping to call |:ColorSelect|.
 
 
 ==============================================================================

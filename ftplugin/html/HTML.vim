@@ -1,20 +1,18 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023270
-  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.3236'
+if v:version < 802 || v:versionlong < 8023316
+  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.3316'
   sleep 3
   finish
 endif
 
 # ---- Author & Copyright: ---------------------------------------------- {{{1
 #
-# Author:      Christian J. Robinson <heptite@gmail.com>
-# URL:         https://christianrobinson.name/HTML/
-# Last Change: August 07, 2021
-# Version:     1.1.3
+# Author:           Christian J. Robinson <heptite@gmail.com>
+# URL:              https://christianrobinson.name/HTML/
+# Last Change:      August 09, 2021
 # Original Concept: Doug Renze
-#
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
 # efforts have been modified in this implementation.  My changes and additions
@@ -71,6 +69,8 @@ endif
 
 # ---- Initialization: -------------------------------------------------- {{{1
 
+import {COLOR_LIST, HOMEPAGE, INTERNAL_HTML_TEMPLATE, MENU_NAME} from "../../import/HTML.vim"
+
 # ---- Commands: -------------------------------------------------------- {{{2
 
 if ! exists('g:did_html_commands') || ! g:did_html_commands 
@@ -97,9 +97,13 @@ if ! exists('g:did_html_commands') || ! g:did_html_commands
   if exists(':HTML') != 2
     command! -nargs=1 HTML HTML#MappingsControl(<f-args>)
   endif
-  command! -nargs=? ColorSelect HTML#ShowColors(<f-args>)
+  command! -nargs=? ColorSelect HTML#ColorChooser(<f-args>)
+  command! -nargs=? ColorChooser HTML#ColorChooser(<f-args>)
   if exists(':CS') != 2
-    command! -nargs=? CS HTML#ShowColors(<f-args>)
+    command! -nargs=? CS HTML#ColorChooser(<f-args>)
+  endif
+  if exists(':CC') != 2
+    command! -nargs=? CC HTML#ColorChooser(<f-args>)
   endif
   command! HTMLReloadFunctions {
       if exists('g:html_function_files')
@@ -123,26 +127,25 @@ if ! exists('b:did_html_mappings_init')
   # Configuration variables:  {{{2
   # (These should be set in the user's vimrc or a filetype plugin, rather than
   # changed here.)
-  SetIfUnset g:html_bgcolor           #FFFFFF
-  SetIfUnset g:html_textcolor         #000000
-  SetIfUnset g:html_linkcolor         #0000EE
-  SetIfUnset g:html_alinkcolor        #FF0000
-  SetIfUnset g:html_vlinkcolor        #990066
-  SetIfUnset g:html_tag_case          lowercase
-  SetIfUnset g:html_map_leader        ;
-  SetIfUnset g:html_map_entity_leader &
-  # SetIfUnset g:html_default_charset   iso-8859-1
-  SetIfUnset g:html_default_charset   UTF-8
+  SetIfUnset g:html_bgcolor                #FFFFFF
+  SetIfUnset g:html_textcolor              #000000
+  SetIfUnset g:html_linkcolor              #0000EE
+  SetIfUnset g:html_alinkcolor             #FF0000
+  SetIfUnset g:html_vlinkcolor             #990066
+  SetIfUnset g:html_tag_case               lowercase
+  SetIfUnset g:html_map_leader             ;
+  SetIfUnset g:html_map_entity_leader      &
+  SetIfUnset g:html_default_charset        UTF-8
   # No way to know sensible defaults here so just make sure the
   # variables are set:
-  SetIfUnset g:html_authorname        ''
-  SetIfUnset g:html_authoremail       ''
+  SetIfUnset g:html_authorname             ''
+  SetIfUnset g:html_authoremail            ''
   # Empty means the HTML menu is its own toplevel:
-  SetIfUnset g:html_toplevel_menu     []
+  SetIfUnset g:html_toplevel_menu          []
+  SetIfUnset g:html_toplevel_menu_priority -1
   # END configurable variables
 
   # Intitialize some necessary variables:  {{{2
-  SetIfUnset g:html_color_list {}
   SetIfUnset g:html_function_files []
 
   # Need to inerpolate the value, which the command form of SetIfUnset doesn't
@@ -150,7 +153,10 @@ if ! exists('b:did_html_mappings_init')
   HTML#SetIfUnset('g:html_save_clipboard', &clipboard)
 
   # Always set this, even if it was already set:
+  unlockvar g:html_plugin_file
   g:html_plugin_file = expand('<sfile>:p')
+  lockvar g:html_plugin_file
+
 
   # Always set this, even if it was already set:
   if type(g:html_toplevel_menu) != v:t_list
@@ -160,7 +166,7 @@ if ! exists('b:did_html_mappings_init')
   endif
 
   if !exists('g:html_toplevel_menu_escaped')
-    const g:html_toplevel_menu_escaped = g:html_toplevel_menu->add('HTM&L')->HTML#MenuJoin()
+    const g:html_toplevel_menu_escaped = g:html_toplevel_menu->add(MENU_NAME)->HTML#MenuJoin()
     lockvar g:html_toplevel_menu
   endif
 
@@ -214,62 +220,21 @@ if ! exists('b:did_html_mappings_init')
 
   # Template Creation: {{{2
 
-  var internal_html_template = [
-    ' <[{HEAD}]>',
-    '',
-    '  <[{TITLE></TITLE}]>',
-    '',
-    '  <[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=%charset%" />',
-    '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% (Vi IMproved editor; http://www.vim.org/)" />',
-    '  <[{META NAME}]="Author" [{CONTENT}]="%authorname%" />',
-    '  <[{META NAME}]="Copyright" [{CONTENT}]="Copyright (C) %date% %authorname%" />',
-    '  <[{LINK REL}]="made" [{HREF}]="mailto:%authoremail%" />',
-    '',
-    '  <[{STYLE TYPE}]="text/css">',
-    '   <!--',
-    '   [{BODY}] {background: %bgcolor%; color: %textcolor%;}',
-    '   [{A}]:link {color: %linkcolor%;}',
-    '   [{A}]:visited {color: %vlinkcolor%;}',
-    '   [{A}]:hover, [{A}]:active, [{A}]:focus {color: %alinkcolor%;}',
-    '   -->',
-    '  </[{STYLE}]>',
-    '',
-    ' </[{HEAD}]>',
-    ' <[{BODY}]>',
-    '',
-    '  <[{H1 STYLE}]="text-align: center;"></[{H1}]>',
-    '',
-    '  <[{P}]>',
-    '  </[{P}]>',
-    '',
-    '  <[{HR STYLE}]="width: 75%;" />',
-    '',
-    '  <[{P}]>',
-    '  Last Modified: <[{I}]>%date%</[{I}]>',
-    '  </[{P}]>',
-    '',
-    '  <[{ADDRESS}]>',
-    '   <[{A HREF}]="mailto:%authoremail%">%authorname% &lt;%authoremail%&gt;</[{A}]>',
-    '  </[{ADDRESS}]>',
-    ' </[{BODY}]>',
-    '</[{HTML}]>'
-  ]
-
   if HTML#BoolVar('b:do_xhtml_mappings')
-    internal_html_template->extend([
+    b:internal_html_template = INTERNAL_HTML_TEMPLATE->extendnew([
       '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
       ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
       '<html xmlns="http://www.w3.org/1999/xhtml">'
     ], 0)
 
-    b:internal_html_template = internal_html_template->HTML#ConvertCase()->join("\n")
+    b:internal_html_template = b:internal_html_template->HTML#ConvertCase()->join("\n")
   else
-    internal_html_template->extend([
+    b:internal_html_template = INTERNAL_HTML_TEMPLATE->extendnew([
       '<!DOCTYPE html>',
       '<[{HTML}]>'
     ], 0)
 
-    b:internal_html_template = internal_html_template->HTML#ConvertCase()->join("\n")
+    b:internal_html_template = b:internal_html_template->HTML#ConvertCase()->join("\n")
 
     b:internal_html_template = b:internal_html_template->substitute(' />', '>', 'g')
   endif
@@ -333,9 +298,9 @@ HTML#Map('vnoremap', '<lead>mi', '<C-c>:vim9cmd MangleImageTag#Update()<CR>', {'
 HTML#Map('nnoremap', '<lead>html', '<Cmd>vim9cmd if HTML#Template() \| startinsert \| endif<CR>')
 
 # Show a color selection buffer:
-HTML#Map('nnoremap', '<lead>3', '<Cmd>ColorSelect<CR>')
-HTML#Map('inoremap', '<lead>3', '<Cmd>ColorSelect<CR>')
-HTML#Map('vnoremap', '<lead>3', '<C-c>:ColorSelect<CR>', {'extra': false})
+HTML#Map('nnoremap', '<lead>cc', '<Cmd>ColorChooser<CR>')
+HTML#Map('inoremap', '<lead>cc', '<Cmd>ColorChooser<CR>')
+HTML#Map('vnoremap', '<lead>cc', 's<Cmd>ColorChooser<CR>', {'extra': false})
 
 # ----------------------------------------------------------------------------
 
@@ -1685,18 +1650,18 @@ endif
 if ! HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
 
   if findfile('bitmaps/Browser.bmp', &runtimepath) == ''
-    var bitmapmessage = "Warning:\nYou need to install the Toolbar Bitmaps for the "
+    var message = "Warning:\nYou need to install the Toolbar Bitmaps for the "
       .. g:html_plugin_file->fnamemodify(':t') .. " plugin.\n"
-      .. "See: http://christianrobinson.name/HTML/#files\n"
+      .. 'See: ' .. HOMEPAGE .. "#files\n"
       .. 'Or see ":help g:no_html_toolbar".'
-    var bitmapmessagereturn = bitmapmessage->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
+    var messagereturn = message->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
 
-    if bitmapmessagereturn == 2
+    if messagereturn == 2
       help g:no_html_toolbar
       # Go to the previous window or everything gets messy:
       wincmd p
-    elseif bitmapmessagereturn == 3
-      BrowserLauncher#Launch('default', 0, 'http://christianrobinson.name/HTML/#files')
+    elseif messagereturn == 3
+      BrowserLauncher#Launch('default', 0, HOMEPAGE .. '#files')
     endif
   endif
 
@@ -1913,12 +1878,14 @@ augroup HTMLmenu
 au!
   autocmd BufEnter,WinEnter * {
     HTML#MenuControl()
-    HTML#ToggleClipboard(2)
+    HTML#ToggleClipboard()
   }
 augroup END
 
-HTML#Menu('amenu', '-', ['HTML Help<TAB>:help HTML.txt'],                        ':help HTML.txt<CR>')
-HTML#Menu('menu',  '-', ['-sep1-'],                                              '<Nop>')
+# Very first non-ToolBar, non-PopUp menu gets "auto" for its priority to place
+# the menu according to user configuration:
+HTML#Menu('amenu', 'auto', ['HTML Help<TAB>:help HTML.txt'],                        ':help HTML.txt<CR>')
+HTML#Menu('menu',  '-',    ['-sep1-'],                                              '<Nop>')
 
 HTML#Menu('amenu', '-', ['Co&ntrol', '&Disable Mappings<tab>:HTML disable'],     ':HTMLmappings disable<CR>')
 HTML#Menu('amenu', '-', ['Co&ntrol', '&Enable Mappings<tab>:HTML enable'],       ':HTMLmappings enable<CR>')
@@ -1999,10 +1966,6 @@ endif
 
 HTML#Menu('menu',      '-', ['-sep4-'],   '<nop>')
 
-HTML#LeadMenu('amenu', '-', ['Template'], 'html')
-
-HTML#Menu('menu',      '-', ['-sep5-'],   '<nop>')
-
 # Character Entities menu:   {{{2
 
 HTML#LeadMenu('vmenu', '-', ['Character &Entities', 'Convert to Entity'], '&')
@@ -2015,109 +1978,10 @@ HTML#EntityMenu(['Greaterthan'], '>',       '>')
 HTML#EntityMenu(['Lessthan'],    '<',       '<')
 HTML#EntityMenu(['Space'],       '<space>', 'nonbreaking')
 HTML#Menu('menu', '-', ['Character Entities', '-sep1-'], '<nop>')
-HTML#EntityMenu(['Cent'],  'c\|', '\xA2')
-HTML#EntityMenu(['Pound'], '#',   '\xA3')
-HTML#EntityMenu(['Euro'],  'E=',  '\u20AC')
-HTML#EntityMenu(['Yen'],   'Y=',  '\xA5')
-HTML#Menu('menu', '-', ['Character Entities', '-sep2-'], '<nop>')
 HTML#EntityMenu(['Copyright'],  'cO', '\xA9')
 HTML#EntityMenu(['Registered'], 'rO', '\xAE')
 HTML#EntityMenu(['Trademark'],  'tm', '\u2122')
-HTML#Menu('menu', '-', ['Character Entities', '-sep3-'], '<nop>')
-HTML#EntityMenu(['Inverted Exlamation'], '!',  '\xA1')
-HTML#EntityMenu(['Inverted Question'],   '?',  '\xBF')
-HTML#EntityMenu(['Paragraph'],           'pa', '\xB6')
-HTML#EntityMenu(['Section'],             'se', '\xA7')
-HTML#EntityMenu(['Middle Dot'],          '.',  '\xB7')
-HTML#EntityMenu(['Bullet'],              '*',  '\u2022')
-HTML#EntityMenu(['En dash'],             'n-', '\u2013')
-HTML#EntityMenu(['Em dash'],             'm-', '\u2014')
-HTML#EntityMenu(['Ellipsis'],            '3.', '\u2026')
-HTML#Menu('menu', '-', ['Character Entities', '-sep5-'], '<nop>')
-HTML#EntityMenu(['Math', 'Multiply'],   'x',  '\xD7')
-HTML#EntityMenu(['Math', 'Divide'],     '/',  '\xF7')
-HTML#EntityMenu(['Math', 'Degree'],     'dg', '\xB0')
-HTML#EntityMenu(['Math', 'Micro'],      'mi', '\xB5')
-HTML#EntityMenu(['Math', 'Plus/Minus'], '+-', '\xB1')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 1'],    'R1',    '\u2160')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 2'],    'R2',    '\u2161')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 3'],    'R3',    '\u2162')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 4'],    'R4',    '\u2163')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 5'],    'R5',    '\u2164')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 6'],    'R6',    '\u2165')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 7'],    'R7',    '\u2166')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 8'],    'R8',    '\u2167')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 9'],    'R9',    '\u2168')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 10'],   'R10',   '\u2169')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 11'],   'R11',   '\u216A')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 12'],   'R12',   '\u216B')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 50'],   'R50',   '\u216C')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 100'],  'R100',  '\u216D')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 500'],  'R500',  '\u216E')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Uppercase 1000'], 'R1000', '\u216F')
-HTML#Menu('menu', '-', ['Character Entities', 'Math', 'Roman Numerals', '-sep1-'], '<nop>')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 1'],    'r1',    '\u2170')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 2'],    'r2',    '\u2171')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 3'],    'r3',    '\u2172')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 4'],    'r4',    '\u2173')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 5'],    'r5',    '\u2174')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 6'],    'r6',    '\u2175')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 7'],    'r7',    '\u2176')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 8'],    'r8',    '\u2177')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 9'],    'r9',    '\u2178')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 10'],   'r10',   '\u2179')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 11'],   'r11',   '\u217A')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 12'],   'r12',   '\u217B')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 50'],   'r50',   '\u217C')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 100'],  'r100',  '\u217D')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 500'],  'r500',  '\u217E')
-HTML#EntityMenu(['Math', 'Roman Numerals', 'Lowercase 1000'], 'r1000', '\u217F')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 0'], '0^', '\u2070')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 1'], '1^', '\xB9')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 2'], '2^', '\xB2')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 3'], '3^', '\xB3')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 4'], '4^', '\u2074')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 5'], '5^', '\u2075')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 6'], '6^', '\u2076')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 7'], '7^', '\u2077')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 8'], '8^', '\u2078')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Superscript 9'], '9^', '\u2079')
-HTML#Menu('menu', '-', ['Character Entities', 'Math', 'Super/Subscript', '-sep1-'], '<nop>')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 0'], '0v', '\u2080')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 1'], '1v', '\u2081')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 2'], '2v', '\u2082')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 3'], '3v', '\u2083')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 4'], '4v', '\u2084')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 5'], '5v', '\u2085')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 6'], '6v', '\u2086')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 7'], '7v', '\u2087')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 8'], '8v', '\u2088')
-HTML#EntityMenu(['Math', 'Super/Subscript', 'Subscript 9'], '9v', '\u2089')
-HTML#EntityMenu(['Math', 'Fractions', 'One Quarter'],    '14', '\xBC')
-HTML#EntityMenu(['Math', 'Fractions', 'One Half'],       '12', '\xBD')
-HTML#EntityMenu(['Math', 'Fractions', 'Three Quarters'], '34', '\xBE')
-HTML#EntityMenu(['Math', 'Fractions', 'One Third'],      '13', '\u2153')
-HTML#EntityMenu(['Math', 'Fractions', 'Two Thirds'],     '23', '\u2154')
-HTML#EntityMenu(['Math', 'Fractions', 'One Fifth'],      '15', '\u2155')
-HTML#EntityMenu(['Math', 'Fractions', 'Two Fifths'],     '25', '\u2156')
-HTML#EntityMenu(['Math', 'Fractions', 'Three Fifths'],   '35', '\u2157')
-HTML#EntityMenu(['Math', 'Fractions', 'Four Fifths'],    '45', '\u2158')
-HTML#EntityMenu(['Math', 'Fractions', 'One Sixth'],      '16', '\u2159')
-HTML#EntityMenu(['Math', 'Fractions', 'Five Sixths'],    '56', '\u215A')
-HTML#EntityMenu(['Math', 'Fractions', 'One Eigth'],      '18', '\u215B')
-HTML#EntityMenu(['Math', 'Fractions', 'Three Eigths'],   '38', '\u215C')
-HTML#EntityMenu(['Math', 'Fractions', 'Five Eigths'],    '58', '\u215D')
-HTML#EntityMenu(['Math', 'Fractions', 'Seven Eigths'],   '78', '\u215E')
-HTML#EntityMenu(['&Graves', 'A-grave'], 'A`', '\xC0')
-HTML#EntityMenu(['&Graves', 'a-grave'], 'a`', '\xE0')
-HTML#EntityMenu(['&Graves', 'E-grave'], 'E`', '\xC8')
-HTML#EntityMenu(['&Graves', 'e-grave'], 'e`', '\xE8')
-HTML#EntityMenu(['&Graves', 'I-grave'], 'I`', '\xCC')
-HTML#EntityMenu(['&Graves', 'i-grave'], 'i`', '\xEC')
-HTML#EntityMenu(['&Graves', 'O-grave'], 'O`', '\xD2')
-HTML#EntityMenu(['&Graves', 'o-grave'], 'o`', '\xF2')
-HTML#EntityMenu(['&Graves', 'U-grave'], 'U`', '\xD9')
-HTML#EntityMenu(['&Graves', 'u-grave'], 'u`', '\xF9')
+HTML#Menu('menu', '-', ['Character Entities', '-sep2-'], '<nop>')
 HTML#EntityMenu(['&Acutes', 'A-acute'], "A'", '\xC1')
 HTML#EntityMenu(['&Acutes', 'a-acute'], "a'", '\xE1')
 HTML#EntityMenu(['&Acutes', 'E-acute'], "E'", '\xC9')
@@ -2130,12 +1994,17 @@ HTML#EntityMenu(['&Acutes', 'U-acute'], "U'", '\xDA')
 HTML#EntityMenu(['&Acutes', 'u-acute'], "u'", '\xFA')
 HTML#EntityMenu(['&Acutes', 'Y-acute'], "Y'", '\xDD')
 HTML#EntityMenu(['&Acutes', 'y-acute'], "y'", '\xFD')
-HTML#EntityMenu(['&Tildes', 'A-tilde'], 'A~', '\xC3')
-HTML#EntityMenu(['&Tildes', 'a-tilde'], 'a~', '\xE3')
-HTML#EntityMenu(['&Tildes', 'N-tilde'], 'N~', '\xD1')
-HTML#EntityMenu(['&Tildes', 'n-tilde'], 'n~', '\xF1')
-HTML#EntityMenu(['&Tildes', 'O-tilde'], 'O~', '\xD5')
-HTML#EntityMenu(['&Tildes', 'o-tilde'], 'o~', '\xF5')
+HTML#EntityMenu(['A&rrows', 'Left single arrow'],       'la', '\u2190')
+HTML#EntityMenu(['A&rrows', 'Right single arrow'],      'ra', '\u2192')
+HTML#EntityMenu(['A&rrows', 'Up single arrow'],         'ua', '\u2191')
+HTML#EntityMenu(['A&rrows', 'Down single arrow'],       'da', '\u2193')
+HTML#EntityMenu(['A&rrows', 'Left-right single arrow'], 'ha', '\u2194')
+HTML#Menu('menu', '-', ['Character Entities', 'Arrows', '-sep1-'], '<nop>')
+HTML#EntityMenu(['A&rrows', 'Left double arrow'],       'lA', '\u21D0')
+HTML#EntityMenu(['A&rrows', 'Right double arrow'],      'rA', '\u21D2')
+HTML#EntityMenu(['A&rrows', 'Up double arrow'],         'uA', '\u21D1')
+HTML#EntityMenu(['A&rrows', 'Down double arrow'],       'dA', '\u21D3')
+HTML#EntityMenu(['A&rrows', 'Left-right double arrow'], 'hA', '\u21D4')
 HTML#EntityMenu(['&Circumflexes', 'A-circumflex'], 'A^', '\xC2')
 HTML#EntityMenu(['&Circumflexes', 'a-circumflex'], 'a^', '\xE2')
 HTML#EntityMenu(['&Circumflexes', 'E-circumflex'], 'E^', '\xCA')
@@ -2146,18 +2015,20 @@ HTML#EntityMenu(['&Circumflexes', 'O-circumflex'], 'O^', '\xD4')
 HTML#EntityMenu(['&Circumflexes', 'o-circumflex'], 'o^', '\xF4')
 HTML#EntityMenu(['&Circumflexes', 'U-circumflex'], 'U^', '\xDB')
 HTML#EntityMenu(['&Circumflexes', 'u-circumflex'], 'u^', '\xFB')
-HTML#EntityMenu(['&Umlauts', 'A-umlaut'], 'A"', '\xC4')
-HTML#EntityMenu(['&Umlauts', 'a-umlaut'], 'a"', '\xE4')
-HTML#EntityMenu(['&Umlauts', 'E-umlaut'], 'E"', '\xCB')
-HTML#EntityMenu(['&Umlauts', 'e-umlaut'], 'e"', '\xEB')
-HTML#EntityMenu(['&Umlauts', 'I-umlaut'], 'I"', '\xCF')
-HTML#EntityMenu(['&Umlauts', 'i-umlaut'], 'i"', '\xEF')
-HTML#EntityMenu(['&Umlauts', 'O-umlaut'], 'O"', '\xD6')
-HTML#EntityMenu(['&Umlauts', 'o-umlaut'], 'o"', '\xF6')
-HTML#EntityMenu(['&Umlauts', 'U-umlaut'], 'U"', '\xDC')
-HTML#EntityMenu(['&Umlauts', 'u-umlaut'], 'u"', '\xFC')
-HTML#EntityMenu(['&Umlauts', 'y-umlaut'], 'y"', '\xFF')
-HTML#EntityMenu(['&Umlauts', 'Umlaut'], '"', '\xA8')
+HTML#EntityMenu(['Curre&ncy', '&Cent'],  'c\|', '\xA2')
+HTML#EntityMenu(['Curre&ncy', '&Pound'], '#',   '\xA3')
+HTML#EntityMenu(['Curre&ncy', '&Euro'],  'E=',  '\u20AC')
+HTML#EntityMenu(['Curre&ncy', '&Yen'],   'Y=',  '\xA5')
+HTML#EntityMenu(['&Graves', 'A-grave'], 'A`', '\xC0')
+HTML#EntityMenu(['&Graves', 'a-grave'], 'a`', '\xE0')
+HTML#EntityMenu(['&Graves', 'E-grave'], 'E`', '\xC8')
+HTML#EntityMenu(['&Graves', 'e-grave'], 'e`', '\xE8')
+HTML#EntityMenu(['&Graves', 'I-grave'], 'I`', '\xCC')
+HTML#EntityMenu(['&Graves', 'i-grave'], 'i`', '\xEC')
+HTML#EntityMenu(['&Graves', 'O-grave'], 'O`', '\xD2')
+HTML#EntityMenu(['&Graves', 'o-grave'], 'o`', '\xF2')
+HTML#EntityMenu(['&Graves', 'U-grave'], 'U`', '\xD9')
+HTML#EntityMenu(['&Graves', 'u-grave'], 'u`', '\xF9')
 HTML#EntityMenu(['Greek &Letters', '&Uppercase', 'Alpha'],    'Al', '\u391')
 HTML#EntityMenu(['Greek &Letters', '&Uppercase', 'Beta'],     'Be', '\u392')
 HTML#EntityMenu(['Greek &Letters', '&Uppercase', 'Gamma'],    'Ga', '\u393')
@@ -2209,17 +2080,89 @@ HTML#EntityMenu(['Greek &Letters', '&Lowercase', 'omega'],    'og', '\u3C9')
 HTML#EntityMenu(['Greek &Letters', '&Lowercase', 'thetasym'], 'ts', '\u3D1')
 HTML#EntityMenu(['Greek &Letters', '&Lowercase', 'upsih'],    'uh', '\u3D2')
 HTML#EntityMenu(['Greek &Letters', '&Lowercase', 'piv'],      'pv', '\u3D6')
-HTML#EntityMenu(['A&rrows', 'Left single arrow'],       'la', '\u2190')
-HTML#EntityMenu(['A&rrows', 'Right single arrow'],      'ra', '\u2192')
-HTML#EntityMenu(['A&rrows', 'Up single arrow'],         'ua', '\u2191')
-HTML#EntityMenu(['A&rrows', 'Down single arrow'],       'da', '\u2193')
-HTML#EntityMenu(['A&rrows', 'Left-right single arrow'], 'ha', '\u2194')
-HTML#Menu('menu', '-', ['Character Entities', 'Arrows', '-sep1-'], '<nop>')
-HTML#EntityMenu(['A&rrows', 'Left double arrow'],       'lA', '\u21D0')
-HTML#EntityMenu(['A&rrows', 'Right double arrow'],      'rA', '\u21D2')
-HTML#EntityMenu(['A&rrows', 'Up double arrow'],         'uA', '\u21D1')
-HTML#EntityMenu(['A&rrows', 'Down double arrow'],       'dA', '\u21D3')
-HTML#EntityMenu(['A&rrows', 'Left-right double arrow'], 'hA', '\u21D4')
+HTML#EntityMenu(['&Math', 'Multiply'],   'x',  '\xD7')
+HTML#EntityMenu(['&Math', 'Divide'],     '/',  '\xF7')
+HTML#EntityMenu(['&Math', 'Degree'],     'dg', '\xB0')
+HTML#EntityMenu(['&Math', 'Micro'],      'mi', '\xB5')
+HTML#EntityMenu(['&Math', 'Plus/Minus'], '+-', '\xB1')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 1'],    'R1',    '\u2160')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 2'],    'R2',    '\u2161')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 3'],    'R3',    '\u2162')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 4'],    'R4',    '\u2163')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 5'],    'R5',    '\u2164')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 6'],    'R6',    '\u2165')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 7'],    'R7',    '\u2166')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 8'],    'R8',    '\u2167')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 9'],    'R9',    '\u2168')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 10'],   'R10',   '\u2169')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 11'],   'R11',   '\u216A')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 12'],   'R12',   '\u216B')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 50'],   'R50',   '\u216C')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 100'],  'R100',  '\u216D')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 500'],  'R500',  '\u216E')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Uppercase 1000'], 'R1000', '\u216F')
+HTML#Menu('menu', '-', ['Character Entities', 'Math', 'Roman Numerals', '-sep1-'], '<nop>')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 1'],    'r1',    '\u2170')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 2'],    'r2',    '\u2171')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 3'],    'r3',    '\u2172')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 4'],    'r4',    '\u2173')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 5'],    'r5',    '\u2174')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 6'],    'r6',    '\u2175')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 7'],    'r7',    '\u2176')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 8'],    'r8',    '\u2177')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 9'],    'r9',    '\u2178')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 10'],   'r10',   '\u2179')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 11'],   'r11',   '\u217A')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 12'],   'r12',   '\u217B')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 50'],   'r50',   '\u217C')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 100'],  'r100',  '\u217D')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 500'],  'r500',  '\u217E')
+HTML#EntityMenu(['&Math', 'Roman Numerals', 'Lowercase 1000'], 'r1000', '\u217F')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 0'], '0^', '\u2070')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 1'], '1^', '\xB9')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 2'], '2^', '\xB2')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 3'], '3^', '\xB3')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 4'], '4^', '\u2074')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 5'], '5^', '\u2075')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 6'], '6^', '\u2076')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 7'], '7^', '\u2077')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 8'], '8^', '\u2078')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Superscript 9'], '9^', '\u2079')
+HTML#Menu('menu', '-', ['Character Entities', 'Math', 'Super/Subscript', '-sep1-'], '<nop>')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 0'], '0v', '\u2080')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 1'], '1v', '\u2081')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 2'], '2v', '\u2082')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 3'], '3v', '\u2083')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 4'], '4v', '\u2084')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 5'], '5v', '\u2085')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 6'], '6v', '\u2086')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 7'], '7v', '\u2087')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 8'], '8v', '\u2088')
+HTML#EntityMenu(['&Math', 'Super/Subscript', 'Subscript 9'], '9v', '\u2089')
+HTML#EntityMenu(['&Math', 'Fractions', 'One Quarter'],    '14', '\xBC')
+HTML#EntityMenu(['&Math', 'Fractions', 'One Half'],       '12', '\xBD')
+HTML#EntityMenu(['&Math', 'Fractions', 'Three Quarters'], '34', '\xBE')
+HTML#EntityMenu(['&Math', 'Fractions', 'One Third'],      '13', '\u2153')
+HTML#EntityMenu(['&Math', 'Fractions', 'Two Thirds'],     '23', '\u2154')
+HTML#EntityMenu(['&Math', 'Fractions', 'One Fifth'],      '15', '\u2155')
+HTML#EntityMenu(['&Math', 'Fractions', 'Two Fifths'],     '25', '\u2156')
+HTML#EntityMenu(['&Math', 'Fractions', 'Three Fifths'],   '35', '\u2157')
+HTML#EntityMenu(['&Math', 'Fractions', 'Four Fifths'],    '45', '\u2158')
+HTML#EntityMenu(['&Math', 'Fractions', 'One Sixth'],      '16', '\u2159')
+HTML#EntityMenu(['&Math', 'Fractions', 'Five Sixths'],    '56', '\u215A')
+HTML#EntityMenu(['&Math', 'Fractions', 'One Eigth'],      '18', '\u215B')
+HTML#EntityMenu(['&Math', 'Fractions', 'Three Eigths'],   '38', '\u215C')
+HTML#EntityMenu(['&Math', 'Fractions', 'Five Eigths'],    '58', '\u215D')
+HTML#EntityMenu(['&Math', 'Fractions', 'Seven Eigths'],   '78', '\u215E')
+HTML#EntityMenu(['&Punctuation', 'Inverted Exlamation'], '!',  '\xA1')
+HTML#EntityMenu(['&Punctuation', 'Inverted Question'],   '?',  '\xBF')
+HTML#EntityMenu(['&Punctuation', 'Paragraph'],           'pa', '\xB6')
+HTML#EntityMenu(['&Punctuation', 'Section'],             'se', '\xA7')
+HTML#EntityMenu(['&Punctuation', 'Middle Dot'],          '.',  '\xB7')
+HTML#EntityMenu(['&Punctuation', 'Bullet'],              '*',  '\u2022')
+HTML#EntityMenu(['&Punctuation', 'En dash'],             'n-', '\u2013')
+HTML#EntityMenu(['&Punctuation', 'Em dash'],             'm-', '\u2014')
+HTML#EntityMenu(['&Punctuation', 'Ellipsis'],            '3.', '\u2026')
 HTML#EntityMenu(['&Quotes', 'Quotation mark'],          "'",  'x22')
 HTML#EntityMenu(['&Quotes', 'Left Single Quote'],       "l'", '\u2018')
 HTML#EntityMenu(['&Quotes', 'Right Single Quote'],      "r'", '\u2019')
@@ -2227,6 +2170,24 @@ HTML#EntityMenu(['&Quotes', 'Left Double Quote'],       'l"', '\u201C')
 HTML#EntityMenu(['&Quotes', 'Right Double Quote'],      'r"', '\u201D')
 HTML#EntityMenu(['&Quotes', 'Left Angle Quote'],        '2<', '\xAB')
 HTML#EntityMenu(['&Quotes', 'Right Angle Quote'],       '2>', '\xBB')
+HTML#EntityMenu(['&Tildes', 'A-tilde'], 'A~', '\xC3')
+HTML#EntityMenu(['&Tildes', 'a-tilde'], 'a~', '\xE3')
+HTML#EntityMenu(['&Tildes', 'N-tilde'], 'N~', '\xD1')
+HTML#EntityMenu(['&Tildes', 'n-tilde'], 'n~', '\xF1')
+HTML#EntityMenu(['&Tildes', 'O-tilde'], 'O~', '\xD5')
+HTML#EntityMenu(['&Tildes', 'o-tilde'], 'o~', '\xF5')
+HTML#EntityMenu(['&Umlauts', 'A-umlaut'], 'A"', '\xC4')
+HTML#EntityMenu(['&Umlauts', 'a-umlaut'], 'a"', '\xE4')
+HTML#EntityMenu(['&Umlauts', 'E-umlaut'], 'E"', '\xCB')
+HTML#EntityMenu(['&Umlauts', 'e-umlaut'], 'e"', '\xEB')
+HTML#EntityMenu(['&Umlauts', 'I-umlaut'], 'I"', '\xCF')
+HTML#EntityMenu(['&Umlauts', 'i-umlaut'], 'i"', '\xEF')
+HTML#EntityMenu(['&Umlauts', 'O-umlaut'], 'O"', '\xD6')
+HTML#EntityMenu(['&Umlauts', 'o-umlaut'], 'o"', '\xF6')
+HTML#EntityMenu(['&Umlauts', 'U-umlaut'], 'U"', '\xDC')
+HTML#EntityMenu(['&Umlauts', 'u-umlaut'], 'u"', '\xFC')
+HTML#EntityMenu(['&Umlauts', 'y-umlaut'], 'y"', '\xFF')
+HTML#EntityMenu(['&Umlauts', 'Umlaut'], '"', '\xA8')
 HTML#EntityMenu(['&etc...', 'A-ring'],      'Ao', '\xC5')
 HTML#EntityMenu(['&etc...', 'a-ring'],      'ao', '\xE5')
 HTML#EntityMenu(['&etc...', 'AE-ligature'], 'AE', '\xC6')
@@ -2238,316 +2199,85 @@ HTML#EntityMenu(['&etc...', 'o-slash'],     'o/', '\xF8')
 
 # Colors menu:   {{{2
 
-HTML#LeadMenu('amenu', '-', ['&Colors', 'Display All && Select'], '3')
+HTML#LeadMenu('amenu', '-', ['&Colors', 'Display All && Select'], 'cc')
 HTML#Menu('menu', '-', ['Colors', '-sep1-'], '<nop>')
 
-HTML#ColorsMenu('Alice Blue',             '#F0F8FF')
-HTML#ColorsMenu('Antique White',          '#FAEBD7')
-HTML#ColorsMenu('Aqua',                   '#00FFFF')
-HTML#ColorsMenu('Aquamarine',             '#7FFFD4')
-HTML#ColorsMenu('Azure',                  '#F0FFFF')
+COLOR_LIST->mapnew(
+  (_, value) => {
+    HTML#ColorsMenu(value[0], value[1], value[2])
+    return
+  }
+)
 
-HTML#ColorsMenu('Beige',                  '#F5F5DC')
-HTML#ColorsMenu('Bisque',                 '#FFE4C4')
-HTML#ColorsMenu('Black',                  '#000000')
-HTML#ColorsMenu('Blanched Almond',        '#FFEBCD')
-HTML#ColorsMenu('Blue',                   '#0000FF')
-HTML#ColorsMenu('Blue Violet',            '#8A2BE2')
-HTML#ColorsMenu('Brown',                  '#A52A2A')
-HTML#ColorsMenu('Burlywood',              '#DEB887')
-
-HTML#ColorsMenu('Cadet Blue',             '#5F9EA0')
-HTML#ColorsMenu('Chartreuse',             '#7FFF00')
-HTML#ColorsMenu('Chocolate',              '#D2691E')
-HTML#ColorsMenu('Coral',                  '#FF7F50')
-HTML#ColorsMenu('Cornflower Blue',        '#6495ED')
-HTML#ColorsMenu('Cornsilk',               '#FFF8DC')
-HTML#ColorsMenu('Crimson',                '#DC143C')
-HTML#ColorsMenu('Cyan',                   '#00FFFF')
-
-HTML#ColorsMenu('Dark Blue',              '#00008B')
-HTML#ColorsMenu('Dark Cyan',              '#008B8B')
-HTML#ColorsMenu('Dark Goldenrod',         '#B8860B')
-HTML#ColorsMenu('Dark Gray',              '#A9A9A9')
-HTML#ColorsMenu('Dark Green',             '#006400')
-HTML#ColorsMenu('Dark Khaki',             '#BDB76B')
-HTML#ColorsMenu('Dark Magenta',           '#8B008B')
-HTML#ColorsMenu('Dark Olive Green',       '#556B2F')
-HTML#ColorsMenu('Dark Orange',            '#FF8C00')
-HTML#ColorsMenu('Dark Orchid',            '#9932CC')
-HTML#ColorsMenu('Dark Red',               '#8B0000')
-HTML#ColorsMenu('Dark Salmon',            '#E9967A')
-HTML#ColorsMenu('Dark Seagreen',          '#8FBC8F')
-HTML#ColorsMenu('Dark Slate Blue',        '#483D8B')
-HTML#ColorsMenu('Dark Slate Gray',        '#2F4F4F')
-HTML#ColorsMenu('Dark Turquoise',         '#00CED1')
-HTML#ColorsMenu('Dark Violet',            '#9400D3')
-HTML#ColorsMenu('Deep Pink',              '#FF1493')
-HTML#ColorsMenu('Deep Skyblue',           '#00BFFF')
-HTML#ColorsMenu('Dim Gray',               '#696969')
-HTML#ColorsMenu('Dodger Blue',            '#1E90FF')
-
-HTML#ColorsMenu('Firebrick',              '#B22222')
-HTML#ColorsMenu('Floral White',           '#FFFAF0')
-HTML#ColorsMenu('Forest Green',           '#228B22')
-HTML#ColorsMenu('Fuchsia',                '#FF00FF')
-HTML#ColorsMenu('Gainsboro',              '#DCDCDC')
-HTML#ColorsMenu('Ghost White',            '#F8F8FF')
-HTML#ColorsMenu('Gold',                   '#FFD700')
-HTML#ColorsMenu('Goldenrod',              '#DAA520')
-HTML#ColorsMenu('Gray',                   '#808080')
-HTML#ColorsMenu('Green',                  '#008000')
-HTML#ColorsMenu('Green Yellow',           '#ADFF2F')
-
-HTML#ColorsMenu('Honeydew',               '#F0FFF0')
-HTML#ColorsMenu('Hot Pink',               '#FF69B4')
-HTML#ColorsMenu('Indian Red',             '#CD5C5C')
-HTML#ColorsMenu('Indigo',                 '#4B0082')
-HTML#ColorsMenu('Ivory',                  '#FFFFF0')
-HTML#ColorsMenu('Khaki',                  '#F0E68C')
-
-HTML#ColorsMenu('Lavender',               '#E6E6FA')
-HTML#ColorsMenu('Lavender Blush',         '#FFF0F5')
-HTML#ColorsMenu('Lawn Green',             '#7CFC00')
-HTML#ColorsMenu('Lemon Chiffon',          '#FFFACD')
-HTML#ColorsMenu('Light Blue',             '#ADD8E6')
-HTML#ColorsMenu('Light Coral',            '#F08080')
-HTML#ColorsMenu('Light Cyan',             '#E0FFFF')
-HTML#ColorsMenu('Light Goldenrod Yellow', '#FAFAD2')
-HTML#ColorsMenu('Light Green',            '#90EE90')
-HTML#ColorsMenu('Light Grey',             '#D3D3D3')
-HTML#ColorsMenu('Light Pink',             '#FFB6C1')
-HTML#ColorsMenu('Light Salmon',           '#FFA07A')
-HTML#ColorsMenu('Light Sea Green',        '#20B2AA')
-HTML#ColorsMenu('Light Sky Blue',         '#87CEFA')
-HTML#ColorsMenu('Light Slate Gray',       '#778899')
-HTML#ColorsMenu('Light Steel Blue',       '#B0C4DE')
-HTML#ColorsMenu('Light Yellow',           '#FFFFE0')
-HTML#ColorsMenu('Lime',                   '#00FF00')
-HTML#ColorsMenu('Lime Green',             '#32CD32')
-HTML#ColorsMenu('Linen',                  '#FAF0E6')
-
-HTML#ColorsMenu('Magenta',                '#FF00FF')
-HTML#ColorsMenu('Maroon',                 '#800000')
-HTML#ColorsMenu('Medium Aquamarine',      '#66CDAA')
-HTML#ColorsMenu('Medium Blue',            '#0000CD')
-HTML#ColorsMenu('Medium Orchid',          '#BA55D3')
-HTML#ColorsMenu('Medium Purple',          '#9370DB')
-HTML#ColorsMenu('Medium Sea Green',       '#3CB371')
-HTML#ColorsMenu('Medium Slate Blue',      '#7B68EE')
-HTML#ColorsMenu('Medium Spring Green',    '#00FA9A')
-HTML#ColorsMenu('Medium Turquoise',       '#48D1CC')
-HTML#ColorsMenu('Medium Violet Red',      '#C71585')
-HTML#ColorsMenu('Midnight Blue',          '#191970')
-HTML#ColorsMenu('Mintcream',              '#F5FFFA')
-HTML#ColorsMenu('Mistyrose',              '#FFE4E1')
-HTML#ColorsMenu('Moccasin',               '#FFE4B5')
-
-HTML#ColorsMenu('Navajo White',           '#FFDEAD')
-HTML#ColorsMenu('Navy',                   '#000080')
-HTML#ColorsMenu('Old Lace',               '#FDF5E6')
-HTML#ColorsMenu('Olive',                  '#808000')
-HTML#ColorsMenu('Olive Drab',             '#6B8E23')
-HTML#ColorsMenu('Orange',                 '#FFA500')
-HTML#ColorsMenu('Orange Red',             '#FF4500')
-HTML#ColorsMenu('Orchid',                 '#DA70D6')
-
-HTML#ColorsMenu('Pale Goldenrod',         '#EEE8AA')
-HTML#ColorsMenu('Pale Green',             '#98FB98')
-HTML#ColorsMenu('Pale Turquoise',         '#AFEEEE')
-HTML#ColorsMenu('Pale Violetred',         '#DB7093')
-HTML#ColorsMenu('Papayawhip',             '#FFEFD5')
-HTML#ColorsMenu('Peachpuff',              '#FFDAB9')
-HTML#ColorsMenu('Peru',                   '#CD853F')
-HTML#ColorsMenu('Pink',                   '#FFC0CB')
-HTML#ColorsMenu('Plum',                   '#DDA0DD')
-HTML#ColorsMenu('Powder Blue',            '#B0E0E6')
-HTML#ColorsMenu('Purple',                 '#800080')
-
-HTML#ColorsMenu('Red',                    '#FF0000')
-HTML#ColorsMenu('Rosy Brown',             '#BC8F8F')
-HTML#ColorsMenu('Royal Blue',             '#4169E1')
-
-HTML#ColorsMenu('Saddle Brown',           '#8B4513')
-HTML#ColorsMenu('Salmon',                 '#FA8072')
-HTML#ColorsMenu('Sandy Brown',            '#F4A460')
-HTML#ColorsMenu('Sea Green',              '#2E8B57')
-HTML#ColorsMenu('Seashell',               '#FFF5EE')
-HTML#ColorsMenu('Sienna',                 '#A0522D')
-HTML#ColorsMenu('Silver',                 '#C0C0C0')
-HTML#ColorsMenu('Sky Blue',               '#87CEEB')
-HTML#ColorsMenu('Slate Blue',             '#6A5ACD')
-HTML#ColorsMenu('Slate Gray',             '#708090')
-HTML#ColorsMenu('Snow',                   '#FFFAFA')
-HTML#ColorsMenu('Spring Green',           '#00FF7F')
-HTML#ColorsMenu('Steel Blue',             '#4682B4')
-
-HTML#ColorsMenu('Tan',                    '#D2B48C')
-HTML#ColorsMenu('Teal',                   '#008080')
-HTML#ColorsMenu('Thistle',                '#D8BFD8')
-HTML#ColorsMenu('Tomato',                 '#FF6347')
-HTML#ColorsMenu('Turquoise',              '#40E0D0')
-HTML#ColorsMenu('Violet',                 '#EE82EE')
+HTML#Menu('menu', '-', ['-sep5-'], '<nop>')
 
 # Font Styles menu:   {{{2
 
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Bold'],      'bo')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Bold'],      'bo')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Bold'],      'bo', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Strong'],    'st')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Strong'],    'st')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Strong'],    'st', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Italics'],   'it')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Italics'],   'it')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Italics'],   'it', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Emphasis'],  'em')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Emphasis'],  'em')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Emphasis'],  'em', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Underline'], 'un')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Underline'], 'un')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Underline'], 'un', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Big'],       'bi')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Big'],       'bi')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Big'],       'bi', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Small'],     'sm')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Small'],     'sm')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Small'],     'sm', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Bold'],      'bo')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Bold'],      'bo')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Bold'],      'bo', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Strong'],    'st')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Strong'],    'st')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Strong'],    'st', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Italics'],   'it')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Italics'],   'it')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Italics'],   'it', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Emphasis'],  'em')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Emphasis'],  'em')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Emphasis'],  'em', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Underline'], 'un')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Underline'], 'un')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Underline'], 'un', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Big'],       'bi')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Big'],       'bi')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Big'],       'bi', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Small'],     'sm')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Small'],     'sm')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Small'],     'sm', 'i')
 HTML#Menu('menu', '-', ['Font Styles', '-sep1-'], '<nop>')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Font Size'],  'fo')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Font Size'],  'fo')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Font Size'],  'fo', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Font Color'], 'fc')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Font Color'], 'fc')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Font Color'], 'fc', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Font Size'],  'fo')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Font Size'],  'fo')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Font Size'],  'fo', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Font Color'], 'fc')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Font Color'], 'fc')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Font Color'], 'fc', 'i')
 HTML#Menu('menu', '-', ['Font Styles', '-sep2-'], '<nop>')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'CITE'],          'ci')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'CITE'],          'ci')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'CITE'],          'ci', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'CODE'],          'co')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'CODE'],          'co')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'CODE'],          'co', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Inserted Text'], 'in')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Inserted Text'], 'in')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Inserted Text'], 'in', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Deleted Text'],  'de')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Deleted Text'],  'de')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Deleted Text'],  'de', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Emphasize'],     'em')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Emphasize'],     'em')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Emphasize'],     'em', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Keyboard Text'], 'kb')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Keyboard Text'], 'kb')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Keyboard Text'], 'kb', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Sample Text'],   'sa')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Sample Text'],   'sa')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Sample Text'],   'sa', 'i')
-# HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Strikethrough'], 'sk')
-# HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Strikethrough'], 'sk')
-# HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Strikethrough'], 'sk', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'STRONG'],        'st')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'STRONG'],        'st')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'STRONG'],        'st', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Subscript'],     'sb')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Subscript'],     'sb')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Subscript'],     'sb', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Superscript'],   'sp')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Superscript'],   'sp')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Superscript'],   'sp', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Teletype Text'], 'tt')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Teletype Text'], 'tt')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Teletype Text'], 'tt', 'i')
-HTML#LeadMenu('imenu', '-', ['Font &Styles', 'Variable'],      'va')
-HTML#LeadMenu('vmenu', '-', ['Font &Styles', 'Variable'],      'va')
-HTML#LeadMenu('nmenu', '-', ['Font &Styles', 'Variable'],      'va', 'i')
-
-
-# Frames menu:   {{{2
-
-# HTML#LeadMenu('imenu', '-', ['&Frames', 'FRAMESET'], 'fs')
-# HTML#LeadMenu('vmenu', '-', ['&Frames', 'FRAMESET'], 'fs')
-# HTML#LeadMenu('nmenu', '-', ['&Frames', 'FRAMESET'], 'fs', 'i')
-# HTML#LeadMenu('imenu', '-', ['&Frames', 'FRAME'],    'fr')
-# HTML#LeadMenu('vmenu', '-', ['&Frames', 'FRAME'],    'fr')
-# HTML#LeadMenu('nmenu', '-', ['&Frames', 'FRAME'],    'fr', 'i')
-# HTML#LeadMenu('imenu', '-', ['&Frames', 'NOFRAMES'], 'nf')
-# HTML#LeadMenu('vmenu', '-', ['&Frames', 'NOFRAMES'], 'nf')
-# HTML#LeadMenu('nmenu', '-', ['&Frames', 'NOFRAMES'], 'nf', 'i')
-#
-# IFRAME menu item has been moved
-
-
-# Headings menu:   {{{2
-
-HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 1'],  'h1')
-HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 2'],  'h2')
-HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 3'],  'h3')
-HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 4'],  'h4')
-HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 5'],  'h5')
-HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 6'],  'h6')
-HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 1'],  'h1')
-HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 2'],  'h2')
-HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 3'],  'h3')
-HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 4'],  'h4')
-HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 5'],  'h5')
-HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 6'],  'h6')
-HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 1'],  'h1', 'i')
-HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 2'],  'h2', 'i')
-HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 3'],  'h3', 'i')
-HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 4'],  'h4', 'i')
-HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 5'],  'h5', 'i')
-HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 6'],  'h6', 'i')
-HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Grouping'], 'hg')
-HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Grouping'], 'hg')
-HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Grouping'], 'hg', 'i')
-
-
-# Lists menu:   {{{2
-
-HTML#LeadMenu('imenu', '-', ['&Lists', 'Ordered List'],    'ol')
-HTML#LeadMenu('vmenu', '-', ['&Lists', 'Ordered List'],    'ol')
-HTML#LeadMenu('nmenu', '-', ['&Lists', 'Ordered List'],    'ol', 'i')
-HTML#LeadMenu('imenu', '-', ['&Lists', 'Unordered List'],  'ul')
-HTML#LeadMenu('vmenu', '-', ['&Lists', 'Unordered List'],  'ul')
-HTML#LeadMenu('nmenu', '-', ['&Lists', 'Unordered List'],  'ul', 'i')
-HTML#LeadMenu('imenu', '-', ['&Lists', 'List Item'],       'li')
-HTML#LeadMenu('vmenu', '-', ['&Lists', 'List Item'],       'li')
-HTML#LeadMenu('nmenu', '-', ['&Lists', 'List Item'],       'li', 'i')
-HTML#Menu('menu', '-', ['Lists', '-sep1-'], '<nop>')
-HTML#LeadMenu('imenu', '-', ['&Lists', 'Definition List'], 'dl')
-HTML#LeadMenu('vmenu', '-', ['&Lists', 'Definition List'], 'dl')
-HTML#LeadMenu('nmenu', '-', ['&Lists', 'Definition List'], 'dl', 'i')
-HTML#LeadMenu('imenu', '-', ['&Lists', 'Definition Term'], 'dt')
-HTML#LeadMenu('vmenu', '-', ['&Lists', 'Definition Term'], 'dt')
-HTML#LeadMenu('nmenu', '-', ['&Lists', 'Definition Term'], 'dt', 'i')
-HTML#LeadMenu('imenu', '-', ['&Lists', 'Definition Body'], 'dd')
-HTML#LeadMenu('vmenu', '-', ['&Lists', 'Definition Body'], 'dd')
-HTML#LeadMenu('nmenu', '-', ['&Lists', 'Definition Body'], 'dd', 'i')
-
-
-# Tables menu:   {{{2
-
-HTML#LeadMenu('nmenu', '-', ['&Tables', 'Interactive Table'],     'tA')
-HTML#LeadMenu('imenu', '-', ['&Tables', 'TABLE'],                 'ta')
-HTML#LeadMenu('vmenu', '-', ['&Tables', 'TABLE'],                 'ta')
-HTML#LeadMenu('nmenu', '-', ['&Tables', 'TABLE'],                 'ta', 'i')
-HTML#LeadMenu('imenu', '-', ['&Tables', 'Header Row'],            'tH')
-HTML#LeadMenu('vmenu', '-', ['&Tables', 'Header Row'],            'tH')
-HTML#LeadMenu('nmenu', '-', ['&Tables', 'Header Row'],            'tH', 'i')
-HTML#LeadMenu('imenu', '-', ['&Tables', 'Row'],                   'tr')
-HTML#LeadMenu('vmenu', '-', ['&Tables', 'Row'],                   'tr')
-HTML#LeadMenu('nmenu', '-', ['&Tables', 'Row'],                   'tr', 'i')
-HTML#LeadMenu('imenu', '-', ['&Tables', 'Footer Row'],            'tf')
-HTML#LeadMenu('vmenu', '-', ['&Tables', 'Footer Row'],            'tf')
-HTML#LeadMenu('nmenu', '-', ['&Tables', 'Footer Row'],            'tf', 'i')
-HTML#LeadMenu('imenu', '-', ['&Tables', 'Column Header'],         'th')
-HTML#LeadMenu('vmenu', '-', ['&Tables', 'Column Header'],         'th')
-HTML#LeadMenu('nmenu', '-', ['&Tables', 'Column Header'],         'th', 'i')
-HTML#LeadMenu('imenu', '-', ['&Tables', 'Data (Column Element)'], 'td')
-HTML#LeadMenu('vmenu', '-', ['&Tables', 'Data (Column Element)'], 'td')
-HTML#LeadMenu('nmenu', '-', ['&Tables', 'Data (Column Element)'], 'td', 'i')
-HTML#LeadMenu('imenu', '-', ['&Tables', 'CAPTION'],               'ca')
-HTML#LeadMenu('vmenu', '-', ['&Tables', 'CAPTION'],               'ca')
-HTML#LeadMenu('nmenu', '-', ['&Tables', 'CAPTION'],               'ca', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'CITE'],          'ci')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'CITE'],          'ci')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'CITE'],          'ci', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'CODE'],          'co')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'CODE'],          'co')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'CODE'],          'co', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Inserted Text'], 'in')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Inserted Text'], 'in')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Inserted Text'], 'in', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Deleted Text'],  'de')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Deleted Text'],  'de')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Deleted Text'],  'de', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Emphasize'],     'em')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Emphasize'],     'em')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Emphasize'],     'em', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Keyboard Text'], 'kb')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Keyboard Text'], 'kb')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Keyboard Text'], 'kb', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Sample Text'],   'sa')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Sample Text'],   'sa')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Sample Text'],   'sa', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'STRONG'],        'st')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'STRONG'],        'st')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'STRONG'],        'st', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Subscript'],     'sb')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Subscript'],     'sb')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Subscript'],     'sb', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Superscript'],   'sp')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Superscript'],   'sp')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Superscript'],   'sp', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Teletype Text'], 'tt')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Teletype Text'], 'tt')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Teletype Text'], 'tt', 'i')
+HTML#LeadMenu('imenu', '-', ['&Font Styles', 'Variable'],      'va')
+HTML#LeadMenu('vmenu', '-', ['&Font Styles', 'Variable'],      'va')
+HTML#LeadMenu('nmenu', '-', ['&Font Styles', 'Variable'],      'va', 'i')
 
 
 # Forms menu:   {{{2
@@ -2627,6 +2357,87 @@ HTML#LeadMenu('vmenu', '-', ['F&orms', 'LABEL'],           'la')
 HTML#LeadMenu('nmenu', '-', ['F&orms', 'LABEL'],           'la', 'i')
 
 
+# Frames menu:   {{{2
+
+# HTML#LeadMenu('imenu', '-', ['&Frames', 'FRAMESET'], 'fs')
+# HTML#LeadMenu('vmenu', '-', ['&Frames', 'FRAMESET'], 'fs')
+# HTML#LeadMenu('nmenu', '-', ['&Frames', 'FRAMESET'], 'fs', 'i')
+# HTML#LeadMenu('imenu', '-', ['&Frames', 'FRAME'],    'fr')
+# HTML#LeadMenu('vmenu', '-', ['&Frames', 'FRAME'],    'fr')
+# HTML#LeadMenu('nmenu', '-', ['&Frames', 'FRAME'],    'fr', 'i')
+# HTML#LeadMenu('imenu', '-', ['&Frames', 'NOFRAMES'], 'nf')
+# HTML#LeadMenu('vmenu', '-', ['&Frames', 'NOFRAMES'], 'nf')
+# HTML#LeadMenu('nmenu', '-', ['&Frames', 'NOFRAMES'], 'nf', 'i')
+#
+# IFRAME menu item has been moved
+
+
+# General Tags menu:  {{{2
+
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'BODY'],                         'bd')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'BODY'],                         'bd')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'BODY'],                         'bd', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'BUTTON'],                       'bn')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'BUTTON'],                       'bn')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'BUTTON'],                       'bn', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'CENTER'],                       'ce')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'CENTER'],                       'ce')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'CENTER'],                       'ce', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'HEAD'],                         'he')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'HEAD'],                         'he')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'HEAD'],                         'he', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'Horizontal Rule'],              'hr')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'Horizontal Rule'],              'hr', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'HTML'],                         'ht')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'HTML'],                         'ht')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'HTML'],                         'ht', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'Hyperlink'],                    'ah')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'Hyperlink'],                    'ah')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'Hyperlink'],                    'ah', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'Inline Image'],                 'im')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'Inline Image'],                 'im')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'Inline Image'],                 'im', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'Update Image Size Attributes'], 'mi')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'Update Image Size Attributes'], 'mi')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'Update Image Size Attributes'], 'mi')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'Line Break'],                   'br')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'Line Break'],                   'br', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'Paragraph'],                    'pp')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'Paragraph'],                    'pp')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'Paragraph'],                    'pp', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'Preformatted Text'],            'pr')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'Preformatted Text'],            'pr')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'Preformatted Text'],            'pr', 'i')
+HTML#LeadMenu('imenu', '-', ['&General Tags', 'TITLE'],                        'ti')
+HTML#LeadMenu('vmenu', '-', ['&General Tags', 'TITLE'],                        'ti')
+HTML#LeadMenu('nmenu', '-', ['&General Tags', 'TITLE'],                        'ti', 'i')
+
+
+# Headings menu:   {{{2
+
+HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 1'],  'h1')
+HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 2'],  'h2')
+HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 3'],  'h3')
+HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 4'],  'h4')
+HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 5'],  'h5')
+HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Level 6'],  'h6')
+HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 1'],  'h1')
+HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 2'],  'h2')
+HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 3'],  'h3')
+HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 4'],  'h4')
+HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 5'],  'h5')
+HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Level 6'],  'h6')
+HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 1'],  'h1', 'i')
+HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 2'],  'h2', 'i')
+HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 3'],  'h3', 'i')
+HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 4'],  'h4', 'i')
+HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 5'],  'h5', 'i')
+HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Level 6'],  'h6', 'i')
+HTML#LeadMenu('imenu', '-', ['&Headings', 'Heading Grouping'], 'hg')
+HTML#LeadMenu('vmenu', '-', ['&Headings', 'Heading Grouping'], 'hg')
+HTML#LeadMenu('nmenu', '-', ['&Headings', 'Heading Grouping'], 'hg', 'i')
+
+
 # HTML 5 Tags Menu: {{{2
 
 HTML#LeadMenu('imenu', '-', ['HTML &5 Tags', '&ARTICLE'],              'ar')
@@ -2687,147 +2498,158 @@ HTML#LeadMenu('imenu', '-', ['HTML &5 Tags', '&WBR'],                  'wb')
 HTML#LeadMenu('nmenu', '-', ['HTML &5 Tags', '&WBR'],                  'wb', 'i')
 
 
+# Lists menu:   {{{2
+
+HTML#LeadMenu('imenu', '-', ['&Lists', 'Ordered List'],    'ol')
+HTML#LeadMenu('vmenu', '-', ['&Lists', 'Ordered List'],    'ol')
+HTML#LeadMenu('nmenu', '-', ['&Lists', 'Ordered List'],    'ol', 'i')
+HTML#LeadMenu('imenu', '-', ['&Lists', 'Unordered List'],  'ul')
+HTML#LeadMenu('vmenu', '-', ['&Lists', 'Unordered List'],  'ul')
+HTML#LeadMenu('nmenu', '-', ['&Lists', 'Unordered List'],  'ul', 'i')
+HTML#LeadMenu('imenu', '-', ['&Lists', 'List Item'],       'li')
+HTML#LeadMenu('vmenu', '-', ['&Lists', 'List Item'],       'li')
+HTML#LeadMenu('nmenu', '-', ['&Lists', 'List Item'],       'li', 'i')
+HTML#Menu('menu', '-', ['Lists', '-sep1-'], '<nop>')
+HTML#LeadMenu('imenu', '-', ['&Lists', 'Definition List'], 'dl')
+HTML#LeadMenu('vmenu', '-', ['&Lists', 'Definition List'], 'dl')
+HTML#LeadMenu('nmenu', '-', ['&Lists', 'Definition List'], 'dl', 'i')
+HTML#LeadMenu('imenu', '-', ['&Lists', 'Definition Term'], 'dt')
+HTML#LeadMenu('vmenu', '-', ['&Lists', 'Definition Term'], 'dt')
+HTML#LeadMenu('nmenu', '-', ['&Lists', 'Definition Term'], 'dt', 'i')
+HTML#LeadMenu('imenu', '-', ['&Lists', 'Definition Body'], 'dd')
+HTML#LeadMenu('vmenu', '-', ['&Lists', 'Definition Body'], 'dd')
+HTML#LeadMenu('nmenu', '-', ['&Lists', 'Definition Body'], 'dd', 'i')
+
+
+# More Tags menu: {{{2
+
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'ADDRESS'],                 'ad')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'ADDRESS'],                 'ad')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'ADDRESS'],                 'ad', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'BASE HREF'],               'bh')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'BASE HREF'],               'bh')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'BASE HREF'],               'bh', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'BASE TARGET'],             'bt')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'BASE TARGET'],             'bt')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'BASE TARGET'],             'bt', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'BLOCKQUTE'],               'bl')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'BLOCKQUTE'],               'bl')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'BLOCKQUTE'],               'bl', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'Comment'],                 'cm')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'Comment'],                 'cm')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'Comment'],                 'cm', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'Defining Instance'],       'df')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'Defining Instance'],       'df')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'Defining Instance'],       'df', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'Document Division'],       'dv')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'Document Division'],       'dv')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'Document Division'],       'dv', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'Inline Frame'],            'if')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'Inline Frame'],            'if')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'Inline Frame'],            'if', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'JavaScript'],              'js')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'JavaScript'],              'js', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'Sourced JavaScript'],      'sj')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'Sourced JavaScript'],      'sj', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'LINK HREF'],               'lk')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'LINK HREF'],               'lk')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'LINK HREF'],               'lk', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'META'],                    'me')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'META'],                    'me')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'META'],                    'me', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'META HTTP-EQUIV'],         'mh')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'META HTTP-EQUIV'],         'mh')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'META HTTP-EQUIV'],         'mh', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'NOSCRIPT'],                'nj')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'NOSCRIPT'],                'nj')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'NOSCRIPT'],                'nj', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'Generic Embedded Object'], 'ob')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'Generic Embedded Object'], 'ob')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'Generic Embedded Object'], 'ob', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'Object Parameter'],        'pm')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'Object Parameter'],        'pm')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'Object Parameter'],        'pm', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'Quoted Text'],             'qu')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'Quoted Text'],             'qu')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'Quoted Text'],             'qu', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'SPAN'],                    'sn')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'SPAN'],                    'sn')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'SPAN'],                    'sn', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'STYLE (Internal CSS)'],    'cs')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'STYLE (Internal CSS)'],    'cs')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'STYLE (Internal CSS)'],    'cs', 'i')
+HTML#LeadMenu('imenu', '-', ['&More Tags', 'Linked CSS'],              'ls')
+HTML#LeadMenu('vmenu', '-', ['&More Tags', 'Linked CSS'],              'ls')
+HTML#LeadMenu('nmenu', '-', ['&More Tags', 'Linked CSS'],              'ls', 'i')
+
+
 # SSI directives: {{{2
 
-HTML#LeadMenu('imenu', '-', ['SSI Directi&ves', '&config timefmt'],   'cf')
-HTML#LeadMenu('vmenu', '-', ['SSI Directi&ves', '&config timefmt'],   'cf')
-HTML#LeadMenu('nmenu', '-', ['SSI Directi&ves', '&config timefmt'],   'cf', 'i')
-HTML#LeadMenu('imenu', '-', ['SSI Directi&ves', 'config sizef&mt'],   'cz')
-HTML#LeadMenu('vmenu', '-', ['SSI Directi&ves', 'config sizef&mt'],   'cz')
-HTML#LeadMenu('nmenu', '-', ['SSI Directi&ves', 'config sizef&mt'],   'cz', 'i')
-HTML#LeadMenu('imenu', '-', ['SSI Directi&ves', '&echo var'],         'ev')
-HTML#LeadMenu('vmenu', '-', ['SSI Directi&ves', '&echo var'],         'ev')
-HTML#LeadMenu('nmenu', '-', ['SSI Directi&ves', '&echo var'],         'ev', 'i')
-HTML#LeadMenu('imenu', '-', ['SSI Directi&ves', '&include virtual'],  'iv')
-HTML#LeadMenu('vmenu', '-', ['SSI Directi&ves', '&include virtual'],  'iv')
-HTML#LeadMenu('nmenu', '-', ['SSI Directi&ves', '&include virtual'],  'iv', 'i')
-HTML#LeadMenu('imenu', '-', ['SSI Directi&ves', '&flastmod virtual'], 'fv')
-HTML#LeadMenu('vmenu', '-', ['SSI Directi&ves', '&flastmod virtual'], 'fv')
-HTML#LeadMenu('nmenu', '-', ['SSI Directi&ves', '&flastmod virtual'], 'fv', 'i')
-HTML#LeadMenu('imenu', '-', ['SSI Directi&ves', 'fsi&ze virtual'],    'fz')
-HTML#LeadMenu('vmenu', '-', ['SSI Directi&ves', 'fsi&ze virtual'],    'fz')
-HTML#LeadMenu('nmenu', '-', ['SSI Directi&ves', 'fsi&ze virtual'],    'fz', 'i')
-HTML#LeadMenu('imenu', '-', ['SSI Directi&ves', 'e&xec cmd'],         'ec')
-HTML#LeadMenu('vmenu', '-', ['SSI Directi&ves', 'e&xec cmd'],         'ec')
-HTML#LeadMenu('nmenu', '-', ['SSI Directi&ves', 'e&xec cmd'],         'ec', 'i')
-HTML#LeadMenu('imenu', '-', ['SSI Directi&ves', '&set var'],          'sv')
-HTML#LeadMenu('vmenu', '-', ['SSI Directi&ves', '&set var'],          'sv')
-HTML#LeadMenu('nmenu', '-', ['SSI Directi&ves', '&set var'],          'sv', 'i')
-HTML#LeadMenu('imenu', '-', ['SSI Directi&ves', 'if then e&lse'],     'ie')
-HTML#LeadMenu('vmenu', '-', ['SSI Directi&ves', 'if then e&lse'],     'ie')
-HTML#LeadMenu('nmenu', '-', ['SSI Directi&ves', 'if then e&lse'],     'ie', 'i')
+HTML#LeadMenu('imenu', '-', ['&SSI Directives', '&config timefmt'],   'cf')
+HTML#LeadMenu('vmenu', '-', ['&SSI Directives', '&config timefmt'],   'cf')
+HTML#LeadMenu('nmenu', '-', ['&SSI Directives', '&config timefmt'],   'cf', 'i')
+HTML#LeadMenu('imenu', '-', ['&SSI Directives', 'config sizef&mt'],   'cz')
+HTML#LeadMenu('vmenu', '-', ['&SSI Directives', 'config sizef&mt'],   'cz')
+HTML#LeadMenu('nmenu', '-', ['&SSI Directives', 'config sizef&mt'],   'cz', 'i')
+HTML#LeadMenu('imenu', '-', ['&SSI Directives', '&echo var'],         'ev')
+HTML#LeadMenu('vmenu', '-', ['&SSI Directives', '&echo var'],         'ev')
+HTML#LeadMenu('nmenu', '-', ['&SSI Directives', '&echo var'],         'ev', 'i')
+HTML#LeadMenu('imenu', '-', ['&SSI Directives', '&include virtual'],  'iv')
+HTML#LeadMenu('vmenu', '-', ['&SSI Directives', '&include virtual'],  'iv')
+HTML#LeadMenu('nmenu', '-', ['&SSI Directives', '&include virtual'],  'iv', 'i')
+HTML#LeadMenu('imenu', '-', ['&SSI Directives', '&flastmod virtual'], 'fv')
+HTML#LeadMenu('vmenu', '-', ['&SSI Directives', '&flastmod virtual'], 'fv')
+HTML#LeadMenu('nmenu', '-', ['&SSI Directives', '&flastmod virtual'], 'fv', 'i')
+HTML#LeadMenu('imenu', '-', ['&SSI Directives', 'fsi&ze virtual'],    'fz')
+HTML#LeadMenu('vmenu', '-', ['&SSI Directives', 'fsi&ze virtual'],    'fz')
+HTML#LeadMenu('nmenu', '-', ['&SSI Directives', 'fsi&ze virtual'],    'fz', 'i')
+HTML#LeadMenu('imenu', '-', ['&SSI Directives', 'e&xec cmd'],         'ec')
+HTML#LeadMenu('vmenu', '-', ['&SSI Directives', 'e&xec cmd'],         'ec')
+HTML#LeadMenu('nmenu', '-', ['&SSI Directives', 'e&xec cmd'],         'ec', 'i')
+HTML#LeadMenu('imenu', '-', ['&SSI Directives', '&set var'],          'sv')
+HTML#LeadMenu('vmenu', '-', ['&SSI Directives', '&set var'],          'sv')
+HTML#LeadMenu('nmenu', '-', ['&SSI Directives', '&set var'],          'sv', 'i')
+HTML#LeadMenu('imenu', '-', ['&SSI Directives', 'if then e&lse'],     'ie')
+HTML#LeadMenu('vmenu', '-', ['&SSI Directives', 'if then e&lse'],     'ie')
+HTML#LeadMenu('nmenu', '-', ['&SSI Directives', 'if then e&lse'],     'ie', 'i')
+
+
+# Tables menu:   {{{2
+
+HTML#LeadMenu('nmenu', '-', ['&Tables', 'Interactive Table'],     'tA')
+HTML#LeadMenu('imenu', '-', ['&Tables', 'TABLE'],                 'ta')
+HTML#LeadMenu('vmenu', '-', ['&Tables', 'TABLE'],                 'ta')
+HTML#LeadMenu('nmenu', '-', ['&Tables', 'TABLE'],                 'ta', 'i')
+HTML#LeadMenu('imenu', '-', ['&Tables', 'Header Row'],            'tH')
+HTML#LeadMenu('vmenu', '-', ['&Tables', 'Header Row'],            'tH')
+HTML#LeadMenu('nmenu', '-', ['&Tables', 'Header Row'],            'tH', 'i')
+HTML#LeadMenu('imenu', '-', ['&Tables', 'Row'],                   'tr')
+HTML#LeadMenu('vmenu', '-', ['&Tables', 'Row'],                   'tr')
+HTML#LeadMenu('nmenu', '-', ['&Tables', 'Row'],                   'tr', 'i')
+HTML#LeadMenu('imenu', '-', ['&Tables', 'Footer Row'],            'tf')
+HTML#LeadMenu('vmenu', '-', ['&Tables', 'Footer Row'],            'tf')
+HTML#LeadMenu('nmenu', '-', ['&Tables', 'Footer Row'],            'tf', 'i')
+HTML#LeadMenu('imenu', '-', ['&Tables', 'Column Header'],         'th')
+HTML#LeadMenu('vmenu', '-', ['&Tables', 'Column Header'],         'th')
+HTML#LeadMenu('nmenu', '-', ['&Tables', 'Column Header'],         'th', 'i')
+HTML#LeadMenu('imenu', '-', ['&Tables', 'Data (Column Element)'], 'td')
+HTML#LeadMenu('vmenu', '-', ['&Tables', 'Data (Column Element)'], 'td')
+HTML#LeadMenu('nmenu', '-', ['&Tables', 'Data (Column Element)'], 'td', 'i')
+HTML#LeadMenu('imenu', '-', ['&Tables', 'CAPTION'],               'ca')
+HTML#LeadMenu('vmenu', '-', ['&Tables', 'CAPTION'],               'ca')
+HTML#LeadMenu('nmenu', '-', ['&Tables', 'CAPTION'],               'ca', 'i')
+
 
 # }}}2
 
 HTML#Menu('menu', '-', ['-sep6-'], '<nop>')
 
+HTML#LeadMenu('amenu', '-', ['Template'],                     'html')
 HTML#LeadMenu('nmenu', '-', ['Doctype (4.01 transitional)'],  '4')
 HTML#LeadMenu('nmenu', '-', ['Doctype (4.01 strict)'],        's4')
 HTML#LeadMenu('nmenu', '-', ['Doctype (HTML 5)'],             '5')
 HTML#LeadMenu('imenu', '-', ['Content-Type'],                 'ct')
 HTML#LeadMenu('nmenu', '-', ['Content-Type'],                 'ct', 'i')
-
-HTML#Menu('menu', '-', ['-sep7-'], '<nop>')
-
-HTML#LeadMenu('imenu', '-', ['BODY'],                         'bd')
-HTML#LeadMenu('vmenu', '-', ['BODY'],                         'bd')
-HTML#LeadMenu('nmenu', '-', ['BODY'],                         'bd', 'i')
-HTML#LeadMenu('imenu', '-', ['BUTTON'],                       'bn')
-HTML#LeadMenu('vmenu', '-', ['BUTTON'],                       'bn')
-HTML#LeadMenu('nmenu', '-', ['BUTTON'],                       'bn', 'i')
-HTML#LeadMenu('imenu', '-', ['CENTER'],                       'ce')
-HTML#LeadMenu('vmenu', '-', ['CENTER'],                       'ce')
-HTML#LeadMenu('nmenu', '-', ['CENTER'],                       'ce', 'i')
-HTML#LeadMenu('imenu', '-', ['HEAD'],                         'he')
-HTML#LeadMenu('vmenu', '-', ['HEAD'],                         'he')
-HTML#LeadMenu('nmenu', '-', ['HEAD'],                         'he', 'i')
-HTML#LeadMenu('imenu', '-', ['Horizontal Rule'],              'hr')
-HTML#LeadMenu('nmenu', '-', ['Horizontal Rule'],              'hr', 'i')
-HTML#LeadMenu('imenu', '-', ['HTML'],                         'ht')
-HTML#LeadMenu('vmenu', '-', ['HTML'],                         'ht')
-HTML#LeadMenu('nmenu', '-', ['HTML'],                         'ht', 'i')
-HTML#LeadMenu('imenu', '-', ['Hyperlink'],                    'ah')
-HTML#LeadMenu('vmenu', '-', ['Hyperlink'],                    'ah')
-HTML#LeadMenu('nmenu', '-', ['Hyperlink'],                    'ah', 'i')
-HTML#LeadMenu('imenu', '-', ['Inline Image'],                 'im')
-HTML#LeadMenu('vmenu', '-', ['Inline Image'],                 'im')
-HTML#LeadMenu('nmenu', '-', ['Inline Image'],                 'im', 'i')
-HTML#LeadMenu('imenu', '-', ['Update Image Size Attributes'], 'mi')
-HTML#LeadMenu('vmenu', '-', ['Update Image Size Attributes'], 'mi')
-HTML#LeadMenu('nmenu', '-', ['Update Image Size Attributes'], 'mi')
-HTML#LeadMenu('imenu', '-', ['Line Break'],                   'br')
-HTML#LeadMenu('nmenu', '-', ['Line Break'],                   'br', 'i')
-# HTML#LeadMenu('imenu', '-', ['Named Anchor'],                 'an')
-# HTML#LeadMenu('vmenu', '-', ['Named Anchor'],                 'an')
-# HTML#LeadMenu('nmenu', '-', ['Named Anchor'],                 'an', 'i')
-HTML#LeadMenu('imenu', '-', ['Paragraph'],                    'pp')
-HTML#LeadMenu('vmenu', '-', ['Paragraph'],                    'pp')
-HTML#LeadMenu('nmenu', '-', ['Paragraph'],                    'pp', 'i')
-HTML#LeadMenu('imenu', '-', ['Preformatted Text'],            'pr')
-HTML#LeadMenu('vmenu', '-', ['Preformatted Text'],            'pr')
-HTML#LeadMenu('nmenu', '-', ['Preformatted Text'],            'pr', 'i')
-HTML#LeadMenu('imenu', '-', ['TITLE'],                        'ti')
-HTML#LeadMenu('vmenu', '-', ['TITLE'],                        'ti')
-HTML#LeadMenu('nmenu', '-', ['TITLE'],                        'ti', 'i')
-
-HTML#LeadMenu('imenu', '-', ['&More...', 'ADDRESS'],                 'ad')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'ADDRESS'],                 'ad')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'ADDRESS'],                 'ad', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'BASE HREF'],               'bh')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'BASE HREF'],               'bh')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'BASE HREF'],               'bh', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'BASE TARGET'],             'bt')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'BASE TARGET'],             'bt')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'BASE TARGET'],             'bt', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'BLOCKQUTE'],               'bl')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'BLOCKQUTE'],               'bl')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'BLOCKQUTE'],               'bl', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'Comment'],                 'cm')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'Comment'],                 'cm')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'Comment'],                 'cm', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'Defining Instance'],       'df')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'Defining Instance'],       'df')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'Defining Instance'],       'df', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'Document Division'],       'dv')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'Document Division'],       'dv')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'Document Division'],       'dv', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'Inline Frame'],            'if')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'Inline Frame'],            'if')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'Inline Frame'],            'if', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'JavaScript'],              'js')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'JavaScript'],              'js', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'Sourced JavaScript'],      'sj')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'Sourced JavaScript'],      'sj', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'LINK HREF'],               'lk')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'LINK HREF'],               'lk')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'LINK HREF'],               'lk', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'META'],                    'me')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'META'],                    'me')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'META'],                    'me', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'META HTTP-EQUIV'],         'mh')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'META HTTP-EQUIV'],         'mh')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'META HTTP-EQUIV'],         'mh', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'NOSCRIPT'],                'nj')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'NOSCRIPT'],                'nj')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'NOSCRIPT'],                'nj', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'Generic Embedded Object'], 'ob')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'Generic Embedded Object'], 'ob')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'Generic Embedded Object'], 'ob', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'Object Parameter'],        'pm')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'Object Parameter'],        'pm')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'Object Parameter'],        'pm', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'Quoted Text'],             'qu')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'Quoted Text'],             'qu')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'Quoted Text'],             'qu', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'SPAN'],                    'sn')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'SPAN'],                    'sn')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'SPAN'],                    'sn', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'STYLE (Internal CSS)'],    'cs')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'STYLE (Internal CSS)'],    'cs')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'STYLE (Internal CSS)'],    'cs', 'i')
-HTML#LeadMenu('imenu', '-', ['&More...', 'Linked CSS'],              'ls')
-HTML#LeadMenu('vmenu', '-', ['&More...', 'Linked CSS'],              'ls')
-HTML#LeadMenu('nmenu', '-', ['&More...', 'Linked CSS'],              'ls', 'i')
 
 g:did_html_menus = true
 endif
@@ -2840,17 +2662,15 @@ g:doing_internal_html_mappings = false
 # Try to reduce support requests from users: {{{
 if ! exists('g:did_html_plugin_warning_check')
   g:did_html_plugin_warning_check = true
-  var pluginfiles: list<string>
-  pluginfiles = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
-  if pluginfiles->len() > 1
-    var pluginfilesmatched: list<string>
-    pluginfilesmatched = pluginfiles->HTML#FilesWithMatch('https\?://christianrobinson.name/\(programming/\)\?vim/HTML/', 20)
-    if pluginfilesmatched->len() > 1
-      var pluginmessage = "Multiple versions of the HTML.vim filetype plugin are installed.\n"
-        .. "Locations:\n   " .. pluginfilesmatched->join("\n   ")
+  var files = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
+  if files->len() > 1
+    var filesmatched = files->HTML#FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)
+    if filesmatched->len() > 1
+      var message = "Multiple versions of the HTML.vim filetype plugin are installed.\n"
+        .. "Locations:\n   " .. filesmatched->join("\n   ")
         .. "\nIt is necessary that you remove old versions!"
         .. "\n(Don't forget about browser_launcher.vim and MangleImageTag.vim)"
-      pluginmessage->confirm('&Dismiss', 1, 'Warning')
+      message->confirm('&Dismiss', 1, 'Warning')
     endif
   endif
 endif

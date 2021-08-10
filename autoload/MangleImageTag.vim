@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023270
+if v:version < 802 || v:versionlong < 8023316
   finish
 endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: August 06, 2021
+# Last Change: August 09, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -63,11 +63,11 @@ def MangleImageTag#Update(): bool  # {{{1
 
   # Make sure we modify the right tag if more than one is on the line:
   var tagstart: number
-  if line[col] != '<'
+  if line[col] == '<'
+    tagstart = col
+  else
     var tmp = line->strpart(0, col)
     tagstart = tmp->strridx('<')
-  else
-    tagstart = col
   endif
   var savestart = line->strpart(0, tagstart)
   var tag = line->strpart(tagstart)
@@ -82,8 +82,8 @@ def MangleImageTag#Update(): bool  # {{{1
 
   var case: bool
   var src: string
-  if tag =~? "src=\\(\".\\{-}\"\\|'.\\{-}\'\\)"
-    src = tag->substitute(".\\{-}src=\\([\"']\\)\\(.\\{-}\\)\\1.*", '\2', '')
+  if tag =~? 'src=\(".\{-}"\|''.\{-}''\)'
+    src = tag->substitute('.\{-}src=\(["'']\)\(.\{-}\)\1.*', '\2', '')
     if tag =~# 'src'
       case = false
     else
@@ -95,8 +95,8 @@ def MangleImageTag#Update(): bool  # {{{1
   endif
 
   if ! src->filereadable()
-    if filereadable(expand("%:p:h") .. '/' .. src)
-      src = expand("%:p:h") .. '/' .. src
+    if filereadable(expand('%:p:h') .. '/' .. src)
+      src = expand('%:p:h') .. '/' .. src
     else
       execute 'HTMLERROR Can not find image file (or it is not readable): ' .. src
       return false
@@ -104,7 +104,7 @@ def MangleImageTag#Update(): bool  # {{{1
   endif
 
   var size = ImageSize(src)
-  if len(size) != 2
+  if size->len() != 2
     return false
   endif
 
@@ -130,18 +130,13 @@ def MangleImageTag#Update(): bool  # {{{1
 
   line = savestart .. tag .. saveend
 
-  var saveautoindent = &autoindent
-  &autoindent = 0
-
   line->split("\n")->setline(start_linenr)
-
-  &autoindent = saveautoindent
 
   return true
 enddef
 
 def ImageSize(image: string): list<number>  # {{{1
-  var ext = fnamemodify(image, ':e')
+  var ext = image->fnamemodify(':e')
   var size: list<number>
 
   if ext !~? '^png$\|^gif$\|^jpe\?g$'
@@ -155,10 +150,10 @@ def ImageSize(image: string): list<number>  # {{{1
 
     # Note that the 1024 here is not bytes, but lines,
     # whereas below the 1024 IS bytes:
-    for line in readfile(image, 'b', 1024)
-      var string = split(line, '\zs')
+    for line in image->readfile('b', 1024)
+      var string = line->split('\zs')
       for c in string
-        var char = char2nr(c)
+        var char = c->char2nr()
         buf->add((char == 10 ? 0 : char))
 
         # Keep the script from being too slow, but could cause a JPG
@@ -188,10 +183,10 @@ enddef
 
 def SizeGif(lines: list<number>): list<number>  # {{{1
   var i = 0
-  var len = len(lines)
+  var len = lines->len()
 
   while i <= len
-    if join(lines[i : i + 9], ' ') =~ '^71 73 70\( \d\+\)\{7}'
+    if lines[i : i + 9]->join(' ') =~ '^71 73 70\%( \d\+\)\{7}'
       var width = lines[i + 6 : i + 7]->reverse()->Vec()
       var height = lines[i + 8 : i + 9]->reverse()->Vec()
 
@@ -208,12 +203,12 @@ enddef
 
 def SizeJpg(lines: list<number>): list<number>  # {{{1
   var i = 0
-  var len = len(lines)
+  var len = lines->len()
 
   while i <= len
-    if join(lines[i : i + 8], ' ') =~ '^255 192\( \d\+\)\{7}'
-      var height = Vec(lines[i + 5 : i + 6])
-      var width = Vec(lines[i + 7 : i + 8])
+    if lines[i : i + 8]->join(' ') =~ '^255 192\%( \d\+\)\{7}'
+      var height = lines[i + 5 : i + 6]->Vec()
+      var width = lines[i + 7 : i + 8]->Vec()
 
       return [width, height]
     endif
@@ -227,12 +222,12 @@ enddef
 
 def SizePng(lines: list<number>): list<number>  # {{{1
   var i = 0
-  var len = len(lines)
+  var len = lines->len()
 
   while i <= len
-    if join(lines[i : i + 11], ' ') =~ '^73 72 68 82\( \d\+\)\{8}'
-      var width = Vec(lines[i + 4 : i + 7])
-      var height = Vec(lines[i + 8 : i + 11])
+    if lines[i : i + 11]->join(' ') =~ '^73 72 68 82\%( \d\+\)\{8}'
+      var width = lines[i + 4 : i + 7]->Vec()
+      var height = lines[i + 8 : i + 11]->Vec()
 
       return [width, height]
     endif

@@ -4,7 +4,9 @@
 %time12%	HTML.txt	/*%time12%*
 %time24%	HTML.txt	/*%time24%*
 %vimversion%	HTML.txt	/*%vimversion%*
+:CC	HTML.txt	/*:CC*
 :CS	HTML.txt	/*:CS*
+:ColorChooser	HTML.txt	/*:ColorChooser*
 :ColorSelect	HTML.txt	/*:ColorSelect*
 :HTMLReloadFunctions	HTML.txt	/*:HTMLReloadFunctions*
 :HTMLmappings	HTML.txt	/*:HTMLmappings*
@@ -71,6 +73,7 @@ g:html_tag_case_autodetect	HTML.txt	/*g:html_tag_case_autodetect*
 g:html_template	HTML.txt	/*g:html_template*
 g:html_textcolor	HTML.txt	/*g:html_textcolor*
 g:html_toplevel_menu	HTML.txt	/*g:html_toplevel_menu*
+g:html_toplevel_menu_priority	HTML.txt	/*g:html_toplevel_menu_priority*
 g:html_vlinkcolor	HTML.txt	/*g:html_vlinkcolor*
 g:no_html_map_override	HTML.txt	/*g:no_html_map_override*
 g:no_html_maps	HTML.txt	/*g:no_html_maps*
@@ -462,7 +465,6 @@ i_3-	HTML.txt	/*i_3-*
 i_;#	HTML.txt	/*i_;#*
 i_;&	HTML.txt	/*i_;&*
 i_;/p	HTML.txt	/*i_;\/p*
-i_;3	HTML.txt	/*i_;3*
 i_;4	HTML.txt	/*i_;4*
 i_;5	HTML.txt	/*i_;5*
 i_;;	HTML.txt	/*i_;;*
@@ -499,6 +501,7 @@ i_;br	HTML.txt	/*i_;br*
 i_;bt	HTML.txt	/*i_;bt*
 i_;bu	HTML.txt	/*i_;bu*
 i_;ca	HTML.txt	/*i_;ca*
+i_;cc	HTML.txt	/*i_;cc*
 i_;ce	HTML.txt	/*i_;ce*
 i_;cf	HTML.txt	/*i_;cf*
 i_;ch	HTML.txt	/*i_;ch*
@@ -626,7 +629,6 @@ n_;	HTML.txt	/*n_;*
 n_;#	HTML.txt	/*n_;#*
 n_;%	HTML.txt	/*n_;%*
 n_;&	HTML.txt	/*n_;&*
-n_;3	HTML.txt	/*n_;3*
 n_;4	HTML.txt	/*n_;4*
 n_;5	HTML.txt	/*n_;5*
 n_;;	HTML.txt	/*n_;;*
@@ -661,6 +663,7 @@ n_;bo	HTML.txt	/*n_;bo*
 n_;bt	HTML.txt	/*n_;bt*
 n_;bu	HTML.txt	/*n_;bu*
 n_;ca	HTML.txt	/*n_;ca*
+n_;cc	HTML.txt	/*n_;cc*
 n_;ce	HTML.txt	/*n_;ce*
 n_;cf	HTML.txt	/*n_;cf*
 n_;ch	HTML.txt	/*n_;ch*
@@ -805,7 +808,6 @@ reload-HTML-mappings	HTML.txt	/*reload-HTML-mappings*
 v_;#	HTML.txt	/*v_;#*
 v_;%	HTML.txt	/*v_;%*
 v_;&	HTML.txt	/*v_;&*
-v_;3	HTML.txt	/*v_;3*
 v_;;	HTML.txt	/*v_;;*
 v_;@	HTML.txt	/*v_;@*
 v_;H1	HTML.txt	/*v_;H1*
@@ -834,6 +836,7 @@ v_;bo	HTML.txt	/*v_;bo*
 v_;bt	HTML.txt	/*v_;bt*
 v_;bu	HTML.txt	/*v_;bu*
 v_;ca	HTML.txt	/*v_;ca*
+v_;cc	HTML.txt	/*v_;cc*
 v_;ce	HTML.txt	/*v_;ce*
 v_;cf	HTML.txt	/*v_;cf*
 v_;ch	HTML.txt	/*v_;ch*
