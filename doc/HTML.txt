@@ -1,6 +1,8 @@
-*HTML.txt*	Set of HTML/XHTML macros, menus, and toolbar buttons.
-		Last change: 2021 Aug 08
-		Author: Christian J. Robinson
+*HTML.txt*	For Vim version 9.0	Last change: 2021 Aug 10
+
+
+		  HTML/XHTML MACROS	by Christian J. Robinson
+
 
 						*HTML.vim*	*HTML.zip*
 						*HTML-macros*	*XHTML-macros*
@@ -46,7 +48,7 @@ are grouped in various ways, which interferes with that ordering.
 The noted tags are "smart", meaning Vim will detect whether to close then open
 a tag instead of open then close the tag.  For example, if the cursor is
 inside italicized text and you type ;it, it will insert </I><I> instead of
-<I></I>.
+<I></I>.  Only tags that shouldn't nest are candidates for being "smart".
 
 							*n_;;* *i_;;* *v_;;*
 ;;	Most of the mappings start with ; so ;; is mapped to insert a single
@@ -152,7 +154,7 @@ variable is ignored if you have set |g:do_xhtml_mappings| or
 
 *g:html_map_leader*
 This variable can be set to the character you want for the leader of the
-mappings defined under |html-tags|, the default being ';'. This variable must
+mappings defined under |html-tags|, the default being ";". This variable must
 be set before HTML.vim is sourced. You can set this to your |mapleader| or
 |maplocalleader|. e.g.: >
 	:let g:html_map_leader = g:maplocalleader
@@ -160,7 +162,7 @@ be set before HTML.vim is sourced. You can set this to your |mapleader| or
 *g:html_map_entity_leader*
 This variable can be set to the character you want for the leader of the
 character entity insert mode mappings defined under |character-entities|, the
-default being '&'. This variable must be set before HTML.vim is sourced. If
+default being "&". This variable must be set before HTML.vim is sourced. If
 you attempt to set this to the same value as |g:html_map_leader| you will get
 an error. e.g.: >
 	:let g:html_map_entity_leader = '\'
@@ -281,10 +283,10 @@ This defaults to "UTF-8" and is the value used if a character set can not be
 detected by the 'fileencoding' or 'encoding' options. See |i_;ct| and
 |html-tokens| for how this is used. (Also see |html-author-notes|)
 
-*g:html_charset*
-If this variable is set it completely overrides the Content-Type charset
-detection for the |i_;ct| mapping and in the |html-tokens|. Normally this
-should be left unset.
+*g:html_charset* *b:html_charset*
+If either of these variables are set it completely overrides the Content-Type
+charset detection for the |i_;ct| mapping and in the |html-tokens|. Normally
+these should be left unset.
 
 ------------------------------------------------------------------------------
 					*html-template-tokens* *html-tokens*
@@ -386,6 +388,10 @@ You would get something like: >
 ==============================================================================
 3. Commands						 *html-commands*
 
+							*:HTMLabout*
+:HTMLabout
+	Show information about the plugin.
+
 	*disable-HTML-macros*	*HTML-macros-disable*	*HTML-disable-macros*
 	*disable-HTML-mappings*	*HTML-mappings-disable*	*HTML-disable-mappings*
 	*enable-HTML-macros*	*HTML-macros-enable*	*HTML-enable-macros*
@@ -393,14 +399,14 @@ You would get something like: >
 	*reload-HTML-macros*	*HTML-macros-reload*	*HTML-reload-macros*
 	*reload-HTML-mappings*	*HTML-mappings-reload*	*HTML-reload-mappings*
 							*:HTMLmappings*
-:HTML[mappings] {disable/off/enable/on/html/xhtml/reload}
+:HTML[mappings] {disable/off/enable/on/html/xhtml/uppercase/lowercase/reload}
 	This command allows the HTML macros to be disabled and re-enabled.
 	This is useful for editing inline PHP, JavaScript, etc. where you
 	would want to be able to type literal ";", "&" and tab characters
 	without interference. (Also see |i_;;|, |i_;&| and |i_;<Tab>|)
 
 	You may also use this command to switch the mappings into HTML or
-	XHTML mode.
+	XHTML mode, or switch between uppercase or lowercase.
 
 	Finally, you can use the :HTMLmappings command to reload the entire
 	HTML macros plugin.
@@ -418,7 +424,7 @@ You would get something like: >
 							*:HTMLReloadFunctions*
 :HTMLReloadFunctions
 	This command reloads all the previously loaded functions for this
-	plugin. This is normally called by |:HTMLmappings|.
+	plugin. This is normally called by `:HTMLmappings`.
 
 							*:ColorSelect* *:CS*
 							*:ColorChooser* *:CC*
@@ -1314,12 +1320,12 @@ Note that you can change the leader character for these mappings from '&' to
 another character of your preference. See |g:html_map_entity_leader|.
 
 Name:			HTML:		Macro: ~
---------------------------------------------------------------------
+------------------------------------------------------------------------------
 Ampersand (&)		&amp;		&&		*i_&&*
 Greater than (>)	&gt;		&>		*i_&>*
 Less than (<)		&lt;		&<		*i_&<*
-					*i_&<space>* *i_&space* *i_;<space>*
-Space (non-breaking)	&nbsp;		&<space>/;<space>	*i_;space*
+					*i_&<space>* *i_&space* 
+Space (non-breaking)	&nbsp;		&<space>
 Quotation mark (")	&quot;		&'		*i_&'*
 Left Single Quote	&lsquo;		&l'		*i_&l'*
 Right Single Quote	&lsquo;		&r'		*i_&r'*
@@ -1380,8 +1386,8 @@ Subscript 6		&#x2086;	&6v		*i_&6v*
 Subscript 7		&#x2087;	&7v		*i_&7v*
 Subscript 8		&#x2088;	&8v		*i_&8v*
 Subscript 9		&#x2089;	&9v		*i_&9v*
-En dash			&ndash;		&n-/&2-		*i_&n-* *i_&2-*
-Em dash			&mdash;		&m-/&--/&3-	*i_&m-* *i_&--* *i_3-*
+En dash			&ndash;		&n-		*i_&n-*
+Em dash			&mdash;		&m-		*i_&m-*
 Ellipsis		&hellip;	&3.		*i_&3.*
 A-grave			&Agrave;	&A`		*i_&A`*
 a-grave			&agrave;	&a`		*i_&a`*
@@ -1635,10 +1641,10 @@ drive).
 								*n_;nly*
 ;nly	Same as |n_;ly|, but in a new xterm. This behaves like |n_;ly| if there
 	is no DISPLAY environmental variable. (Note that this will fall back
-	to using |:terminal| if xterm is not found.) (Only on Unix and
+	to using `:terminal` if xterm is not found.) (Only on Unix and
 	Cygwin.)
 								*n_;tly*
-;tly	Same as |n_;ly|, but in a new Vim window, using |:terminal|.  (Only
+;tly	Same as |n_;ly|, but in a new Vim window, using `:terminal`.  (Only
 	on Unix and Cygwin.)
 							*html-w3m-browser*
 								*n_;w3*
@@ -1647,10 +1653,10 @@ drive).
 								*n_;nw3*
 ;nw3	Same as |n_;w3|, but in a new xterm. This behaves like |n_;w3| if there
 	is no DISPLAY environmental variable. (Note that this will fall back
-	to using |:terminal| if xterm is not found.) (Only on Unix and
+	to using `:terminal` if xterm is not found.) (Only on Unix and
 	Cygwin.)
 								*n_;tw3*
-;tw3	Same as |n_;w3|, but in a new Vim window, using |:terminal|.  (Only
+;tw3	Same as |n_;w3|, but in a new Vim window, using `:terminal`.  (Only
 	on Unix and Cygwin.)
 							*html-links-browser*
 								*n_;ln*
@@ -1659,10 +1665,10 @@ drive).
 								*n_;nln*
 ;nln	Same as |n_;ln|, but in a new xterm. This behaves like |n_;ln| if there
 	is no DISPLAY environmental variable. (Note that this will fall back
-	to using |:terminal| if xterm is not found.) (Only on Unix and
+	to using `:terminal` if xterm is not found.) (Only on Unix and
 	Cygwin.)
 								*n_;tln*
-;tln	Same as |n_;ln|, but in a new Vim window, using |:terminal|.  (Only
+;tln	Same as |n_;ln|, but in a new Vim window, using `:terminal`.  (Only
 	on Unix and Cygwin.)
 
 ==============================================================================
@@ -1711,12 +1717,12 @@ HTML#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 	with argumetns to non-interactively generate a table:
 
 	Argument:	Behavior: ~
-	{rows}		Number: Number of rows to insert
-	{columns}	Number: Number of columns to insert
-	{border-width}	Number: Width of the border in pixels (not HTML5
+	{rows}		|Number|: Number of rows to insert
+	{columns}	|Number|: Number of columns to insert
+	{border-width}	|Number|: Width of the border in pixels (not HTML5
 			compatible; leave at 0 and use CSS)
-	{thead}		Boolean: Whether to insert a table header
-	{tfoot}		Boolean: Whether to insert a table footer
+	{thead}		|Boolean|: Whether to insert a table header
+	{tfoot}		|Boolean|: Whether to insert a table footer
 
 	If a table header or table footer is inserted, a table body tag will
 	also be inserted.  Note that the header and footer is exclusive of the
@@ -1726,7 +1732,7 @@ HTML#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 
 HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 	This function defines a mapping, local to the buffer and silent.
-	{maptype} is any map command. {lhs} and {rhs} are equivalent to :map
+	{maptype} is any map command. {lhs} and {rhs} are equivalent to `:map`
 	arguments, see |map.txt|. This is useful for autocommands and HTML
 	filetype plugins.
 
@@ -1740,7 +1746,7 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 	uppercase/lowercase according to the |g:html_tag_case| or
 	|b:html_tag_case| variable, and the [{}] markers will be removed.
 
-	{options} is optional, but if it exists it's a dictionary that
+	{options} is optional, but if it exists it's a |Dictionary| that
 	specifies behavior for visual mappings:
 
 	{"extra": false} ~
@@ -1761,7 +1767,7 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 
 HTML#Mapo({map} [, {insert}])				*HTML#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
-	visual mapping by the same name. {insert} is a boolean value that
+	visual mapping by the same name. {insert} is a |Boolean| value that
 	indicates whether to end in insert mode, default false.
 
 	This function returns true if a map was defined, false otherwise.

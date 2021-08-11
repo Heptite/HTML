@@ -1,3 +1,6 @@
+Mon, 9 Aug 2021 22:25:00 -0600 Christian J. Robinson
+ * Moved constants into another file. Rewrote the color selector to use Vim's popups.
+
 Sat, 7 Aug 2021 00:18:25 -0600 Christian J. Robinson
  * Allow switching between upper and lowercase. Fix menu handling bug.
 

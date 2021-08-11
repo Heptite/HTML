@@ -7,12 +7,12 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: August 09, 2021
+# Last Change: August 10, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 2004-2021 Christian J. Robinson <heptite@gmail.com>
+# Copyright © 1998-2021 Christian J. Robinson <heptite@gmail.com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -56,6 +56,26 @@ const on = 'on'
 # Used in a bunch of places so some functions don't have to be globally
 # exposed:
 const _this = expand('<SID>')
+
+# HTML#About()  {{{1
+#
+# Purpose:
+#  Self-explanatory
+# Arguments:
+#  None
+# Return Value:
+#  None
+def HTML#About(): void
+  var message = "HTML/XHTML Editing Macros and Menus Plugin\n"
+    .. "Version: " .. (HTML.VERSION) .. "\n"
+    .. "Written by: " .. (HTML.AUTHOR) .. "\n"
+    .. (HTML.COPYRIGHT) .. "\n"
+    .. "URL: " .. (HTML.HOMEPAGE)
+
+  if message->confirm("&Visit Homepage\n&Dismiss", 2, 'Info') == 1
+    BrowserLauncher#Launch('default', 0, HTML.HOMEPAGE)
+  endif
+enddef
 
 # HTML#SetIfUnset()  {{{1
 #
@@ -119,8 +139,8 @@ enddef
 # HTML#BoolVar()  {{{1
 #
 # Given a string, test to see if a variable by that string name exists, and if
-# so, whether it's set to 1|true|yes / 0|false|no   (Actually, anything not
-# listed here also returns as true.)
+# so, whether it's set to 1|true|yes|on / 0|false|no|off|none|null
+# (Actually, anything not listed here also returns as true.)
 #
 # Arguments:
 #  1 - String:  The name of the variable to test (not its value!)
@@ -137,7 +157,7 @@ def HTML#BoolVar(variable: string): bool
   # return true/false based on that string.
   #
   # Arguments:
-  #  1 - String:  1|true|yes|y|on / 0|false|no|n|off
+  #  1 - String:  1|true|yes|y|on / 0|false|no|n|off|none|null
   # Return Value:
   #  Boolean
   def Bool(value: any): bool
@@ -164,13 +184,7 @@ def HTML#BoolVar(variable: string): bool
   endif
 
   if newvariable->IsSet()
-    # Unfortunately this is a suboptimal way to do this, but Vim9script
-    # doesn't allow me to do it any other way:
-    execute 'g:tmpvarval = ' .. newvariable
-    var varval = g:tmpvarval
-    unlet g:tmpvarval
-
-    return varval->Bool()
+    return newvariable->eval()->Bool()
   else
     return false
   endif
@@ -757,32 +771,6 @@ def HTML#ReIndent(first: number, last: number, extralines: number = 0, prelines:
   execute ':' .. firstline .. ',' .. lastline .. 'normal! =='
 enddef
 
-# ByteOffset()  {{{1
-#
-# Return the byte number of the current position.
-#
-# Arguments (optional):
-#  Either:
-#   1 - Mark: The mark name to convert to offset, preceded by a ' (single
-#             quote character)
-#  Or:
-#   1 - Number: The line to get the byte offset from
-#   2 - Number: The column of the specified line to get the byte offset from
-# Return Value:
-#  The byte offset, a negative value means the specified mark is not set.
-#def ByteOffset(lineormark: any = -1, column: number = -1): number
-#  if type(lineormark) == v:t_string && lineormark =~ "^'.$"
-#    return lineormark->line()->line2byte() + lineormark->col() - 1
-#  elseif type(lineormark) == v:t_number && lineormark < 0 && column < 0
-#    return line('.')->line2byte() + col('.') - 1
-#  elseif type(lineormark) == v:t_number && lineormark > 0 && column > 0
-#    return lineormark->line2byte() + column - 1
-#  else
-#    execute 'HTMLERROR Invalid argument(s) for ' .. expand('<sfile>')
-#    return -1
-#  endif
-#enddef
-
 # HTML#NextInsertPoint()  {{{1
 #
 # Position the cursor at the next point in the file that needs data.
@@ -899,14 +887,16 @@ enddef
 def HTML#DetectCharset(): string
   var enc: string
 
-  if exists('g:html_charset')
+  if exists('b:html_charset')
+    return b:html_charset
+  elseif exists('g:html_charset')
     return g:html_charset
   endif
 
-  if &fileencoding != ''
-    enc = tolower(&fileencoding)
-  else
+  if &fileencoding == ''
     enc = tolower(&encoding)
+  else
+    enc = tolower(&fileencoding)
   endif
 
   # The iso-8859-* encodings are valid for the Content-Type charset header:
@@ -1273,6 +1263,10 @@ enddef
 
 # ToRGB()  {{{1
 def ToRGB(color: string): string
+  if color !~ '^#\x\{6}$'
+    echoerr "Color must be a six-digit hexadecimal value prefixed by a #"
+    return ''
+  endif
   var rgb = color[1 : -1]->split('\x\{2}\zs')->mapnew((_, val) => str2nr(val, 16))
   return printf('rgb(%d, %d, %d)', rgb[0], rgb[1], rgb[2])
 enddef
@@ -1386,169 +1380,6 @@ def HTML#ColorChooser(how: string = 'i')
     }
   )
 enddef
-
-# HTML#ShowColors()  {{{1
-#
-# Create a window to display the HTML colors, highlighted
-#
-# Arguments:
-#  1 - String: Default is "i", how to insert the chosen color
-# Return Value:
-#  None
-# def HTML#ShowColors(str: string = '')
-#   if exists('b:did_html_mappings_init') == 0
-#     HTMLERROR Not in an HTML buffer.
-#     return
-#   endif
-# 
-#   var curbuf = bufnr('%')
-#   var maxw = 0
-# 
-#   HTML.COLOR_LIST->keys()->mapnew(
-#     (_, value) => {
-#       if value->strlen() > maxw
-#         maxw = value->strlen()
-#       endif
-#       return
-#     }
-#   )
-# 
-#   silent new [HTML\ Colors\ Display]
-#   setlocal buftype=nofile noswapfile bufhidden=wipe
-# 
-#   var col = 0
-#   var line = ''
-#   HTML.COLOR_LIST->items()->sort()->mapnew(
-#     (_, value) => {
-#       col += 1
-# 
-#       line ..= repeat(' ', maxw - value[0]->strlen()) .. value[0] .. ' = ' .. value[1]
-# 
-#       if col >= 2
-#         append('$', line)
-#         line = ''
-#         col = 0
-#       else
-#         line ..= '      '
-#       endif
-# 
-#       execute 'syntax match hc_' .. value[2] .. ' /' .. value[1] .. '/'
-#       execute 'highlight hc_' .. value[2] .. ' guibg=' .. value[1]
-# 
-#       return
-#     }
-#   )
-# 
-#   if line != ''
-#     append('$', line)
-#   endif
-# 
-#   append(0, [
-#         '[ q = quit  <space> = page down   b = page up                              ]',
-#         '[ <tab> = Move cursor to next color   <shift-tab> = Move to previous color ]',
-#         '[ <enter> or <double click> = Choose color number under cursor             ]',
-#         '[ <shift-enter> or <shift-double click> = Choose color name under cursor   ]',
-#       ])
-#   go 1
-#   #execute ':1,4center ' .. ((maxw + 13) * 2)
-#   normal! }
-# 
-#   setlocal nomodifiable
-# 
-#   syntax match hc_colorsKeys =^\%<5l\s*\[ .\+ \]$=
-#   highlight link hc_colorsKeys Comment
-# 
-#   wincmd _
-# 
-#   noremap <silent> <buffer> q <C-w>c
-#   noremap <silent> <buffer> <space> <C-f>
-#   noremap <silent> <buffer> b <C-b>
-#   noremap <silent> <buffer> <tab> <Cmd>vim9cmd search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}', 'w')<CR>
-#   noremap <silent> <buffer> <s-tab> <Cmd>vim9cmd search('[A-Za-z][A-Za-z ]\+ = #\x\{6\}', 'bw')<CR>
-#   nnoremap <silent> <buffer> i <nop>
-#   nnoremap <silent> <buffer> I <nop>
-#   nnoremap <silent> <buffer> a <nop>
-#   nnoremap <silent> <buffer> A <nop>
-#   nnoremap <silent> <buffer> c <nop>
-#   nnoremap <silent> <buffer> C <nop>
-#   nnoremap <silent> <buffer> d <nop>
-#   nnoremap <silent> <buffer> D <nop>
-#   nnoremap <silent> <buffer> o <nop>
-#   nnoremap <silent> <buffer> O <nop>
-#   nnoremap <silent> <buffer> s <nop>
-#   nnoremap <silent> <buffer> S <nop>
-#   nnoremap <silent> <buffer> p <nop>
-#   nnoremap <silent> <buffer> P <nop>
-#   nnoremap <silent> <buffer> r <nop>
-#   nnoremap <silent> <buffer> R <nop>
-#   nnoremap <silent> <buffer> x <nop>
-#   nnoremap <silent> <buffer> X <nop>
-#   nnoremap <silent> <buffer> <Insert> <nop>
-#   nnoremap <silent> <buffer> <Del> <nop>
-#   nnoremap <silent> <buffer> ~ <nop>
-# 
-#   var ins = ''
-#   if str != ''
-#     ins = ', "' .. str->escape('"') .. '"'
-#   else
-#     ins = ', v:none'
-#   endif
-# 
-#   execute 'noremap <silent> <buffer> <cr> <Cmd>vim9cmd '
-#     .. _this .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
-#   execute 'noremap <silent> <buffer> <s-cr> <Cmd>vim9cmd '
-#     .. _this .. 'ColorSelect(' .. curbuf .. ins .. ', true)<CR>'
-#   execute 'inoremap <silent> <buffer> <cr> <Cmd>vim9cmd '
-#     .. _this .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
-#   execute 'inoremap <silent> <buffer> <cr> <Cmd>vim9cmd '
-#     .. _this .. 'ColorSelect(' .. curbuf .. ins .. ', true)<CR>'
-#   execute 'noremap <silent> <buffer> <2-leftmouse> <Cmd>vim9cmd '
-#     .. _this .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
-#   execute 'noremap <silent> <buffer> <s-2-leftmouse> <Cmd>vim9cmd '
-#     .. _this .. 'ColorSelect(' .. curbuf .. ins .. ', true)<CR>'
-#   execute 'inoremap <silent> <buffer> <2-leftmouse> <Cmd>vim9cmd '
-#     .. _this .. 'ColorSelect(' .. curbuf .. ins .. ')<CR>'
-#   execute 'inoremap <silent> <buffer> <s-2-leftmouse> <Cmd>vim9cmd '
-#     .. _this .. 'ColorSelect(' .. curbuf .. ins .. ', true)<CR>'
-# 
-#   stopinsert
-# enddef
-
-# ColorSelect()  {{{1
-# Arguments:
-#  1 - Number: Buffer to insert into
-#  2 - String: Optional, default "i", how to insert the color code
-# Return Value:
-#  None
-# def ColorSelect(bufnr: number, how: string = 'i', name: bool = false)
-#   var line  = getline('.')
-#   var col   = col('.')
-#   var color = line->substitute('.\{-\}\%<' .. (col + 1) .. 'c\(\%([A-Z][a-z]\+ \)\+= #\x\{6\}\)\%>' .. col .. 'c.*', '\1', '')
-# 
-#   if color == line
-#     return
-#   endif
-# 
-#   var colorarray = color->split(' = ')
-# 
-#   close
-# 
-#   if bufnr->bufwinnr() == -1
-#     execute ':buffer ' .. bufnr
-#   else
-#     execute ':' .. bufnr->bufwinnr() .. 'wincmd w'
-#   endif
-# 
-#   if name
-#     execute 'normal! ' .. how .. colorarray[0]->substitute(' ', '', 'g')
-#   else
-#     execute 'normal! ' .. how .. colorarray[1]
-#   endif
-# 
-#   stopinsert
-# 
-#   echo color
-# enddef
 
 # HTML#Template()  {{{1
 #
@@ -1686,6 +1517,7 @@ enddef
 #  1 - String: The menu type (amenu, imenu, omenu)
 #  2 - String: The menu numeric level(s) ("-" for automatic)
 #  3 - List:   The menu name, split into submenu heirarchy as a list
+#  4 - String: The keystrokes to run (usually going to be a mapping to call)
 # Return Value:
 #  None
 def HTML#Menu(type: string, level: string, name: list<string>, item: string)
@@ -1781,7 +1613,7 @@ def HTML#EntityMenu(name: list<string>, item: string, symb: string = '')
   if newsymb != ''
     # Makes it so UTF8 characters don't have to be hardcoded:
     if newsymb =~# '^\\[xuU]\x\+$'
-      newsymb = newsymb->substitute('^\\[xuU]', '', '')->str2nr(16)->nr2char(true)
+      newsymb = newsymb->substitute('^\\[xuU]', '', '')->str2nr(16)->nr2char(1)
     endif
 
     newsymb = '\ (' .. newsymb->escape(' &<.|') .. ')'
@@ -1822,15 +1654,15 @@ def HTML#ColorsMenu(name: string, color: string, namens: string)
 
   rgb = color->ToRGB()
 
-  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ Name ' .. namens
-  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ Name i' .. namens .. '<esc>'
-  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ Name s' .. namens .. '<esc>'
-  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ Color ' .. color
-  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ Color i' .. color .. '<esc>'
-  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ Color s' .. color .. '<esc>'
-  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ RGB ' .. rgb
-  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ RGB i' .. rgb .. '<esc>'
-  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ RGB s' .. rgb .. '<esc>'
+  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Name ' .. namens
+  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Name i' .. namens .. '<esc>'
+  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Name s' .. namens .. '<esc>'
+  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Hexadecimal ' .. color
+  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Hexadecimal i' .. color .. '<esc>'
+  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Hexadecimal s' .. color .. '<esc>'
+  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &RGB ' .. rgb
+  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &RGB i' .. rgb .. '<esc>'
+  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &RGB s' .. rgb .. '<esc>'
 enddef
 
 defcompile

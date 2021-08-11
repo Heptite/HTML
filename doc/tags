@@ -9,6 +9,7 @@
 :ColorChooser	HTML.txt	/*:ColorChooser*
 :ColorSelect	HTML.txt	/*:ColorSelect*
 :HTMLReloadFunctions	HTML.txt	/*:HTMLReloadFunctions*
+:HTMLabout	HTML.txt	/*:HTMLabout*
 :HTMLmappings	HTML.txt	/*:HTMLmappings*
 :SetIfUnset	HTML.txt	/*:SetIfUnset*
 GPL	gpl-3.0.txt	/*GPL*
@@ -42,6 +43,7 @@ HTML.zip	HTML.txt	/*HTML.zip*
 SSI-includes	HTML.txt	/*SSI-includes*
 XHTML-macros	HTML.txt	/*XHTML-macros*
 b:do_xhtml_mappings	HTML.txt	/*b:do_xhtml_mappings*
+b:html_charset	HTML.txt	/*b:html_charset*
 b:html_tag_case	HTML.txt	/*b:html_tag_case*
 b:html_template	HTML.txt	/*b:html_template*
 b:html_template	HTML.txt	/*b:html_template*
@@ -244,7 +246,6 @@ i_&#	HTML.txt	/*i_&#*
 i_&&	HTML.txt	/*i_&&*
 i_&'	HTML.txt	/*i_&'*
 i_&+-	HTML.txt	/*i_&+-*
-i_&--	HTML.txt	/*i_&--*
 i_&.	HTML.txt	/*i_&.*
 i_&/	HTML.txt	/*i_&\/*
 i_&0^	HTML.txt	/*i_&0^*
@@ -257,7 +258,6 @@ i_&16	HTML.txt	/*i_&16*
 i_&18	HTML.txt	/*i_&18*
 i_&1^	HTML.txt	/*i_&1^*
 i_&1v	HTML.txt	/*i_&1v*
-i_&2-	HTML.txt	/*i_&2-*
 i_&23	HTML.txt	/*i_&23*
 i_&25	HTML.txt	/*i_&25*
 i_&2<	HTML.txt	/*i_&2<*
@@ -461,7 +461,6 @@ i_&xi	HTML.txt	/*i_&xi*
 i_&y'	HTML.txt	/*i_&y'*
 i_&yquote	HTML.txt	/*i_&yquote*
 i_&ze	HTML.txt	/*i_&ze*
-i_3-	HTML.txt	/*i_3-*
 i_;#	HTML.txt	/*i_;#*
 i_;&	HTML.txt	/*i_;&*
 i_;/p	HTML.txt	/*i_;\/p*
@@ -470,7 +469,6 @@ i_;5	HTML.txt	/*i_;5*
 i_;;	HTML.txt	/*i_;;*
 i_;<S-Tab>	HTML.txt	/*i_;<S-Tab>*
 i_;<Tab>	HTML.txt	/*i_;<Tab>*
-i_;<space>	HTML.txt	/*i_;<space>*
 i_;@	HTML.txt	/*i_;@*
 i_;CTRL-I	HTML.txt	/*i_;CTRL-I*
 i_;H1	HTML.txt	/*i_;H1*
@@ -595,7 +593,6 @@ i_;sj	HTML.txt	/*i_;sj*
 i_;sm	HTML.txt	/*i_;sm*
 i_;sn	HTML.txt	/*i_;sn*
 i_;sp	HTML.txt	/*i_;sp*
-i_;space	HTML.txt	/*i_;space*
 i_;ss	HTML.txt	/*i_;ss*
 i_;st	HTML.txt	/*i_;st*
 i_;su	HTML.txt	/*i_;su*
