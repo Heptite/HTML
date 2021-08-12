@@ -1,3 +1,6 @@
+Wed, 11 Aug 2021 00:52:12 -0600 Christian J. Robinson
+ * Remove unused code. Make defining HTML entities with menus easier. Add an about command.
+
 Mon, 9 Aug 2021 22:25:00 -0600 Christian J. Robinson
  * Moved constants into another file. Rewrote the color selector to use Vim's popups.
 

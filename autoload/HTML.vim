@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: August 10, 2021
+# Last Change: August 11, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -1124,6 +1124,8 @@ def HTML#MappingsControl(dowhat: string): bool
       HTMLERROR The HTML mappings are already enabled.
     else
       execute 'source ' .. g:html_plugin_file
+      HTML#ReadEntities(false)
+      HTML#ReadTags(false)
       if exists('b:HTMLextraMappings') == 1
         DoExtraMappings()
       endif
@@ -1666,6 +1668,91 @@ def HTML#ColorsMenu(name: string, color: string, namens: string)
 enddef
 
 defcompile
+
+# HTML#ReadTags()
+#  Purpose:
+#   Read in the HTML tags JSON file and define both the mappings and menu at
+#   the same time, unless otherwise specified.
+#
+#  Arguments:
+#   1 - Boolean: Optional, whether to define the menus
+#   2 - String:  Optional, what json file to read
+#  Return Value:
+#   None
+def HTML#ReadTags(domenu: bool = true, file: string = 'json/htmltags.json')
+  for json in file->findfile(&runtimepath)->readfile()->join(' ')->json_decode()
+    try
+      if json->has_key('menus') && json['menus']->has_key('n') && json['menus']['n'][2] ==? '<nop>'
+        if domenu
+          HTML#Menu('menu', json['menus']['n'][0], json['menus']['n'][1], '<nop>')
+        endif
+      else
+        if json->has_key('maps')
+          if json['maps']->has_key('i') && maparg(json['maps']['i'][0]->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), ''), 'i') == ''
+            HTML#Map('inoremap', json['maps']['i'][0], json['maps']['i'][1])
+          endif
+          if json['maps']->has_key('v') && maparg(json['maps']['v'][0]->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), ''), 'v') == ''
+            HTML#Map('vnoremap', json['maps']['v'][0], json['maps']['v'][1], json['maps']['v'][2])
+          endif
+          if json['maps']->has_key('n') && maparg(json['maps']['n'][0]->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), ''), 'n') == ''
+            HTML#Map('nnoremap', json['maps']['n'][0], json['maps']['n'][1])
+          endif
+          if json['maps']->has_key('o') && maparg(json['maps']['o'][0]->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), ''), 'o') == ''
+            HTML#Mapo(json['maps']['o'][0], json['maps']['o'][1])
+          endif
+        endif
+        if domenu && json->has_key('menus')
+          if json['menus']->has_key('i')
+            HTML#LeadMenu('imenu', json['menus']['i'][0], json['menus']['i'][1], json['menus']['i'][2], json['menus']['i'][3])
+          endif
+          if json['menus']->has_key('v')
+            HTML#LeadMenu('vmenu', json['menus']['v'][0], json['menus']['v'][1], json['menus']['v'][2], json['menus']['v'][3])
+          endif
+          if json['menus']->has_key('n')
+            HTML#LeadMenu('nmenu', json['menus']['n'][0], json['menus']['n'][1], json['menus']['n'][2], json['menus']['n'][3])
+          endif
+          if json['menus']->has_key('a')
+            HTML#LeadMenu('amenu', json['menus']['a'][0], json['menus']['a'][1], json['menus']['a'][2], json['menus']['a'][3])
+          endif
+        endif
+      endif
+    catch /.*/
+      execute 'HTMLERROR ' .. v:exception
+      execute 'HTMLERROR Potentially malformed json in ' .. file .. ', section: ' .. json->string()
+    endtry
+  endfor
+enddef
+
+# HTML#ReadEntities()
+#  Purpose:
+#   Read in the HTML entities JSON file and define both the mappings and menu
+#   at the same time, unless otherwise specified.
+#
+#  Arguments:
+#   1 - Boolean: Optional, whether to define the menus
+#   2 - String:  Optional, what json file to read
+#  Return Value:
+#   None
+def HTML#ReadEntities(domenu: bool = true, file: string = 'json/htmlentities.json')
+  for json in file->findfile(&runtimepath)->readfile()->join(' ')->json_decode()
+    if json->len() != 4 || json[2]->type() != v:t_list
+      execute 'HTMLERROR Malformed json in ' .. file .. ', section: ' .. json->string()
+      continue
+    endif
+    if json[3] ==? '<nop>'
+      if domenu
+        HTML#Menu('menu', '-', json[2]->extend(['Character &Entities'], 0), '<nop>')
+      endif
+    else
+      if maparg(g:html_map_entity_leader .. json[0], 'i') == ''
+        HTML#Map('inoremap', '<elead>' .. json[0], json[1])
+      endif
+      if domenu
+        HTML#EntityMenu(json[2], json[0], json[3])
+      endif
+    endif
+  endfor
+enddef
 
 if !exists('g:html_function_files') | g:html_function_files = [] | endif
 add(g:html_function_files, expand('<sfile>:p'))->sort()->uniq()

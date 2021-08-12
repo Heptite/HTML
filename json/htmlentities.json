@@ -127,6 +127,8 @@
    ["mi",      "&micro;",    ["&Math", "Micro"],                            "\\xB5"],
    ["+-",      "&plusmn;",   ["&Math", "Plus/Minus"],                       "\\xB1"],
 
+   ["",        "",           ["&Math", "-sep1-"],                           "<nop>"],
+
    ["R1",      "&#x2160;",   ["&Math", "Roman Numerals", "Uppercase 1"],    "\\u2160"],
    ["R2",      "&#x2161;",   ["&Math", "Roman Numerals", "Uppercase 2"],    "\\u2161"],
    ["R3",      "&#x2162;",   ["&Math", "Roman Numerals", "Uppercase 3"],    "\\u2162"],
