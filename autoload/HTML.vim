@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: August 11, 2021
+# Last Change: August 12, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -1667,9 +1667,7 @@ def HTML#ColorsMenu(name: string, color: string, namens: string)
   execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &RGB s' .. rgb .. '<esc>'
 enddef
 
-defcompile
-
-# HTML#ReadTags()
+# HTML#ReadTags()  {{{1
 #  Purpose:
 #   Read in the HTML tags JSON file and define both the mappings and menu at
 #   the same time, unless otherwise specified.
@@ -1679,40 +1677,109 @@ defcompile
 #   2 - String:  Optional, what json file to read
 #  Return Value:
 #   None
-def HTML#ReadTags(domenu: bool = true, file: string = 'json/htmltags.json')
-  for json in file->findfile(&runtimepath)->readfile()->join(' ')->json_decode()
+def HTML#ReadTags(domenu: bool = true, file: string = HTML.TAGS_FILE)
+  var maplhs: string
+  var menulhs: string
+  var jsonfile = file->findfile(&runtimepath)
+
+  if jsonfile == ''
+    echoerr file .. ' is not found in the runtimepath. No tag mappings or menus have been defined.'
+    return
+  elseif ! jsonfile->filereadable()
+    echoerr jsonfile .. ' is not readable. No tag mappings or menus have been defined.'
+    return
+  endif
+
+  for json in jsonfile->readfile()->join(' ')->json_decode()
     try
-      if json->has_key('menus') && json['menus']->has_key('n') && json['menus']['n'][2] ==? '<nop>'
+      if json->has_key('menus') && json.menus->has_key('n') && json.menus.n[2] ==? '<nop>'
         if domenu
-          HTML#Menu('menu', json['menus']['n'][0], json['menus']['n'][1], '<nop>')
+          HTML#Menu('menu', json.menus.n[0], json.menus.n[1], '<nop>')
         endif
       else
+        if json->has_key('lhs')
+          maplhs = '<lead>' .. json.lhs
+          menulhs = json.lhs
+        else
+          maplhs = ""
+          menulhs = ""
+        endif
+
         if json->has_key('maps')
-          if json['maps']->has_key('i') && maparg(json['maps']['i'][0]->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), ''), 'i') == ''
-            HTML#Map('inoremap', json['maps']['i'][0], json['maps']['i'][1])
+          if json.maps->has_key('i')
+              && maparg((maplhs == '' ? '<lead>' .. json.maps.i[0] : maplhs)->substitute('^<lead>\c',
+                g:html_map_leader->escape('&~\'), ''), 'i') == ''
+            HTML#Map('inoremap',
+              (maplhs == '' ? '<lead>' .. json.maps.i[0] : maplhs),
+              json.maps.i[1]
+            )
           endif
-          if json['maps']->has_key('v') && maparg(json['maps']['v'][0]->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), ''), 'v') == ''
-            HTML#Map('vnoremap', json['maps']['v'][0], json['maps']['v'][1], json['maps']['v'][2])
+
+          if json.maps->has_key('v')
+              && maparg((maplhs == '' ? '<lead>' .. json.maps.v[0] : maplhs)->substitute('^<lead>\c',
+                g:html_map_leader->escape('&~\'), ''), 'v') == ''
+            HTML#Map('vnoremap',
+              (maplhs == '' ? '<lead>' .. json.maps.v[0] : maplhs),
+              json.maps.v[1],
+              json.maps.v[2]
+            )
           endif
-          if json['maps']->has_key('n') && maparg(json['maps']['n'][0]->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), ''), 'n') == ''
-            HTML#Map('nnoremap', json['maps']['n'][0], json['maps']['n'][1])
+
+          if json.maps->has_key('n')
+              && maparg((maplhs == '' ? '<lead>' .. json.maps.n[0] : maplhs)->substitute('^<lead>\c',
+                g:html_map_leader->escape('&~\'), ''), 'n') == ''
+            HTML#Map('nnoremap',
+              (maplhs == '' ? '<lead>' .. json.maps.n[0] : maplhs),
+              json.maps.n[1]
+            )
           endif
-          if json['maps']->has_key('o') && maparg(json['maps']['o'][0]->substitute('^<lead>\c', g:html_map_leader->escape('&~\'), ''), 'o') == ''
-            HTML#Mapo(json['maps']['o'][0], json['maps']['o'][1])
+
+          if json.maps->has_key('o')
+              && maparg((maplhs == '' ? '<lead>' .. json.maps.o[0] : maplhs)->substitute('^<lead>\c',
+                g:html_map_leader->escape('&~\'), ''), 'o') == ''
+            HTML#Mapo(
+              (maplhs == '' ? '<lead>' .. json.maps.o[0] : maplhs),
+              json.maps.o[1]
+            )
           endif
         endif
+
         if domenu && json->has_key('menus')
-          if json['menus']->has_key('i')
-            HTML#LeadMenu('imenu', json['menus']['i'][0], json['menus']['i'][1], json['menus']['i'][2], json['menus']['i'][3])
+          if json.menus->has_key('i')
+            HTML#LeadMenu('imenu',
+              json.menus.i[0],
+              json.menus.i[1],
+              (menulhs == '' ? json.menus.i[2] : menulhs),
+              json.menus.i[3]
+            )
           endif
-          if json['menus']->has_key('v')
-            HTML#LeadMenu('vmenu', json['menus']['v'][0], json['menus']['v'][1], json['menus']['v'][2], json['menus']['v'][3])
+
+          if json.menus->has_key('v')
+            HTML#LeadMenu('vmenu',
+              json.menus.v[0],
+              json.menus.v[1],
+              (menulhs == '' ? json.menus.v[2] : menulhs),
+              json.menus.v[3]
+            )
           endif
-          if json['menus']->has_key('n')
-            HTML#LeadMenu('nmenu', json['menus']['n'][0], json['menus']['n'][1], json['menus']['n'][2], json['menus']['n'][3])
+
+          if json.menus->has_key('n')
+            HTML#LeadMenu('nmenu',
+              json.menus.n[0],
+              json.menus.n[1],
+              (menulhs == '' ? json.menus.n[2] : menulhs),
+              json.menus.n[3]
+            )
           endif
-          if json['menus']->has_key('a')
-            HTML#LeadMenu('amenu', json['menus']['a'][0], json['menus']['a'][1], json['menus']['a'][2], json['menus']['a'][3])
+
+          if json.menus->has_key('a')
+            HTML#LeadMenu(
+              'amenu',
+              json.menus.a[0],
+              json.menus.a[1],
+              (menulhs == '' ? json.menus.a[2] : menulhs),
+              json.menus.a[3]
+            )
           endif
         endif
       endif
@@ -1723,7 +1790,7 @@ def HTML#ReadTags(domenu: bool = true, file: string = 'json/htmltags.json')
   endfor
 enddef
 
-# HTML#ReadEntities()
+# HTML#ReadEntities()  {{{1
 #  Purpose:
 #   Read in the HTML entities JSON file and define both the mappings and menu
 #   at the same time, unless otherwise specified.
@@ -1733,8 +1800,18 @@ enddef
 #   2 - String:  Optional, what json file to read
 #  Return Value:
 #   None
-def HTML#ReadEntities(domenu: bool = true, file: string = 'json/htmlentities.json')
-  for json in file->findfile(&runtimepath)->readfile()->join(' ')->json_decode()
+def HTML#ReadEntities(domenu: bool = true, file: string = HTML.ENTITIES_FILE)
+  var jsonfile = file->findfile(&runtimepath)
+
+  if jsonfile == ''
+    echoerr file .. ' is not found in the runtimepath. No entity mappings or menus have been defined.'
+    return
+  elseif ! jsonfile->filereadable()
+    echoerr jsonfile .. ' is not readable. No entity mappings or menus have been defined.'
+    return
+  endif
+
+  for json in jsonfile->readfile()->join(' ')->json_decode()
     if json->len() != 4 || json[2]->type() != v:t_list
       execute 'HTMLERROR Malformed json in ' .. file .. ', section: ' .. json->string()
       continue
@@ -1753,6 +1830,8 @@ def HTML#ReadEntities(domenu: bool = true, file: string = 'json/htmlentities.jso
     endif
   endfor
 enddef
+
+defcompile
 
 if !exists('g:html_function_files') | g:html_function_files = [] | endif
 add(g:html_function_files, expand('<sfile>:p'))->sort()->uniq()

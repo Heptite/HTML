@@ -1,3 +1,6 @@
+Wed, 11 Aug 2021 22:30:54 -0600 Christian J. Robinson
+ * Fixed a serious bug loading the entities. Also load the tag mappings and menus via json.
+
 Wed, 11 Aug 2021 00:52:12 -0600 Christian J. Robinson
  * Remove unused code. Make defining HTML entities with menus easier. Add an about command.
 

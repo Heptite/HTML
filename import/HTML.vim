@@ -2,7 +2,7 @@ vim9script
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: August 11, 2021
+# Last Change: August 12, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -28,12 +28,15 @@ export const AUTHOR = 'Christian J. Robinson'
 export const HOMEPAGE = 'https://christianrobinson.name/HTML/'
 export const COPYRIGHT = 'Copyright © 1998-2021 under the terms of the GPL3'
 
-export const VERSION = '1.1.6'
+export const VERSION = '1.1.7'
 
 # Used by some of the functions to save then restore some options:
 export var saveopts: dict<any>
 
 export const MENU_NAME = 'HTM&L'
+
+export const TAGS_FILE = 'json/htmltags.json'
+export const ENTITIES_FILE = 'json/htmlentities.json'
 
 export const INTERNAL_HTML_TEMPLATE = [  # {{{
     ' <[{HEAD}]>',
