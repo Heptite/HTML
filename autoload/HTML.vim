@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: August 12, 2021
+# Last Change: August 13, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -136,6 +136,33 @@ def HTML#SetIfUnset(variable: string, ...args: list<any>): number
   return 1
 enddef
 
+
+# Bool()  {{{1
+#
+# Helper to HTML#BoolVar() -- Test the string passed to it and
+# return true/false based on that string.
+#
+# Arguments:
+#  1 - String:  1|true|yes|y|on / 0|false|no|n|off|none|null
+# Return Value:
+#  Boolean
+def Bool(value: any): bool
+  var regexp = '^no\?$\|^off$\|^\(v:\)\?\(false\|none\|null\)$\|^0\(\.0\)\?$\|^$'
+  if value->type() == v:t_string
+    return value !~? regexp
+  elseif value->type() == v:t_bool || value->type() == v:t_none
+      || value->type() == v:t_number || value->type() == v:t_float
+    return value->string() !~? regexp
+  elseif value->type() == v:t_list
+    return value != []
+  elseif value->type() == v:t_dict
+    return value != {}
+  endif
+
+  echoerr 'Unknown type for Bool(): ' .. value->typename()
+  return false
+enddef
+
 # HTML#BoolVar()  {{{1
 #
 # Given a string, test to see if a variable by that string name exists, and if
@@ -150,33 +177,6 @@ enddef
 # Limitations:
 #  This /will not/ work on function-local variable names.
 def HTML#BoolVar(variable: string): bool
-
-  # Bool()  {{{2
-  #
-  # Helper to HTML#BoolVar() -- Test the string passed to it and
-  # return true/false based on that string.
-  #
-  # Arguments:
-  #  1 - String:  1|true|yes|y|on / 0|false|no|n|off|none|null
-  # Return Value:
-  #  Boolean
-  def Bool(value: any): bool
-    var regexp = '^no\?$\|^off$\|^\(v:\)\?\(false\|none\|null\)$\|^0\(\.0\)\?$\|^$'
-    if value->type() == v:t_string
-      return value !~? regexp
-    elseif value->type() == v:t_bool || value->type() == v:t_none
-        || value->type() == v:t_number || value->type() == v:t_float
-      return value->string() !~? regexp
-    elseif value->type() == v:t_list
-      return value != []
-    elseif value->type() == v:t_dict
-      return value != {}
-    endif
-
-    echoerr 'Unknown type for Bool(): ' .. value->typename()
-    return false
-  enddef  # }}}2
-
   var newvariable = variable
 
   if variable !~ '^[bgstvw]:'
@@ -730,21 +730,32 @@ enddef
 #  2 - Integer: End of region.
 #  3 - Integer: Optional - Add N extra lines below the region to re-indent.
 #  4 - Integer: Optional - Add N extra lines above the region to re-indent.
-def HTML#ReIndent(first: number, last: number, extralines: number = 0, prelines: number = 0)
+#               (Two extra options because the start/end can be reversed so
+#               adding to those in the function call can have wrong results.)
+# Return Value:
+#  Boolean - True if lines were reindented, false otherwise.
+def HTML#ReIndent(first: number, last: number, extralines: number = 0, prelines: number = 0): bool
+
+  def GetFiletypeInfo(): dict<string>  # {{{2
+    var filetypeoutput: dict<string>
+    execute('filetype')->trim()->split('  ')->mapnew(
+      (_, val) => {
+        var newval = val->split(':')
+        filetypeoutput[newval[0]] = newval[1]
+      }
+    )
+    return filetypeoutput
+  enddef  # }}}2
+
   var firstline: number
   var lastline: number
-  var filetypeoutput: string
 
-  # To find out if filetype indenting is enabled:
-  silent! redir =>filetypeoutput
-  silent! filetype
-  redir END
-
-  if filetypeoutput =~ "indent:OFF" && &indentexpr == ''
-    return
+  if !GetFiletypeInfo()['indent']->Bool() && &indentexpr == ''
+    return false
   endif
 
-  # Make sure the range is in the proper order:
+  # Make sure the range is in the proper order (although this may not be
+  # necesssary for modern versions of Vim?):
   if last >= first
     firstline = first
     lastline = last
@@ -769,6 +780,8 @@ def HTML#ReIndent(first: number, last: number, extralines: number = 0, prelines:
   endif
 
   execute ':' .. firstline .. ',' .. lastline .. 'normal! =='
+
+  return true
 enddef
 
 # HTML#NextInsertPoint()  {{{1
@@ -842,7 +855,7 @@ def HTML#SmartTag(tag: string, mode: string): string
   var line: number
   var column: number
 
-  if ! HTML.SMARTTAGS->has_key(newtag)
+  if ! HTML.smarttags->has_key(newtag)
     execute 'HTMLERROR Unknown smart tag: ' .. newtag
     return ''
   endif
@@ -857,15 +870,15 @@ def HTML#SmartTag(tag: string, mode: string): string
 
   which = (line == 0 && column == 0 ? 'o' : 'c')
 
-  ret = HTML.SMARTTAGS[newtag][newmode][which]->HTML#ConvertCase()
+  ret = HTML.smarttags[newtag][newmode][which]->HTML#ConvertCase()
 
   if newmode == 'v'
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
     ret = ret->substitute('`>a\C', '`>i' .. VI(), 'g')
 
-    if HTML.SMARTTAGS[newtag][newmode]->has_key('insert')
-        && HTML.SMARTTAGS[newtag][newmode]['insert'] 
+    if HTML.smarttags[newtag][newmode]->has_key('insert')
+        && HTML.smarttags[newtag][newmode]['insert'] 
       ret ..= "\<right>"
       silent startinsert
     endif
@@ -1703,6 +1716,13 @@ def HTML#ReadTags(domenu: bool = true, file: string = HTML.TAGS_FILE)
         else
           maplhs = ""
           menulhs = ""
+        endif
+
+        if json->has_key('smarttag')
+          # Translate \<...> strings to their corresponding actual character:
+          var tmp = json.smarttag->string()->substitute('\\<[^>]\+>', '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
+
+          HTML.smarttags->extend(eval(tmp))
         endif
 
         if json->has_key('maps')

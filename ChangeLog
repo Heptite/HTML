@@ -1,3 +1,6 @@
+Thu, 12 Aug 2021 19:35:13 -0600 Christian J. Robinson
+ * Some bugs crept in during the change over to json. Code improvements.
+
 Wed, 11 Aug 2021 22:30:54 -0600 Christian J. Robinson
  * Fixed a serious bug loading the entities. Also load the tag mappings and menus via json.
 

@@ -1,4 +1,24 @@
 [
+	{ "menus": {"n": ["-", ["-sep4-"], "<nop>"]} },
+
+	{
+		"menus": {
+			"v": ["-", ["Character &Entities", "Convert to Entity"], "&", ""]
+		}
+	},
+
+	{
+		"menus": {
+			"v": ["-", ["Character &Entities", "Convert to %XX (URI Encode)"], "%", ""]
+		}
+	},
+
+	{
+		"menus": {
+			"v": ["-", ["Character &Entities", "Convert from Entities and URI/%XX"], "^", ""]
+		}
+	},
+
 	{
 		"lhs": "cc",
 
@@ -30,6 +50,20 @@
 			"i": ["-", ["&Font Styles", "&Bold"], "", ""],
 			"v": ["-", ["&Font Styles", "&Bold"], "", ""],
 			"n": ["-", ["&Font Styles", "&Bold"], "", "i"]
+		},
+
+		"smarttag": {
+			"b": {
+				"i": {
+					"o": "<[{B></B}]>\\<C-O>F<",
+					"c": "<[{/B><B}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{B}]>\\<C-O>`<<[{B}]>",
+					"c": "`>a<[{B}]>\\<C-O>`<</[{B}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -46,6 +80,20 @@
 			"i": ["-", ["&Font Styles", "&Strong"], "", ""],
 			"v": ["-", ["&Font Styles", "&Strong"], "", ""],
 			"n": ["-", ["&Font Styles", "&Strong"], "", "i"]
+		},
+
+		"smarttag": {
+			"strong": {
+				"i": {
+					"o": "<[{STRONG></STRONG}]>\\<C-O>F<",
+					"c": "<[{/STRONG><STRONG}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{STRONG}]>\\<C-O>`<<[{STRONG}]>",
+					"c": "`>a<[{STRONG}]>\\<C-O>`<</[{STRONG}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -62,6 +110,20 @@
 			"i": ["-", ["&Font Styles", "&Italics"], "", ""],
 			"v": ["-", ["&Font Styles", "&Italics"], "", ""],
 			"n": ["-", ["&Font Styles", "&Italics"], "", "i"]
+		},
+
+		"smarttag": {
+			"i": {
+				"i": {
+					"o": "<[{I></I}]>\\<C-O>F<",
+					"c": "<[{/I><I}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{I}]>\\<C-O>`<<[{I}]>",
+					"c": "`>a<[{I}]>\\<C-O>`<</[{I}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -78,6 +140,20 @@
 			"i": ["-", ["&Font Styles", "&Emphasis"], "", ""],
 			"v": ["-", ["&Font Styles", "&Emphasis"], "", ""],
 			"n": ["-", ["&Font Styles", "&Emphasis"], "", "i"]
+		},
+
+		"smarttag": {
+			"em": {
+				"i": {
+					"o": "<[{EM></EM}]>\\<C-O>F<",
+					"c": "<[{/EM><EM}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{EM}]>\\<C-O>`<<[{EM}]>",
+					"c": "`>a<[{EM}]>\\<C-O>`<</[{EM}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -94,6 +170,20 @@
 			"i": ["-", ["&Font Styles", "&Underline"], "", ""],
 			"v": ["-", ["&Font Styles", "&Underline"], "", ""],
 			"n": ["-", ["&Font Styles", "&Underline"], "", "i"]
+		},
+
+		"smarttag": {
+			"u": {
+				"i": {
+					"o": "<[{U></U}]>\\<C-O>F<",
+					"c": "<[{/U><U}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{U}]>\\<C-O>`<<[{U}]>",
+					"c": "`>a<[{U}]>\\<C-O>`<</[{U}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -178,6 +268,20 @@
 			"i": ["-", ["&Font Styles", "CITE"], "", ""],
 			"v": ["-", ["&Font Styles", "CITE"], "", ""],
 			"n": ["-", ["&Font Styles", "CITE"], "", "i"]
+		},
+
+		"smarttag": {
+			"cite": {
+				"i": {
+					"o": "<[{CITE></CITE}]>\\<C-O>F<",
+					"c": "<[{/CITE><CITE}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{CITE}]>\\<C-O>`<<[{CITE}]>",
+					"c": "`>a<[{CITE}]>\\<C-O>`<</[{CITE}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -194,6 +298,20 @@
 			"i": ["-", ["&Font Styles", "CODE"], "", ""],
 			"v": ["-", ["&Font Styles", "CODE"], "", ""],
 			"n": ["-", ["&Font Styles", "CODE"], "", "i"]
+		},
+
+		"smarttag": {
+			"code": {
+				"i": {
+					"o": "<[{CODE></CODE}]>\\<C-O>F<",
+					"c": "<[{/CODE><CODE}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{CODE}]>\\<C-O>`<<[{CODE}]>",
+					"c": "`>a<[{CODE}]>\\<C-O>`<</[{CODE}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -210,6 +328,20 @@
 			"i": ["-", ["&Font Styles", "Inserted Text"], "", ""],
 			"v": ["-", ["&Font Styles", "Inserted Text"], "", ""],
 			"n": ["-", ["&Font Styles", "Inserted Text"], "", "i"]
+		},
+
+		"smarttag": {
+			"ins": {
+				"i": {
+					"o": "<[{INS></INS}]>\\<C-O>F<",
+					"c": "<[{/INS><INS}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{INS}]>\\<C-O>`<<[{INS}]>",
+					"c": "`>a<[{INS}]>\\<C-O>`<</[{INS}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -226,6 +358,20 @@
 			"i": ["-", ["&Font Styles", "Deleted Text"], "", ""],
 			"v": ["-", ["&Font Styles", "Deleted Text"], "", ""],
 			"n": ["-", ["&Font Styles", "Deleted Text"], "", "i"]
+		},
+
+		"smarttag": {
+			"del": {
+				"i": {
+					"o": "<[{DEL></DEL}]>\\<C-O>F<",
+					"c": "<[{/DEL><DEL}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{DEL}]>\\<C-O>`<<[{DEL}]>",
+					"c": "`>a<[{DEL}]>\\<C-O>`<</[{DEL}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -242,6 +388,20 @@
 			"i": ["-", ["&Font Styles", "Keyboard Text"], "", ""],
 			"v": ["-", ["&Font Styles", "Keyboard Text"], "", ""],
 			"n": ["-", ["&Font Styles", "Keyboard Text"], "", "i"]
+		},
+
+		"smarttag": {
+			"kbd": {
+				"i": {
+					"o": "<[{KBD></KBD}]>\\<C-O>F<",
+					"c": "<[{/KBD><KBD}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{KBD}]>\\<C-O>`<<[{KBD}]>",
+					"c": "`>a<[{KBD}]>\\<C-O>`<</[{KBD}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -258,6 +418,20 @@
 			"i": ["-", ["&Font Styles", "Sample Text"], "", ""],
 			"v": ["-", ["&Font Styles", "Sample Text"], "", ""],
 			"n": ["-", ["&Font Styles", "Sample Text"], "", "i"]
+		},
+
+		"smarttag": {
+			"samp": {
+				"i": {
+					"o": "<[{SAMP></SAMP}]>\\<C-O>F<",
+					"c": "<[{/SAMP><SAMP}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{SAMP}]>\\<C-O>`<<[{SAMP}]>",
+					"c": "`>a<[{SAMP}]>\\<C-O>`<</[{SAMP}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -274,6 +448,20 @@
 			"i": ["-", ["&Font Styles", "Subscript"], "", ""],
 			"v": ["-", ["&Font Styles", "Subscript"], "", ""],
 			"n": ["-", ["&Font Styles", "Subscript"], "", "i"]
+		},
+
+		"smarttag": {
+			"sub": {
+				"i": {
+					"o": "<[{SUB></SUB}]>\\<C-O>F<",
+					"c": "<[{/SUB><SUB}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{SUB}]>\\<C-O>`<<[{SUB}]>",
+					"c": "`>a<[{SUB}]>\\<C-O>`<</[{SUB}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -290,6 +478,20 @@
 			"i": ["-", ["&Font Styles", "Superscript"], "", ""],
 			"v": ["-", ["&Font Styles", "Superscript"], "", ""],
 			"n": ["-", ["&Font Styles", "Superscript"], "", "i"]
+		},
+
+		"smarttag": {
+			"sup": {
+				"i": {
+					"o": "<[{SUP></SUP}]>\\<C-O>F<",
+					"c": "<[{/SUP><SUP}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{SUP}]>\\<C-O>`<<[{SUP}]>",
+					"c": "`>a<[{SUP}]>\\<C-O>`<</[{SUP}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -322,6 +524,20 @@
 			"i": ["-", ["&Font Styles", "Variable"], "", ""],
 			"v": ["-", ["&Font Styles", "Variable"], "", ""],
 			"n": ["-", ["&Font Styles", "Variable"], "", "i"]
+		},
+
+		"smarttag": {
+			"var": {
+				"i": {
+					"o": "<[{VAR></VAR}]>\\<C-O>F<",
+					"c": "<[{/VAR><VAR}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{VAR}]>\\<C-O>`<<[{VAR}]>",
+					"c": "`>a<[{VAR}]>\\<C-O>`<</[{VAR}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -346,7 +562,7 @@
 
 		"maps": {
 			"i": ["", "<[{FIELDSET}]><CR><[{LEGEND></LEGEND}]><CR></[{FIELDSET}]><ESC>k$F<i"],
-			"v": ["", "<ESC>`>a<CR></[{FIELDSET}]><C-O>`<<[{FIELDSET}]><CR><[{LEGEND></LEGEND}]><CR><ESC>k$F<i", {"insert": true}],
+			"v": ["", "<ESC>`>a<CR></[{FIELDSET}]><C-O>`<<[{FIELDSET}]><CR><[{LEGEND></LEGEND}]><CR><ESC>k$F<i", {"reindent": 2, "insert": true}],
 			"o": ["", true]
 		},
 
@@ -394,7 +610,7 @@
 
 		"maps": {
 			"i": ["", "<[{INPUT LIST}]=\"\"><CR><[{DATALIST ID}]=\"\"><CR></[{DATALIST}]><CR></[{INPUT}]><ESC>kkk$F\"i"],
-			"v": ["", "s<[{INPUT LIST}]=\"<C-R>\"\"><CR><[{DATALIST ID}]=\"<C-R>\"\"><CR></[{DATALIST}]><CR></[{INPUT}]><ESC>kO", {"reindent": 1, "insert": true}],
+			"v": ["", "s<[{INPUT LIST}]=\"<C-R>\"\"><CR><[{DATALIST ID}]=\"<C-R>\"\"><CR></[{DATALIST}]><CR></[{INPUT}]><ESC>kO", {"reindent": 2, "insert": true}],
 			"o": ["", true]
 		},
 
@@ -846,7 +1062,7 @@
 
 		"maps": {
 			"i": ["", "<C-R>=HTML#SmartTag('a1', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a1', 'v')<CR>", {}],
+			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a1', 'v')<CR>", {"insert": true}],
 			"o": ["", true]
 		},
 
@@ -854,14 +1070,86 @@
 			"i": ["-", ["&General Tags", "Hyperlink"], "", ""],
 			"v": ["-", ["&General Tags", "Hyperlink"], "", ""],
 			"n": ["-", ["&General Tags", "Hyperlink"], "", "i"]
+		},
+
+		"smarttag": {
+			"a1": {
+				"i": {
+					"o": "<[{A HREF=\"\"></A}]>\\<C-O>F\"",
+					"c": "<[{/A><A HREF=\"\"}]>\\<C-O>F\""
+				},
+				"v": {
+					"o": "`>a</[{A}]>\\<C-O>`<<[{A HREF=\"\"}]>\\<C-O>F\"",
+					"c": "`>a<[{A HREF=\"\"}]>\\<C-O>`<</[{A}]>\\<C-O>2f\"",
+					"insert": true
+				}
+			}
 		}
 	},
 
 	{
 		"maps": {
 			"i": ["aH", "<C-R>=HTML#SmartTag('a2', 'i')<CR>"],
-			"v": ["aH", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a2', 'v')<CR>", {}],
+			"v": ["aH", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a2', 'v')<CR>", {"insert": true}],
 			"o": ["aH", true]
+		},
+
+		"smarttag": {
+			"a2": {
+				"i": {
+					"o": "<[{A HREF=\"\\<C-R>*\"></A}]>\\<C-O>F<",
+					"c": "<[{/A><A HREF=\"\\<C-R>*\"}]>"
+				},
+				"v": {
+					"o": "`>a\"></[{A}]>\\<C-O>`<<[{A HREF}]=\"\\<C-O>f<",
+					"c": "`>a\">\\<C-O>`<</[{A><A HREF}]=\"\\<C-O>f<",
+					"insert": true
+				}
+			}
+		}
+	},
+
+	{
+		"maps": {
+			"i": ["at", "<C-R>=HTML#SmartTag('a3', 'i')<CR>"],
+			"v": ["at", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a3', 'v')<CR>", {"insert": true}],
+			"o": ["at", true]
+		},
+
+		"smarttag": {
+			"a3": {
+				"i": {
+					"o": "<[{A HREF=\"\" TARGET=\"\"></A}]>\\<C-O>3F\"",
+					"c": "<[{/A><A HREF=\"\" TARGET=\"\"}]>\\<C-O>3F\""
+				},
+				"v": {
+					"o": "`>a</[{A}]>\\<C-O>`<<[{A HREF=\"\" TARGET=\"\"}]>\\<C-O>3F\"",
+					"c": "`>a<[{A HREF=\"\" TARGET=\"\"}]>\\<C-O>`<</[{A}]>\\<C-O>2f\"",
+					"insert": true
+				}
+			}
+		}
+	},
+
+	{
+		"maps": {
+			"i": ["aT", "<C-R>=HTML#SmartTag('a4', 'i')<CR>"],
+			"v": ["aT", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a4', 'v')<CR>", {"insert": true}],
+			"o": ["aT", true]
+		},
+
+		"smarttag": {
+			"a4": {
+				"i": {
+					"o": "<[{A HREF=\"\\<C-R>*\" TARGET=\"\"></A}]>\\<C-O>F\"",
+					"c": "<[{/A><A HREF=\"\\<C-R>*\" TARGET=\"\"}]>\\<C-O>F\""
+				},
+				"v": {
+					"o": "`>a\" [{TARGET=\"\"></A}]>\\<C-O>`<<[{A HREF}]=\"\\<C-O>3f\"",
+					"c": "`>a\" [{TARGET=\"\"}]>\\<C-O>`<</[{A><A HREF}]=\"\\<C-O>3f\"",
+					"insert": true
+				}
+			}
 		}
 	},
 
@@ -931,6 +1219,20 @@
 			"i": ["-", ["&General Tags", "Paragraph"], "", ""],
 			"v": ["-", ["&General Tags", "Paragraph"], "", ""],
 			"n": ["-", ["&General Tags", "Paragraph"], "", "i"]
+		},
+
+		"smarttag": {
+			"p": {
+				"i": {
+					"o": "<[{P}]>\\<CR></[{P}]>\\<Esc>O",
+					"c": "</[{P}]>\\<CR>\\<CR><[{P}]>\\<CR>"
+				},
+				"v": {
+					"o": "`>a\\<CR></[{P}]>\\<C-O>`<<[{P}]>\\<CR>",
+					"c": "`>a\\<CR><[{P}]>\\<C-O>`<</[{P}]>\\<CR>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -953,6 +1255,20 @@
 			"i": ["-", ["&General Tags", "Preformatted Text"], "", ""],
 			"v": ["-", ["&General Tags", "Preformatted Text"], "", ""],
 			"n": ["-", ["&General Tags", "Preformatted Text"], "", "i"]
+		},
+
+		"smarttag": {
+			"pre": {
+				"i": {
+					"o": "<[{PRE}]>\\<CR></[{PRE}]>\\<Esc>O",
+					"c": "</[{PRE}]>\\<CR>\\<CR><[{PRE}]>\\<CR>"
+				},
+				"v": {
+					"o": "`>a\\<CR></[{PRE}]>\\<C-O>`<<[{PRE}]>\\<CR>",
+					"c": "`>a\\<CR><[{PRE}]>\\<C-O>`<</[{PRE}]>\\<CR>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -1339,6 +1655,20 @@
 			"i": ["-", ["HTML &5 Tags", "MA&RK"], "", ""],
 			"v": ["-", ["HTML &5 Tags", "MA&RK"], "", ""],
 			"n": ["-", ["HTML &5 Tags", "MA&RK"], "", "i"]
+		},
+
+		"smarttag": {
+			"mark": {
+				"i": {
+					"o": "<[{MARK></MARK}]>\\<C-O>F<",
+					"c": "<[{/MARK><MARK}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{MARK}]>\\<C-O>`<<[{MARK}]>",
+					"c": "`>a<[{MARK}]>\\<C-O>`<</[{MARK}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -1618,6 +1948,20 @@
 			"i": ["-", ["&More Tags", "BLOCKQUTE"], "", ""],
 			"v": ["-", ["&More Tags", "BLOCKQUTE"], "", ""],
 			"n": ["-", ["&More Tags", "BLOCKQUTE"], "", "i"]
+		},
+
+		"smarttag": {
+			"blockquote": {
+				"i": {
+					"o": "<[{BLOCKQUOTE}]>\\<CR></[{BLOCKQUOTE}]>\\<Esc>O",
+					"c": "</[{BLOCKQUOTE}]>\\<CR>\\<CR><[{BLOCKQUOTE}]>\\<CR>"
+				},
+				"v": {
+					"o": "`>a\\<CR></[{BLOCKQUOTE}]>\\<C-O>`<<[{BLOCKQUOTE}]>\\<CR>",
+					"c": "`>a\\<CR><[{BLOCKQUOTE}]>\\<C-O>`<</[{BLOCKQUOTE}]>\\<CR>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -1634,6 +1978,20 @@
 			"i": ["-", ["&More Tags", "Comment"], "", ""],
 			"v": ["-", ["&More Tags", "Comment"], "", ""],
 			"n": ["-", ["&More Tags", "Comment"], "", "i"]
+		},
+
+		"smarttag": {
+			"comment": {
+				"i": {
+					"o": "<!--  -->\\<C-O>F ",
+					"c": " --><!-- \\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a -->\\<C-O>`<<!-- ",
+					"c": "`>a<!-- \\<C-O>`< -->",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -1650,6 +2008,20 @@
 			"i": ["-", ["&More Tags", "Defining Instance"], "", ""],
 			"v": ["-", ["&More Tags", "Defining Instance"], "", ""],
 			"n": ["-", ["&More Tags", "Defining Instance"], "", "i"]
+		},
+
+		"smarttag": {
+			"dfn": {
+				"i": {
+					"o": "<[{DFN></DFN}]>\\<C-O>F<",
+					"c": "<[{/DFN><DFN}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{DFN}]>\\<C-O>`<<[{DFN}]>",
+					"c": "`>a<[{DFN}]>\\<C-O>`<</[{DFN}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -1658,7 +2030,7 @@
 
 		"maps": {
 			"i": ["", "<[{DIV}]><CR></[{DIV}]><ESC>O"],
-			"v": ["", "<ESC>`>a<CR></[{DIV}]><C-O>`<<[{DIV}]><CR><ESC>", {}],
+			"v": ["", "<ESC>`>a<CR></[{DIV}]><C-O>`<<[{DIV}]><CR><ESC>", {"reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1699,6 +2071,20 @@
 			"i": ["-", ["&More Tags", "JavaScript"], "", ""],
 			"v": ["-", ["&More Tags", "JavaScript"], "", ""],
 			"n": ["-", ["&More Tags", "JavaScript"], "", "i"]
+		},
+
+		"smarttag": {
+			"script": {
+				"i": {
+					"o": "\\<C-O>:vim9cmd HTML#TC(false)\\<CR>i<[{SCRIPT TYPE}]=\"text/javascript\">\\<ESC>==o<!--\\<CR>// -->\\<CR></[{SCRIPT}]>\\<ESC>:vim9cmd HTML#TC(true)\\<CR>kko",
+					"c": "\\<C-O>:vim9cmd HTML#TC(false)\\<CR>i// -->\\<CR></[{SCRIPT}]>\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<C-O>:vim9cmd HTML#TC(true)\\<CR>"
+				},
+				"v": {
+					"o": ":vim9cmd HTML#TC(false)\\<CR>`>a\\<CR>// -->\\<CR></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<ESC>:vim9cmd HTML#TC(true)\\<CR>",
+					"c": ":vim9cmd HTML#TC(false)\\<CR>`>a\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<C-O>`<// -->\\<CR></[{SCRIPT}]>\\<CR>\\<ESC>:vim9cmd HTML#TC(true)\\<CR>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -1835,6 +2221,20 @@
 			"i": ["-", ["&More Tags", "Quoted Text"], "", ""],
 			"v": ["-", ["&More Tags", "Quoted Text"], "", ""],
 			"n": ["-", ["&More Tags", "Quoted Text"], "", "i"]
+		},
+
+		"smarttag": {
+			"q": {
+				"i": {
+					"o": "<[{Q></Q}]>\\<C-O>F<",
+					"c": "<[{/Q><Q}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{Q}]>\\<C-O>`<<[{Q}]>",
+					"c": "`>a<[{Q}]>\\<C-O>`<</[{Q}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 

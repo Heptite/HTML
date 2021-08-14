@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite@gmail.com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      August 11, 2021
+# Last Change:      August 13, 2021
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -331,8 +331,8 @@ endif
 # Motion mapping:
 HTML#Mapo('<lead>ht')
 
-# The arest of the tag mappings are now defined in a json file to reduce
-# work on defining both the tags and tag menu items, see below.
+# The rest of the tag mappings are now defined in a json file to reduce work
+# on defining both the tags and tag menu items, see below.
 
 # ----------------------------------------------------------------------------
 
@@ -898,16 +898,9 @@ if maparg(g:html_map_leader .. 'ln', 'n') != ''
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Links (:terminal)'], 'tln')
 endif
 
-HTML#Menu('menu',      '-', ['-sep4-'],   '<nop>')
-
-# Character Entities menu:   {{{2
-HTML#LeadMenu('vmenu', '-', ['Character &Entities', 'Convert to Entity'], '&')
-HTML#LeadMenu('vmenu', '-', ['Character &Entities', 'Convert to %XX (URI Encode)'], '%')
-HTML#LeadMenu('vmenu', '-', ['Character &Entities', 'Convert from Entities/%XX'], '^')
-
-# Bring in the entities and tags menus and mappings at the same time:
-HTML#ReadEntities(true)
+# Bring in the tags and entities menus and mappings at the same time:
 HTML#ReadTags(true)
+HTML#ReadEntities(true)
 
 # Create the rest of the colors menu:
 COLOR_LIST->mapnew(
