@@ -721,8 +721,8 @@
 		"lhs": "op",
 
 		"maps": {
-			"i": ["", "<[{OPTION></OPTION}]><C-O>F<"],
-			"v": ["", "<ESC>`>a</[{OPTION}]><C-O>`<<[{OPTION}]><ESC>", {}],
+			"i": ["", "<C-R>=HTML#SmartTag('option', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('option', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -730,6 +730,20 @@
 			"i": ["-", ["F&orms", "OPTION"], "", ""],
 			"v": ["-", ["F&orms", "OPTION"], "", ""],
 			"n": ["-", ["F&orms", "OPTION"], "", "i"]
+		},
+
+		"smarttag": {
+			"option": {
+				"i": {
+					"o": "<[{OPTION></OPTION}]>\\<C-O>F<",
+					"c": "<[{/OPTION><OPTION}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{OPTION}]>\\<C-O>`<<[{OPTION}]>",
+					"c": "`>a<[{OPTION}]>\\<C-O>`<</[{OPTION}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -1566,15 +1580,30 @@
 		"lhs": "fg",
 
 		"maps": {
-			"i": ["", "<[{FIGURE><CR></FIGURE}]><ESC>O"],
-			"v": ["", "<ESC>`>a<CR></[{FIGURE}]><C-O>`<<[{FIGURE}]><CR><ESC>", {"reindent": 1}],
+			"i": ["", "<C-R>=HTML#SmartTag('figure', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('figure', 'v')<CR>", {"reindent": 1}],
 			"o": ["", false]
 		},
+
 
 		"menus": {
 			"i": ["-", ["HTML &5 Tags", "&FIGURE"], "", ""],
 			"v": ["-", ["HTML &5 Tags", "&FIGURE"], "", ""],
 			"n": ["-", ["HTML &5 Tags", "&FIGURE"], "", "i"]
+		},
+
+		"smarttag": {
+			"p": {
+				"i": {
+					"o": "<[{FIGURE}]>\\<CR></[{FIGURE}]>\\<Esc>O",
+					"c": "</[{FIGURE}]>\\<CR>\\<CR><[{FIGURE}]>\\<CR>"
+				},
+				"v": {
+					"o": "`>a\\<CR></[{FIGURE}]>\\<C-O>`<<[{FIGURE}]>\\<CR>",
+					"c": "`>a\\<CR><[{FIGURE}]>\\<C-O>`<</[{FIGURE}]>\\<CR>",
+					"insert": false
+				}
+			}
 		}
 	},
 
@@ -1582,8 +1611,8 @@
 		"lhs": "fp",
 
 		"maps": {
-			"i": ["", "<[{FIGCAPTION></FIGCAPTION}]><C-O>F<"],
-			"v": ["", "<ESC>`>a</[{FIGCAPTION}]><C-O>`<<[{FIGCAPTION}]><ESC>", {}],
+			"i": ["", "<C-R>=HTML#SmartTag('figcaption', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('figcaption', 'v')<CR>", {"reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1591,6 +1620,20 @@
 			"i": ["-", ["HTML &5 Tags", "F&igure Caption"], "", ""],
 			"v": ["-", ["HTML &5 Tags", "F&igure Caption"], "", ""],
 			"n": ["-", ["HTML &5 Tags", "F&igure Caption"], "", "i"]
+		},
+
+		"smarttag": {
+			"b": {
+				"i": {
+					"o": "<[{FIGCAPTION></FIGCAPTION}]>\\<C-O>F<",
+					"c": "<[{/FIGCAPTION><FIGCAPTION}]>\\<C-O>F<"
+				},
+				"v": {
+					"o": "`>a</[{FIGCAPTION}]>\\<C-O>`<<[{FIGCAPTION}]>",
+					"c": "`>a<[{FIGCAPTION}]>\\<C-O>`<</[{FIGCAPTION}]>",
+					"insert": false
+				}
+			}
 		}
 	},
 

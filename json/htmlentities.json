@@ -15,16 +15,19 @@
    ["",        "",           ["-sep2-"],                                    "<nop>"],
 
    ["A'",      "&Aacute;",   ["&Acutes", "A-acute"],                        "\\xC1"],
-   ["a'",      "&aacute;",   ["&Acutes", "a-acute"],                        "\\xE1"],
    ["E'",      "&Eacute;",   ["&Acutes", "E-acute"],                        "\\xC9"],
-   ["e'",      "&eacute;",   ["&Acutes", "e-acute"],                        "\\xE9"],
    ["I'",      "&Iacute;",   ["&Acutes", "I-acute"],                        "\\xCD"],
-   ["i'",      "&iacute;",   ["&Acutes", "i-acute"],                        "\\xED"],
    ["O'",      "&Oacute;",   ["&Acutes", "O-acute"],                        "\\xD3"],
-   ["o'",      "&oacute;",   ["&Acutes", "o-acute"],                        "\\xF3"],
    ["U'",      "&Uacute;",   ["&Acutes", "U-acute"],                        "\\xDA"],
-   ["u'",      "&uacute;",   ["&Acutes", "u-acute"],                        "\\xFA"],
    ["Y'",      "&Yacute;",   ["&Acutes", "Y-acute"],                        "\\xDD"],
+
+   ["",        "",           ["&Acutes", "-sep2-"],                         "<nop>"],
+
+   ["a'",      "&aacute;",   ["&Acutes", "a-acute"],                        "\\xE1"],
+   ["e'",      "&eacute;",   ["&Acutes", "e-acute"],                        "\\xE9"],
+   ["i'",      "&iacute;",   ["&Acutes", "i-acute"],                        "\\xED"],
+   ["o'",      "&oacute;",   ["&Acutes", "o-acute"],                        "\\xF3"],
+   ["u'",      "&uacute;",   ["&Acutes", "u-acute"],                        "\\xFA"],
    ["y'",      "&yacute;",   ["&Acutes", "y-acute"],                        "\\xFD"],
 
    ["la",      "&larr;",     ["A&rrows", "Left single arrow"],              "\\u2190"],
@@ -32,6 +35,11 @@
    ["ua",      "&uarr;",     ["A&rrows", "Up single arrow"],                "\\u2191"],
    ["da",      "&darr;",     ["A&rrows", "Down single arrow"],              "\\u2193"],
    ["ha",      "&harr;",     ["A&rrows", "Left-right single arrow"],        "\\u2194"],
+   ["va",      "&varr;",     ["A&rrows", "Up-down single arrow"],           "\\u2195"],
+   ["nw",      "&nwarr;",    ["A&rrows", "North-West single arrow"],        "\\u2196"],
+   ["ne",      "&nearr;",    ["A&rrows", "North-East single arrow"],        "\\u2197"],
+   ["se",      "&searr;",    ["A&rrows", "South-East single arrow"],        "\\u2198"],
+   ["sw",      "&swarr;",    ["A&rrows", "South-West single arrow"],        "\\u2199"],
 
    ["",        "",           ["A&rrows", "-sep1-"],                         "<nop>"],
 
@@ -40,32 +48,44 @@
    ["uA",      "&uArr;",     ["A&rrows", "Up double arrow"],                "\\u21D1"],
    ["dA",      "&dArr;",     ["A&rrows", "Down double arrow"],              "\\u21D3"],
    ["hA",      "&hArr;",     ["A&rrows", "Left-right double arrow"],        "\\u21D4"],
+   ["vA",      "&vArr;",     ["A&rrows", "Up-down double arrow"],           "\\u21D5"],
+   ["nW",      "&nwArr;",    ["A&rrows", "North-West double arrow"],        "\\u21D6"],
+   ["nE",      "&neArr;",    ["A&rrows", "North-East double arrow"],        "\\u21D7"],
+   ["sE",      "&seArr;",    ["A&rrows", "South-East double arrow"],        "\\u21D8"],
+   ["sW",      "&swArr;",    ["A&rrows", "South-West double arrow"],        "\\u21D9"],
 
    ["A^",      "&Acirc;",    ["&Circumflexes", "A-circumflex"],             "\\xC2"],
-   ["a^",      "&acirc;",    ["&Circumflexes", "a-circumflex"],             "\\xE2"],
    ["E^",      "&Ecirc;",    ["&Circumflexes", "E-circumflex"],             "\\xCA"],
-   ["e^",      "&ecirc;",    ["&Circumflexes", "e-circumflex"],             "\\xEA"],
    ["I^",      "&Icirc;",    ["&Circumflexes", "I-circumflex"],             "\\xCE"],
-   ["i^",      "&icirc;",    ["&Circumflexes", "i-circumflex"],             "\\xEE"],
    ["O^",      "&Ocirc;",    ["&Circumflexes", "O-circumflex"],             "\\xD4"],
-   ["o^",      "&ocirc;",    ["&Circumflexes", "o-circumflex"],             "\\xF4"],
    ["U^",      "&Ucirc;",    ["&Circumflexes", "U-circumflex"],             "\\xDB"],
+
+   ["",        "",           ["&Circumflexes", "-sep1-"],                   "<nop>"],
+
+   ["a^",      "&acirc;",    ["&Circumflexes", "a-circumflex"],             "\\xE2"],
+   ["e^",      "&ecirc;",    ["&Circumflexes", "e-circumflex"],             "\\xEA"],
+   ["i^",      "&icirc;",    ["&Circumflexes", "i-circumflex"],             "\\xEE"],
+   ["o^",      "&ocirc;",    ["&Circumflexes", "o-circumflex"],             "\\xF4"],
    ["u^",      "&ucirc;",    ["&Circumflexes", "u-circumflex"],             "\\xFB"],
 
    ["c\\|",    "&cent;",     ["Curre&ncy", "&Cent"],                        "\\xA2"],
    ["#",       "&pound;",    ["Curre&ncy", "&Pound"],                       "\\xA3"],
    ["E=",      "&euro;",     ["Curre&ncy", "&Euro"],                        "\\u20AC"],
+   ["L=",      "&#x20A4;",   ["Curre&ncy", "&Lira"],                        "\\u20A4"], 
    ["Y=",      "&yen;",      ["Curre&ncy", "&Yen"],                         "\\xA5"],
 
    ["A`",      "&Agrave;",   ["&Graves", "A-grave"],                        "\\xC0"],
-   ["a`",      "&agrave;",   ["&Graves", "a-grave"],                        "\\xE0"],
    ["E`",      "&Egrave;",   ["&Graves", "E-grave"],                        "\\xC8"],
-   ["e`",      "&egrave;",   ["&Graves", "e-grave"],                        "\\xE8"],
    ["I`",      "&Igrave;",   ["&Graves", "I-grave"],                        "\\xCC"],
-   ["i`",      "&igrave;",   ["&Graves", "i-grave"],                        "\\xEC"],
    ["O`",      "&Ograve;",   ["&Graves", "O-grave"],                        "\\xD2"],
-   ["o`",      "&ograve;",   ["&Graves", "o-grave"],                        "\\xF2"],
    ["U`",      "&Ugrave;",   ["&Graves", "U-grave"],                        "\\xD9"],
+
+   ["",        "",           ["&Graves", "-sep1-"],                         "<nop>"],
+
+   ["a`",      "&agrave;",   ["&Graves", "a-grave"],                        "\\xE0"],
+   ["e`",      "&egrave;",   ["&Graves", "e-grave"],                        "\\xE8"],
+   ["i`",      "&igrave;",   ["&Graves", "i-grave"],                        "\\xEC"],
+   ["o`",      "&ograve;",   ["&Graves", "o-grave"],                        "\\xF2"],
    ["u`",      "&ugrave;",   ["&Graves", "u-grave"],                        "\\xF9"],
 
    ["Al",      "&Alpha;",    ["Greek &Letters", "&Uppercase", "Alpha"],     "\\u391"],
@@ -124,8 +144,15 @@
    ["x",       "&times;",    ["&Math", "Multiply"],                         "\\xD7"],
    ["/",       "&divide;",   ["&Math", "Divide"],                           "\\xF7"],
    ["dg",      "&deg;",      ["&Math", "Degree"],                           "\\xB0"],
+   ["00",      "&infin;",    ["&Math", "Infinite"],                         "\\u221E"],
    ["mi",      "&micro;",    ["&Math", "Micro"],                            "\\xB5"],
    ["+-",      "&plusmn;",   ["&Math", "Plus/Minus"],                       "\\xB1"],
+   [">=",      "&ge;",       ["&Math", "Greaterthan Equal"],                "\\u2265"],
+   ["<=",      "&le;",       ["&Math", "Lessthan Equal"],                   "\\u2264"],
+   ["!>",      "&ngt;",      ["&Math", "Not Greaterthan"],                  "\\u226F"],
+   ["!<",      "&nlt;",      ["&Math", "Not Lessthan"],                     "\\u226E"],
+   ["!=",      "&ne;",       ["&Math", "Not Equal"],                        "\\u2260"],
+   ["sq",      "&Sqrt;",     ["&Math", "Square Root"],                      "\\u221A"],
 
    ["",        "",           ["&Math", "-sep1-"],                           "<nop>"],
 
@@ -205,6 +232,14 @@
    ["58",      "&frac58;",   ["&Math", "Fractions", "Five Eigths"],         "\\u215D"],
    ["78",      "&frac78;",   ["&Math", "Fractions", "Seven Eigths"],        "\\u215E"],
 
+   ["md",      "&#x2669;",   ["&Music", "Quarter Note"],                    "\\u2669"],
+   ["m8",      "&sung;",     ["&Music", "Sung"],                            "\\u266A"],
+   ["m2",      "&#x266B;",   ["&Music", "Eigth Note"],                      "\\u266B"],
+   ["mb",      "&flat;",     ["&Music", "Flat"],                            "\\u266D"],
+   ["mx",      "&sharp;",    ["&Music", "Sharp"],                           "\\u266F"],
+   ["gc",      "&#x1D11E;",  ["&Music", "G Clef"],                          "\\U1D11E"],
+   ["fc",      "&#x1D122;",  ["&Music", "F Clef"],                          "\\U1D122"],
+
    ["!",       "&iexcl;",    ["&Punctuation", "Inverted Exlamation"],       "\\xA1"],
    ["?",       "&iquest;",   ["&Punctuation", "Inverted Question"],         "\\xBF"],
    ["pa",      "&para;",     ["&Punctuation", "Paragraph"],                 "\\xB6"],
@@ -214,6 +249,8 @@
    ["n-",      "&ndash;",    ["&Punctuation", "En dash"],                   "\\u2013"],
    ["m-",      "&mdash;",    ["&Punctuation", "Em dash"],                   "\\u2014"],
    ["3.",      "&hellip;",   ["&Punctuation", "Ellipsis"],                  "\\u2026"],
+   ["dt",      "&dagger;",   ["&Punctuation", "Dagger"],                    "\\u2020"],
+   ["dd",      "&Dagger;",   ["&Punctuation", "Double Dagger"],             "\\u2021"],
 
    ["'",       "&quot;",     ["&Quotes", "Quotation mark"],                 "\\x22"],
    ["l'",      "&lsquo;",    ["&Quotes", "Left Single Quote"],              "\\u2018"],
@@ -223,22 +260,53 @@
    ["2<",      "&laquo;",    ["&Quotes", "Left Angle Quote"],               "\\xAB"],
    ["2>",      "&raquo;",    ["&Quotes", "Right Angle Quote"],              "\\xBB"],
 
+   ["fm",      "&female;",   ["&Symbols", "Female"],                        "\\u2640"],
+   ["ml",      "&male;",     ["&Symbols", "Male"],                          "\\u2642"],
+
+   ["",        "",           ["&Symbols", "-sep1-"],                        "<nop>"],
+
+   ["ok",      "&check;",    ["&Symbols", "Checkmark"],                     "\\u2713"],
+   ["xx",      "&cross;",    ["&Symbols", "X mark"],                        "\\u2717"],
+   ["2*",      "&starf;",    ["&Symbols", "Filled Star"],                   "\\u2605"],
+   ["3*",      "&star;",     ["&Symbols", "Hollow Star"],                   "\\u2606"],
+   ["m+",      "&malt;",     ["&Symbols", "Maltese Cross"],                 "\\u2720"],
+   ["co",      "&incare;",   ["&Symbols", "Care Of"],                       "\\u2105"],
+
+   ["",        "",           ["&Symbols", "-sep2-"],                        "<nop>"],
+
+   ["cl",      "&clubs;",    ["&Symbols", "Clubs Suit"],                    "\\u2663"],
+   ["di",      "&diams;",    ["&Symbols", "Diamonds Suit"],                 "\\u2666"],
+   ["he",      "&hearts;",   ["&Symbols", "Hearts Suit"],                   "\\u2665"],
+   ["sp",      "&spades;",   ["&Symbols", "Spades Suit"],                   "\\u2660"],
+
+   ["",        "",           ["&Symbols", "-sep3-"],                        "<nop>"],
+
+   ["oh",      "&ohm;",      ["&Symbols", "Ohm"],                           "\\u2126"],
+   ["rx",      "&rx;",       ["&Symbols", "Rx"],                            "\\u211E"],
+   ["no",      "&#x1F6C7;",  ["&Symbols", "Forbidden Sign"],                "\\U1F6C7"],
+
    ["A~",      "&Atilde;",   ["&Tildes", "A-tilde"],                        "\\xC3"],
-   ["a~",      "&atilde;",   ["&Tildes", "a-tilde"],                        "\\xE3"],
    ["N~",      "&Ntilde;",   ["&Tildes", "N-tilde"],                        "\\xD1"],
-   ["n~",      "&ntilde;",   ["&Tildes", "n-tilde"],                        "\\xF1"],
    ["O~",      "&Otilde;",   ["&Tildes", "O-tilde"],                        "\\xD5"],
+
+   ["",        "",           ["&Tildes", "-sep1-"],                         "<nop>"],
+
+   ["a~",      "&atilde;",   ["&Tildes", "a-tilde"],                        "\\xE3"],
+   ["n~",      "&ntilde;",   ["&Tildes", "n-tilde"],                        "\\xF1"],
    ["o~",      "&otilde;",   ["&Tildes", "o-tilde"],                        "\\xF5"],
 
    ["A\"",     "&Auml;",     ["&Umlauts", "A-umlaut"],                      "\\xC4"],
-   ["a\"",     "&auml;",     ["&Umlauts", "a-umlaut"],                      "\\xE4"],
    ["E\"",     "&Euml;",     ["&Umlauts", "E-umlaut"],                      "\\xCB"],
-   ["e\"",     "&euml;",     ["&Umlauts", "e-umlaut"],                      "\\xEB"],
    ["I\"",     "&Iuml;",     ["&Umlauts", "I-umlaut"],                      "\\xCF"],
-   ["i\"",     "&iuml;",     ["&Umlauts", "i-umlaut"],                      "\\xEF"],
    ["O\"",     "&Ouml;",     ["&Umlauts", "O-umlaut"],                      "\\xD6"],
-   ["o\"",     "&ouml;",     ["&Umlauts", "o-umlaut"],                      "\\xF6"],
    ["U\"",     "&Uuml;",     ["&Umlauts", "U-umlaut"],                      "\\xDC"],
+
+   ["",        "",           ["&Umlauts", "-sep1-"],                        "<nop>"],
+
+   ["a\"",     "&auml;",     ["&Umlauts", "a-umlaut"],                      "\\xE4"],
+   ["e\"",     "&euml;",     ["&Umlauts", "e-umlaut"],                      "\\xEB"],
+   ["i\"",     "&iuml;",     ["&Umlauts", "i-umlaut"],                      "\\xEF"],
+   ["o\"",     "&ouml;",     ["&Umlauts", "o-umlaut"],                      "\\xF6"],
    ["u\"",     "&uuml;",     ["&Umlauts", "u-umlaut"],                      "\\xFC"],
    ["y\"",     "&yuml;",     ["&Umlauts", "y-umlaut"],                      "\\xFF"],
    ["\"",      "&uml;",      ["&Umlauts", "Umlaut"],                        "\\xA8"],

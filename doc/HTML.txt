@@ -1,12 +1,10 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2021 Aug 10
+*HTML.txt*	For Vim version 9.0	Last change: 2021 Aug 15
 
 
 		  HTML/XHTML MACROS	by Christian J. Robinson
 
 
-						*HTML.vim*	*HTML.zip*
-						*HTML-macros*	*XHTML-macros*
-						*HTML-plugin*
+*HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
 
 This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim 9 or
 later to make editing HTML files easier. The original Copyright goes to Doug
@@ -31,13 +29,13 @@ macros and the supporting scripts are distributable under the terms of the GNU
 To start, you should familiarize yourself with Vim enough to know the
 terminology, and you should know HTML to some degree.
 
-The mappings are local to the buffer the script was sourced from (this is
-normally done automatically when editing an HTML type buffer), and the menu
-and toolbar are active only for buffers the script was sourced from.
+The mappings are local to the buffer the script was sourced from (normally
+this happens automatically when editing an HTML type buffer), and the menu and
+toolbar are active only for buffers the script was sourced from.
 
 This help file follows the Vim help file standards. To see what modes a
 mapping works in see the tags above and to the right. The notation is X_TT,
-where "X" means the mode, and "TT" means the tag. For example, the |n_;;|
+where "X" means the mode, and "TT" means the mapping. For example, the |n_;;|
 mapping below works in normal, insert mode and visual mode. This plugin does
 not define any mappings for :-command mode.
 
@@ -48,21 +46,21 @@ are grouped in various ways, which interferes with that ordering.
 The noted tags are "smart", meaning Vim will detect whether to close then open
 a tag instead of open then close the tag.  For example, if the cursor is
 inside italicized text and you type ;it, it will insert </I><I> instead of
-<I></I>.  Only tags that shouldn't nest are candidates for being "smart".
+<I></I>.  Only tags that shoul never nest are candidates for being "smart".
 
 							*n_;;* *i_;;* *v_;;*
 ;;	Most of the mappings start with ; so ;; is mapped to insert a single
 	; character in insert mode, behave like a single ; in normal mode,
 	etc. (The semicolons in this mapping are changed to whatever
-	|g:html_map_leader| is set to.)
+	|g:htmlplugin.map_leader| is set to.)
 
 							*i_;&*
 ;&	The HTML |character-entities| insert mode mappings start with &, so
 	typing ;& in insert mode will insert a literal & character.
-	(In actuality this mapping is defined as |g:html_map_leader| +
-	|g:html_map_entity_leader| to insert whatever is in
-	|g:html_map_entity_leader|.) (Note that this mapping behaves very
-	differently in visual mode. See: |n_;&|) 
+	(In actuality this mapping is defined as |g:htmlplugin.map_leader| +
+	|g:htmlplugin.map_entity_leader| to insert whatever is in
+	|g:htmlplugin.map_entity_leader|.) (Note that this mapping behaves
+	very differently in visual mode. See: |v_;&|) 
 
 				*html-<Tab>* *html-tab* *html-CTRL-I*
 				*i_html-<Tab>* *i_html-tab* *i_html-CTRL-I*
@@ -82,7 +80,7 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 	 <TABLE>
 	 </TABLE>
 <
-	See |g:no_html_tab_mapping| if you do not want these mappings to be
+	See |g:htmlplugin.no_tab_mapping| if you do not want these mappings to be
 	defined, in which case ;<Tab> will be used for the mappings instead.
 
 	[I think the use of tab is acceptable because I do not like the idea
@@ -97,97 +95,107 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 				*n_;<Tab>* *n_;tab* *n_;CTRL-I*
 				*i_;<S-Tab>* *i_;shift-tab* *i_;SHIFT-CTRL-I*
 				*n_;<S-Tab>* *n_;shift-tab* *n_;SHIFT-CTRL-I*
-;<Tab>	To insert a hard tab (; then the tab key). If |g:no_html_tab_mapping|
-	is set this mapping replaces the normal |html-tab| mapping instead.
-	(See |g:html_map_leader|) And likewise, ;<S-Tab> (shift-tab) can be
-	used.
+;<Tab>	To insert a hard tab (; then the tab key). If
+	|g:htmlplugin.no_tab_mapping| is set this mapping replaces the normal
+	|html-tab| mapping instead.  (See |g:htmlplugin.map_leader|) And
+	likewise, ;<S-Tab> (shift-tab) can be used.
 
 								*html-template*
 								*n_;html*
 ;html	This macro inserts a basic template at the top of the file. If the
 	buffer already contains some text you are asked if you want to replace
-	it or add the template anyway. (See |g:html_map_leader|)
+	it or add the template anyway. (See |g:htmlplugin.map_leader|)
 
-	See |g:html_template| for information on how to customize the
+	See |g:htmlplugin.template| for information on how to customize the
 	template.
 
 ==============================================================================
 2. Customization Variables		*html-variables* *html-configuration*
-					*html-customization*
+					*html-customization* *g:htmlplugin*
 
-You can set the following global Vim variables to control the behavior of the
-macros. It is recommended you set these variables in your vimrc; some of them
-are only effective if they are set before HTML.vim is sourced.
+You can set the g:htmlplugin global |Dictonary| variable to control the
+behavior of the plugin. It is recommended you set this variable in your |vimrc|,
+as some of the keys are only effective if they are set before the plugin
+loads.
 
-Note that "nonzero" means anything besides "no", "false", 0, or "" (empty
-value), case insensitive.
+Note that you may have to do ":let g:htmlplugin = {}" first or you will get an
+error, or you can just set everything at once in your |vimrc|, e.g.: >
+	let g:htmlplugin = {
+		\	'authorname': 'John Smith',
+		\	'authoremail': 'jsmith@example.com',
+		\	"do_xhtml_mappings": v:false,
+		\	"tag_case": 'uppercase'
+		\}
+<
+Also note that in the following text, "nonzero" means anything besides "no",
+"false", "off", 0, or "" (empty value), case insensitive.
 
-*g:do_xhtml_mappings* *b:do_xhtml_mappings*
+*g:htmlplugin.do_xhtml_mappings* *b:htmlplugin.do_xhtml_mappings*
 Set this variable to a nonzero value if you prefer XHTML compatible tags to be
-defined. Setting this forces |b:html_tag_case| to "lowercase". This is
+defined. Setting this forces |b:htmlplugin.tag_case| to "lowercase". This is
 automatic if you are already editing a file that Vim detects as XHTML. This
 variable must be set before HTML.vim is sourced for the current buffer. You
-can also set this on a per-buffer basis by using b:do_xhtml_mappings instead.
-e.g.: >
-	:let g:do_xhtml_mappings = 'yes'
+can also set this on a per-buffer basis by using b:htmlplugin.do_xhtml_mappings
+instead.  e.g.: >
+	:let g:htmlplugin.do_xhtml_mappings = 'yes'
 (However, XHTML is out of date and this mode is not recommended, and is only
 supported for historical reasons.)
 
-*g:html_tag_case* *b:html_tag_case*
+*g:htmlpluign.tag_case* *b:htmlpluign.tag_case*
 This variable can be set to "l" / "lower" / "lowercase" or "u" / "upper" /
 "uppercase" to determine the case of the text in the HTML tags. This variable
 must be set before HTML.vim is sourced for the current buffer (i.e. before the
 buffer is loaded). The default is "lowercase". You can also set this
-globally by setting g:html_tag_case or on a per-buffer basis by using
-b:html_tag_case instead. This variable is ignored when editing XHTML files
-(see |g:do_xhtml_mappings|). e.g: >
-	:let g:html_tag_case = 'lowercase'
+globally by setting |g:htmlpluign.tag_case| or on a per-buffer basis by using
+|b:htmlpluign.tag_case| instead. This variable is ignored when editing XHTML
+files (see |g:htmlpluign.do_xhtml_mappings|). e.g: >
+	:let g:htmlpluign.tag_case = 'lowercase'
 
-*g:html_tag_case_autodetect*
+*g:htmlpluign.tag_case_autodetect*
 Set this variable to a nonzero value if you want to automatically detect what
-the value of |b:html_tag_case| should be. This is done by examining the file
-for both upper and lower case tags (tag attributes are not examined). If only
-one type is found the tag case for the buffer is set to that value. This
-variable is ignored if you have set |g:do_xhtml_mappings| or
-|b:do_xhtml_mappings|. e.g.: >
-	:let g:html_tag_case_autodetect = 'yes'
+the value of |b:htmlpluign.tag_case| should be. This is done by examining the
+file for both upper and lower case tags (tag attributes are not examined). If
+only one type is found the tag case for the buffer is set to that value. This
+variable is ignored if you have set |g:htmlpluign.do_xhtml_mappings| or
+|b:htmlpluign.do_xhtml_mappings|. e.g.: >
+	:let g:htmlpluign.tag_case_autodetect = 'yes'
 
-*g:html_map_leader*
+*g:htmlpluign.map_leader*
 This variable can be set to the character you want for the leader of the
 mappings defined under |html-tags|, the default being ";". This variable must
 be set before HTML.vim is sourced. You can set this to your |mapleader| or
 |maplocalleader|. e.g.: >
-	:let g:html_map_leader = g:maplocalleader
+	:let g:htmlpluign.map_leader = g:maplocalleader
 
-*g:html_map_entity_leader*
+*g:htmlpluign.map_entity_leader*
 This variable can be set to the character you want for the leader of the
 character entity insert mode mappings defined under |character-entities|, the
 default being "&". This variable must be set before HTML.vim is sourced. If
-you attempt to set this to the same value as |g:html_map_leader| you will get
-an error. e.g.: >
-	:let g:html_map_entity_leader = '\'
+you attempt to set this to the same value as |g:htmlpluign.map_leader| you
+will get an error. e.g.: >
+	:let g:htmlpluign.map_entity_leader = '\'
 
-*g:no_html_map_override*
+*g:htmlpluign.no_map_override*
 Set this variable to a nonzero value if you do not want this plugin to
 override mappings that already exist. When this variable is not set you will
 get a warning message when this plugin overrides a mapping. This variable
 must be set before HTML.vim is sourced. e.g.: >
-	:let g:no_html_map_override = 'yes'
+	:let g:htmlpluign.no_map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin. If you
 call the |HTML#Map()| function elsewhere you will still get a warning message
 when there is an already existing mapping and the mapping will still be
 overridden.
 
-*g:no_html_maps* *b:no_html_maps*
+*g:htmlplugin.no_maps* *b:htmlplugin.no_maps*
 Set this variable to a regular expression to match against mappings. If a
 mapping to be defined matches this regular expression it will not be defined.
-You can also set this on a per-buffer basis by using b:no_html_maps instead.
-The patterns are case sensitive, will not undergo |g:html_map_leader| and
-|g:html_map_entity_leader| substitution, and must be set before HTML.vim is
-sourced. e.g., to suppress the <A HREF>, <IMG SRC> and the centered headings
-tags: >
-	:let g:no_html_maps = '^\(;ah\|;im\|;H\d\)$'
+You can also set this on a per-buffer basis by using b:htmlplugin.no_maps
+instead.  The patterns are case sensitive, will not undergo
+|g:htmlplugin.map_leader| and |g:htmlplugin.map_entity_leader| substitution,
+and must be set before HTML.vim is sourced. e.g., to suppress the <A HREF>,
+<IMG SRC> and the centered headings tags: >
+	:let g:htmlplugin.no_maps = '^\(;ah\|;im\|;H\d\)$'
 
 This only applies to the mappings defined internally to the plugin. If you
 call the |HTML#Map()| function elsewhere the mapping will be defined even if
@@ -195,95 +203,97 @@ it matches this regular expression. This is useful if you wish to define
 custom variants of some of the plugin's mappings without getting warning
 messages.
 
-*g:no_html_tab_mapping*
+*g:htmplugin.no_tab_mapping*
 Set this variable to a nonzero value if you do not want the tab key to be
 mapped in normal, visual and insert mode. ;<Tab> will be used instead. See
 |html-tab| and |i_;tab|. This variable must be set before HTML.vim is sourced
 for the current buffer. e.g.: >
-	:let g:no_html_tab_mapping = 'yes'
+	:let g:htmplugin.no_tab_mapping = 'yes'
 
 Note that you can suppress the defining of both <Tab> and ;<Tab> as a mapping
-by adding "\t" to |g:no_html_maps| instead.
+by adding "\t" to |g:htmlplugin.no_maps| instead.
 
-*g:no_html_toolbar*
+*g:htmlplugin.no_toolbar*
 Set this variable to a nonzero value if you do not want this plugin to modify
 the Vim toolbar and add "T" to 'guioptions'. This variable must be set before
 HTML.vim is sourced. e.g.: >
-	:let g:no_html_toolbar = 'yes'
+	:let g:htmlplugin.no_toolbar = 'yes'
 
-*g:no_html_menu*
+*g:htmplugin.no_menu*
 Set this variable to a nonzero value if you do not want the menu items to be
-defined at all. This implies that |g:no_html_toolbar| is set as well. This
-variable must be set before HTML.vim is sourced. e.g.: >
-	:let g:no_html_menu = 'yes'
+defined at all. This implies that |g:htmlplugin.no_toolbar| is set as well.
+This variable must be set before HTML.vim is sourced. e.g.: >
+	:let g:htmplugin.no_menu = 'yes'
 
-*g:force_html_menu*
+*g:htmlplugin.force_menu*
 Set this variable to a nonzero value if you want the menu items to be defined
 even if you are not in the |GUI|. This is useful if you want to use the menus
 in the console (see |console-menus|). This variable is ignored if
-|g:no_html_menu| is set. This variable must be set before HTML.vim is
+|g:htmlplugin.no_menu| is set. This variable must be set before HTML.vim is
 sourced. e.g.: >
-	:let g:force_html_menu = 'yes'
-Note: Setting this variable will also force the system menu.vim to load.
+	:let g:htmlplugin.force_menu = 'yes'
+Note: Setting this variable will also force the system menu.vim to load as
+well, or a race condition could occur.
 
-*g:html_toplevel_menu*
+*g:htmlplugin.toplevel_menu*
 Set this to the toplevel menu where you want the HTML menu to become a
 submenu. The value must be a |List|, must be set before the first time the
 script is sourced, and there is no way to override the "HTML" menu name.
 e.g.: >
-	:let g:html_toplevel_menu = ['Plugins']
+	:let g:htmlplugin.toplevel_menu = ['Plugin']
 
-*g:html_toplevel_menu_priority*
+*g:htmlplugin.toplevel_menu_priority*
 Set this to the priority (position) you want for the toplevel HTML menu.  If
 you placed the HTML menu in a submenu, it affects the HTML's menu within that
 submenu position.  The value must be a positive |Number|, and must be set
 before the first time the script is sourced, e.g., make the menu appear before
 all others: >
-	:let g:html_toplevel_menu_priority = 1
+	:let g:htmlplugin.toplevel_menu_priority = 1
 
-*g:html_template* *b:html_template*
+*g:htmlplugin.template* *b:htmlplugin.template*
 Set this variable to the location of your template file to be used by the
 |n_;html| mapping. You can also set this on a per-buffer basis by using
-b:html_template instead. If unset, a basic internal template will be used.
+|b:htmlplugin.template| instead. If unset, a basic internal template will be
+used.
 
 See |html-template-tokens| for special tokens you can use within the template.
 
-*g:html_authorname* *g:html_authoremail*
-Within the internal template, html_authorname is inserted inside >
+*g:htmlplugin.authorname* *g:htmlplugin.authoremail*
+Within the internal template, |g:htmlplugin.authorname| is inserted inside >
 	<META NAME="Author" CONTENT="...">
-<g:html_authoremail is converted to |g:html_authoremail_encoded| and inserted
-inside >
+<|g:htmlplugin.authoremail| is converted to |g:htmlplugin.authoremail_encoded|
+and inserted inside >
 	<LINK REL="made" HREF="mailto:...">
 <	e.g.: >
-	:let g:html_authorname  = 'John Smith'
-	:let g:html_authoremail = 'jsmith@example.com'
+	:let g:htmlplugin.authorname  = 'John Smith'
+	:let g:htmlplugin.authoremail = 'jsmith@example.com'
 
 These two variables are also used for the <ADDRESS></ADDRESS> section of the
 internal template.
 
 The default for these variables are empty strings.
 
-*g:html_authoremail_encoded*
+*g:htmlplugin.authoremail_encoded*
 This variable will be set using |HTML#EncodeString()| if your
-|g:html_authoremail| variable is set. (Do not set this variable yourself, it
-will be overwritten when the template macro is used.)
+|g:htmlplugin.authoremail| variable is set. (Do not set this variable
+yourself, it will be overwritten when the template macro is used.)
 
-*g:html_bgcolor* *g:html_textcolor* *g:html_linkcolor*
-*g:html_alinkcolor* *g:html_vlinkcolor*
+*g:htmlplugin.bgcolor* *g:htmlplugin.textcolor* *g:htmlplugin.linkcolor*
+*g:htmlplugin.alinkcolor* *g:htmlplugin.vlinkcolor*
 These control the CSS in the internal template and can also be used as
 |html-tokens| in the user defined template. They default to: >
-	:let g:html_bgcolor     = '#FFFFFF'
-	:let g:html_textcolor   = '#000000'
-	:let g:html_linkcolor   = '#0000EE'
-	:let g:html_alinkcolor  = '#FF0000'
-	:let g:html_vlinkcolor  = '#990066'
+	:let g:htmlplugin.bgcolor     = '#FFFFFF'
+	:let g:htmlplugin.textcolor   = '#000000'
+	:let g:htmlplugin.linkcolor   = '#0000EE'
+	:let g:htmlplugin.alinkcolor  = '#FF0000'
+	:let g:htmlplugin.vlinkcolor  = '#990066'
 
-*g:html_default_charset*
+*g:htmlplugin.default_charset*
 This defaults to "UTF-8" and is the value used if a character set can not be
 detected by the 'fileencoding' or 'encoding' options. See |i_;ct| and
 |html-tokens| for how this is used. (Also see |html-author-notes|)
 
-*g:html_charset* *b:html_charset*
+*g:htmlplugin.charset* *b:htmlplugin.charset*
 If either of these variables are set it completely overrides the Content-Type
 charset detection for the |i_;ct| mapping and in the |html-tokens|. Normally
 these should be left unset.
@@ -291,20 +301,20 @@ these should be left unset.
 ------------------------------------------------------------------------------
 					*html-template-tokens* *html-tokens*
 
-When you define a template file with the |g:html_template|  or
-*b:html_template* variable, special tokens within the template will
+When you define a template file with the |g:htmlplugin.template|  or
+*b:htmlplugin.template* variable, special tokens within the template will
 automatically replaced with their corresponding variable value:
 
-Token:			Variable: 		Description: ~
-%authorname%		|g:html_authorname|	Author's name
-%authoremail%		|g:html_authoremail_encoded|
-						Author's email address,
-						encoded to prevent spam
-%bgcolor%		|g:html_bgcolor|	Main background color
-%textcolor%		|g:html_textcolor|	Main text color
-%linkcolor%		|g:html_linkcolor|	Unvisited link color
-%alinkcolor%		|g:html_alinkcolor|	Mouse hover link color
-%vlinkcolor%		|g:html_vlinkcolor|	Visited link color
+Token:			Variable: 			Description: ~
+%authorname%		|g:htmlplugin.authorname|	Author's name
+%authoremail%		|g:htmlplugin.authoremail_encoded|
+							Author's email address,
+							encoded to prevent spam
+%bgcolor%		|g:htmlplugin.bgcolor|		Main background color
+%textcolor%		|g:htmlplugin.textcolor|	Main text color
+%linkcolor%		|g:htmlplugin.linkcolor|	Unvisited link color
+%alinkcolor%		|g:htmlplugin.alinkcolor|	Mouse hover link color
+%vlinkcolor%		|g:htmlplugin.vlinkcolor|	Visited link color
 
 Special tokens: ~
 %date%						*%date%*
@@ -332,7 +342,8 @@ This is replaced with the output of strftime("%T %Z") (e.g.: 17:59:34 MST)
 %charset%					*%charset%*
 This is replaced by a string that is automatically detected based on the
 'fileencoding' or 'encoding' option. This can be overridden, see
-|g:html_default_charset| and |g:html_charset|. (Also see |html-author-notes|)
+|g:htmlplugin.default_charset| and |g:htmlplugin.charset|. (Also see
+|html-author-notes|)
 
 %vimversion%					*%vimversion%*
 The current version of Vim, based on |v:version| and |v:versionlong|. For
@@ -352,7 +363,7 @@ For example, if you had the template: >
     BODY {background: %bgcolor%; color: %textcolor%;}
     A:link {color: %linkcolor%;}
     A:visited {color: %vlinkcolor%;}
-    A:hover, a:active, a:focus {color: %alinkcolor%;}
+    A:hover, A:active, A:focus {color: %alinkcolor%;}
     -->
    </STYLE>
   </HEAD>
@@ -368,14 +379,14 @@ You would get something like: >
   <HEAD>
    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
    <META NAME="Author" CONTENT="John Smith">
-   <META NAME="Copyright" CONTENT="Copyright (C) March 16, 2018 John Smith">
+   <META NAME="Copyright" CONTENT="Copyright (C) August 16, 2021 John Smith">
    <LINK REL="made" HREF="mailto:jsmith@example.com">
     <STYLE TYPE="text/css">
      <!--
      BODY {background: #FFFFFF; color: #000000;}
      A:link {color: #0000EE;}
      A:visited {color: #990066;}
-     A:hover, a:active, a:focus {color: #FF0000;}
+     A:hover, A:active, A:focus {color: #FF0000;}
      -->
     </STYLE>
   </HEAD>
@@ -418,7 +429,7 @@ You would get something like: >
 	Note that all of the mappings defined by calling |HTML#Map()| or
 	|HTML#Mapo()|--including all of the mappings defined by this
 	script--are disabled/enabled when this command is used, regardless of
-	what |g:html_map_leader| is set to.
+	what |g:htmlplugin.map_leader| is set to.
 
 	*reload-HTML-functions*	*HTML-reload-functions*	*HTML-functions-reload*	
 							*:HTMLReloadFunctions*
@@ -464,12 +475,12 @@ The noted (with |n_;|) normal mode ;-mappings take a {motion} operator. These
 mappings function as if you had visually highlighted the text covered by the
 motion and invoked the corresponding visual mapping.
 
-If you are editing an XHTML file (see |g:do_xhtml_mappings|) the tags will be
-compatible with XHTML. (However, XHTML is out of date and this mode is not
-recommended, and is only supported for historical reasons.)
+If you are editing an XHTML file (see |g:htmlplugin.do_xhtml_mappings|) the
+tags will be compatible with XHTML. (However, XHTML is out of date and this
+mode is not recommended, and is only supported for historical reasons.)
 
 Note that you can change the leader character for these mappings from ';' to
-another character of your preference. See |g:html_map_leader|.
+another character of your preference. See |g:htmlplugin.map_leader|.
 
 
 							*html-doctype*
@@ -480,7 +491,7 @@ another character of your preference. See |g:html_map_leader|.
 <	at the top of the file. If the current buffer is XHTML, it will be >
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<	(See |g:do_xhtml_mappings|)
+<	(See |g:htmlplugin.do_xhtml_mappings|)
 							*n_;s4* *i_;s4*
 ;s4	Does the same as |n_;4|, but the document type is strict rather than
 	transitional. (Note that these macros are meant for a transitional
@@ -499,8 +510,8 @@ another character of your preference. See |g:html_map_leader|.
 
 	The actual value of the charset is automatically detected based on the
 	'fileencoding' or 'encoding' option. This can be overridden--see
-	|g:html_default_charset| and |g:html_charset|. (If this doesn't
-	insert the correct charset value, see |html-author-notes|.)
+	|g:htmlplugin.default_charset| and |g:htmlplugin.charset|. (If this
+	doesn't insert the correct charset value, see |html-author-notes|.)
 							*html-comment*
 							*i_;cm* *v_;cm* *n_;cm*
 ;cm	Comment tag: >
@@ -713,12 +724,12 @@ another character of your preference. See |g:html_map_leader|.
 ;fg	Figure element: >
 	<FIGURE>
 	</FIGURE>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*html-figure-caption*
 							*i_;fp* *v_;fp* *n_;fp*
 ;fp	Figure caption: >
 	<FIGCAPTION></FIGCAPTION>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*html-footer*
 							*i_;ft* *v_;ft* *n_;ft*
 ;ft	Footer: >
@@ -1172,7 +1183,7 @@ another character of your preference. See |g:html_map_leader|.
 <	(|n_;|)
 						*html-form-selection-option*
 							*i_;op* *v_;op* *n_;op*
-;op	Form selection option (<OPTION></OPTION>). (|n_;|)
+;op	Form selection option (<OPTION></OPTION>). (|html-smart-tag|) (|n_;|)
 							*html-form-option-group*
 							*html-form-optgroup*
 							*i_;og* *v_;og* *n_;og*
@@ -1280,17 +1291,17 @@ characters into the HTML buffer. These are known as characters entities.
 
 							*n_;&* *v_;&*
 ;&	This mapping converts the motion or visually selected characters to
-	their &...; (name) or &#...; (decimal) entities if a name for that
-	character doesn't exist, where "..." is equivalent to the ASCII
-	decimal representation. For example, "Fish & Chips" would become:
-	"&#70;&#105;&#115;&#104;&#32;&amp;&#32;&#67;&#104;&#105;&#112;&#115;".
+	their &...; (name) or &#x...; (hexadecimal) entities if a name for
+	that character doesn't exist, where "..." is equivalent to the ASCII
+	hexadecimal representation. For example, "Fish & Chips" would become:
+	"&#x46;&#x69;&#x73;&#x68;&#x20;&amp;&#x20;&#x43;&#x68;&#x69;&#x70;&#x73;".
 	(See |i_;&|) (|n_;|)
 
 	This can be very slow if you translate a long string and syntax
 	highlighting is enabled.
 
 	(Note that the "&" in this mapping is not translated to whatever
-	|g:html_map_entity_leader| is set to.)
+	|g:htmlplugin.map_entity_leader| is set to.)
 							*n_;star* *v_;star*
 ;*	Similar to |n_;&| / |v_;&| but encodes to purely hexadecimal codes
 	instead.
@@ -1317,248 +1328,290 @@ multiple reasons. Type ;&l or ;%l to emulate the old behavior.
 The following mappings work in insert mode only.
 
 Note that you can change the leader character for these mappings from '&' to
-another character of your preference. See |g:html_map_entity_leader|.
+another character of your preference. See |g:htmlplugin.map_entity_leader|.
 
-Name:			HTML:		Macro: ~
+Name:			Symbol:		HTML:		Macro: ~
 ------------------------------------------------------------------------------
-Ampersand (&)		&amp;		&&		*i_&&*
-Greater than (>)	&gt;		&>		*i_&>*
-Less than (<)		&lt;		&<		*i_&<*
-					*i_&<space>* *i_&space* 
-Space (non-breaking)	&nbsp;		&<space>
-Quotation mark (")	&quot;		&'		*i_&'*
-Left Single Quote	&lsquo;		&l'		*i_&l'*
-Right Single Quote	&lsquo;		&r'		*i_&r'*
-Left Double Quote	&ldquo;		&l" 		*i_&lquote*
-Right Double Quote	&ldquo;		&r" 		*i_&rquote*
-Left Angle Quote	&laquo;		&2<		*i_&2<*
-Right Angle Quote	&raquo;		&2>		*i_&2>*
-Cent			&cent;		&c|		*i_&cbar*
-Pound			&pound;		&#		*i_&#*
-Euro			&euro;		&E=		*i_&E=*
-Yen			&yen;		&Y=		*i_&Y=*
-Copyright		&copy;		&cO		*i_&cO*
-Registered		&reg;		&rO		*i_&rO*
-Trademark		&trade;		&tm		*i_&tm*
-Multiply		&times;		&x		*i_&x*
-Divide			&divide;	&/		*i_&/*
-Plus/Minus		&plusmn;	&+-		*i_&+-*
-Inverted Exclamation	&iexcl;		&!		*i_&!*
-Inverted Question	&iquest;	&?		*i_&?*
-Degree			&deg;		&dg		*i_&dg*
-Micro			&micro;		&mi		*i_&mi*
-Paragraph		&para;		&pa		*i_&pa*
-Section			&sect;		&se		*i_&se*
-Middle Dot		&middot;	&.		*i_&.*
-Bullet			&bull;		&*		*i_&star*
-One Quarter		&frac14;	&14		*i_&14*
-One Half		&frac12;	&12		*i_&12*
-Three Quarters		&frac34;	&34		*i_&34*
-One Third		&frac13;	&13		*i_&13*
-Two Thirds		&frac23;	&23		*i_&23*
-One Fifth		&frac15;	&15		*i_&15*
-Two Fifths		&frac25;	&25		*i_&25*
-Three Fifths		&frac35;	&35		*i_&35*
-Four Fiftsh		&frac45;	&45		*i_&45*
-One Sixth		&frac16;	&16		*i_&16*
-Five Sixths		&frac56;	&56		*i_&56*
-One Eigth		&frac18;	&18		*i_&18*
-Three Eigths		&frac38;	&38		*i_&38*
-Five Eigths		&frac58;	&58		*i_&58*
-Seven Eigths		&frac78;	&78		*i_&78*
-Superscript 0		&#x2070;	&0^		*i_&0^*
-Superscript 1		&sup1;  	&1^		*i_&1^*
-Superscript 2		&sup2;  	&2^		*i_&2^*
-Superscript 3		&sup3;  	&3^		*i_&3^*
-Superscript 4		&#x2074;	&4^		*i_&4^*
-Superscript 5		&#x2075;	&5^		*i_&5^*
-Superscript 6		&#x2076;	&6^		*i_&6^*
-Superscript 7		&#x2077;	&7^		*i_&7^*
-Superscript 8		&#x2078;	&8^		*i_&8^*
-Superscript 9		&#x2079;	&9^		*i_&9^*
-Subscript 0		&#x2080;	&0v		*i_&0v*
-Subscript 1		&#x2081;	&1v		*i_&1v*
-Subscript 2		&#x2082;	&2v		*i_&2v*
-Subscript 3		&#x2083;	&3v		*i_&3v*
-Subscript 4		&#x2084;	&4v		*i_&4v*
-Subscript 5		&#x2085;	&5v		*i_&5v*
-Subscript 6		&#x2086;	&6v		*i_&6v*
-Subscript 7		&#x2087;	&7v		*i_&7v*
-Subscript 8		&#x2088;	&8v		*i_&8v*
-Subscript 9		&#x2089;	&9v		*i_&9v*
-En dash			&ndash;		&n-		*i_&n-*
-Em dash			&mdash;		&m-		*i_&m-*
-Ellipsis		&hellip;	&3.		*i_&3.*
-A-grave			&Agrave;	&A`		*i_&A`*
-a-grave			&agrave;	&a`		*i_&a`*
-E-grave			&Egrave;	&E`		*i_&E`*
-e-grave			&egrave;	&e`		*i_&e`*
-I-grave			&Igrave;	&I`		*i_&I`*
-i-grave			&igrave;	&i`		*i_&i`*
-O-grave			&Ograve;	&O`		*i_&O`*
-o-grave			&ograve;	&o`		*i_&o`*
-U-grave			&Ugrave;	&U`		*i_&U`*
-u-grave			&ugrave;	&u`		*i_&u`*
-A-acute			&Aacute;	&A'		*i_&A'*
-a-acute			&aacute;	&a'		*i_&a'*
-E-acute			&Eacute;	&E'		*i_&E'*
-e-acute			&eacute;	&e'		*i_&e'*
-I-acute			&Iacute;	&I'		*i_&I'*
-i-acute			&iacute;	&i'		*i_&i'*
-O-acute			&Oacute;	&O'		*i_&O'*
-o-acute			&oacute;	&o'		*i_&o'*
-U-acute			&Uacute;	&U'		*i_&U'*
-u-acute			&uacute;	&u'		*i_&u'*
-Y-acute			&Yacute;	&Y'		*i_&Y'*
-y-acute			&yacute;	&y'		*i_&y'*
-A-tilde			&Atilde;	&A~		*i_&A~*
-a-tilde			&atilde;	&a~		*i_&a~*
-N-tilde			&Ntilde;	&N~		*i_&N~*
-n-tilde			&ntilde;	&n~		*i_&n~*
-O-tilde			&Otilde;	&O~		*i_&O~*
-o-tilde			&otilde;	&o~		*i_&o~*
-A-circumflex		&Acirc;		&A^		*i_&A^*
-a-circumflex		&acirc;		&a^		*i_&a^*
-E-circumflex		&Ecirc;		&E^		*i_&E^*
-e-circumflex		&ecirc;		&e^		*i_&e^*
-I-circumflex		&Icirc;		&I^		*i_&I^*
-i-circumflex		&icirc;		&i^		*i_&i^*
-O-circumflex		&Ocirc;		&O^		*i_&O^*
-o-circumflex		&ocirc;		&o^		*i_&o^*
-U-circumflex		&Ucirc;		&U^		*i_&U^*
-u-circumflex		&ucirc;		&u^		*i_&u^*
-A-umlaut		&Auml;		&A"		*i_&Aquote*
-a-umlaut		&auml;		&a"		*i_&aquote*
-E-umlaut		&Euml;		&E"		*i_&Equote*
-e-umlaut		&euml;		&e"		*i_&equote*
-I-umlaut		&Iuml;		&I"		*i_&Iquote*
-i-umlaut		&iuml;		&i"		*i_&iquote*
-O-umlaut		&Ouml;		&O"		*i_&Oquote*
-o-umlaut		&ouml;		&o"		*i_&oquote*
-U-umlaut		&Uuml;		&U"		*i_&Uquote*
-u-umlaut		&uuml;		&u"		*i_&uquote*
-y-umlaut		&yuml;		&y"		*i_&yquote*
-Umlaut			&uml;		&"		*i_&quote*
-A-ring			&Aring;		&Ao		*i_&Ao*
-a-ring			&aring;		&ao		*i_&ao*
-AE-ligature		&AElig;		&AE		*i_&AE*
-ae-ligature		&aelig;		&ae		*i_&ae*
-C-cedilla		&Ccedil;	&C,		*i_&C,*
-c-cedilla		&ccedil;	&c,		*i_&c,*
-O-slash			&Oslash;	&O/		*i_&O/*
-o-slash			&oslash;	&o/		*i_&o/*
-Szlig			&szlig;		&sz		*i_&sz*
-Left single arrow	&larr;		&la		*i_&la*
-Right single arrow	&rarr;		&ra		*i_&ra*
-Up single arrow		&uarr;		&ua		*i_&ua*
-Down single arrow	&darr;		&da		*i_&da*
-Left-right single arrow	&harr;		&ha		*i_&ha*
-Left double arrow	&lArr;		&lA		*i_&lA*
-Right double arrow	&rArr;		&rA		*i_&rA*
-Up double arrow		&uArr;		&uA		*i_&uA*
-Down double arrow	&dArr;		&dA		*i_&dA*
-Left-right double arrow	&hArr;		&hA		*i_&hA*
+Ampersand (&)		&		&amp;		&&		*i_&&*
+Greater than (>)	>		&gt;		&>		*i_&>*
+Less than (<)		<		&lt;		&<		*i_&<*
+							*i_&<space>* *i_&space* 
+Space (non-breaking)	 		&nbsp;		&<space>
+Quotation mark (")	"		&quot;		&'		*i_&'*
+Left Single Quote	‘		&lsquo;		&l'		*i_&l'*
+Right Single Quote	’		&rsquo;		&r'		*i_&r'*
+Left Double Quote	“		&ldquo;		&l"		*i_&lquote*
+Right Double Quote	”		&rdquo;		&r"		*i_&rquote*
+Left Angle Quote	«		&laquo;		&2<		*i_&2<*
+Right Angle Quote	»		&raquo;		&2>		*i_&2>*
+Cent			¢		&cent;		&c|		*i_&cbar*
+Lira			₤		&x20A4;		&L=		*i_&l=*
+Euro			€		&euro;		&E=		*i_&E=*
+Pound			£		&pound;		&#		*i_&#*
+Yen			¥		&yen;		&Y=		*i_&Y=*
+Copyright		©		&copy;		&cO		*i_&cO*
+Registered		®		&reg;		&rO		*i_&rO*
+Trademark		™		&trade;		&tm		*i_&tm*
+Multiply		×		&times;		&x		*i_&x*
+Divide			÷		&divide;	&/		*i_&/*
+Plus/Minus		±		&plusmn;	&+-		*i_&+-*
+Inverted Exclamation	¡		&iexcl;		&!		*i_&!*
+Inverted Question	¿		&iquest;	&?		*i_&?*
+Degree			°		&deg;		&dg		*i_&dg*
+Micro			µ		&micro;		&mi		*i_&mi*
+Ohm			Ω		&ohm;		&oh		*i_&oh*
+Paragraph		¶		&para;		&pa		*i_&pa*
+Section			§		&sect;		&se		*i_&se*
+Middle Dot		·		&middot;	&.		*i_&.*
+Bullet			•		&bull;		&*		*i_&star*
+One Quarter		¼		&frac14;	&14		*i_&14*
+One Half		½		&frac12;	&12		*i_&12*
+Three Quarters		¾		&frac34;	&34		*i_&34*
+One Third		⅓		&frac13;	&13		*i_&13*
+Two Thirds		⅔		&frac23;	&23		*i_&23*
+One Fifth		⅕		&frac15;	&15		*i_&15*
+Two Fifths		⅖		&frac25;	&25		*i_&25*
+Three Fifths		⅗		&frac35;	&35		*i_&35*
+Four Fifths		⅘		&frac45;	&45		*i_&45*
+One Sixth		⅙		&frac16;	&16		*i_&16*
+Five Sixths		⅚		&frac56;	&56		*i_&56*
+One Eigth		⅛		&frac18;	&18		*i_&18*
+Three Eigths		⅜		&frac38;	&38		*i_&38*
+Five Eigths		⅝		&frac58;	&58		*i_&58*
+Seven Eigths		⅞		&frac78;	&78		*i_&78*
+Superscript 0		⁰		&#x2070;	&0^		*i_&0^*
+Superscript 1		¹		&sup1;		&1^		*i_&1^*
+Superscript 2		²		&sup2;		&2^		*i_&2^*
+Superscript 3		³		&sup3;		&3^		*i_&3^*
+Superscript 4		⁴		&#x2074;	&4^		*i_&4^*
+Superscript 5		⁵		&#x2075;	&5^		*i_&5^*
+Superscript 6		⁶		&#x2076;	&6^		*i_&6^*
+Superscript 7		⁷		&#x2077;	&7^		*i_&7^*
+Superscript 8		⁸		&#x2078;	&8^		*i_&8^*
+Superscript 9		⁹		&#x2079;	&9^		*i_&9^*
+Subscript 0		₀		&#x2080;	&0v		*i_&0v*
+Subscript 1		₁		&#x2081;	&1v		*i_&1v*
+Subscript 2		₂		&#x2082;	&2v		*i_&2v*
+Subscript 3		₃		&#x2083;	&3v		*i_&3v*
+Subscript 4		₄		&#x2084;	&4v		*i_&4v*
+Subscript 5		₅		&#x2085;	&5v		*i_&5v*
+Subscript 6		₆		&#x2086;	&6v		*i_&6v*
+Subscript 7		₇		&#x2087;	&7v		*i_&7v*
+Subscript 8		₈		&#x2088;	&8v		*i_&8v*
+Subscript 9		₉		&#x2089;	&9v		*i_&9v*
+En dash			–		&ndash;		&n-		*i_&n-*
+Em dash			—		&mdash;		&m-		*i_&m-*
+Ellipsis		…		&hellip;	&3.		*i_&3.*
+A-grave			À		&Agrave;	&A`		*i_&A`*
+a-grave			à		&agrave;	&a`		*i_&a`*
+E-grave			È		&Egrave;	&E`		*i_&E`*
+e-grave			è		&egrave;	&e`		*i_&e`*
+I-grave			Ì		&Igrave;	&I`		*i_&I`*
+i-grave			ì		&igrave;	&i`		*i_&i`*
+O-grave			Ò		&Ograve;	&O`		*i_&O`*
+o-grave			ò		&ograve;	&o`		*i_&o`*
+U-grave			Ù		&Ugrave;	&U`		*i_&U`*
+u-grave			ù		&ugrave;	&u`		*i_&u`*
+A-acute			Á		&Aacute;	&A'		*i_&A'*
+a-acute			á		&aacute;	&a'		*i_&a'*
+E-acute			É		&Eacute;	&E'		*i_&E'*
+e-acute			é		&eacute;	&e'		*i_&e'*
+I-acute			Í		&Iacute;	&I'		*i_&I'*
+i-acute			í		&iacute;	&i'		*i_&i'*
+O-acute			Ó		&Oacute;	&O'		*i_&O'*
+o-acute			ó		&oacute;	&o'		*i_&o'*
+U-acute			Ú		&Uacute;	&U'		*i_&U'*
+u-acute			ú		&uacute;	&u'		*i_&u'*
+Y-acute			Ý		&Yacute;	&Y'		*i_&Y'*
+y-acute			ý		&yacute;	&y'		*i_&y'*
+A-tilde			Ã		&Atilde;	&A~		*i_&A~*
+a-tilde			ã		&atilde;	&a~		*i_&a~*
+N-tilde			Ñ		&Ntilde;	&N~		*i_&N~*
+n-tilde			ñ		&ntilde;	&n~		*i_&n~*
+O-tilde			Õ		&Otilde;	&O~		*i_&O~*
+o-tilde			õ		&otilde;	&o~		*i_&o~*
+A-circumflex		Â		&Acirc;		&A^		*i_&A^*
+a-circumflex		â		&acirc;		&a^		*i_&a^*
+E-circumflex		Ê		&Ecirc;		&E^		*i_&E^*
+e-circumflex		ê		&ecirc;		&e^		*i_&e^*
+I-circumflex		Î		&Icirc;		&I^		*i_&I^*
+i-circumflex		î		&icirc;		&i^		*i_&i^*
+O-circumflex		Ô		&Ocirc;		&O^		*i_&O^*
+o-circumflex		ô		&ocirc;		&o^		*i_&o^*
+U-circumflex		Û		&Ucirc;		&U^		*i_&U^*
+u-circumflex		û		&ucirc;		&u^		*i_&u^*
+A-umlaut		Ä		&Auml;		&A"		*i_&Aquote*
+a-umlaut		ä		&auml;		&a"		*i_&aquote*
+E-umlaut		Ë		&Euml;		&E"		*i_&Equote*
+e-umlaut		ë		&euml;		&e"		*i_&equote*
+I-umlaut		Ï		&Iuml;		&I"		*i_&Iquote*
+i-umlaut		ï		&iuml;		&i"		*i_&iquote*
+O-umlaut		Ö		&Ouml;		&O"		*i_&Oquote*
+o-umlaut		ö		&ouml;		&o"		*i_&oquote*
+U-umlaut		Ü		&Uuml;		&U"		*i_&Uquote*
+u-umlaut		ü		&uuml;		&u"		*i_&uquote*
+y-umlaut		ÿ		&yuml;		&y"		*i_&yquote*
+Umlaut			¨		&uml;		&"		*i_&quote*
+A-ring			Å		&Aring;		&Ao		*i_&Ao*
+a-ring			å		&aring;		&ao		*i_&ao*
+AE-ligature		Æ		&AElig;		&AE		*i_&AE*
+ae-ligature		æ		&aelig;		&ae		*i_&ae*
+C-cedilla		Ç		&Ccedil;	&C,		*i_&C,*
+c-cedilla		ç		&ccedil;	&c,		*i_&c,*
+O-slash			Ø		&Oslash;	&O/		*i_&O/*
+o-slash			ø		&oslash;	&o/		*i_&o/*
+Szlig			ß		&szlig;		&sz		*i_&sz*
+Left single arrow	←		&larr;		&la		*i_&la*
+Right single arrow	→		&rarr;		&ra		*i_&ra*
+Up single arrow		↑		&uarr;		&ua		*i_&ua*
+Down single arrow	↓		&darr;		&da		*i_&da*
+Left-right single arrow	↔		&harr;		&ha		*i_&ha*
+Up-down single arrow	↕		&varr;		&va		*i_&va*
+North-West single arrow	↖		&nwarr;		&nw		*i_&nw*
+North-East single arrow	↗		&nearr;		&ne		*i_&ne*
+South-East single arrow	↘		&searr;		&se		*i_&se*
+South-West single arrow	↙		&swarr;		&sw		*i_&sw*
+Left double arrow	⇐		&lArr;		&lA		*i_&lA*
+Right double arrow	⇒		&rArr;		&rA		*i_&rA*
+Up double arrow		⇑		&uArr;		&uA		*i_&uA*
+Down double arrow	⇓		&dArr;		&dA		*i_&dA*
+Left-right double arrow	⇔		&hArr;		&hA		*i_&hA*
+Up-down double arrow	⇕		&vArr;		&vA		*i_&vA*
+North-West double arrow	⇖		&nwArr;		&nW		*i_&nW*
+North-West double arrow	⇗		&neArr;		&nE		*i_&nE*
+North-West double arrow	⇘		&seArr;		&sE		*i_&sE*
+North-West double arrow	⇙		&swArr;		&sW		*i_&sW*
+Female			♀		&female;	&fm		*i_&fm*
+Male			♂		&male;		&ml		*i_&ml*
+Quarter Note (music)	♩		&#x2669;	&md		*i_&md*
+Sung (music)		♪		&sung;		&m8		*i_&m8*
+Eigth Note (music)	♫		&#x266B;	&m2		*i_&m2*
+Flat (music)		♭		&flat;		&mb		*i_&mb*
+Sharp (music)		♯		&sharp;		&mx		*i_&mx*
+G Clef			𝄞		&#x1D11E;	&gc		*i_&gc*
+F Clef			𝄢		&#x1D122;	&fc		*i_&fc*
+Checkmark		✓		&check;		&ok		*i_&ok*
+X mark			✗		&cross;		&xx		*i_&xx*
+Filled Star		★		&starf;		&2*		*i_&2star*
+Hollow Star		☆		&star;		&3*		*i_&3star*
+Maltese Cross		✠		&malt;		&m+		*i_&m+*
+Spades Suit		♠		&spades;	&sp		*i_&sp*
+Clubs Suit		♣		&clubs;		&cl		*i_&cl*
+Hearts Suit		♥		&hearts;	&he		*i_&he*
+Diamonds Suit		♦		&diams;		&di		*i_&di*
+Rx (Prescription)	℞		&rx;		&rx		*i_&rx*
+Infinite		∞		&infin;		&00		*i_&00*
+Greaterthan Equal	≥		&ge;		&>=		*i_&>=*
+Lessthan Equal		≤		&le;		&<=		*i_&<=*
+Not Greaterthan		≯		&ngt;		&!>		*i_&!>*
+Not Lessthan		≮		&nlt;		&!<		*i_&!<*
+Not Equal		≠		&ne;		&!=		*i_&!=*
+Square Root		√		&Sqrt;		&sq		*i_&sq*
+Dagger (footnote)	†		&dagger;	&dt		*i_&dt*
+Double Dagger		‡		&Dagger;	&dd		*i_&dd*
+Care Of (c/o)		℅		&incare;	&co		*i_&co*
 
 
-The greek alphabet:
+The Greek Alphabet:
 
-Name:			HTML:		Macro: ~
---------------------------------------------------------------------
-Upper Alpha		&Alpha;		&Al		*i_&Al*
-Upper Beta		&Beta;		&Be		*i_&Be*
-Upper Gamma		&Gamma;		&Ga		*i_&Ga*
-Upper Delta		&Delta;		&De		*i_&De*
-Upper Epsilon		&Epsilon;	&Ep		*i_&Ep*
-Upper Zeta		&Zeta;		&Ze		*i_&Ze*
-Upper Eta		&Eta;		&Et		*i_&Et*
-Upper Theta		&Theta;		&Th		*i_&Th*
-Upper Iota		&Iota;		&Io		*i_&Io*
-Upper Kappa		&Kappa;		&Ka		*i_&Ka*
-Upper Lambda		&Lambda;	&Lm		*i_&Lm*
-Upper Mu		&Mu;		&Mu		*i_&Mu*
-Upper Nu		&Nu;		&Nu		*i_&Nu*
-Upper Xi		&Xi;		&Xi		*i_&Xi*
-Upper Omicron		&Omicron;	&Oc		*i_&Oc*
-Upper Pi		&Pi;		&Pi		*i_&Pi*
-Upper Rho		&Rho;		&Rh		*i_&Rh*
-Upper Sigma		&Sigma;		&Si		*i_&Si*
-Upper Tau		&Tau;		&Ta		*i_&Ta*
-Upper Upsilon		&Upsilon;	&Up		*i_&Up*
-Upper Phi		&Phi;		&Ph		*i_&Ph*
-Upper Chi		&Chi;		&Ch		*i_&Ch*
-Upper Psi		&Psi;		&Ps		*i_&Ps*
-Lower alpha		&alpha;		&al		*i_&al*
-Lower beta		&beta;		&be		*i_&be*
-Lower gamma		&gamma;		&ga		*i_&ga*
-Lower delta		&delta;		&de		*i_&de*
-Lower epsilon		&epsilon;	&ep		*i_&ep*
-Lower zeta		&zeta;		&ze		*i_&ze*
-Lower eta		&eta;		&et		*i_&et*
-Lower theta		&theta;		&th		*i_&th*
-Lower iota		&iota;		&io		*i_&io*
-Lower kappa		&kappa;		&ka		*i_&ka*
-Lower lambda		&lambda;	&lm		*i_&lm*
-Lower mu		&mu;		&mu		*i_&mu*
-Lower nu		&nu;		&nu		*i_&nu*
-Lower xi		&xi;		&xi		*i_&xi*
-Lower omicron		&omicron;	&oc		*i_&oc*
-Lower pi		&pi;		&pi		*i_&pi*
-Lower rho		&rho;		&rh		*i_&rh*
-Lower sigma		&sigma;		&si		*i_&si*
-Lower sigmaf		&sigmaf;	&sf		*i_&sf*
-Lower tau		&tau;		&ta		*i_&ta*
-Lower upsilon		&upsilon;	&up		*i_&up*
-Lower phi		&phi;		&ph		*i_&ph*
-Lower chi		&chi;		&ch		*i_&ch*
-Lower psi		&psi;		&ps		*i_&ps*
-Lower omega		&omega;		&og		*i_&og*
-Lower thetasym		&thetasym;	&ts		*i_&ts*
-Lower upsih		&upsih;		&uh		*i_&uh*
-Lower piv		&piv;		&pv		*i_&pv*
-
-
-Roman numerals, upppercase:
-
-Name:			HTML:		Macro: ~
---------------------------------------------------------------------
-1			&#x2160;	&R1		*i_&R1*
-2			&#x2161;	&R2		*i_&R2*
-3			&#x2162;	&R3		*i_&R3*
-4			&#x2163;	&R4		*i_&R4*
-5			&#x2164;	&R5		*i_&R5*
-6			&#x2165;	&R6		*i_&R6*
-7			&#x2166;	&R7		*i_&R7*
-8			&#x2167;	&R8		*i_&R8*
-9			&#x2168;	&R9		*i_&R9*
-10			&#x2169;	&R10		*i_&R10*
-11			&#x216a;	&R11		*i_&R11*
-12			&#x216b;	&R12		*i_&R12*
-50			&#x216c;	&R50		*i_&R50*
-100			&#x216d;	&R100		*i_&R100*
-500			&#x216e;	&R500		*i_&R500*
-1000			&#x216f;	&R1000		*i_&R1000*
+Name:			Symbol:		HTML:		Macro: ~
+------------------------------------------------------------------------------
+Upper Alpha		Α		&Alpha;		&Al		*i_&Al*
+Upper Beta		Β		&Beta;		&Be		*i_&Be*
+Upper Gamma		Γ		&Gamma;		&Ga		*i_&Ga*
+Upper Delta		Δ		&Delta;		&De		*i_&De*
+Upper Epsilon		Ε		&Epsilon;	&Ep		*i_&Ep*
+Upper Zeta		Ζ		&Zeta;		&Ze		*i_&Ze*
+Upper Eta		Η		&Eta;		&Et		*i_&Et*
+Upper Theta		Θ		&Theta;		&Th		*i_&Th*
+Upper Iota		Ι		&Iota;		&Io		*i_&Io*
+Upper Kappa		Κ		&Kappa;		&Ka		*i_&Ka*
+Upper Lambda		Λ		&Lambda;	&Lm		*i_&Lm*
+Upper Mu		Μ		&Mu;		&Mu		*i_&Mu*
+Upper Nu		Ν		&Nu;		&Nu		*i_&Nu*
+Upper Xi		Ξ		&Xi;		&Xi		*i_&Xi*
+Upper Omicron		Ο		&Omicron;	&Oc		*i_&Oc*
+Upper Pi		Π		&Pi;		&Pi		*i_&Pi*
+Upper Rho		Ρ		&Rho;		&Rh		*i_&Rh*
+Upper Sigma		Σ		&Sigma;		&Si		*i_&Si*
+Upper Tau		Τ		&Tau;		&Ta		*i_&Ta*
+Upper Upsilon		Υ		&Upsilon;	&Up		*i_&Up*
+Upper Phi		Φ		&Phi;		&Ph		*i_&Ph*
+Upper Chi		Χ		&Chi;		&Ch		*i_&Ch*
+Upper Psi		Ψ		&Psi;		&Ps		*i_&Ps*
+Lower alpha		α		&alpha;		&al		*i_&al*
+Lower beta		β		&beta;		&be		*i_&be*
+Lower gamma		γ		&gamma;		&ga		*i_&ga*
+Lower delta		δ		&delta;		&de		*i_&de*
+Lower epsilon		ε		&epsilon;	&ep		*i_&ep*
+Lower zeta		ζ		&zeta;		&ze		*i_&ze*
+Lower eta		η		&eta;		&et		*i_&et*
+Lower theta		θ		&theta;		&th		*i_&th*
+Lower iota		ι		&iota;		&io		*i_&io*
+Lower kappa		κ		&kappa;		&ka		*i_&ka*
+Lower lambda		λ		&lambda;	&lm		*i_&lm*
+Lower mu		μ		&mu;		&mu		*i_&mu*
+Lower nu		ν		&nu;		&nu		*i_&nu*
+Lower xi		ξ		&xi;		&xi		*i_&xi*
+Lower omicron		ο		&omicron;	&oc		*i_&oc*
+Lower pi		π		&pi;		&pi		*i_&pi*
+Lower rho		ρ		&rho;		&rh		*i_&rh*
+Lower sigma		σ		&sigma;		&si		*i_&si*
+Lower sigmaf		ς		&sigmaf;	&sf		*i_&sf*
+Lower tau		τ		&tau;		&ta		*i_&ta*
+Lower upsilon		υ		&upsilon;	&up		*i_&up*
+Lower phi		φ		&phi;		&ph		*i_&ph*
+Lower chi		χ		&chi;		&ch		*i_&ch*
+Lower psi		ψ		&psi;		&ps		*i_&ps*
+Lower omega		ω		&omega;		&og		*i_&og*
+Lower theta		θ		&thetasym;	&ts		*i_&ts*
+Lower upsih		υ		&upsih;		&uh		*i_&uh*
+Lower piv		ϖ		&piv;		&pv		*i_&pv*
 
 
-Roman numerals, lowercase:
+Roman Numerals, Upppercase:
 
-Name:			HTML:		Macro: ~
---------------------------------------------------------------------
-1			&#x2170;	&r1		*i_&r1*
-2			&#x2171;	&r2		*i_&r2*
-3			&#x2172;	&r3		*i_&r3*
-4			&#x2173;	&r4		*i_&r4*
-5			&#x2174;	&r5		*i_&r5*
-6			&#x2175;	&r6		*i_&r6*
-7			&#x2176;	&r7		*i_&r7*
-8			&#x2177;	&r8		*i_&r8*
-9			&#x2178;	&r9		*i_&r9*
-10			&#x2179;	&r10		*i_&r10*
-11			&#x217a;	&r11		*i_&r11*
-12			&#x217b;	&r12		*i_&r12*
-50			&#x217c;	&r50		*i_&r50*
-100			&#x217d;	&r100		*i_&r100*
-500			&#x217e;	&r500		*i_&r500*
-1000			&#x217f;	&r1000		*i_&r1000*
+Name:			Symbol:		HTML:		Macro: ~
+------------------------------------------------------------------------------
+1			Ⅰ		&#x2160;	&R1		*i_&R1*
+2			Ⅱ		&#x2161;	&R2		*i_&R2*
+3			Ⅲ		&#x2162;	&R3		*i_&R3*
+4			Ⅳ		&#x2163;	&R4		*i_&R4*
+5			Ⅴ		&#x2164;	&R5		*i_&R5*
+6			Ⅵ		&#x2165;	&R6		*i_&R6*
+7			Ⅶ		&#x2166;	&R7		*i_&R7*
+8			Ⅷ		&#x2167;	&R8		*i_&R8*
+9			Ⅸ		&#x2168;	&R9		*i_&R9*
+10			Ⅹ		&#x2169;	&R10		*i_&R10*
+11			Ⅺ		&#x216a;	&R11		*i_&R11*
+12			Ⅻ		&#x216b;	&R12		*i_&R12*
+50			Ⅼ		&#x216c;	&R50		*i_&R50*
+100			Ⅽ		&#x216d;	&R100		*i_&R100*
+500			Ⅾ		&#x216e;	&R500		*i_&R500*
+1000			Ⅿ		&#x216f;	&R1000		*i_&R1000*
+
+
+Roman Numerals, Lowercase:
+
+Name:			Symbol:		HTML:		Macro: ~
+------------------------------------------------------------------------------
+1			ⅰ		&#x2170;	&r1		*i_&r1*
+2			ⅱ		&#x2171;	&r2		*i_&r2*
+3			ⅲ		&#x2172;	&r3		*i_&r3*
+4			ⅳ		&#x2173;	&r4		*i_&r4*
+5			ⅴ		&#x2174;	&r5		*i_&r5*
+6			ⅵ		&#x2175;	&r6		*i_&r6*
+7			ⅶ		&#x2176;	&r7		*i_&r7*
+8			ⅷ		&#x2177;	&r8		*i_&r8*
+9			ⅸ		&#x2178;	&r9		*i_&r9*
+10			ⅹ		&#x2179;	&r10		*i_&r10*
+11			ⅺ		&#x217a;	&r11		*i_&r11*
+12			ⅻ		#x217b;		&r12		*i_&r12*
+50			ⅼ		&#x217c;	&r50		*i_&r50*
+100			ⅽ		&#x217d;	&r100		*i_&r100*
+500			ⅾ		&#x217e;	&r500		*i_&r500*
+1000			ⅿ		#x217f;		&r1000		*i_&r1000*
+
 
 ==============================================================================
 6. How to Use Browser Mappings				*browser-control*
@@ -1693,7 +1746,8 @@ HTML#EncodeString({string} [, {...}])			*HTML#EncodeString()*
 			the provided string
 	%		Encode as a %XX URI string
 	x		Encode as a &#x...; string (hexadecimal)
-	omitted		Encode as a &...; or &#...; string (name, or decimal)
+	omitted		Encode as a &...; or &#x...; string (name, or
+			hexadecimal)
 	other		No change to the string
 
 	See |n_;&|, |n_;star|, and |n_;%| for examples.
@@ -1708,7 +1762,7 @@ HTML#EncodeString({string} [, {...}])			*HTML#EncodeString()*
 
 HTML#DecodeSymbol({symbol})				*HTML#DecodeSymbol()*
 	Returns the character representation of {symbol}, if it is in &#NNN;,
-	&aaa;, or %XX format. This function is typically used by
+	&#xNNN, &aaa;, or %XX format. This function is typically used by
 	|HTML#EncodeString()| to decode strings.
 
 							*HTML#GenerateTable()*
@@ -1737,14 +1791,15 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 	filetype plugins.
 
 	If {lhs} starts with "<lead>" that string will replaced with the
-	contents of |g:html_map_leader|.
+	contents of |g:htmlplugin.map_leader|.
 
 	If {lhs} starts with "<elead>" that string will replaced with the
-	contents of |g:html_map_entity_leader|.
+	contents of |g:htmlplugin.map_entity_leader|.
 
 	Any text in {rhs} that is enclosed by [{}] will be converted to
-	uppercase/lowercase according to the |g:html_tag_case| or
-	|b:html_tag_case| variable, and the [{}] markers will be removed.
+	uppercase/lowercase according to the |g:htmlplugin.tag_case| or
+	|b:htmlplugin.tag_case| variable, and the [{}] markers will be
+	removed.
 
 	{options} is optional, but if it exists it's a |Dictionary| that
 	specifies behavior for visual mappings:

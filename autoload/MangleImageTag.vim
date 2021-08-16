@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: August 09, 2021
+# Last Change: August 14, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -252,8 +252,8 @@ enddef
 
 defcompile
 
-if !exists('g:html_function_files') | g:html_function_files = [] | endif
-add(g:html_function_files, expand('<sfile>:p'))->sort()->uniq()
+if !exists('g:htmlplugin.function_files') | g:htmlplugin.function_files = [] | endif
+add(g:htmlplugin.function_files, expand('<sfile>:p'))->sort()->uniq()
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=2:comments=b\:#:commentstring=\ #\ %s:

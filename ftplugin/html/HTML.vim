@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite@gmail.com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      August 13, 2021
+# Last Change:      August 15, 2021
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -73,8 +73,13 @@ import {COLOR_LIST, HOMEPAGE, INTERNAL_HTML_TEMPLATE, MENU_NAME} from "../../imp
 
 # ---- Commands: -------------------------------------------------------- {{{2
 
-if ! exists('g:did_html_commands') || ! g:did_html_commands 
-  g:did_html_commands = true
+# Do this here instead of below, because it's referenced early:
+if !exists('g:htmlplugin')
+  g:htmlplugin = {}
+endif
+
+if ! exists('g:htmlplugin.did_commands') || ! g:htmlplugin.did_commands 
+  g:htmlplugin.did_commands = true
 
   command! -nargs=+ HTMLWARN {
       echohl WarningMsg
@@ -108,8 +113,8 @@ if ! exists('g:did_html_commands') || ! g:did_html_commands
     command! -nargs=? CC HTML#ColorChooser(<f-args>)
   endif
   command! HTMLReloadFunctions {
-      if exists('g:html_function_files')
-        for f in copy(g:html_function_files)
+      if exists('g:htmlplugin.function_files')
+        for f in copy(g:htmlplugin.function_files)
           execute 'HTMLMESG Reloading: ' .. fnamemodify(f, ':t')
           execute 'source ' .. f
         endfor
@@ -121,149 +126,153 @@ endif
 
 # ----------------------------------------------------------------------- }}}2
 
-if ! exists('b:did_html_mappings_init')
+if ! exists('b:htmlplugin.did_mappings_init')
+  SetIfUnset b:htmlplugin {}
   # This must be a number, not a boolean, because a -1 special case is used by
   # one of the functions:
-  b:did_html_mappings_init = 1
+  b:htmlplugin.did_mappings_init = 1
 
   # Configuration variables:  {{{2
   # (These should be set in the user's vimrc or a filetype plugin, rather than
   # changed here.)
-  SetIfUnset g:html_bgcolor                #FFFFFF
-  SetIfUnset g:html_textcolor              #000000
-  SetIfUnset g:html_linkcolor              #0000EE
-  SetIfUnset g:html_alinkcolor             #FF0000
-  SetIfUnset g:html_vlinkcolor             #990066
-  SetIfUnset g:html_tag_case               lowercase
-  SetIfUnset g:html_map_leader             ;
-  SetIfUnset g:html_map_entity_leader      &
-  SetIfUnset g:html_default_charset        UTF-8
+  SetIfUnset g:htmlplugin.bgcolor                #FFFFFF
+  SetIfUnset g:htmlplugin.textcolor              #000000
+  SetIfUnset g:htmlplugin.linkcolor              #0000EE
+  SetIfUnset g:htmlplugin.alinkcolor             #FF0000
+  SetIfUnset g:htmlplugin.vlinkcolor             #990066
+  SetIfUnset g:htmlplugin.tag_case               lowercase
+  SetIfUnset g:htmlplugin.map_leader             ;
+  SetIfUnset g:htmlplugin.map_entity_leader      &
+  SetIfUnset g:htmlplugin.default_charset        UTF-8
   # No way to know sensible defaults here so just make sure the
   # variables are set:
-  SetIfUnset g:html_authorname             ''
-  SetIfUnset g:html_authoremail            ''
+  SetIfUnset g:htmlplugin.authorname             ''
+  SetIfUnset g:htmlplugin.authoremail            ''
   # Empty list means the HTML menu is its own toplevel:
-  SetIfUnset g:html_toplevel_menu          []
-  SetIfUnset g:html_toplevel_menu_priority -1
+  SetIfUnset g:htmlplugin.toplevel_menu          []
+  # -1 means let Vim put the menu wherever it wants to by default:
+  SetIfUnset g:htmlplugin.toplevel_menu_priority -1
   # END configurable variables
 
   # Intitialize some necessary variables:  {{{2
-  SetIfUnset g:html_function_files []
+  SetIfUnset g:htmlplugin.function_files []
 
   # Need to inerpolate the value, which the command form of SetIfUnset doesn't
   # do:
-  HTML#SetIfUnset('g:html_save_clipboard', &clipboard)
+  HTML#SetIfUnset('g:htmlplugin.save_clipboard', &clipboard)
 
   # Always set this, even if it was already set:
-  unlockvar g:html_plugin_file
-  g:html_plugin_file = expand('<sfile>:p')
-  lockvar g:html_plugin_file
+  if exists('g:htmlplugin.file')
+    unlockvar g:htmlplugin.file
+  endif
+  g:htmlplugin.file = expand('<sfile>:p')
+  lockvar g:htmlplugin.file
 
-
-  # Always set this, even if it was already set:
-  if type(g:html_toplevel_menu) != v:t_list
-    HTMLERROR g:html_toplevel_menu must be a list! Overriding.
+  if type(g:htmlplugin.toplevel_menu) != v:t_list
+    HTMLERROR g:htmlplugin.toplevel_menu must be a list! Overriding.
     sleep 3
-    g:html_toplevel_menu = []
+    g:htmlplugin.toplevel_menu = []
   endif
 
-  if !exists('g:html_toplevel_menu_escaped')
-    const g:html_toplevel_menu_escaped = g:html_toplevel_menu->add(MENU_NAME)->HTML#MenuJoin()
-    lockvar g:html_toplevel_menu
+  if !exists('g:htmlplugin.toplevel_menu_escaped')
+    g:htmlplugin.toplevel_menu_escaped = g:htmlplugin.toplevel_menu->add(MENU_NAME)->HTML#MenuJoin()
+    lockvar g:htmlplugin.toplevel_menu
+    lockvar g:htmlplugin.toplevel_menu_escaped
   endif
 
   silent! setlocal clipboard+=html
   setlocal matchpairs+=<:>
 
-  if g:html_map_entity_leader ==# g:html_map_leader
-    HTMLERROR "g:html_map_entity_leader" and "g:html_map_leader" have the same value!
-    HTMLERROR Resetting "g:html_map_entity_leader" to "&".
+  if g:htmlplugin.map_entity_leader ==# g:htmlplugin.map_leader
+    HTMLERROR "g:htmlplugin.map_entity_leader" and "g:htmlplugin.map_leader" have the same value!
+    HTMLERROR Resetting both to their defaults.
     sleep 3
-    g:html_map_entity_leader = '&'
+    g:htmlplugin.map_leader = ';'
+    g:htmlplugin.map_entity_leader = '&'
   endif
 
-  if exists('b:html_tag_case')
-    b:html_tag_case_save = b:html_tag_case
+  if exists('b:htmlplugin.tag_case')
+    b:htmlplugin.tag_case_save = b:htmlplugin.tag_case
   endif
 
   # Detect whether to force uppper or lower case:  {{{2
   if &filetype ==? 'xhtml'
-      || HTML#BoolVar('g:do_xhtml_mappings')
-      || HTML#BoolVar('b:do_xhtml_mappings')
-    b:do_xhtml_mappings = true
+      || HTML#BoolVar('g:htmlplugin.do_xhtml_mappings')
+      || HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
+    b:htmlplugin.do_xhtml_mappings = true
   else
-    b:do_xhtml_mappings = false
+    b:htmlplugin.do_xhtml_mappings = false
 
-    if HTML#BoolVar('g:html_tag_case_autodetect')
+    if HTML#BoolVar('g:htmlplugin.tag_case_autodetect')
         && (line('$') != 1 || getline(1) != '')
 
       var found_upper = search('\C<\(\s*/\)\?\s*\u\+\_[^<>]*>', 'wn')
       var found_lower = search('\C<\(\s*/\)\?\s*\l\+\_[^<>]*>', 'wn')
 
       if found_upper != 0 && found_lower == 0
-        b:html_tag_case = 'uppercase'
+        b:htmlplugin.tag_case = 'uppercase'
       elseif found_upper == 0 && found_lower != 0
-        b:html_tag_case = 'lowercase'
+        b:htmlplugin.tag_case = 'lowercase'
       else
         # Found a combination of upper and lower case, so just use the user
         # preference:
-        b:html_tag_case = g:html_tag_case
+        b:htmlplugin.tag_case = g:htmlplugin.tag_case
       endif
     endif
   endif
 
-  if HTML#BoolVar('b:do_xhtml_mappings')
-    b:html_tag_case = 'lowercase'
+  if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
+    b:htmlplugin.tag_case = 'lowercase'
   endif
 
   # Need to inerpolate the value, which the command form of SetIfUnset doesn't
   # do:
-  HTML#SetIfUnset('b:html_tag_case', g:html_tag_case)
+  HTML#SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
 
   # Template Creation: {{{2
 
-  if HTML#BoolVar('b:do_xhtml_mappings')
-    b:internal_html_template = INTERNAL_HTML_TEMPLATE->extendnew([
+  if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
+    b:htmlplugin.internal_template = INTERNAL_HTML_TEMPLATE->extendnew([
       '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
       ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
       '<html xmlns="http://www.w3.org/1999/xhtml">'
     ], 0)
 
-    b:internal_html_template = b:internal_html_template->HTML#ConvertCase()->join("\n")
+    b:htmlplugin.internal_template = b:htmlplugin.internal_template->HTML#ConvertCase()->join("\n")
   else
-    b:internal_html_template = INTERNAL_HTML_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = INTERNAL_HTML_TEMPLATE->extendnew([
       '<!DOCTYPE html>',
       '<[{HTML}]>'
     ], 0)
 
-    b:internal_html_template = b:internal_html_template->HTML#ConvertCase()->join("\n")
+    b:htmlplugin.internal_template = b:htmlplugin.internal_template->HTML#ConvertCase()->join("\n")
 
-    b:internal_html_template = b:internal_html_template->substitute(' />', '>', 'g')
+    b:htmlplugin.internal_template = b:htmlplugin.internal_template->substitute(' />', '>', 'g')
   endif
 
   # }}}2
 
-endif # ! exists('b:did_html_mappings_init')
+endif # ! exists('b:htmlplugin.did_mappings_init')
 
 # ----------------------------------------------------------------------------
 
 # ---- Miscellaneous Mappings: ------------------------------------------ {{{1
 
-g:doing_internal_html_mappings = true
+g:htmlplugin.doing_internal_mappings = true
 
-if ! exists('b:did_html_mappings')
-b:did_html_mappings = true
+if ! exists('b:htmlplugin.did_mappings')
+b:htmlplugin.did_mappings = true
 
 b:HTMLclearMappings = []
 
 # Make it easy to use a ; (or whatever the map leader is) as normal:
-HTML#Map('inoremap', '<lead>' .. g:html_map_leader, g:html_map_leader)
-HTML#Map('vnoremap', '<lead>' .. g:html_map_leader, g:html_map_leader, {'extra': false})
-HTML#Map('nnoremap', '<lead>' .. g:html_map_leader, g:html_map_leader)
+HTML#Map('inoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
+HTML#Map('vnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {'extra': false})
+HTML#Map('nnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
 # Make it easy to insert a & (or whatever the entity leader is):
-HTML#Map('inoremap', '<lead>' .. g:html_map_entity_leader, g:html_map_entity_leader)
+HTML#Map('inoremap', '<lead>' .. g:htmlplugin.map_entity_leader, g:htmlplugin.map_entity_leader)
 
-if ! HTML#BoolVar('g:no_html_tab_mapping')
+if ! HTML#BoolVar('g:htmlplugin.no_tab_mapping')
   # Allow hard tabs to be used:
   HTML#Map('inoremap', '<lead><tab>', '<tab>')
   HTML#Map('nnoremap', '<lead><tab>', '<tab>')
@@ -299,7 +308,7 @@ endif
 # of mappings here instead:
 
 #       SGML Doctype Command
-if HTML#BoolVar('b:do_xhtml_mappings')
+if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
   # Transitional XHTML (Looser):
   HTML#Map('nnoremap', '<lead>4', "<Cmd>vim9cmd append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">')<CR>")
   # Strict XHTML:
@@ -310,16 +319,16 @@ else
   # Strict HTML:
   HTML#Map('nnoremap', '<lead>s4', "<Cmd>vim9cmd append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
 endif
-HTML#Map('imap', '<lead>4', '<C-O>' .. g:html_map_leader .. '4')
-HTML#Map('imap', '<lead>s4', '<C-O>' .. g:html_map_leader .. 's4')
+HTML#Map('imap', '<lead>4', '<C-O>' .. g:htmlplugin.map_leader .. '4')
+HTML#Map('imap', '<lead>s4', '<C-O>' .. g:htmlplugin.map_leader .. 's4')
 
 #       HTML5 Doctype Command           HTML 5
 HTML#Map('nnoremap', '<lead>5', "<Cmd>vim9cmd append(0, '<!DOCTYPE html>')<CR>")
-HTML#Map('imap', '<lead>5', '<C-O>' .. g:html_map_leader .. '5')
+HTML#Map('imap', '<lead>5', '<C-O>' .. g:htmlplugin.map_leader .. '5')
 
 
 #       HTML
-if HTML#BoolVar('b:do_xhtml_mappings')
+if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
   HTML#Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html><ESC>O')
   # Visual mapping:
   HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></html><C-O>`<<html xmlns="http://www.w3.org/1999/xhtml"><CR><ESC>', {'reindent': 1})
@@ -331,8 +340,13 @@ endif
 # Motion mapping:
 HTML#Mapo('<lead>ht')
 
-# The rest of the tag mappings are now defined in a json file to reduce work
-# on defining both the tags and tag menu items, see below.
+if exists('g:htmlplugin.did_menus')
+  # Basically, we get here by having the user open a new HTML file after
+  # already loading one, so the menus don't need to be loaded again, just the
+  # mappings for this buffer:
+  HTML#ReadEntities(false)
+  HTML#ReadTags(false)
+endif
 
 # ----------------------------------------------------------------------------
 
@@ -555,40 +569,41 @@ endif
 
 # ----------------------------------------------------------------------------
 
-endif # ! exists('b:did_html_mappings')
+endif # ! exists('b:htmlplugin.did_mappings')
 
 # ---- ToolBar Buttons: ------------------------------------------------- {{{1
-if ! has('gui_running') && ! HTML#BoolVar('g:force_html_menu')
+if ! has('gui_running') && ! HTML#BoolVar('g:htmlplugin.force_menu')
   augroup HTMLplugin
     au!
     autocmd GUIEnter * ++once {
-        execute 'source ' .. g:html_plugin_file
+        execute 'source ' .. g:htmlplugin.file
       }
   augroup END
 
-  # Bring in the entities and tags mappings, without the menus:
+  # Since the user didn't start the GUI and didn't force menus, bring in the
+  # entities and tags mappings, without the menus:
   HTML#ReadEntities(false)
   HTML#ReadTags(false)
-elseif exists('g:did_html_menus')
+elseif exists('g:htmlplugin.did_menus')
   HTML#MenuControl()
-elseif ! HTML#BoolVar('g:no_html_menu')
+elseif ! HTML#BoolVar('g:htmlplugin.no_menu')
 
 # Solve a race condition:
 if ! exists('g:did_install_default_menus')
   source $VIMRUNTIME/menu.vim
 endif
 
-if ! HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
+if ! HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
 
   if findfile('bitmaps/Browser.bmp', &runtimepath) == ''
     var message = "Warning:\nYou need to install the Toolbar Bitmaps for the "
-      .. g:html_plugin_file->fnamemodify(':t') .. " plugin.\n"
+      .. g:htmlplugin.file->fnamemodify(':t') .. " plugin.\n"
       .. 'See: ' .. HOMEPAGE .. "#files\n"
-      .. 'Or see ":help g:no_html_toolbar".'
+      .. 'Or see ":help g:htmlplugin.no_toolbar".'
     var messagereturn = message->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
 
     if messagereturn == 2
-      help g:no_html_toolbar
+      help g:htmlplugin.no_toolbar
       # Go to the previous window or everything gets messy:
       wincmd p
     elseif messagereturn == 3
@@ -674,18 +689,18 @@ if ! HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
 
   HTML#Menu('tmenu',     '1.130', ['ToolBar', 'Blist'],     'Create Bullet List')
   HTML#Menu('imenu',     '1.130', ['ToolBar', 'Blist'],
-    g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li')
+    g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
   HTML#Menu('vmenu',     '-',     ['ToolBar', 'Blist'], 
-    g:html_map_leader .. 'uli' .. g:html_map_leader .. 'li<ESC>')
+    g:htmlplugin.map_leader .. 'uli' .. g:htmlplugin.map_leader .. 'li<ESC>')
   HTML#Menu('nmenu',     '-',     ['ToolBar', 'Blist'], 
-    'i' .. g:html_map_leader .. 'ul' .. g:html_map_leader .. 'li')
+    'i' .. g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
   HTML#Menu('tmenu',     '1.140', ['ToolBar', 'Nlist'],     'Create Numbered List')
   HTML#Menu('imenu',     '1.140', ['ToolBar', 'Nlist'], 
-    g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li')
+    g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
   HTML#Menu('vmenu',     '-',     ['ToolBar', 'Nlist'], 
-    g:html_map_leader .. 'oli' .. g:html_map_leader .. 'li<ESC>')
+    g:htmlplugin.map_leader .. 'oli' .. g:htmlplugin.map_leader .. 'li<ESC>')
   HTML#Menu('nmenu',     '-',     ['ToolBar', 'Nlist'], 
-    'i' .. g:html_map_leader .. 'ol' .. g:html_map_leader .. 'li')
+    'i' .. g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
   HTML#Menu('tmenu',     '1.150', ['ToolBar', 'Litem'],     'Add List Item')
   HTML#LeadMenu('imenu', '1.150', ['ToolBar', 'Litem'],     'li')
   HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Litem'],     'li', 'i')
@@ -739,57 +754,60 @@ if ! HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
 
   HTML#Menu('menu', '1.500', ['ToolBar', '-sep50-'], '<Nop>')
 
-  if maparg(g:html_map_leader .. 'db', 'n') != ''
+  if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
     HTML#Menu('tmenu', '1.510', ['ToolBar', 'Browser'], 'Launch the Default Browser on the Current File')
     HTML#LeadMenu('amenu', '1.510', ['ToolBar', 'Browser'], 'db')
   endif
 
-  if maparg(g:html_map_leader .. 'ff', 'n') != ''
+  if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
     HTML#Menu('tmenu', '1.520', ['ToolBar', 'Firefox'], 'Launch Firefox on the Current File')
     HTML#LeadMenu('amenu', '1.520', ['ToolBar', 'Firefox'], 'ff')
   endif
 
-  if maparg(g:html_map_leader .. 'gc', 'n') != ''
+  if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
     HTML#Menu('tmenu', '1.530', ['ToolBar', 'Chrome'], 'Launch Chrome on the Current File')
     HTML#LeadMenu('amenu', '1.530', ['ToolBar', 'Chrome'], 'gc')
   endif
 
-  if maparg(g:html_map_leader .. 'ed', 'n') != ''
+  if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
     HTML#Menu('tmenu', '1.540', ['ToolBar', 'Edge'], 'Launch Edge on the Current File')
     HTML#LeadMenu('amenu', '1.540', ['ToolBar', 'Edge'], 'ed')
   endif
 
-  if maparg(g:html_map_leader .. 'oa', 'n') != ''
+  if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
     HTML#Menu('tmenu', '1.550', ['ToolBar', 'Opera'], 'Launch Opera on the Current File')
     HTML#LeadMenu('amenu', '1.550', ['ToolBar', 'Opera'], 'oa')
   endif
 
-  if maparg(g:html_map_leader .. 'sf', 'n') != ''
+  if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
     HTML#Menu('tmenu', '1.560', ['ToolBar', 'Safari'], 'Launch Safari on the Current File')
     HTML#LeadMenu('amenu', '1.560', ['ToolBar', 'Safari'], 'sf')
   endif
 
-  if maparg(g:html_map_leader .. 'w3', 'n') != ''
+  if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
     HTML#Menu('tmenu', '1.570', ['ToolBar', 'w3m'], 'Launch w3m on the Current File')
     HTML#LeadMenu('amenu', '1.570', ['ToolBar', 'w3m'], 'w3')
   endif
 
-  if maparg(g:html_map_leader .. 'ly', 'n') != ''
+  if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
     HTML#Menu('tmenu', '1.580', ['ToolBar', 'Lynx'], 'Launch Lynx on the Current File')
     HTML#LeadMenu('amenu', '1.580', ['ToolBar', 'Lynx'], 'ly')
   endif
 
-  if maparg(g:html_map_leader .. 'ln', 'n') != ''
+  if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
     HTML#Menu('tmenu', '1.580', ['ToolBar', 'Links'], 'Launch Links on the Current File')
     HTML#LeadMenu('amenu', '1.580', ['ToolBar', 'Links'], 'ln')
   endif
 
-  HTML#Menu('menu',      '1.998', ['ToolBar', '-sep99-'], '<Nop>')
-  HTML#Menu('tmenu',     '1.999', ['ToolBar', 'Help'],    'HTML Help')
-  HTML#Menu('anoremenu', '1.999', ['ToolBar', 'Help'],    ':help HTML<CR>')
+  HTML#Menu('menu',      '1.997', ['ToolBar', '-sep99-'], '<Nop>')
+  HTML#Menu('tmenu',     '1.998', ['ToolBar', 'HTMLHelp'], 'HTML Help')
+  HTML#Menu('anoremenu', '1.998', ['ToolBar', 'HTMLHelp'], ':help HTML<CR>')
 
-  g:did_html_toolbar = true
-endif  # ! HTML#BoolVar('g:no_html_toolbar') && has('toolbar')
+  HTML#Menu('tmenu',     '1.999', ['ToolBar', 'Help'], 'Help')
+  HTML#Menu('anoremenu', '1.999', ['ToolBar', 'Help'], ':help<CR>')
+
+  g:htmlplugin.did_toolbar = true
+endif  # ! HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
 # ----------------------------------------------------------------------------
 
 # ---- Menu Items: ------------------------------------------------------ {{{1
@@ -821,77 +839,77 @@ augroup END
 HTML#Menu('amenu', 'auto', ['HTML Help<TAB>:help HTML.txt'],                        ':help HTML.txt<CR>')
 HTML#Menu('menu',  '-',    ['-sep1-'],                                              '<Nop>')
 
-HTML#Menu('amenu', '-', ['Co&ntrol', '&Disable Mappings<tab>:HTML disable'],     ':HTMLmappings disable<CR>')
-HTML#Menu('amenu', '-', ['Co&ntrol', '&Enable Mappings<tab>:HTML enable'],       ':HTMLmappings enable<CR>')
-execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Enable\ Mappings'
-HTML#Menu('menu',  '-', ['Control',  '-sep1-'],                                  '<Nop>')
-HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to &HTML mode<tab>:HTML html'],     ':HTMLmappings html<CR>')
-HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to &XHTML mode<tab>:HTML xhtml'],   ':HTMLmappings xhtml<CR>')
-HTML#Menu('menu',  '-', ['Control',  '-sep2-'],                                  '<Nop>')
-HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to lowercase<tab>:HTML lowercase'], ':HTMLmappings lowercase<CR>')
-HTML#Menu('amenu', '-', ['Co&ntrol', 'Switch to uppercase<tab>:HTML uppercase'], ':HTMLmappings uppercase<CR>')
-HTML#Menu('menu',  '-', ['Control',  '-sep3-'],                                  '<Nop>')
-HTML#Menu('amenu', '-', ['Co&ntrol', '&Reload Mappings<tab>:HTML reload'],       ':HTMLmappings reload<CR>')
+HTML#Menu('amenu', '-',    ['Co&ntrol', '&Disable Mappings<tab>:HTML disable'],     ':HTMLmappings disable<CR>')
+HTML#Menu('amenu', '-',    ['Co&ntrol', '&Enable Mappings<tab>:HTML enable'],       ':HTMLmappings enable<CR>')
+execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Enable\ Mappings'
+HTML#Menu('menu',  '-',    ['Control',  '-sep1-'],                                  '<Nop>')
+HTML#Menu('amenu', '-',    ['Co&ntrol', 'Switch to &HTML mode<tab>:HTML html'],     ':HTMLmappings html<CR>')
+HTML#Menu('amenu', '-',    ['Co&ntrol', 'Switch to &XHTML mode<tab>:HTML xhtml'],   ':HTMLmappings xhtml<CR>')
+HTML#Menu('menu',  '-',    ['Control',  '-sep2-'],                                  '<Nop>')
+HTML#Menu('amenu', '-',    ['Co&ntrol', 'Switch to lowercase<tab>:HTML lowercase'], ':HTMLmappings lowercase<CR>')
+HTML#Menu('amenu', '-',    ['Co&ntrol', 'Switch to uppercase<tab>:HTML uppercase'], ':HTMLmappings uppercase<CR>')
+HTML#Menu('menu',  '-',    ['Control',  '-sep3-'],                                  '<Nop>')
+HTML#Menu('amenu', '-',    ['Co&ntrol', '&Reload Mappings<tab>:HTML reload'],       ':HTMLmappings reload<CR>')
 
-if HTML#BoolVar('b:do_xhtml_mappings')
-  execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ XHTML\ mode'
-  execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
-  execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
+if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
+  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ XHTML\ mode'
+  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
+  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
 else
-  execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ HTML\ mode'
-  if b:html_tag_case =~? '^u\(pper\(case\)\?\)\?'
-    execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
+  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ HTML\ mode'
+  if b:htmlplugin.tag_case =~? '^u\(pper\(case\)\?\)\?'
+    execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
   else
-    execute 'amenu disable ' .. g:html_toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
+    execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
   endif
 endif
 
-if maparg(g:html_map_leader .. 'db', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Default Browser'], 'db')
 endif
-if maparg(g:html_map_leader .. 'ff', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
   HTML#Menu('menu', '-', ['Preview', '-sep1-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Firefox'], 'ff')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Window)'], 'nff')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Tab)'], 'tff')
 endif
-if maparg(g:html_map_leader .. 'gc', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
   HTML#Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Chrome'], 'gc')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Window)'], 'ngc')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Tab)'], 'tgc')
 endif
-if maparg(g:html_map_leader .. 'ed', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
   HTML#Menu('menu', '-', ['Preview', '-sep3-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Edge'], 'ed')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Edge (New Window)'], 'ned')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Edge (New Tab)'], 'ted')
 endif
-if maparg(g:html_map_leader .. 'oa', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
   HTML#Menu('menu', '-', ['Preview', '-sep4-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Opera'], 'oa')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Opera (New Window)'], 'noa')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Opera (New Tab)'], 'toa')
 endif
-if maparg(g:html_map_leader .. 'sf', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
   HTML#Menu('menu', '-', ['Preview', '-sep5-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Safari'], 'sf')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Safari (New Window)'], 'nsf')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Safari (New Tab)'], 'tsf')
 endif
-if maparg(g:html_map_leader .. 'ly', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
   HTML#Menu('menu', '-', ['Preview', '-sep6-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Lynx'], 'ly')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Lynx (New Window)'], 'nly')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Lynx (:terminal)'], 'tly')
 endif
-if maparg(g:html_map_leader .. 'w3', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
   HTML#Menu('menu', '-', ['Preview', '-sep7-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&w3m'], 'w3')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'w3m (New Window)'], 'nw3')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'w3m (:terminal)'], 'tw3')
 endif
-if maparg(g:html_map_leader .. 'ln', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
   HTML#Menu('menu', '-', ['Preview', '-sep8-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Li&nks'], 'ln')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Links (New Window)'], 'nln')
@@ -903,26 +921,39 @@ HTML#ReadTags(true)
 HTML#ReadEntities(true)
 
 # Create the rest of the colors menu:
-COLOR_LIST->mapnew(
-  (_, value) => {
-    HTML#ColorsMenu(value[0], value[1], value[2])
-    return
-  }
-)
+COLOR_LIST->mapnew((_, value) => HTML#ColorsMenu(value[0], value[1], value[2]))
 
-
-g:did_html_menus = true
+g:htmlplugin.did_menus = true
 
 endif
 # ---------------------------------------------------------------------------
 
 # ---- Finalize and Clean Up: ------------------------------------------- {{{1
 
-g:doing_internal_html_mappings = false
+g:htmlplugin.doing_internal_mappings = false
 
 # Try to reduce support requests from users:  {{{
-if ! exists('g:did_html_plugin_warning_check')
-  g:did_html_plugin_warning_check = true
+if !exists('g:htmlplugin.did_old_variable_check') &&
+    (exists('g:html_author_name') || exists('g:html_author_email')
+    || exists('g:html_bgcolor') || exists('g:html_textcolor')
+    || exists('g:html_alinkcolor') || exists('g:html_vlinkcolor')
+    || exists('g:html_tag_case') || exists('g:html_map_leader')
+    || exists('g:html_map_entity_leader') || exists('g:html_default_charset')
+    || exists('g:html_template') || exists('g:no_html_map_override')
+    || exists('g:no_html_maps') || exists('g:no_html_menu')
+    || exists('g:no_html_toolbar') || exists('g:no_html_tab_mapping'))
+  g:htmlplugin.did_old_variable_check = true
+  var message = "You have set one of the old HTML plugin configuration variables.\n"
+  .. "These variables are no longer used in favor of a new dictionary variable.\n\n"
+  .. "Please refer to \":help html-variables\"."
+  if message->confirm("&Help\n&Dismiss", 2, 'Warning') == 1
+    help html-variables
+    # Go to the previous window or everything gets messy:
+    wincmd p
+  endif
+endif
+if ! exists('g:htmlplugin.did_plugin_warning_check')
+  g:htmlplugin.did_plugin_warning_check = true
   var files = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
   if files->len() > 1
     var filesmatched = files->HTML#FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)

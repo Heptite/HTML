@@ -1,3 +1,6 @@
+Fri, 13 Aug 2021 23:23:58 -0600 Christian J. Robinson
+ * MOre bugs were found and squashed. Moved more data to json.
+
 Thu, 12 Aug 2021 19:35:13 -0600 Christian J. Robinson
  * Some bugs crept in during the change over to json. Code improvements.
 

@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 08, 2021
+# Last Change: August 15, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -81,8 +81,8 @@ endif
 
 # Not ideal to do this at the beginning of the script instead of the end, but
 # this script could finish before it reaches the end:
-if !exists('g:html_function_files') | g:html_function_files = [] | endif
-add(g:html_function_files, expand('<sfile>:p'))->sort()->uniq()
+if !exists('g:htmlplugin.function_files') | g:htmlplugin.function_files = [] | endif
+add(g:htmlplugin.function_files, expand('<sfile>:p'))->sort()->uniq()
 
 
 if exists(':HTMLWARN') != 2  # {{{1
@@ -103,8 +103,6 @@ if exists(':HTMLWARN') != 2  # {{{1
     }
 endif  # }}}1
 
-# Allow auto-scoping to work properly for Vim 9,
-# initialize these variables here:
 var Browsers: dict<list<any>>
 var TextmodeBrowsers = ['lynx', 'w3m', 'links']
 var MacBrowsersExist = ['default']
