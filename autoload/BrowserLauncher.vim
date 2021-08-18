@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 15, 2021
+# Last Change: August 16, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -61,7 +61,7 @@ endif
 # Requirements:
 #  * Vim 9 or later
 #
-# Copyright © 2004-2021 Christian J. Robinson <heptite@gmail.com>
+# Copyright © 2004-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -85,7 +85,7 @@ if !exists('g:htmlplugin.function_files') | g:htmlplugin.function_files = [] | e
 add(g:htmlplugin.function_files, expand('<sfile>:p'))->sort()->uniq()
 
 
-if exists(':HTMLWARN') != 2  # {{{1
+if ! exists('g:htmlplugin.did_commands') || ! g:htmlplugin.did_commands   # {{{1
   command! -nargs=+ HTMLWARN {
       echohl WarningMsg
       echomsg <q-args>
@@ -473,7 +473,9 @@ def BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): 
     return false
   endif
 
-  if has('unix') == 1 && $DISPLAY == '' && TextmodeBrowsers->match('^\c\V' .. which .. '\$') < 0 && has('win32unix') == 0
+  if has('unix') == 1 && $DISPLAY == ''
+      && TextmodeBrowsers->match('^\c\V' .. which .. '\$') < 0
+      && has('win32unix') == 0
     if TextmodeBrowsers == []
       HTMLERROR $DISPLAY is not set and no textmode browsers were found, no browser launched.
       return false
@@ -535,7 +537,8 @@ def BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): 
           .. file->shellescape() .. ' ' .. Browsers[which][3]  .. ' &"'
       endif
     elseif donew > 0
-      execute 'HTMLMESG Opening new ' .. Browsers[which][0]->Cap() .. ' window...'
+      execute 'HTMLMESG Opening new ' .. Browsers[which][0]->Cap()
+        .. ' window...'
       if has('win32') || has('win64') || has('win32unix')
         command = 'start ' .. Browsers[which][0] .. ' ' .. file->shellescape()
           .. ' ' .. Browsers[which][4] 

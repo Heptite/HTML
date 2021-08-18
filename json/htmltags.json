@@ -1,22 +1,22 @@
 [
-	{ "menus": {"n": ["-", ["-sep4-"], "<nop>"]} },
+	{"menu": ["-", ["-sep4-"], {"n": ["<nop>"]}]},
 
 	{
-		"menus": {
-			"v": ["-", ["Character &Entities", "Convert to Entity"], "&", ""]
-		}
+		"menu": ["-", ["Character &Entities", "Convert to Entities"], {
+			"v": ["&", ""]
+		}]
 	},
 
 	{
-		"menus": {
-			"v": ["-", ["Character &Entities", "Convert to %XX (URI Encode)"], "%", ""]
-		}
+		"menu": ["-", ["Character &Entities", "Convert to %XX (URI Encode)"], {
+			"v": ["%", ""]
+		}]
 	},
 
 	{
-		"menus": {
-			"v": ["-", ["Character &Entities", "Convert from Entities and URI/%XX"], "^", ""]
-		}
+		"menu": ["-", ["Character &Entities", "Convert from Entities and URI/%XX"], {
+			"v": ["^", ""]
+		}]
 	},
 
 	{
@@ -28,29 +28,27 @@
 			"v": ["", "s<Cmd>ColorChooser<CR>", {"extra": false}]
 		},
 
-		"menus": {
-			"a": ["-", ["&Colors", "Display All && Select"], "", ""]
-		}
+		"menu": ["-", ["&Colors", "Display All && Select"], {
+			"a": ["", ""]
+		}]
 	},
 
-	{ "menus": {"n": ["-", ["Colors", "-sep1-"], "<nop>"]} },
+	{"menu": ["-", ["Colors", "-sep1-"], {"n": ["<nop>"]}]},
 
-	{ "menus": {"n": ["-", ["-sep5-"], "<nop>"]} },
+	{"menu": ["-", ["-sep5-"], {"n": ["<nop>"]}]},
 
 	{
 		"lhs": "bo",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('b', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('b', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('b', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('b', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "&Bold"], "", ""],
-			"v": ["-", ["&Font Styles", "&Bold"], "", ""],
-			"n": ["-", ["&Font Styles", "&Bold"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "&Bold"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"b": {
@@ -71,16 +69,14 @@
 		"lhs": "st",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('strong', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('strong', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('strong', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('strong', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "&Strong"], "", ""],
-			"v": ["-", ["&Font Styles", "&Strong"], "", ""],
-			"n": ["-", ["&Font Styles", "&Strong"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "&Strong"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"strong": {
@@ -101,16 +97,14 @@
 		"lhs": "it",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('i', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('i', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('i', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('i', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "&Italics"], "", ""],
-			"v": ["-", ["&Font Styles", "&Italics"], "", ""],
-			"n": ["-", ["&Font Styles", "&Italics"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "&Italics"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"i": {
@@ -131,16 +125,14 @@
 		"lhs": "em",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('em', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('em', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('em', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('em', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "&Emphasis"], "", ""],
-			"v": ["-", ["&Font Styles", "&Emphasis"], "", ""],
-			"n": ["-", ["&Font Styles", "&Emphasis"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "&Emphasis"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"em": {
@@ -161,16 +153,14 @@
 		"lhs": "un",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('u', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('u', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('u', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('u', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "&Underline"], "", ""],
-			"v": ["-", ["&Font Styles", "&Underline"], "", ""],
-			"n": ["-", ["&Font Styles", "&Underline"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "&Underline"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"u": {
@@ -196,11 +186,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Bi&g"], "", ""],
-			"v": ["-", ["&Font Styles", "Bi&g"], "", ""],
-			"n": ["-", ["&Font Styles", "Bi&g"], "", "i"]
-		}
+		"menu": ["-", ["&Font Styles", "Bi&g"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -212,14 +200,12 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "S&mall"], "", ""],
-			"v": ["-", ["&Font Styles", "S&mall"], "", ""],
-			"n": ["-", ["&Font Styles", "S&mall"], "", "i"]
-		}
+		"menu": ["-", ["&Font Styles", "S&mall"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
-	{ "menus": {"n": ["-", ["Font Styles", "-sep1-"], "<nop>"]} },
+	{"menu": ["-", ["Font Styles", "-sep1-"], {"n": ["<nop>"]}]},
 
 	{
 		"lhs": "fo",
@@ -230,11 +216,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Font Si&ze"], "", ""],
-			"v": ["-", ["&Font Styles", "Font Si&ze"], "", ""],
-			"n": ["-", ["&Font Styles", "Font Si&ze"], "", "i"]
-		}
+		"menu": ["-", ["&Font Styles", "Font Si&ze"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -246,29 +230,25 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Font &Color"], "", ""],
-			"v": ["-", ["&Font Styles", "Font &Color"], "", ""],
-			"n": ["-", ["&Font Styles", "Font &Color"], "", "i"]
-		}
+		"menu": ["-", ["&Font Styles", "Font &Color"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
-	{ "menus": {"n": ["-", ["Font Styles", "-sep2-"], "<nop>"]} },
+	{"menu": ["-", ["Font Styles", "-sep2-"], {"n": ["<nop>"]}]},
 
 	{
 		"lhs": "ci",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('cite', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('cite', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('cite', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('cite', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "CITE"], "", ""],
-			"v": ["-", ["&Font Styles", "CITE"], "", ""],
-			"n": ["-", ["&Font Styles", "CITE"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "CITE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"cite": {
@@ -289,16 +269,14 @@
 		"lhs": "co",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('code', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('code', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('code', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('code', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "CODE"], "", ""],
-			"v": ["-", ["&Font Styles", "CODE"], "", ""],
-			"n": ["-", ["&Font Styles", "CODE"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "CODE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"code": {
@@ -319,16 +297,14 @@
 		"lhs": "in",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('ins', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('ins', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('ins', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('ins', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Inserted Text"], "", ""],
-			"v": ["-", ["&Font Styles", "Inserted Text"], "", ""],
-			"n": ["-", ["&Font Styles", "Inserted Text"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "Inserted Text"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"ins": {
@@ -349,16 +325,14 @@
 		"lhs": "de",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('del', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('del', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('del', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('del', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Deleted Text"], "", ""],
-			"v": ["-", ["&Font Styles", "Deleted Text"], "", ""],
-			"n": ["-", ["&Font Styles", "Deleted Text"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "Deleted Text"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"del": {
@@ -379,16 +353,14 @@
 		"lhs": "kb",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('kbd', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('kbd', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('kbd', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('kbd', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Keyboard Text"], "", ""],
-			"v": ["-", ["&Font Styles", "Keyboard Text"], "", ""],
-			"n": ["-", ["&Font Styles", "Keyboard Text"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "Keyboard Text"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"kbd": {
@@ -409,16 +381,14 @@
 		"lhs": "sa",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('samp', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('samp', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('samp', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('samp', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Sample Text"], "", ""],
-			"v": ["-", ["&Font Styles", "Sample Text"], "", ""],
-			"n": ["-", ["&Font Styles", "Sample Text"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "Sample Text"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"samp": {
@@ -439,16 +409,14 @@
 		"lhs": "sb",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('sub', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('sub', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('sub', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('sub', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Subscript"], "", ""],
-			"v": ["-", ["&Font Styles", "Subscript"], "", ""],
-			"n": ["-", ["&Font Styles", "Subscript"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "Subscript"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"sub": {
@@ -469,16 +437,14 @@
 		"lhs": "sp",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('sup', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('sup', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('sup', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('sup', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Superscript"], "", ""],
-			"v": ["-", ["&Font Styles", "Superscript"], "", ""],
-			"n": ["-", ["&Font Styles", "Superscript"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "Superscript"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"sup": {
@@ -504,27 +470,23 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Teletype Text"], "", ""],
-			"v": ["-", ["&Font Styles", "Teletype Text"], "", ""],
-			"n": ["-", ["&Font Styles", "Teletype Text"], "", "i"]
-		}
+		"menu": ["-", ["&Font Styles", "Teletype Text"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
 		"lhs": "va",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('var', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('var', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('var', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('var', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Font Styles", "Variable"], "", ""],
-			"v": ["-", ["&Font Styles", "Variable"], "", ""],
-			"n": ["-", ["&Font Styles", "Variable"], "", "i"]
-		},
+		"menu": ["-", ["&Font Styles", "Variable"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"var": {
@@ -550,11 +512,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "FORM"], "", ""],
-			"v": ["-", ["F&orms", "FORM"], "", ""],
-			"n": ["-", ["F&orms", "FORM"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "FORM"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -566,11 +526,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "FIELDSET"], "", ""],
-			"v": ["-", ["F&orms", "FIELDSET"], "", ""],
-			"n": ["-", ["F&orms", "FIELDSET"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "FIELDSET"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -582,11 +540,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "BUTTON"], "", ""],
-			"v": ["-", ["F&orms", "BUTTON"], "", ""],
-			"n": ["-", ["F&orms", "BUTTON"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "BUTTON"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -598,11 +554,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "CHECKBOX"], "", ""],
-			"v": ["-", ["F&orms", "CHECKBOX"], "", ""],
-			"n": ["-", ["F&orms", "CHECKBOX"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "CHECKBOX"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -614,11 +568,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "DATALIST"], "", ""],
-			"v": ["-", ["F&orms", "DATALIST"], "", ""],
-			"n": ["-", ["F&orms", "DATALIST"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "DATALIST"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -630,11 +582,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "DATE"], "", ""],
-			"v": ["-", ["F&orms", "DATE"], "", ""],
-			"n": ["-", ["F&orms", "DATE"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "DATE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -646,11 +596,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "RADIO"], "", ""],
-			"v": ["-", ["F&orms", "RADIO"], "", ""],
-			"n": ["-", ["F&orms", "RADIO"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "RADIO"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -662,11 +610,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "RANGE"], "", ""],
-			"v": ["-", ["F&orms", "RANGE"], "", ""],
-			"n": ["-", ["F&orms", "RANGE"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "RANGE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -678,11 +624,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "HIDDEN"], "", ""],
-			"v": ["-", ["F&orms", "HIDDEN"], "", ""],
-			"n": ["-", ["F&orms", "HIDDEN"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "HIDDEN"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -694,11 +638,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "EMAIL"], "", ""],
-			"v": ["-", ["F&orms", "EMAIL"], "", ""],
-			"n": ["-", ["F&orms", "EMAIL"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "EMAIL"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -710,27 +652,23 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "NUMBER"], "", ""],
-			"v": ["-", ["F&orms", "NUMBER"], "", ""],
-			"n": ["-", ["F&orms", "NUMBER"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "NUMBER"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
 		"lhs": "op",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('option', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('option', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('option', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('option', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "OPTION"], "", ""],
-			"v": ["-", ["F&orms", "OPTION"], "", ""],
-			"n": ["-", ["F&orms", "OPTION"], "", "i"]
-		},
+		"menu": ["-", ["F&orms", "OPTION"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"option": {
@@ -756,11 +694,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "OPTGROUP"], "", ""],
-			"v": ["-", ["F&orms", "OPTGROUP"], "", ""],
-			"n": ["-", ["F&orms", "OPTGROUP"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "OPTGROUP"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -772,11 +708,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "OUTPUT"], "", ""],
-			"v": ["-", ["F&orms", "OUTPUT"], "", ""],
-			"n": ["-", ["F&orms", "OUTPUT"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "OUTPUT"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -795,11 +729,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "PASSWORD"], "", ""],
-			"v": ["-", ["F&orms", "PASSWORD"], "", ""],
-			"n": ["-", ["F&orms", "PASSWORD"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "PASSWORD"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -811,11 +743,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "TIME"], "", ""],
-			"v": ["-", ["F&orms", "TIME"], "", ""],
-			"n": ["-", ["F&orms", "TIME"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "TIME"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -827,11 +757,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "TEL"], "", ""],
-			"v": ["-", ["F&orms", "TEL"], "", ""],
-			"n": ["-", ["F&orms", "TEL"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "TEL"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -843,11 +771,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "TEXT"], "", ""],
-			"v": ["-", ["F&orms", "TEXT"], "", ""],
-			"n": ["-", ["F&orms", "TEXT"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "TEXT"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -859,11 +785,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "FILE"], "", ""],
-			"v": ["-", ["F&orms", "FILE"], "", ""],
-			"n": ["-", ["F&orms", "FILE"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "FILE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -875,11 +799,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "SELECT"], "", ""],
-			"v": ["-", ["F&orms", "SELECT"], "", ""],
-			"n": ["-", ["F&orms", "SELECT"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "SELECT"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -891,11 +813,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "SELECT MULTIPLE"], "", ""],
-			"v": ["-", ["F&orms", "SELECT MULTIPLE"], "", ""],
-			"n": ["-", ["F&orms", "SELECT MULTIPLE"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "SELECT MULTIPLE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -907,11 +827,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "TEXTAREA"], "", ""],
-			"v": ["-", ["F&orms", "TEXTAREA"], "", ""],
-			"n": ["-", ["F&orms", "TEXTAREA"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "TEXTAREA"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -923,11 +841,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "URL"], "", ""],
-			"v": ["-", ["F&orms", "URL"], "", ""],
-			"n": ["-", ["F&orms", "URL"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "URL"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 
@@ -938,10 +854,9 @@
 			"i": ["", "<[{INPUT TYPE=\"SUBMIT\" VALUE}]=\"Submit\" />"]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "SUBMIT"], "", ""],
-			"n": ["-", ["F&orms", "SUBMIT"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "SUBMIT"], {
+			"i": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -951,10 +866,9 @@
 			"i": ["", "<[{INPUT TYPE=\"RESET\" VALUE}]=\"Reset\" />"]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "RESET"], "", ""],
-			"n": ["-", ["F&orms", "RESET"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "RESET"], {
+			"i": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -966,11 +880,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["F&orms", "LABEL"], "", ""],
-			"v": ["-", ["F&orms", "LABEL"], "", ""],
-			"n": ["-", ["F&orms", "LABEL"], "", "i"]
-		}
+		"menu": ["-", ["F&orms", "LABEL"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -989,11 +901,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "BODY"], "", ""],
-			"v": ["-", ["&General Tags", "BODY"], "", ""],
-			"n": ["-", ["&General Tags", "BODY"], "", "i"]
-		}
+		"menu": ["-", ["&General Tags", "BODY"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1005,11 +915,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "BUTTON"], "", ""],
-			"v": ["-", ["&General Tags", "BUTTON"], "", ""],
-			"n": ["-", ["&General Tags", "BUTTON"], "", "i"]
-		}
+		"menu": ["-", ["&General Tags", "BUTTON"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1021,11 +929,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "CENTER"], "", ""],
-			"v": ["-", ["&General Tags", "CENTER"], "", ""],
-			"n": ["-", ["&General Tags", "CENTER"], "", "i"]
-		}
+		"menu": ["-", ["&General Tags", "CENTER"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1037,11 +943,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "HEAD"], "", ""],
-			"v": ["-", ["&General Tags", "HEAD"], "", ""],
-			"n": ["-", ["&General Tags", "HEAD"], "", "i"]
-		}
+		"menu": ["-", ["&General Tags", "HEAD"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1051,10 +955,9 @@
 			"i": ["", "<[{HR}] />"]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "Horizontal Rule"], "", ""],
-			"n": ["-", ["&General Tags", "Horizontal Rule"], "", "i"]
-		}
+		"menu": ["-", ["&General Tags", "Horizontal Rule"], {
+			"i": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1064,27 +967,23 @@
 	},
 
 	{
-		"menus": {
-			"i": ["-", ["&General Tags", "HTML"], "ht", ""],
-			"v": ["-", ["&General Tags", "HTML"], "ht", ""],
-			"n": ["-", ["&General Tags", "HTML"], "ht", "i"]
-		}
+		"menu": ["-", ["&General Tags", "HTML"], {
+			"i": ["ht", ""], "v": ["ht", ""], "n": ["ht", "i"]
+		}]
 	},
 
 	{
 		"lhs": "ah",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('a1', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a1', 'v')<CR>", {"insert": true}],
+			"i": ["", "<C-R>=<SID>SmartTag('a1', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('a1', 'v')<CR>", {"insert": true}],
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "Hyperlink"], "", ""],
-			"v": ["-", ["&General Tags", "Hyperlink"], "", ""],
-			"n": ["-", ["&General Tags", "Hyperlink"], "", "i"]
-		},
+		"menu": ["-", ["&General Tags", "Hyperlink"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"a1": {
@@ -1103,8 +1002,8 @@
 
 	{
 		"maps": {
-			"i": ["aH", "<C-R>=HTML#SmartTag('a2', 'i')<CR>"],
-			"v": ["aH", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a2', 'v')<CR>", {"insert": true}],
+			"i": ["aH", "<C-R>=<SID>SmartTag('a2', 'i')<CR>"],
+			"v": ["aH", "<C-c>:execute 'normal! ' .. <SID>SmartTag('a2', 'v')<CR>", {"insert": true}],
 			"o": ["aH", true]
 		},
 
@@ -1125,8 +1024,8 @@
 
 	{
 		"maps": {
-			"i": ["at", "<C-R>=HTML#SmartTag('a3', 'i')<CR>"],
-			"v": ["at", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a3', 'v')<CR>", {"insert": true}],
+			"i": ["at", "<C-R>=<SID>SmartTag('a3', 'i')<CR>"],
+			"v": ["at", "<C-c>:execute 'normal! ' .. <SID>SmartTag('a3', 'v')<CR>", {"insert": true}],
 			"o": ["at", true]
 		},
 
@@ -1147,8 +1046,8 @@
 
 	{
 		"maps": {
-			"i": ["aT", "<C-R>=HTML#SmartTag('a4', 'i')<CR>"],
-			"v": ["aT", "<C-c>:execute 'normal! ' .. HTML#SmartTag('a4', 'v')<CR>", {"insert": true}],
+			"i": ["aT", "<C-R>=<SID>SmartTag('a4', 'i')<CR>"],
+			"v": ["aT", "<C-c>:execute 'normal! ' .. <SID>SmartTag('a4', 'v')<CR>", {"insert": true}],
 			"o": ["aT", true]
 		},
 
@@ -1176,11 +1075,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "Inline Image"], "", ""],
-			"v": ["-", ["&General Tags", "Inline Image"], "", ""],
-			"n": ["-", ["&General Tags", "Inline Image"], "", "i"]
-		}
+		"menu": ["-", ["&General Tags", "Inline Image"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1200,11 +1097,9 @@
 			"v": ["", "<C-c>:vim9cmd MangleImageTag#Update()<CR>", {"extra": false}]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "Update Image Size Attributes"], "", ""],
-			"v": ["-", ["&General Tags", "Update Image Size Attributes"], "", ""],
-			"n": ["-", ["&General Tags", "Update Image Size Attributes"], "", ""]
-		}
+		"menu": ["-", ["&General Tags", "Update Image Size Attributes"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", ""]
+		}]
 	},
 
 	{
@@ -1214,26 +1109,23 @@
 			"i": ["", "<[{BR}] />"]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "Line Break"], "", ""],
-			"n": ["-", ["&General Tags", "Line Break"], "", "i"]
-		}
+		"menu": ["-", ["&General Tags", "Line Break"], {
+			"i": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
 		"lhs": "pp",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('p', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('p', 'v')<CR>", {"reindent": 1}],
+			"i": ["", "<C-R>=<SID>SmartTag('p', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('p', 'v')<CR>", {"reindent": 1}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "Paragraph"], "", ""],
-			"v": ["-", ["&General Tags", "Paragraph"], "", ""],
-			"n": ["-", ["&General Tags", "Paragraph"], "", "i"]
-		},
+		"menu": ["-", ["&General Tags", "Paragraph"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"p": {
@@ -1260,16 +1152,14 @@
 		"lhs": "pr",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('pre', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('pre', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('pre', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('pre', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "Preformatted Text"], "", ""],
-			"v": ["-", ["&General Tags", "Preformatted Text"], "", ""],
-			"n": ["-", ["&General Tags", "Preformatted Text"], "", "i"]
-		},
+		"menu": ["-", ["&General Tags", "Preformatted Text"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"pre": {
@@ -1295,11 +1185,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&General Tags", "TITLE"], "", ""],
-			"v": ["-", ["&General Tags", "TITLE"], "", ""],
-			"n": ["-", ["&General Tags", "TITLE"], "", "i"]
-		}
+		"menu": ["-", ["&General Tags", "TITLE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 
@@ -1313,11 +1201,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Headings", "Heading Level 1"], "", ""],
-			"v": ["-", ["&Headings", "Heading Level 1"], "", ""],
-			"n": ["-", ["&Headings", "Heading Level 1"], "", "i"]
-		}
+		"menu": ["-", ["&Headings", "Heading Level 1"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1337,11 +1223,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Headings", "Heading Level 2"], "", ""],
-			"v": ["-", ["&Headings", "Heading Level 2"], "", ""],
-			"n": ["-", ["&Headings", "Heading Level 2"], "", "i"]
-		}
+		"menu": ["-", ["&Headings", "Heading Level 2"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1361,11 +1245,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Headings", "Heading Level 3"], "", ""],
-			"v": ["-", ["&Headings", "Heading Level 3"], "", ""],
-			"n": ["-", ["&Headings", "Heading Level 3"], "", "i"]
-		}
+		"menu": ["-", ["&Headings", "Heading Level 3"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1385,11 +1267,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Headings", "Heading Level 4"], "", ""],
-			"v": ["-", ["&Headings", "Heading Level 4"], "", ""],
-			"n": ["-", ["&Headings", "Heading Level 4"], "", "i"]
-		}
+		"menu": ["-", ["&Headings", "Heading Level 4"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1409,11 +1289,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Headings", "Heading Level 5"], "", ""],
-			"v": ["-", ["&Headings", "Heading Level 5"], "", ""],
-			"n": ["-", ["&Headings", "Heading Level 5"], "", "i"]
-		}
+		"menu": ["-", ["&Headings", "Heading Level 5"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1433,11 +1311,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Headings", "Heading Level 6"], "", ""],
-			"v": ["-", ["&Headings", "Heading Level 6"], "", ""],
-			"n": ["-", ["&Headings", "Heading Level 6"], "", "i"]
-		}
+		"menu": ["-", ["&Headings", "Heading Level 6"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1457,11 +1333,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Headings", "Heading Grouping"], "", ""],
-			"v": ["-", ["&Headings", "Heading Grouping"], "", ""],
-			"n": ["-", ["&Headings", "Heading Grouping"], "", "i"]
-		}
+		"menu": ["-", ["&Headings", "Heading Grouping"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1473,11 +1347,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&ARTICLE"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&ARTICLE"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&ARTICLE"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&ARTICLE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1489,11 +1361,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "AS&IDE"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "AS&IDE"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "AS&IDE"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "AS&IDE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1505,11 +1375,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "A&udio with controls"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "A&udio with controls"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "A&udio with controls"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "A&udio with controls"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1521,11 +1389,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&Video with controls"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&Video with controls"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&Video with controls"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&Video with controls"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1537,11 +1403,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&CANVAS"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&CANVAS"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&CANVAS"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&CANVAS"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1553,11 +1417,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&DETAILS with SUMMARY"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&DETAILS with SUMMARY"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&DETAILS with SUMMARY"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&DETAILS with SUMMARY"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1569,31 +1431,27 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&EMBED"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&EMBED"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&EMBED"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&EMBED"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
 		"lhs": "fg",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('figure', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('figure', 'v')<CR>", {"reindent": 1}],
+			"i": ["", "<C-R>=<SID>SmartTag('figure', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('figure', 'v')<CR>", {"reindent": 1}],
 			"o": ["", false]
 		},
 
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&FIGURE"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&FIGURE"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&FIGURE"], "", "i"]
-		},
+		"menu": ["-", ["HTML &5 Tags", "&FIGURE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
-			"p": {
+			"figure": {
 				"i": {
 					"o": "<[{FIGURE}]>\\<CR></[{FIGURE}]>\\<Esc>O",
 					"c": "</[{FIGURE}]>\\<CR>\\<CR><[{FIGURE}]>\\<CR>"
@@ -1611,19 +1469,17 @@
 		"lhs": "fp",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('figcaption', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('figcaption', 'v')<CR>", {"reindent": 1}],
+			"i": ["", "<C-R>=<SID>SmartTag('figcaption', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('figcaption', 'v')<CR>", {"reindent": 1}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "F&igure Caption"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "F&igure Caption"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "F&igure Caption"], "", "i"]
-		},
+		"menu": ["-", ["HTML &5 Tags", "F&igure Caption"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
-			"b": {
+			"figcaption": {
 				"i": {
 					"o": "<[{FIGCAPTION></FIGCAPTION}]>\\<C-O>F<",
 					"c": "<[{/FIGCAPTION><FIGCAPTION}]>\\<C-O>F<"
@@ -1646,11 +1502,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&FOOTER"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&FOOTER"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&FOOTER"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&FOOTER"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1662,11 +1516,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&HEADER"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&HEADER"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&HEADER"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&HEADER"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1678,27 +1530,23 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&MAIN"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&MAIN"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&MAIN"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&MAIN"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
 		"lhs": "mk",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('mark', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('mark', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('mark', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('mark', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "MA&RK"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "MA&RK"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "MA&RK"], "", "i"]
-		},
+		"menu": ["-", ["HTML &5 Tags", "MA&RK"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"mark": {
@@ -1724,11 +1572,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "METE&R"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "METE&R"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "METE&R"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "METE&R"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1740,11 +1586,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&NAV"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&NAV"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&NAV"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&NAV"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1756,11 +1600,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&PROGRESS"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&PROGRESS"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&PROGRESS"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&PROGRESS"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1772,11 +1614,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&SECTION"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&SECTION"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&SECTION"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&SECTION"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1788,11 +1628,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&TIME"], "", ""],
-			"v": ["-", ["HTML &5 Tags", "&TIME"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&TIME"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&TIME"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1802,10 +1640,9 @@
 			"i": ["", "<[{WBR}] />"]
 		},
 
-		"menus": {
-			"i": ["-", ["HTML &5 Tags", "&WBR"], "", ""],
-			"n": ["-", ["HTML &5 Tags", "&WBR"], "", "i"]
-		}
+		"menu": ["-", ["HTML &5 Tags", "&WBR"], {
+			"i": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1817,11 +1654,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Lists", "Ordered List"], "", ""],
-			"v": ["-", ["&Lists", "Ordered List"], "", ""],
-			"n": ["-", ["&Lists", "Ordered List"], "", "i"]
-		}
+		"menu": ["-", ["&Lists", "Ordered List"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1833,11 +1668,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Lists", "Unordered List"], "", ""],
-			"v": ["-", ["&Lists", "Unordered List"], "", ""],
-			"n": ["-", ["&Lists", "Unordered List"], "", "i"]
-		}
+		"menu": ["-", ["&Lists", "Unordered List"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1849,14 +1682,12 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Lists", "List Item"], "", ""],
-			"v": ["-", ["&Lists", "List Item"], "", ""],
-			"n": ["-", ["&Lists", "List Item"], "", "i"]
-		}
+		"menu": ["-", ["&Lists", "List Item"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
-	{ "menus": {"n": ["-", ["Lists", "-sep1-"], "<nop>"]} },
+	{"menu": ["-", ["Lists", "-sep1-"], {"n": ["<nop>"]}]},
 
 	{
 		"lhs": "dl",
@@ -1867,11 +1698,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Lists", "Definition List"], "", ""],
-			"v": ["-", ["&Lists", "Definition List"], "", ""],
-			"n": ["-", ["&Lists", "Definition List"], "", "i"]
-		}
+		"menu": ["-", ["&Lists", "Definition List"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1883,11 +1712,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Lists", "Definition Term"], "", ""],
-			"v": ["-", ["&Lists", "Definition Term"], "", ""],
-			"n": ["-", ["&Lists", "Definition Term"], "", "i"]
-		}
+		"menu": ["-", ["&Lists", "Definition Term"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1899,11 +1726,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Lists", "Definition Body"], "", ""],
-			"v": ["-", ["&Lists", "Definition Body"], "", ""],
-			"n": ["-", ["&Lists", "Definition Body"], "", "i"]
-		}
+		"menu": ["-", ["&Lists", "Definition Body"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1915,11 +1740,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Abbreviation"], "", ""],
-			"v": ["-", ["&More Tags", "Abbreviation"], "", ""],
-			"n": ["-", ["&More Tags", "Abbreviation"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "Abbreviation"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1939,11 +1762,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "ADDRESS"], "", ""],
-			"v": ["-", ["&More Tags", "ADDRESS"], "", ""],
-			"n": ["-", ["&More Tags", "ADDRESS"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "ADDRESS"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1955,11 +1776,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "BASE HREF"], "", ""],
-			"v": ["-", ["&More Tags", "BASE HREF"], "", ""],
-			"n": ["-", ["&More Tags", "BASE HREF"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "BASE HREF"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -1971,27 +1790,23 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "BASE TARGET"], "", ""],
-			"v": ["-", ["&More Tags", "BASE TARGET"], "", ""],
-			"n": ["-", ["&More Tags", "BASE TARGET"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "BASE TARGET"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
 		"lhs": "bl",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('blockquote', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('blockquote', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('blockquote', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('blockquote', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "BLOCKQUTE"], "", ""],
-			"v": ["-", ["&More Tags", "BLOCKQUTE"], "", ""],
-			"n": ["-", ["&More Tags", "BLOCKQUTE"], "", "i"]
-		},
+		"menu": ["-", ["&More Tags", "BLOCKQUTE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"blockquote": {
@@ -2012,16 +1827,14 @@
 		"lhs": "cm",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('comment', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('comment', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('comment', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('comment', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Comment"], "", ""],
-			"v": ["-", ["&More Tags", "Comment"], "", ""],
-			"n": ["-", ["&More Tags", "Comment"], "", "i"]
-		},
+		"menu": ["-", ["&More Tags", "Comment"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"comment": {
@@ -2042,16 +1855,14 @@
 		"lhs": "df",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('dfn', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('dfn', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('dfn', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('dfn', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Defining Instance"], "", ""],
-			"v": ["-", ["&More Tags", "Defining Instance"], "", ""],
-			"n": ["-", ["&More Tags", "Defining Instance"], "", "i"]
-		},
+		"menu": ["-", ["&More Tags", "Defining Instance"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"dfn": {
@@ -2077,11 +1888,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Document Division"], "", ""],
-			"v": ["-", ["&More Tags", "Document Division"], "", ""],
-			"n": ["-", ["&More Tags", "Document Division"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "Document Division"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2093,11 +1902,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Inline Frame"], "", ""],
-			"v": ["-", ["&More Tags", "Inline Frame"], "", ""],
-			"n": ["-", ["&More Tags", "Inline Frame"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "Inline Frame"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 
@@ -2105,26 +1912,24 @@
 		"lhs": "js",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('script', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('script', 'v')<CR>", {"reindent": 3}],
+			"i": ["", "<C-R>=<SID>SmartTag('script', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('script', 'v')<CR>", {"reindent": 3}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "JavaScript"], "", ""],
-			"v": ["-", ["&More Tags", "JavaScript"], "", ""],
-			"n": ["-", ["&More Tags", "JavaScript"], "", "i"]
-		},
+		"menu": ["-", ["&More Tags", "JavaScript"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"script": {
 				"i": {
-					"o": "\\<C-O>:vim9cmd HTML#TC(false)\\<CR>i<[{SCRIPT TYPE}]=\"text/javascript\">\\<ESC>==o<!--\\<CR>// -->\\<CR></[{SCRIPT}]>\\<ESC>:vim9cmd HTML#TC(true)\\<CR>kko",
-					"c": "\\<C-O>:vim9cmd HTML#TC(false)\\<CR>i// -->\\<CR></[{SCRIPT}]>\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<C-O>:vim9cmd HTML#TC(true)\\<CR>"
+					"o": "\\<C-O>:vim9cmd <SID>TC(false)\\<CR>i<[{SCRIPT TYPE}]=\"text/javascript\">\\<ESC>==o<!--\\<CR>// -->\\<CR></[{SCRIPT}]>\\<ESC>:vim9cmd <SID>TC(true)\\<CR>kko",
+					"c": "\\<C-O>:vim9cmd <SID>TC(false)\\<CR>i// -->\\<CR></[{SCRIPT}]>\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<C-O>:vim9cmd <SID>TC(true)\\<CR>"
 				},
 				"v": {
-					"o": ":vim9cmd HTML#TC(false)\\<CR>`>a\\<CR>// -->\\<CR></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<ESC>:vim9cmd HTML#TC(true)\\<CR>",
-					"c": ":vim9cmd HTML#TC(false)\\<CR>`>a\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<C-O>`<// -->\\<CR></[{SCRIPT}]>\\<CR>\\<ESC>:vim9cmd HTML#TC(true)\\<CR>",
+					"o": ":vim9cmd <SID>TC(false)\\<CR>`>a\\<CR>// -->\\<CR></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<ESC>:vim9cmd <SID>TC(true)\\<CR>",
+					"c": ":vim9cmd <SID>TC(false)\\<CR>`>a\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<C-O>`<// -->\\<CR></[{SCRIPT}]>\\<CR>\\<ESC>:vim9cmd <SID>TC(true)\\<CR>",
 					"insert": false
 				}
 			}
@@ -2135,16 +1940,14 @@
 		"lhs": "sj",
 
 		"maps": {
-			"i": ["", "<[{SCRIPT SRC}]=\"\" [{TYPE}]=\"text/javascript\"></[{SCRIPT}]><C-O>3F\"')"],
+			"i": ["", "<[{SCRIPT SRC}]=\"\" [{TYPE}]=\"text/javascript\"></[{SCRIPT}]><C-O>3F\""],
 			"v": ["", "<ESC>`>a\" [{TYPE}]=\"text/javascript\"></[{SCRIPT}]><C-O>`<<[{SCRIPT SRC}]=\"<C-O>`><C-O>f<", {"insert": true}],
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Sourced JavaScript"], "", ""],
-			"v": ["-", ["&More Tags", "Sourced JavaScript"], "", ""],
-			"n": ["-", ["&More Tags", "Sourced JavaScript"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "Sourced JavaScript"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2156,11 +1959,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "LINK HREF"], "", ""],
-			"v": ["-", ["&More Tags", "LINK HREF"], "", ""],
-			"n": ["-", ["&More Tags", "LINK HREF"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "LINK HREF"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2172,11 +1973,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "META"], "", ""],
-			"v": ["-", ["&More Tags", "META"], "", ""],
-			"n": ["-", ["&More Tags", "META"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "META"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2196,11 +1995,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "META HTTP-EQUIV"], "", ""],
-			"v": ["-", ["&More Tags", "META HTTP-EQUIV"], "", ""],
-			"n": ["-", ["&More Tags", "META HTTP-EQUIV"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "META HTTP-EQUIV"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2212,11 +2009,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "NOSCRIPT"], "", ""],
-			"v": ["-", ["&More Tags", "NOSCRIPT"], "", ""],
-			"n": ["-", ["&More Tags", "NOSCRIPT"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "NOSCRIPT"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2228,11 +2023,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Generic Embedded Object"], "", ""],
-			"v": ["-", ["&More Tags", "Generic Embedded Object"], "", ""],
-			"n": ["-", ["&More Tags", "Generic Embedded Object"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "Generic Embedded Object"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2244,27 +2037,23 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Object Parameter"], "", ""],
-			"v": ["-", ["&More Tags", "Object Parameter"], "", ""],
-			"n": ["-", ["&More Tags", "Object Parameter"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "Object Parameter"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
 		"lhs": "qu",
 
 		"maps": {
-			"i": ["", "<C-R>=HTML#SmartTag('q', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. HTML#SmartTag('q', 'v')<CR>", {}],
+			"i": ["", "<C-R>=<SID>SmartTag('q', 'i')<CR>"],
+			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('q', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Quoted Text"], "", ""],
-			"v": ["-", ["&More Tags", "Quoted Text"], "", ""],
-			"n": ["-", ["&More Tags", "Quoted Text"], "", "i"]
-		},
+		"menu": ["-", ["&More Tags", "Quoted Text"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
 
 		"smarttag": {
 			"q": {
@@ -2290,11 +2079,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "SPAN with CLASS"], "", ""],
-			"v": ["-", ["&More Tags", "SPAN with CLASS"], "", ""],
-			"n": ["-", ["&More Tags", "SPAN with CLASS"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "SPAN with CLASS"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2306,11 +2093,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "SPAN with STYLE"], "", ""],
-			"v": ["-", ["&More Tags", "SPAN with STYLE"], "", ""],
-			"n": ["-", ["&More Tags", "SPAN with STYLE"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "SPAN with STYLE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2322,11 +2107,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "STYLE (Internal CSS)"], "", ""],
-			"v": ["-", ["&More Tags", "STYLE (Internal CSS)"], "", ""],
-			"n": ["-", ["&More Tags", "STYLE (Internal CSS)"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "STYLE (Internal CSS)"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2338,11 +2121,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&More Tags", "Linked CSS"], "", ""],
-			"v": ["-", ["&More Tags", "Linked CSS"], "", ""],
-			"n": ["-", ["&More Tags", "Linked CSS"], "", "i"]
-		}
+		"menu": ["-", ["&More Tags", "Linked CSS"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2354,11 +2135,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&SSI Directives", "&config timefmt"], "", ""],
-			"v": ["-", ["&SSI Directives", "&config timefmt"], "", ""],
-			"n": ["-", ["&SSI Directives", "&config timefmt"], "", "i"]
-		}
+		"menu": ["-", ["&SSI Directives", "&config timefmt"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2370,11 +2149,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&SSI Directives", "config sizef&mt"], "", ""],
-			"v": ["-", ["&SSI Directives", "config sizef&mt"], "", ""],
-			"n": ["-", ["&SSI Directives", "config sizef&mt"], "", "i"]
-		}
+		"menu": ["-", ["&SSI Directives", "config sizef&mt"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2386,11 +2163,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&SSI Directives", "&echo var"], "", ""],
-			"v": ["-", ["&SSI Directives", "&echo var"], "", ""],
-			"n": ["-", ["&SSI Directives", "&echo var"], "", "i"]
-		}
+		"menu": ["-", ["&SSI Directives", "&echo var"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2402,11 +2177,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&SSI Directives", "&include virtual"], "", ""],
-			"v": ["-", ["&SSI Directives", "&include virtual"], "", ""],
-			"n": ["-", ["&SSI Directives", "&include virtual"], "", "i"]
-		}
+		"menu": ["-", ["&SSI Directives", "&include virtual"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2418,11 +2191,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&SSI Directives", "&flastmod virtual"], "", ""],
-			"v": ["-", ["&SSI Directives", "&flastmod virtual"], "", ""],
-			"n": ["-", ["&SSI Directives", "&flastmod virtual"], "", "i"]
-		}
+		"menu": ["-", ["&SSI Directives", "&flastmod virtual"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2434,11 +2205,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&SSI Directives", "fsi&ze virtual"], "", ""],
-			"v": ["-", ["&SSI Directives", "fsi&ze virtual"], "", ""],
-			"n": ["-", ["&SSI Directives", "fsi&ze virtual"], "", "i"]
-		}
+		"menu": ["-", ["&SSI Directives", "fsi&ze virtual"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2450,11 +2219,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&SSI Directives", "e&xec cmd"], "", ""],
-			"v": ["-", ["&SSI Directives", "e&xec cmd"], "", ""],
-			"n": ["-", ["&SSI Directives", "e&xec cmd"], "", "i"]
-		}
+		"menu": ["-", ["&SSI Directives", "e&xec cmd"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2466,11 +2233,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&SSI Directives", "&set var"], "", ""],
-			"v": ["-", ["&SSI Directives", "&set var"], "", ""],
-			"n": ["-", ["&SSI Directives", "&set var"], "", "i"]
-		}
+		"menu": ["-", ["&SSI Directives", "&set var"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2482,11 +2247,9 @@
 			"o": ["", true]
 		},
 
-		"menus": {
-			"i": ["-", ["&SSI Directives", "if then e&lse"], "", ""],
-			"v": ["-", ["&SSI Directives", "if then e&lse"], "", ""],
-			"n": ["-", ["&SSI Directives", "if then e&lse"], "", "i"]
-		}
+		"menu": ["-", ["&SSI Directives", "if then e&lse"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2496,9 +2259,9 @@
 			"n": ["", ":vim9cmd HTML#GenerateTable()<CR>"]
 		},
 
-		"menus": {
-			"n": ["-", ["&Tables", "Interactive Table"], "", ""]
-		}
+		"menu": ["-", ["&Tables", "Interactive Table"], {
+			"n": ["", ""]
+		}]
 	},
 
 	{
@@ -2510,11 +2273,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Tables", "TABLE"], "", ""],
-			"v": ["-", ["&Tables", "TABLE"], "", ""],
-			"n": ["-", ["&Tables", "TABLE"], "", "i"]
-		}
+		"menu": ["-", ["&Tables", "TABLE"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2526,11 +2287,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Tables", "Header Row"], "", ""],
-			"v": ["-", ["&Tables", "Header Row"], "", ""],
-			"n": ["-", ["&Tables", "Header Row"], "", "i"]
-		}
+		"menu": ["-", ["&Tables", "Header Row"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2542,11 +2301,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Tables", "Table Body"], "", ""],
-			"v": ["-", ["&Tables", "Table Body"], "", ""],
-			"n": ["-", ["&Tables", "Table Body"], "", "i"]
-		}
+		"menu": ["-", ["&Tables", "Table Body"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2558,11 +2315,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Tables", "Row"], "", ""],
-			"v": ["-", ["&Tables", "Row"], "", ""],
-			"n": ["-", ["&Tables", "Row"], "", "i"]
-		}
+		"menu": ["-", ["&Tables", "Row"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2574,11 +2329,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Tables", "Footer Row"], "", ""],
-			"v": ["-", ["&Tables", "Footer Row"], "", ""],
-			"n": ["-", ["&Tables", "Footer Row"], "", "i"]
-		}
+		"menu": ["-", ["&Tables", "Footer Row"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2590,11 +2343,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Tables", "Column Header"], "", ""],
-			"v": ["-", ["&Tables", "Column Header"], "", ""],
-			"n": ["-", ["&Tables", "Column Header"], "", "i"]
-		}
+		"menu": ["-", ["&Tables", "Column Header"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2606,11 +2357,9 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Tables", "Data (Column Element)"], "", ""],
-			"v": ["-", ["&Tables", "Data (Column Element)"], "", ""],
-			"n": ["-", ["&Tables", "Data (Column Element)"], "", "i"]
-		}
+		"menu": ["-", ["&Tables", "Data (Column Element)"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
 	{
@@ -2622,14 +2371,12 @@
 			"o": ["", false]
 		},
 
-		"menus": {
-			"i": ["-", ["&Tables", "CAPTION"], "", ""],
-			"v": ["-", ["&Tables", "CAPTION"], "", ""],
-			"n": ["-", ["&Tables", "CAPTION"], "", "i"]
-		}
+		"menu": ["-", ["&Tables", "CAPTION"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
 	},
 
-	{ "menus": {"n": ["-", ["-sep6-"], "<nop>"]} },
+	{"menu": ["-", ["-sep6-"], {"n": ["<nop>"]}]},
 
 	{
 		"lhs": "html",
@@ -2638,16 +2385,16 @@
 			"n": ["", "<Cmd>vim9cmd if HTML#Template() \\| startinsert \\| endif<CR>"]
 		},
 
-		"menus": {
-			"a": ["-", ["Template"], "", ""]
-		}
+		"menu": ["-", ["Template"], {
+			"a": ["", ""]
+		}]
 	},
 
-	{ "menus": {"n": ["-", ["Doctype (4.01 transitional)"], "4", ""] } },
+	{"menu": ["-", ["Doctype (4.01 transitional)"], {"n": ["4", ""]}]},
 
-	{ "menus": {"n": ["-", ["Doctype (4.01 strict)"], "s4", ""] } },
+	{"menu": ["-", ["Doctype (4.01 strict)"], {"n": ["s4", ""]}]},
 
-	{ "menus": {"n": ["-", ["Doctype (HTML 5)"], "5", ""] } },
+	{"menu": ["-", ["Doctype (HTML 5)"], {"n": ["5", ""]}]},
 
 	{
 		"lhs": "ct",
@@ -2656,9 +2403,8 @@
 			"i": ["", "<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=<C-R>=HTML#DetectCharset()<CR>\" />"]
 		},
 
-		"menus": {
-			"i": ["-", ["Content-Type"], "", ""],
-			"n": ["-", ["Content-Type"], "", "i"]
-		}
+		"menu": ["-", ["Content-Type"], {
+			"i": ["", ""], "n": ["", "i"]
+		}]
 	}
 ]

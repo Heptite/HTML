@@ -7,12 +7,12 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: August 15, 2021
+# Last Change: August 17, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 1998-2021 Christian J. Robinson <heptite@gmail.com>
+# Copyright © 2004-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -29,7 +29,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-if exists(':HTMLWARN') != 2  # {{{1
+if ! exists('g:htmlplugin.did_commands') || ! g:htmlplugin.did_commands   # {{{1
   command! -nargs=+ HTMLWARN {
       echohl WarningMsg
       echomsg <q-args>
@@ -49,13 +49,15 @@ endif  # }}}1
 
 import * as HTML from "../import/HTML.vim"
 
-# Can't be imported because then it would have a prefix:
-const off = 'off'
-const on = 'on'
-
 # Used in a bunch of places so some functions don't have to be globally
 # exposed:
 const _this = expand('<SID>')
+
+# Can't be imported because then it would have a prefix:
+const off = 'off'
+const on = 'on'
+#const yes = 'yes'
+#const no = 'no'
 
 # HTML#About()  {{{1
 #
@@ -67,10 +69,9 @@ const _this = expand('<SID>')
 #  None
 def HTML#About(): void
   var message = "HTML/XHTML Editing Macros and Menus Plugin\n"
-    .. "Version: " .. (HTML.VERSION) .. "\n"
-    .. "Written by: " .. (HTML.AUTHOR) .. "\n"
-    .. (HTML.COPYRIGHT) .. "\n"
-    .. "URL: " .. (HTML.HOMEPAGE)
+    .. "Version: " .. (HTML.VERSION) .. "\n" .. "Written by: "
+    .. (HTML.AUTHOR) .. ' <' .. (HTML.EMAIL) .. ">\n"
+    .. (HTML.COPYRIGHT) .. "\n" .. "URL: " .. (HTML.HOMEPAGE)
 
   if message->confirm("&Visit Homepage\n&Dismiss", 2, 'Info') == 1
     BrowserLauncher#Launch('default', 0, HTML.HOMEPAGE)
@@ -103,7 +104,8 @@ def HTML#SetIfUnset(variable: string, ...args: list<any>): number
   if args->len() == 0
     execute 'HTMLERROR E119: Not enough arguments for ' .. expand('<sfile>')
     return -1
-  elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict || type(args[0]) == v:t_number
+  elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict
+      || type(args[0]) == v:t_number
     val = args[0]
   else
     val = args->join(' ')
@@ -362,28 +364,32 @@ enddef
 #  Boolean: Whether a mapping was defined
 
 def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
-  if exists('g:htmlplugin.map_leader') == 0 && map =~? '^<lead>'
+  if !exists('g:htmlplugin.map_leader') && map =~? '^<lead>'
     HTMLERROR g:htmlplugin.map_leader is not set! No mapping defined.
     return false
   endif
 
-  if exists('g:htmlplugin.map_entity_leader') == 0 && map =~? '^<elead>'
+  if !exists('g:htmlplugin.map_entity_leader') && map =~? '^<elead>'
     HTMLERROR g:htmlplugin.map_entity_leader is not set! No mapping defined.
     return false
   endif
 
-  if map == ''
+  if map == '' || map ==? "<lead>" || map ==? "<elead>"
     HTMLERROR lhs must be non-empty! No mapping defined.
+    execute 'HTMLERROR ' .. expand('<sfile>')
+      .. ' must have a non-empty lhs. No mapping defined.'
     return false
   endif
 
   if arg == ''
-    HTMLERROR rhs must be non-empty! No mapping defined.
+    execute 'HTMLERROR ' .. expand('<sfile>')
+      .. ' must have a non-empty rhs. No mapping defined.'
     return false
   endif
 
   if cmd =~# '^no' || cmd =~# '^map$'
-    execute 'HTMLERROR ' .. expand('<sfile>') .. ' must have one of the modes explicitly stated. No mapping defined.'
+    execute 'HTMLERROR ' .. expand('<sfile>')
+      .. ' must have one of the modes explicitly stated. No mapping defined.'
     return false
   endif
 
@@ -416,7 +422,7 @@ def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
       execute cmd .. ' <buffer> <silent> ' .. newmap
         .. ' <C-c>:vim9cmd ' .. _this .. 'TO(false)<CR><C-O>gv' .. newarg
         .. "<C-O>:vim9cmd " .. _this
-        .. "TO(true)<CR><C-O>m'<C-O>:vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. "TO(true)<CR><C-O>m'<C-O>:vim9cmd " .. _this .. "ReIndent(line(\"'<\"), line(\"'>\"), "
         .. opts['reindent'] .. ')<CR><C-O>``'
     elseif opts->has_key('insert') && opts['insert']
       execute cmd .. ' <buffer> <silent> ' .. newmap
@@ -426,7 +432,7 @@ def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
       execute cmd .. ' <buffer> <silent> ' .. newmap
         .. ' <C-c>:vim9cmd ' .. _this .. 'TO(false)<CR>gv' .. newarg
         .. ":vim9cmd " .. _this
-        .. "TO(true)<CR>m':vim9cmd HTML#ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. "TO(true)<CR>m':vim9cmd " .. _this .. "ReIndent(line(\"'<\"), line(\"'>\"), "
         .. opts['reindent'] .. ')<CR>``'
     else
       execute cmd .. ' <buffer> <silent> ' .. newmap
@@ -438,15 +444,13 @@ def HTML#Map(cmd: string, map: string, arg: string, opts: dict<any> = {}): bool
   endif
 
   if HTML.MODES->has_key(mode)
-    add(b:HTMLclearMappings, ':' .. mode .. 'unmap <buffer> ' .. newmap)
+    add(b:htmlplugin.clear_mappings, ':' .. mode .. 'unmap <buffer> ' .. newmap)
   else
-    add(b:HTMLclearMappings, ':unmap <buffer> ' .. newmap)
+    add(b:htmlplugin.clear_mappings, ':unmap <buffer> ' .. newmap)
   endif
 
   # Save extra mappings so they can be restored if we need to later:
-  ExtraMappingsAdd(':vim9cmd HTML#Map("' .. cmd .. '", "' .. map->escape('"\')
-    .. '", "' .. arg->escape('"\') .. '"'
-    .. (opts != {} ? ', ' .. string(opts) : '') .. ')')
+  maparg(newmap, mode, false, true)->ExtraMappingsAdd(mode)
 
   return true
 enddef
@@ -463,19 +467,21 @@ enddef
 # Return Value:
 #  Boolean: Whether a mapping was defined
 def HTML#Mapo(map: string, insert: bool = false): bool
-  if exists('g:htmlplugin.map_leader') == 0 && map =~? '^<lead>'
+  if !exists('g:htmlplugin.map_leader') && map =~? '^<lead>'
     HTMLERROR g:htmlplugin.map_leader is not set! No mapping defined.
     return false
   endif
 
-  if map == ''
-    HTMLERROR lhs must be non-empty! No mapping defined.
+  if map == '' || map ==? "<lead>"
+    execute 'HTMLERROR ' .. expand('<sfile>')
+      .. ' must have a non-empty lhs. No mapping defined.'
     return false
   endif
 
   var newmap = map->substitute('^<lead>', g:htmlplugin.map_leader, '')
 
   if newmap->MapCheck('o') >= 2
+    # MapCheck() will echo the necessary message, so just return here
     return false
   endif
 
@@ -484,9 +490,8 @@ def HTML#Mapo(map: string, insert: bool = false): bool
     .. ':vim9cmd b:htmltaginsert = ' .. insert .. "<CR>"
     .. ':vim9cmd &operatorfunc = "' .. _this .. 'WR"<CR>g@'
 
-  add(b:HTMLclearMappings, ':nunmap <buffer> ' .. newmap)
-  ExtraMappingsAdd(':vim9cmd HTML#Mapo("' .. map->escape('"\')
-    .. '", ' .. insert .. ')')
+  add(b:htmlplugin.clear_mappings, ':nunmap <buffer> ' .. newmap)
+  maparg(newmap, 'n', false, true)->ExtraMappingsAdd('o')
 
   return true
 enddef
@@ -507,15 +512,17 @@ enddef
 #
 # (Note that suppression only works for the internal mappings.)
 def MapCheck(map: string, mode: string): number
-  if g:htmlplugin.doing_internal_mappings &&
+  if b:htmlplugin.doing_internal_mappings &&
         ( (exists('g:htmlplugin.no_maps') && map =~# g:htmlplugin.no_maps) ||
           (exists('b:htmlplugin.no_maps') && map =~# b:htmlplugin.no_maps) )
     return 3
   elseif HTML.MODES->has_key(mode) && map->maparg(mode) != ''
-    if HTML#BoolVar('g:htmlplugin.no_map_override') && g:htmlplugin.doing_internal_mappings
+    if HTML#BoolVar('g:htmlplugin.no_map_override')
+        && b:htmlplugin.doing_internal_mappings
       return 2
     else
-      execute 'HTMLWARN WARNING: A mapping to "' .. map .. '" for ' .. HTML.MODES[mode] .. ' mode has been overridden for this buffer.'
+      execute 'HTMLWARN WARNING: A mapping to "' .. map .. '" for '
+        .. HTML.MODES[mode] .. ' mode has been overridden for this buffer.'
       return 1
     endif
   endif
@@ -568,10 +575,10 @@ enddef
 #
 # Arguments:
 #  1 - String: The command necessary to re-define the mapping.
-def ExtraMappingsAdd(arg: string)
-  if ! g:htmlplugin.doing_internal_mappings && ! doing_extra_html_mappings
+def ExtraMappingsAdd(arg: dict<any>, mode: string)
+  if ! b:htmlplugin.doing_internal_mappings
     HTML#SetIfUnset('b:htmlplugin.extra_mappings', '[]')
-    add(b:htmlplugin.extra_mappings, arg)
+    add(b:htmlplugin.extra_mappings, [arg, mode])
   endif
 enddef
 
@@ -586,7 +593,8 @@ enddef
 #               true  - Turn options back on, if they were on before.
 def TO(which: bool)
   if which
-    if HTML.saveopts->has_key('formatoptions') && HTML.saveopts['formatoptions'] != ''
+    if HTML.saveopts->has_key('formatoptions')
+        && HTML.saveopts['formatoptions'] != ''
       &l:showmatch = HTML.saveopts['showmatch']
       &l:indentexpr = HTML.saveopts['indentexpr']
       &l:formatoptions = HTML.saveopts['formatoptions']
@@ -617,7 +625,7 @@ def TO(which: bool)
   endif
 enddef
 
-# HTML#TC()  {{{1
+# TC()  {{{1
 #
 # Used to make sure the 'comments' option is off temporarily to prevent
 # certain mappings from inserting unwanted comment leaders.
@@ -625,7 +633,7 @@ enddef
 # Arguments:
 #  1 - Boolean: false - Clear option
 #               true  - Restore option
-def HTML#TC(s: bool)
+def TC(s: bool)
   if s
     if HTML.saveopts->has_key('comments') && HTML.saveopts['comments'] != ''
       &l:comments = HTML.saveopts['comments']
@@ -648,12 +656,13 @@ enddef
 #               1 - Add 'html'.
 #               2 - Auto detect which to do. (Default)
 #
-# (Note that g:htmlplugin.save_clipboard is set by this plugin's initialization.)
+# (Note that g:htmlplugin.save_clipboard is set by this plugin's
+# initialization.)
 def HTML#ToggleClipboard(dowhat: number = 2): bool
   var newdowhat = dowhat
 
   if newdowhat == 2
-    if exists('b:htmlplugin.did_mappings')
+    if HTML#BoolVar('b:htmlplugin.did_mappings')
       newdowhat = 1
     else
       newdowhat = 0
@@ -661,7 +670,7 @@ def HTML#ToggleClipboard(dowhat: number = 2): bool
   endif
 
   if newdowhat == 0
-    if exists('g:htmlplugin.save_clipboard') != 0
+    if exists('g:htmlplugin.save_clipboard')
       &clipboard = g:htmlplugin.save_clipboard
     else
       HTMLERROR Somehow the htmlplugin.save_clipboard global variable did not get set.
@@ -720,7 +729,8 @@ def HTML#ConvertCase(str: any): any
   elseif b:htmlplugin.tag_case =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
     newnewstr = newstr->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g'))
   else
-    execute 'HTMLWARN WARNING: b:htmlplugin.tag_case = "' .. b:htmlplugin.tag_case .. '" invalid, overriding to "lowercase".'
+    execute 'HTMLWARN WARNING: b:htmlplugin.tag_case = "'
+      .. b:htmlplugin.tag_case .. '" invalid, overriding to "lowercase".'
     b:htmlplugin.tag_case = 'lowercase'
     newstr = newstr->HTML#ConvertCase()
   endif
@@ -732,7 +742,7 @@ def HTML#ConvertCase(str: any): any
   endif
 enddef
 
-# HTML#ReIndent()  {{{1
+# ReIndent()  {{{1
 #
 # Re-indent a region.  (Usually called by HTML#Map.)
 #  Nothing happens if filetype indenting isn't enabled and 'indentexpr' is
@@ -747,7 +757,7 @@ enddef
 #               adding to those in the function call can have wrong results.)
 # Return Value:
 #  Boolean - True if lines were reindented, false otherwise.
-def HTML#ReIndent(first: number, last: number, extralines: number = 0, prelines: number = 0): bool
+def ReIndent(first: number, last: number, extralines: number = 0, prelines: number = 0): bool
 
   def GetFiletypeInfo(): dict<string>  # {{{2
     var filetypeoutput: dict<string>
@@ -846,7 +856,7 @@ def HTML#NextInsertPoint(mode: string = 'n', direction: string = 'f'): bool
   return '<\_[^<>]\{-}\(["'']\)\zs\1\_[^<>]*>\|<\([^ <>]\+\)\_[^<>]*>\_s\{-}\zs\n\?\s\{-}<\/\2>\|<!--\_s\{-}\zs\_s\?-->'->search('w' .. (direction =~? '^b' ? 'b' : '')) > 0
 enddef
 
-# HTML#SmartTag()  {{{1
+# SmartTag()  {{{1
 #
 # Causes certain tags (such as bold, italic, underline) to be closed then
 # opened rather than opened then closed where appropriate, if syntax
@@ -860,7 +870,7 @@ enddef
 # Return Value:
 #  The string to be executed to insert the tag.
 
-def HTML#SmartTag(tag: string, mode: string): string
+def SmartTag(tag: string, mode: string): string
   var newmode = mode->strpart(0, 1)->tolower()
   var newtag = tag->tolower()
   var which: string
@@ -1046,7 +1056,8 @@ def HTML#GenerateTable(rows: number = -1, columns: number = -1, border: number =
 
   lines->append('.')
 
-  execute ':' .. (line('.') + 1) .. ',' .. (line('.') + lines->len()) .. 'normal! =='
+  execute ':' .. (line('.') + 1) .. ',' .. (line('.') + lines->len())
+    .. 'normal! =='
 
   setcharpos('.', charpos)
 
@@ -1076,7 +1087,6 @@ enddef
 #
 # Note:
 #  This expects g:htmlplugin.file to be set by the HTML plugin.
-var doing_extra_html_mappings = false
 var quiet_errors: bool
 def HTML#MappingsControl(dowhat: string): bool
 
@@ -1090,14 +1100,10 @@ def HTML#MappingsControl(dowhat: string): bool
   # Return Value:
   #  None
   def DoExtraMappings(): void
-    doing_extra_html_mappings = true
-    b:htmlplugin.extra_mappings->mapnew(
-      (_, mapping) => {
-        silent! execute mapping
-        return
-      }
-    )
-    doing_extra_html_mappings = false
+    if !exists('b:htmlplugin.extra_mappings')
+      return
+    endif
+    b:htmlplugin.extra_mappings->mapnew((_, mapping) => mapset(mapping[1], false, mapping[0]))
   enddef
 
   # ClearMappings() {{{2
@@ -1111,17 +1117,17 @@ def HTML#MappingsControl(dowhat: string): bool
   # Return Value:
   #  None
   def ClearMappings(): void
-    b:HTMLclearMappings->mapnew(
+    b:htmlplugin.clear_mappings->mapnew(
       (_, mapping) => {
         silent! execute mapping
         return
       }
     )
-    b:HTMLclearMappings = []
+    b:htmlplugin.clear_mappings = []
     unlet b:htmlplugin.did_mappings
   enddef  # }}}2
 
-  if exists('b:htmlplugin.did_mappings_init') == 0
+  if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
     HTMLERROR The HTML macros plugin was not sourced for this buffer.
     return false
   endif
@@ -1136,9 +1142,9 @@ def HTML#MappingsControl(dowhat: string): bool
   endif
 
   if dowhat =~? '^\%(d\%(isable\)\?\|off\|false\|0\)$'
-    if exists('b:htmlplugin.did_mappings') == 1
+    if HTML#BoolVar('b:htmlplugin.did_mappings')
       ClearMappings()
-      if exists('g:htmlplugin.did_menus') == 1
+      if HTML#BoolVar('g:htmlplugin.did_menus')
         HTML#MenuControl('disable')
       endif
     elseif !quiet_errors
@@ -1146,7 +1152,7 @@ def HTML#MappingsControl(dowhat: string): bool
       return false
     endif
   elseif dowhat =~? '^\%(e\%(nable\)\?\|on\|true\|1\)$'
-    if exists('b:htmlplugin.did_mappings') == 1
+    if HTML#BoolVar('b:htmlplugin.did_mappings')
       HTMLERROR The HTML mappings are already enabled.
     else
       execute 'source ' .. g:htmlplugin.file
@@ -1161,7 +1167,8 @@ def HTML#MappingsControl(dowhat: string): bool
     quiet_errors = true
     HTML#MappingsControl(off)
     b:htmlplugin.did_mappings_init = -1
-    silent! unlet g:htmlplugin.did_menus g:htmlplugin.did_toolbar g:htmlplugin.did_commands
+    silent! unlet g:htmlplugin.did_menus g:htmlplugin.did_toolbar
+    silent! unlet g:htmlplugin.did_commands
     execute 'silent! unmenu ' .. g:htmlplugin.toplevel_menu_escaped
     execute 'silent! unmenu! ' .. g:htmlplugin.toplevel_menu_escaped
     HTML#MappingsControl(on)
@@ -1172,7 +1179,7 @@ def HTML#MappingsControl(dowhat: string): bool
       HTMLERROR Can't switch to uppercase while editing XHTML.
       return false
     endif
-    if exists('b:htmlplugin.did_mappings') != 1
+    if !HTML#BoolVar('b:htmlplugin.did_mappings')
       HTMLERROR The HTML mappings are disabled, changing case is not possible.
       return false
     endif
@@ -1183,7 +1190,7 @@ def HTML#MappingsControl(dowhat: string): bool
     b:htmlplugin.tag_case = 'uppercase'
     HTML#MappingsControl(on)
   elseif dowhat =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
-    if exists('b:htmlplugin.did_mappings') != 1
+    if !HTML#BoolVar('b:htmlplugin.did_mappings')
       HTMLERROR The HTML mappings are disabled, changing case is not possible.
       return false
     endif
@@ -1194,7 +1201,7 @@ def HTML#MappingsControl(dowhat: string): bool
     b:htmlplugin.tag_case = 'lowercase'
     HTML#MappingsControl(on)
   elseif dowhat =~? '^h\%(tml\)\?$'
-    if exists('b:htmlplugin.tag_case_save') == 1
+    if exists('b:htmlplugin.tag_case_save')
       b:htmlplugin.tag_case = b:htmlplugin.tag_case_save
     endif
     b:htmlplugin.do_xhtml_mappings = false
@@ -1231,7 +1238,7 @@ def HTML#MenuControl(which: string = 'detect'): bool
     return false
   endif
 
-  if which == 'disable' || exists('b:htmlplugin.did_mappings') == 0
+  if which == 'disable' || !HTML#BoolVar('b:htmlplugin.did_mappings')
     execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
     execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.*'
     if exists('g:htmlplugin.did_toolbar') == 1
@@ -1249,41 +1256,57 @@ def HTML#MenuControl(which: string = 'detect'): bool
       amenu enable ToolBar.FindPrev
       amenu enable ToolBar.Help
     endif
-    if exists('b:htmlplugin.did_mappings_init') == 1 && exists('b:htmlplugin.did_mappings') == 0
+    if HTML#BoolVar('b:htmlplugin.did_mappings_init')
+        && !HTML#BoolVar('b:htmlplugin.did_mappings')
       execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
-      execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.*'
-      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control'
-      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Enable\ Mappings'
-      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Reload\ Mappings'
+      execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+        .. '.Control.*'
+      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+        .. '.Control'
+      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+        .. '.Control.Enable\ Mappings'
+      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+        .. '.Control.Reload\ Mappings'
     endif
-  elseif which == 'enable' || exists('b:htmlplugin.did_mappings_init') == 1
+  elseif which == 'enable' || HTML#BoolVar('b:htmlplugin.did_mappings_init')
     execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
-    if exists('b:htmlplugin.did_mappings') == 1
+    if HTML#BoolVar('b:htmlplugin.did_mappings')
       execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped .. '.*'
-      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.*'
-      execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Enable\ Mappings'
+      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+        .. '.Control.*'
+      execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+        .. '.Control.Enable\ Mappings'
 
       if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
-        execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ XHTML\ mode'
-        execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ HTML\ mode'
-        execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
-        execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
+        execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+          .. '.Control.Switch\ to\ XHTML\ mode'
+        execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+          .. '.Control.Switch\ to\ HTML\ mode'
+        execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+          .. '.Control.Switch\ to\ uppercase'
+        execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+          .. '.Control.Switch\ to\ lowercase'
       else
-        execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ XHTML\ mode'
-        execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ HTML\ mode'
+        execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+          .. '.Control.Switch\ to\ XHTML\ mode'
+        execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+          .. '.Control.Switch\ to\ HTML\ mode'
 
         if b:htmlplugin.tag_case =~? '^u\%(pper\%(case\)\?\)\?'
-          execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ uppercase'
+          execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+            .. '.Control.Switch\ to\ uppercase'
         else
-          execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Switch\ to\ lowercase'
+          execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+            .. '.Control.Switch\ to\ lowercase'
         endif
       endif
 
-      if exists('g:htmlplugin.did_toolbar') == 1
+      if HTML#BoolVar('g:htmlplugin.did_toolbar')
         amenu enable ToolBar.*
       endif
     else
-      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped .. '.Control.Enable\ Mappings'
+      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+        .. '.Control.Enable\ Mappings'
     endif
   endif
 
@@ -1310,7 +1333,7 @@ enddef
 # Return Value:
 #  None
 def HTML#ColorChooser(how: string = 'i'): void
-  if exists('b:htmlplugin.did_mappings_init') == 0
+  if HTML#BoolVar('b:htmlplugin.did_mappings_init')
     HTMLERROR Not in an HTML buffer.
     return
   endif
@@ -1364,17 +1387,21 @@ def HTML#ColorChooser(how: string = 'i'): void
     elseif key == "\<2-leftmouse>" || key == "\<s-2-leftmouse>"
       if getmousepos()['screencol'] < (popup_getpos(id)['core_col'] - 1) ||
           getmousepos()['screenrow'] < (popup_getpos(id)['core_line']) ||
-          getmousepos()['screencol'] > (popup_getpos(id)['core_col'] + popup_getpos(id)['core_width'] - 1) ||
-          getmousepos()['screenrow'] > (popup_getpos(id)['core_line'] + popup_getpos(id)['core_height'] - 1)
+          getmousepos()['screencol'] > (popup_getpos(id)['core_col']
+            + popup_getpos(id)['core_width'] - 1) ||
+          getmousepos()['screenrow'] > (popup_getpos(id)['core_line']
+            + popup_getpos(id)['core_height'] - 1)
         newkey = key
       else
         if key == "\<s-2-leftmouse>"
           dorgb = true
-        elseif getmousepos()['screencol'] < (popup_getpos(id)['core_col'] + popup_getpos(id)['core_width'] - 9)
+        elseif getmousepos()['screencol'] < (popup_getpos(id)['core_col']
+            + popup_getpos(id)['core_width'] - 9)
           doname = true
         endif
 
-        call popup_close(id, popup_getpos(id)['firstline'] + getmousepos()['winrow'] - 2)
+        call popup_close(id, popup_getpos(id)['firstline']
+          + getmousepos()['winrow'] - 2)
         return true
       endif
     endif
@@ -1558,7 +1585,7 @@ def HTML#Menu(type: string, level: string, name: list<string>, item: string): vo
   if name[0] == 'ToolBar' || name[0] == 'PopUp'
     newname = name
   else
-    newname = name->extend(g:htmlplugin.toplevel_menu, 0)
+    newname = name->extendnew(g:htmlplugin.toplevel_menu, 0)
   endif
 
   nameescaped = newname->HTML#MenuJoin()
@@ -1600,7 +1627,7 @@ def HTML#LeadMenu(type: string, level: string, name: list<string>, item: string,
   if name[0] == 'ToolBar'
     newname = name
   else
-    newname = name->extend(g:htmlplugin.toplevel_menu, 0)
+    newname = name->extendnew(g:htmlplugin.toplevel_menu, 0)
   endif
 
   nameescaped = newname->HTML#MenuJoin()
@@ -1626,11 +1653,11 @@ enddef
 # Return Value:
 #  None
 def HTML#EntityMenu(name: list<string>, item: string, symb: string = ''): void
-  var newname = name->extend(['Character Entities'], 0)
+  var newname = name->extendnew(['Character Entities'], 0)
   var nameescaped: string
 
   if g:htmlplugin.toplevel_menu != []
-    newname = newname->extend(g:htmlplugin.toplevel_menu, 0)
+    newname = newname->extendnew(g:htmlplugin.toplevel_menu, 0)
   endif
 
   nameescaped = newname->HTML#MenuJoin()
@@ -1671,27 +1698,36 @@ enddef
 #  None
 def HTML#ColorsMenu(name: string, color: string, namens: string): void
   var c = name->strpart(0, 1)->toupper()
-  var newname = [name]->extend(['&Colors', '&' .. HTML.COLORS_SORT[c]], 0)
+  var newname = [name]->extendnew(['&Colors', '&' .. HTML.COLORS_SORT[c]], 0)
   var nameescaped: string
   var rgb: string
 
   if g:htmlplugin.toplevel_menu != []
-    newname = newname->extend(g:htmlplugin.toplevel_menu, 0)
+    newname = newname->extendnew(g:htmlplugin.toplevel_menu, 0)
   endif
 
   nameescaped = newname->HTML#MenuJoin()
 
   rgb = color->ToRGB()
 
-  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Name ' .. namens
-  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Name i' .. namens .. '<esc>'
-  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Name s' .. namens .. '<esc>'
-  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Hexadecimal ' .. color
-  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Hexadecimal i' .. color .. '<esc>'
-  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &Hexadecimal s' .. color .. '<esc>'
-  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &RGB ' .. rgb
-  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &RGB i' .. rgb .. '<esc>'
-  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color .. ').Insert\ &RGB s' .. rgb .. '<esc>'
+  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
+    .. ').Insert\ &Name ' .. namens
+  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
+    .. ').Insert\ &Name i' .. namens .. '<esc>'
+  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
+    .. ').Insert\ &Name s' .. namens .. '<esc>'
+  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
+    .. ').Insert\ &Hexadecimal ' .. color
+  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
+    .. ').Insert\ &Hexadecimal i' .. color .. '<esc>'
+  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
+    .. ').Insert\ &Hexadecimal s' .. color .. '<esc>'
+  execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
+    .. ').Insert\ &RGB ' .. rgb
+  execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
+    .. ').Insert\ &RGB i' .. rgb .. '<esc>'
+  execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
+    .. ').Insert\ &RGB s' .. rgb .. '<esc>'
 enddef
 
 # HTML#ReadTags()  {{{1
@@ -1711,119 +1747,133 @@ def HTML#ReadTags(domenu: bool = true, file: string = HTML.TAGS_FILE): bool
   var rval = true
 
   if jsonfile == ''
-    execute 'HTMLERROR ' .. file .. ' is not found in the runtimepath. No entity mappings or menus have been defined.'
+    execute 'HTMLERROR ' .. file .. ' is not found in the runtimepath. No tag mappings or menus have been defined.'
     return false
   elseif ! jsonfile->filereadable()
-    execute 'HTMLERROR ' .. jsonfile .. ' is not readable. No entity mappings or menus have been defined.'
+    execute 'HTMLERROR ' .. jsonfile .. ' is not readable. No tag mappings or menus have been defined.'
     return false
   endif
 
+  var save_doing_internal_mappings = HTML#BoolVar('b:htmlplugin.doing_internal_mappings')
+  b:htmlplugin.doing_internal_mappings = true
+
   for json in jsonfile->readfile()->join(' ')->json_decode()
     try
-      if json->has_key('menus') && json.menus->has_key('n') && json.menus.n[2] ==? '<nop>'
-        if domenu
-          HTML#Menu('menu', json.menus.n[0], json.menus.n[1], '<nop>')
-        endif
+      if json->has_key('menu') && json.menu[2]->has_key('n')
+          && json.menu[2].n[0] ==? '<nop>' && domenu
+        HTML#Menu('menu', json.menu[0], json.menu[1], '<nop>')
+        continue
+      endif
+
+      if json->has_key('lhs')
+        maplhs = '<lead>' .. json.lhs
+        menulhs = json.lhs
       else
-        if json->has_key('lhs')
-          maplhs = '<lead>' .. json.lhs
-          menulhs = json.lhs
-        else
-          maplhs = ""
-          menulhs = ""
-        endif
+        maplhs = ""
+        menulhs = ""
+      endif
 
-        if json->has_key('smarttag')
-          # Translate \<...> strings to their corresponding actual character:
-          var smarttag = json.smarttag->string()->substitute('\\<[^>]\+>', '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
+      if json->has_key('smarttag')
+        # Translate \<...> strings to their corresponding actual character:
+        var smarttag = json.smarttag->string()->substitute('\c<SID>', _this, 'g')->substitute('\c\\<[a-z0-9_-]\+>', '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
 
-          HTML.smarttags->extend(smarttag->eval())
-        endif
+        HTML.smarttags->extendnew(smarttag->eval())
+      endif
 
-        if json->has_key('maps')
-          if json.maps->has_key('i')
-              && maparg((maplhs == '' ? '<lead>' .. json.maps.i[0] : maplhs)->substitute('^<lead>\c',
-                g:htmlplugin.map_leader->escape('&~\'), ''), 'i') == ''
-            HTML#Map('inoremap',
+      if json->has_key('maps')
+        var did_mappings = 0
+
+        if json.maps->has_key('i')
+            && maparg((maplhs == '' ? '<lead>' .. json.maps.i[0] : maplhs)->substitute('^<lead>\c',
+              g:htmlplugin.map_leader->escape('&~\'), ''), 'i') == ''
+          if HTML#Map('inoremap',
               (maplhs == '' ? '<lead>' .. json.maps.i[0] : maplhs),
-              json.maps.i[1]
-            )
+              json.maps.i[1])
+            ++did_mappings
           endif
+        endif
 
-          if json.maps->has_key('v')
-              && maparg((maplhs == '' ? '<lead>' .. json.maps.v[0] : maplhs)->substitute('^<lead>\c',
-                g:htmlplugin.map_leader->escape('&~\'), ''), 'v') == ''
-            HTML#Map('vnoremap',
+        if json.maps->has_key('v')
+            && maparg((maplhs == '' ? '<lead>' .. json.maps.v[0] : maplhs)->substitute('^<lead>\c',
+              g:htmlplugin.map_leader->escape('&~\'), ''), 'v') == ''
+          if HTML#Map('vnoremap',
               (maplhs == '' ? '<lead>' .. json.maps.v[0] : maplhs),
               json.maps.v[1],
-              json.maps.v[2]
-            )
-          endif
-
-          if json.maps->has_key('n')
-              && maparg((maplhs == '' ? '<lead>' .. json.maps.n[0] : maplhs)->substitute('^<lead>\c',
-                g:htmlplugin.map_leader->escape('&~\'), ''), 'n') == ''
-            HTML#Map('nnoremap',
-              (maplhs == '' ? '<lead>' .. json.maps.n[0] : maplhs),
-              json.maps.n[1]
-            )
-          endif
-
-          if json.maps->has_key('o')
-              && maparg((maplhs == '' ? '<lead>' .. json.maps.o[0] : maplhs)->substitute('^<lead>\c',
-                g:htmlplugin.map_leader->escape('&~\'), ''), 'o') == ''
-            HTML#Mapo(
-              (maplhs == '' ? '<lead>' .. json.maps.o[0] : maplhs),
-              json.maps.o[1]
-            )
+              json.maps.v[2])
+            ++did_mappings
           endif
         endif
 
-        if domenu && json->has_key('menus')
-          if json.menus->has_key('i')
-            HTML#LeadMenu('imenu',
-              json.menus.i[0],
-              json.menus.i[1],
-              (menulhs == '' ? json.menus.i[2] : menulhs),
-              json.menus.i[3]
-            )
+        if json.maps->has_key('n')
+            && maparg((maplhs == '' ? '<lead>' .. json.maps.n[0] : maplhs)->substitute('^<lead>\c',
+              g:htmlplugin.map_leader->escape('&~\'), ''), 'n') == ''
+          if HTML#Map('nnoremap',
+              (maplhs == '' ? '<lead>' .. json.maps.n[0] : maplhs),
+              json.maps.n[1])
+            ++did_mappings
           endif
+        endif
 
-          if json.menus->has_key('v')
-            HTML#LeadMenu('vmenu',
-              json.menus.v[0],
-              json.menus.v[1],
-              (menulhs == '' ? json.menus.v[2] : menulhs),
-              json.menus.v[3]
-            )
+        if json.maps->has_key('o')
+            && maparg((maplhs == '' ? '<lead>' .. json.maps.o[0] : maplhs)->substitute('^<lead>\c',
+              g:htmlplugin.map_leader->escape('&~\'), ''), 'o') == ''
+          if HTML#Mapo(
+              (maplhs == '' ? '<lead>' .. json.maps.o[0] : maplhs),
+              json.maps.o[1])
+            ++did_mappings
           endif
+        endif
 
-          if json.menus->has_key('n')
-            HTML#LeadMenu('nmenu',
-              json.menus.n[0],
-              json.menus.n[1],
-              (menulhs == '' ? json.menus.n[2] : menulhs),
-              json.menus.n[3]
-            )
-          endif
+        # If it was indicated that mappings would be defined but none were
+        # actually defined, don't set the menu items for this mapping either:
+        if did_mappings == 0
+          continue
+        endif
+      endif
 
-          if json.menus->has_key('a')
-            HTML#LeadMenu(
-              'amenu',
-              json.menus.a[0],
-              json.menus.a[1],
-              (menulhs == '' ? json.menus.a[2] : menulhs),
-              json.menus.a[3]
-            )
-          endif
+      if domenu && json->has_key('menu')
+        if json.menu[2]->has_key('i')
+          HTML#LeadMenu('imenu',
+            json.menu[0],
+            json.menu[1],
+            (menulhs == '' ? json.menu[2].i[0] : menulhs),
+            json.menu[2].i[1])
+        endif
+
+        if json.menu[2]->has_key('v')
+          HTML#LeadMenu('vmenu',
+            json.menu[0],
+            json.menu[1],
+            (menulhs == '' ? json.menu[2].v[0] : menulhs),
+            json.menu[2].v[1])
+        endif
+
+        if json.menu[2]->has_key('n')
+          HTML#LeadMenu('nmenu',
+            json.menu[0],
+            json.menu[1],
+            (menulhs == '' ? json.menu[2].n[0] : menulhs),
+            json.menu[2].n[1])
+        endif
+
+        if json.menu[2]->has_key('a')
+          HTML#LeadMenu(
+            'amenu',
+            json.menu[0],
+            json.menu[1],
+            (menulhs == '' ? json.menu[2].a[0] : menulhs),
+            json.menu[2].a[1])
         endif
       endif
     catch /.*/
       execute 'HTMLERROR ' .. v:exception
-      execute 'HTMLERROR Potentially malformed json in ' .. file .. ', section: ' .. json->string()
+      execute 'HTMLERROR Potentially malformed json in ' .. file
+        .. ', section: ' .. json->string()
       rval = false
     endtry
   endfor
+
+  b:htmlplugin.doing_internal_mappings = save_doing_internal_mappings
 
   return rval
 enddef
@@ -1850,25 +1900,34 @@ def HTML#ReadEntities(domenu: bool = true, file: string = HTML.ENTITIES_FILE): b
     return false
   endif
 
+  var save_doing_internal_mappings = HTML#BoolVar('b:htmlplugin.doing_internal_mappings')
+  b:htmlplugin.doing_internal_mappings = true
+
   for json in jsonfile->readfile()->join(' ')->json_decode()
     if json->len() != 4 || json[2]->type() != v:t_list
-      execute 'HTMLERROR Malformed json in ' .. file .. ', section: ' .. json->string()
+      execute 'HTMLERROR Malformed json in ' .. file .. ', section: '
+        .. json->string()
       rval = false
       continue
     endif
     if json[3] ==? '<nop>'
       if domenu
-        HTML#Menu('menu', '-', json[2]->extend(['Character &Entities'], 0), '<nop>')
+        HTML#Menu('menu', '-', json[2]->extendnew(['Character &Entities'], 0), '<nop>')
       endif
     else
       if maparg(g:htmlplugin.map_entity_leader .. json[0], 'i') == ''
-        HTML#Map('inoremap', '<elead>' .. json[0], json[1])
+        if !HTML#Map('inoremap', '<elead>' .. json[0], json[1])
+          # Failed to map? No menu item should be defined either:
+          continue
+        endif
       endif
       if domenu
         HTML#EntityMenu(json[2], json[0], json[3])
       endif
     endif
   endfor
+
+  b:htmlplugin.doing_internal_mappings = save_doing_internal_mappings
 
   return rval
 enddef

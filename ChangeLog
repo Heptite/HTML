@@ -1,3 +1,6 @@
+Sun, 15 Aug 2021 22:35:31 -0600 Christian J. Robinson
+ * Loading bug fixed. More entities. Moved config variables to a unified dictionary.
+
 Fri, 13 Aug 2021 23:23:58 -0600 Christian J. Robinson
  * MOre bugs were found and squashed. Moved more data to json.
 

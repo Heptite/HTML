@@ -7,12 +7,12 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: August 14, 2021
+# Last Change: August 16, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 2004-2021 Christian J. Robinson <heptite@gmail.com>
+# Copyright © 2004-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # Based on "mangleImageTag" by Devin Weaver <ktohg@tritarget.com>
 #
@@ -98,7 +98,8 @@ def MangleImageTag#Update(): bool  # {{{1
     if filereadable(expand('%:p:h') .. '/' .. src)
       src = expand('%:p:h') .. '/' .. src
     else
-      execute 'HTMLERROR Can not find image file (or it is not readable): ' .. src
+      execute 'HTMLERROR Can not find image file (or it is not readable): '
+        .. src
       return false
     endif
   endif

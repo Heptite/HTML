@@ -1,13 +1,18 @@
 vim9script
+scriptencoding utf8
+
+if v:version < 802 || v:versionlong < 8023316
+  finish
+endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: August 15, 2021
+# Last Change: August 16, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 2004-2021 Christian J. Robinson <heptite@gmail.com>
+# Copyright © 2004-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -25,6 +30,7 @@ vim9script
 # https://www.gnu.org/licenses/licenses.html#GPL
 
 export const AUTHOR = 'Christian J. Robinson'
+export const EMAIL = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
 export const HOMEPAGE = 'https://christianrobinson.name/HTML/'
 export const COPYRIGHT = 'Copyright © 1998-2021 under the terms of the GPL3'
 
@@ -248,7 +254,8 @@ export const DictEntitiesToChar = {  # {{{
   '&oline;': "\u203E", '&caret;': "\u2041", '&hybull;': "\u2043",
   '&frasl;': "\u2044", '&bsemi;': "\u204F", '&qprime;': "\u2057",
   '&MediumSpace;': "\u205F", '&NoBreak;': "\u2060", '&ApplyFunction;': "\u2061",
-  '&InvisibleTimes;': "\u2062", '&InvisibleComma;': "\u2063", '&euro;': "\u20AC",
+  '&InvisibleTimes;': "\u2062", '&InvisibleComma;': "\u2063",
+  '&euro;': "\u20AC",
   '&tdot;': "\u20DB", '&DotDot;': "\u20DC", '&Copf;': "\u2102",
   '&incare;': "\u2105", '&gscr;': "\u210A", '&hamilt;': "\u210B",
   '&Hfr;': "\u210C", '&quaternions;': "\u210D", '&planckh;': "\u210E",
@@ -263,7 +270,8 @@ export const DictEntitiesToChar = {  # {{{
   '&escr;': "\u212F", '&Escr;': "\u2130", '&Fscr;': "\u2131",
   '&phmmat;': "\u2133", '&order;': "\u2134", '&alefsym;': "\u2135",
   '&beth;': "\u2136", '&gimel;': "\u2137", '&daleth;': "\u2138",
-  '&CapitalDifferentialD;': "\u2145", '&DifferentialD;': "\u2146", '&ExponentialE;': "\u2147",
+  '&CapitalDifferentialD;': "\u2145", '&DifferentialD;': "\u2146",
+  '&ExponentialE;': "\u2147",
   '&ImaginaryI;': "\u2148", '&frac13;': "\u2153", '&frac23;': "\u2154",
   '&frac15;': "\u2155", '&frac25;': "\u2156", '&frac35;': "\u2157",
   '&frac45;': "\u2158", '&frac16;': "\u2159", '&frac56;': "\u215A",
@@ -382,7 +390,8 @@ export const DictEntitiesToChar = {  # {{{
   '&ovbar;': "\u233D", '&solbar;': "\u233F", '&angzarr;': "\u237C",
   '&lmoust;': "\u23B0", '&rmoust;': "\u23B1", '&tbrk;': "\u23B4",
   '&bbrk;': "\u23B5", '&bbrktbrk;': "\u23B6", '&OverParenthesis;': "\u23DC",
-  '&UnderParenthesis;': "\u23DD", '&OverBrace;': "\u23DE", '&UnderBrace;': "\u23DF",
+  '&UnderParenthesis;': "\u23DD", '&OverBrace;': "\u23DE",
+  '&UnderBrace;': "\u23DF",
   '&trpezium;': "\u23E2", '&elinters;': "\u23E7", '&blank;': "\u2423",
   '&oS;': "\u24C8", '&boxh;': "\u2500", '&boxv;': "\u2502",
   '&boxdr;': "\u250C", '&boxdl;': "\u2510", '&boxur;': "\u2514",
@@ -407,7 +416,8 @@ export const DictEntitiesToChar = {  # {{{
   '&dtri;': "\u25BF", '&ltrif;': "\u25C2", '&ltri;': "\u25C3",
   '&loz;': "\u25CA", '&cir;': "\u25CB", '&tridot;': "\u25EC",
   '&xcirc;': "\u25EF", '&ultri;': "\u25F8", '&urtri;': "\u25F9",
-  '&lltri;': "\u25FA", '&EmptySmallSquare;': "\u25FB", '&FilledSmallSquare;': "\u25FC",
+  '&lltri;': "\u25FA", '&EmptySmallSquare;': "\u25FB",
+  '&FilledSmallSquare;': "\u25FC",
   '&starf;': "\u2605", '&star;': "\u2606", '&phone;': "\u260E",
   '&female;': "\u2640", '&male;': "\u2642", '&spades;': "\u2660",
   '&clubs;': "\u2663", '&hearts;': "\u2665", '&diams;': "\u2666",
@@ -434,13 +444,20 @@ export const DictEntitiesToChar = {  # {{{
   '&cudarrl;': "\u2938", '&larrpl;': "\u2939", '&curarrm;': "\u293C",
   '&cularrp;': "\u293D", '&rarrpl;': "\u2945", '&harrcir;': "\u2948",
   '&Uarrocir;': "\u2949", '&lurdshar;': "\u294A", '&ldrushar;': "\u294B",
-  '&LeftRightVector;': "\u294E", '&RightUpDownVector;': "\u294F", '&DownLeftRightVector;': "\u2950",
-  '&LeftUpDownVector;': "\u2951", '&LeftVectorBar;': "\u2952", '&RightVectorBar;': "\u2953",
-  '&RightUpVectorBar;': "\u2954", '&RightDownVectorBar;': "\u2955", '&DownLeftVectorBar;': "\u2956",
-  '&DownRightVectorBar;': "\u2957", '&LeftUpVectorBar;': "\u2958", '&LeftDownVectorBar;': "\u2959",
-  '&LeftTeeVector;': "\u295A", '&RightTeeVector;': "\u295B", '&RightUpTeeVector;': "\u295C",
-  '&RightDownTeeVector;': "\u295D", '&DownLeftTeeVector;': "\u295E", '&DownRightTeeVector;': "\u295F",
-  '&LeftUpTeeVector;': "\u2960", '&LeftDownTeeVector;': "\u2961", '&lHar;': "\u2962",
+  '&LeftRightVector;': "\u294E", '&RightUpDownVector;': "\u294F",
+  '&DownLeftRightVector;': "\u2950",
+  '&LeftUpDownVector;': "\u2951", '&LeftVectorBar;': "\u2952",
+  '&RightVectorBar;': "\u2953",
+  '&RightUpVectorBar;': "\u2954", '&RightDownVectorBar;': "\u2955",
+  '&DownLeftVectorBar;': "\u2956",
+  '&DownRightVectorBar;': "\u2957", '&LeftUpVectorBar;': "\u2958",
+  '&LeftDownVectorBar;': "\u2959",
+  '&LeftTeeVector;': "\u295A", '&RightTeeVector;': "\u295B",
+  '&RightUpTeeVector;': "\u295C",
+  '&RightDownTeeVector;': "\u295D", '&DownLeftTeeVector;': "\u295E",
+  '&DownRightTeeVector;': "\u295F",
+  '&LeftUpTeeVector;': "\u2960", '&LeftDownTeeVector;': "\u2961",
+  '&lHar;': "\u2962",
   '&uHar;': "\u2963", '&rHar;': "\u2964", '&dHar;': "\u2965",
   '&luruhar;': "\u2966", '&ldrdhar;': "\u2967", '&ruluhar;': "\u2968",
   '&rdldhar;': "\u2969", '&lharul;': "\u296A", '&llhard;': "\u296B",
@@ -467,7 +484,8 @@ export const DictEntitiesToChar = {  # {{{
   '&olt;': "\u29C0", '&ogt;': "\u29C1", '&cirscir;': "\u29C2",
   '&cirE;': "\u29C3", '&solb;': "\u29C4", '&bsolb;': "\u29C5",
   '&boxbox;': "\u29C9", '&trisb;': "\u29CD", '&rtriltri;': "\u29CE",
-  '&LeftTriangleBar;': "\u29CF", '&RightTriangleBar;': "\u29D0", '&race;': "\u29DA",
+  '&LeftTriangleBar;': "\u29CF", '&RightTriangleBar;': "\u29D0",
+  '&race;': "\u29DA",
   '&iinfin;': "\u29DC", '&infintie;': "\u29DD", '&nvinfin;': "\u29DE",
   '&eparsl;': "\u29E3", '&smeparsl;': "\u29E4", '&eqvparsl;': "\u29E5",
   '&lozf;': "\u29EB", '&RuleDelayed;': "\u29F4", '&dsol;': "\u29F6",

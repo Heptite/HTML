@@ -8,12 +8,6 @@
 
    ["",        "",           ["-sep1-"],                                    "<nop>"],
 
-   ["cO",      "&copy;",     ["Copyright"],                                 "\\xA9"],
-   ["rO",      "&reg;",      ["Registered"],                                "\\xAE"],
-   ["tm",      "&trade;",    ["Trademark"],                                 "\\u2122"],
-
-   ["",        "",           ["-sep2-"],                                    "<nop>"],
-
    ["A'",      "&Aacute;",   ["&Acutes", "A-acute"],                        "\\xC1"],
    ["E'",      "&Eacute;",   ["&Acutes", "E-acute"],                        "\\xC9"],
    ["I'",      "&Iacute;",   ["&Acutes", "I-acute"],                        "\\xCD"],
@@ -265,6 +259,12 @@
 
    ["",        "",           ["&Symbols", "-sep1-"],                        "<nop>"],
 
+   ["cO",      "&copy;",     ["&Symbols", "Copyright"],                     "\\xA9"],
+   ["rO",      "&reg;",      ["&Symbols", "Registered"],                    "\\xAE"],
+   ["tm",      "&trade;",    ["&Symbols", "Trademark"],                     "\\u2122"],
+
+   ["",        "",           ["&Symbols", "-sep2-"],                        "<nop>"],
+
    ["ok",      "&check;",    ["&Symbols", "Checkmark"],                     "\\u2713"],
    ["xx",      "&cross;",    ["&Symbols", "X mark"],                        "\\u2717"],
    ["2*",      "&starf;",    ["&Symbols", "Filled Star"],                   "\\u2605"],
@@ -272,18 +272,19 @@
    ["m+",      "&malt;",     ["&Symbols", "Maltese Cross"],                 "\\u2720"],
    ["co",      "&incare;",   ["&Symbols", "Care Of"],                       "\\u2105"],
 
-   ["",        "",           ["&Symbols", "-sep2-"],                        "<nop>"],
+   ["",        "",           ["&Symbols", "-sep3-"],                        "<nop>"],
 
    ["cl",      "&clubs;",    ["&Symbols", "Clubs Suit"],                    "\\u2663"],
    ["di",      "&diams;",    ["&Symbols", "Diamonds Suit"],                 "\\u2666"],
    ["he",      "&hearts;",   ["&Symbols", "Hearts Suit"],                   "\\u2665"],
    ["sp",      "&spades;",   ["&Symbols", "Spades Suit"],                   "\\u2660"],
 
-   ["",        "",           ["&Symbols", "-sep3-"],                        "<nop>"],
+   ["",        "",           ["&Symbols", "-sep4-"],                        "<nop>"],
 
    ["oh",      "&ohm;",      ["&Symbols", "Ohm"],                           "\\u2126"],
    ["rx",      "&rx;",       ["&Symbols", "Rx"],                            "\\u211E"],
    ["no",      "&#x1F6C7;",  ["&Symbols", "Forbidden Sign"],                "\\U1F6C7"],
+   ["bs",      "&#x232B;",   ["&Symbols", "Backspace"],                     "\\u232B"],
 
    ["A~",      "&Atilde;",   ["&Tildes", "A-tilde"],                        "\\xC3"],
    ["N~",      "&Ntilde;",   ["&Tildes", "N-tilde"],                        "\\xD1"],

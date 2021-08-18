@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2021 Aug 15
+*HTML.txt*	For Vim version 9.0	Last change: 2021 Aug 16
 
 
 		  HTML/XHTML MACROS	by Christian J. Robinson
@@ -60,7 +60,7 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 	(In actuality this mapping is defined as |g:htmlplugin.map_leader| +
 	|g:htmlplugin.map_entity_leader| to insert whatever is in
 	|g:htmlplugin.map_entity_leader|.) (Note that this mapping behaves
-	very differently in visual mode. See: |v_;&|) 
+	very differently in visual mode. See: |v_;&|)
 
 				*html-<Tab>* *html-tab* *html-CTRL-I*
 				*i_html-<Tab>* *i_html-tab* *i_html-CTRL-I*
@@ -380,7 +380,7 @@ You would get something like: >
    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
    <META NAME="Author" CONTENT="John Smith">
    <META NAME="Copyright" CONTENT="Copyright (C) August 16, 2021 John Smith">
-   <LINK REL="made" HREF="mailto:jsmith@example.com">
+   <LINK REL="made" HREF="mailto:&#x6A;&#x73;&#x6D;&#x69;&#x74;&#x68;&commat;&#x65;&#x78;&#x61;&#x6D;&#x70;&#x6C;&#x65;&period;&#x63;&#x6F;&#x6D;">
     <STYLE TYPE="text/css">
      <!--
      BODY {background: #FFFFFF; color: #000000;}
@@ -431,7 +431,7 @@ You would get something like: >
 	script--are disabled/enabled when this command is used, regardless of
 	what |g:htmlplugin.map_leader| is set to.
 
-	*reload-HTML-functions*	*HTML-reload-functions*	*HTML-functions-reload*	
+	*reload-HTML-functions*	*HTML-reload-functions*	*HTML-functions-reload*
 							*:HTMLReloadFunctions*
 :HTMLReloadFunctions
 	This command reloads all the previously loaded functions for this
@@ -1335,7 +1335,7 @@ Name:			Symbol:		HTML:		Macro: ~
 Ampersand (&)		&		&amp;		&&		*i_&&*
 Greater than (>)	>		&gt;		&>		*i_&>*
 Less than (<)		<		&lt;		&<		*i_&<*
-							*i_&<space>* *i_&space* 
+							*i_&<space>* *i_&space*
 Space (non-breaking)	 		&nbsp;		&<space>
 Quotation mark (")	"		&quot;		&'		*i_&'*
 Left Single Quote	‘		&lsquo;		&l'		*i_&l'*
@@ -1510,6 +1510,7 @@ Square Root		√		&Sqrt;		&sq		*i_&sq*
 Dagger (footnote)	†		&dagger;	&dt		*i_&dt*
 Double Dagger		‡		&Dagger;	&dd		*i_&dd*
 Care Of (c/o)		℅		&incare;	&co		*i_&co*
+Backspace		⌫		&#x232B;	&bs		*i_&bs*
 
 
 The Greek Alphabet:
@@ -1870,4 +1871,4 @@ I will never include mappings for certain tags, such as <BLINK></BLINK> and
 <MARQUEE></MARQUEE> (which were always nonstandard). As far as I am concerned
 these tags should never have existed.
 
- vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:
+ vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:fenc=utf8:
