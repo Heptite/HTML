@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      August 17, 2021
+# Last Change:      August 19, 2021
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -80,7 +80,6 @@ if !exists('b:htmlplugin')
   b:htmlplugin = {}
 endif
 
-# Bring in the common commands:
 runtime! commands/HTML.vim
 
 if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
@@ -149,6 +148,8 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
   endif
 
   if exists('b:htmlplugin.tag_case')
+    # Used by the conrol function to preserve what the user selected when
+    # switching off XHTML mode:
     b:htmlplugin.tag_case_save = b:htmlplugin.tag_case
   endif
 
@@ -304,8 +305,8 @@ if HTML#BoolVar('g:htmlplugin.did_menus')
   # Basically, we get here by having the user open a new HTML file after
   # already loading one, so the menus don't need to be loaded again, just the
   # mappings for this buffer:
-  HTML#ReadEntities(false)
-  HTML#ReadTags(false)
+  HTML#ReadEntities(false, true)
+  HTML#ReadTags(false, true)
 endif
 
 # ----------------------------------------------------------------------------
@@ -542,8 +543,8 @@ if ! has('gui_running') && !HTML#BoolVar('g:htmlplugin.force_menu')
 
   # Since the user didn't start the GUI and didn't force menus, bring in the
   # entities and tags mappings, without the menus:
-  HTML#ReadEntities(false)
-  HTML#ReadTags(false)
+  HTML#ReadEntities(false, true)
+  HTML#ReadTags(false, true)
 elseif HTML#BoolVar('g:htmlplugin.did_menus')
   HTML#MenuControl()
 elseif !HTML#BoolVar('g:htmlplugin.no_menu')
@@ -804,11 +805,7 @@ augroup END
 
 # Very first non-ToolBar, non-PopUp menu gets "auto" for its priority to place
 # the HTML menu according to user configuration:
-HTML#Menu('amenu', 'auto', ['HTML Plugin Help<TAB>:help HTML.txt'],
-  ':help HTML.txt<CR>')
-HTML#Menu('menu',  '-',    ['-sep1-'], '<Nop>')
-
-HTML#Menu('amenu', '-',    ['Co&ntrol', '&Disable Mappings<tab>:HTML disable'],
+HTML#Menu('amenu', 'auto', ['Co&ntrol', '&Disable Mappings<tab>:HTML disable'],
   ':HTMLmappings disable<CR>')
 HTML#Menu('amenu', '-',    ['Co&ntrol', '&Enable Mappings<tab>:HTML enable'],
   ':HTMLmappings enable<CR>')
@@ -825,6 +822,13 @@ HTML#Menu('amenu', '-',    ['Co&ntrol', 'Switch to uppercase<tab>:HTML uppercase
 HTML#Menu('menu',  '-',    ['Control',  '-sep3-'], '<Nop>')
 HTML#Menu('amenu', '-',    ['Co&ntrol', '&Reload Mappings<tab>:HTML reload'],
   ':HTMLmappings reload<CR>')
+
+HTML#Menu('menu',  '.9999', ['-sep999-'], '<Nop>')
+
+HTML#Menu('amenu', '.9999', ['Help', 'HTML Plugin Help<TAB>:help HTML.txt'],
+  ':help HTML.txt<CR>')
+HTML#Menu('amenu', '.9999', ['Help', 'About the HTML Plugin<TAB>:HTMLAbout'],
+  ':HTMLAbout<CR>')
 
 execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
   .. '.Control.Enable\ Mappings'
@@ -900,8 +904,8 @@ if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
 endif
 
 # Bring in the tags and entities menus and mappings at the same time:
-HTML#ReadTags(true)
-HTML#ReadEntities(true)
+HTML#ReadTags(true, true)
+HTML#ReadEntities(true, true)
 
 # Create the rest of the colors menu:
 COLOR_LIST->mapnew((_, value) => HTML#ColorsMenu(value[0], value[1], value[2]))

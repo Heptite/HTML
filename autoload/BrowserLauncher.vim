@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 16, 2021
+# Last Change: August 20, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -61,7 +61,7 @@ endif
 # Requirements:
 #  * Vim 9 or later
 #
-# Copyright © 2004-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -162,7 +162,7 @@ if has('mac') || has('macunix')  # {{{1
     endif
   enddef # }}}
 
-  def BrowserLauncher#Launch(app: string, new: number = 0, url: string = ''): bool # {{{
+  def BrowserLauncher#Launch(app: string = 'default', new: number = 0, url: string = ''): bool # {{{
     var file: string
     var torn: string
     var script: string
@@ -170,14 +170,14 @@ if has('mac') || has('macunix')  # {{{1
     var use_AS: bool
     var as_msg: string
 
-    if (! BrowserLauncher#Exists(app) && app !=? 'default')
+    if (!BrowserLauncher#Exists(app) && app !=? 'default')
       execute 'HTMLERROR ' .. app .. ' not found'
       return false
     endif
 
-    if url == ''
+    if url != ''
       file = url
-    elseif expand('%') != ''
+    elseif expand('%') == ''
       HTMLERROR No file is loaded in the current buffer and no URL was specified.
       return false
     else
@@ -427,7 +427,7 @@ enddef
 # Return value:
 #  false - Failure (No browser was launched/controlled.)
 #  true  - Success (A browser was launched/controlled.)
-def BrowserLauncher#Launch(browser: string, new: number = 0, url: string = ''): bool
+def BrowserLauncher#Launch(browser: string = 'default', new: number = 0, url: string = ''): bool
 
   # Cap() {{{2
   #

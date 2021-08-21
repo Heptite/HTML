@@ -7,12 +7,12 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: August 17, 2021
+# Last Change: August 19, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 2004-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -88,4 +88,4 @@ command! HTMLReloadFunctions {
 g:htmlplugin.did_commands = true
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
-# vim:foldmethod=marker:foldcolumn=3:comments=b\:#:commentstring=\ #\ %s:
+# vim:foldmethod=marker:foldcolumn=2:comments=b\:#:commentstring=\ #\ %s:

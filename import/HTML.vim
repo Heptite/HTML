@@ -7,12 +7,12 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: August 17, 2021
+# Last Change: August 18, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 2004-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -34,7 +34,7 @@ export const EMAIL = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
 export const HOMEPAGE = 'https://christianrobinson.name/HTML/'
 export const COPYRIGHT = 'Copyright © 1998-2021 under the terms of the GPL3'
 
-export const VERSION = '1.1.10'
+export const VERSION = '1.1.11'
 
 # Used by some of the functions to save then restore some options:
 export var saveopts: dict<any>
@@ -46,11 +46,11 @@ export var saveopts: dict<any>
 #               different effects
 #  mode       - i = insert, v = visual
 #               (no "o", because o-mappings invoke visual mode)
-#  open/close - c = When inside an equivalent tag, close then open it
+#  open&close - c = When inside an equivalent tag, close then open it
 #               o = When not inside (outside) of an equivalent tag
-#  keystrokes - The mapping keystrokes to execute
 #  insert     - Only for the visual mappings; behave slightly
 #               differently in visual mappings if this is set to true
+#  value      - The keystrokes to execute
 export var smarttags: dict<any>
 
 export const MENU_NAME = 'HTM&L'

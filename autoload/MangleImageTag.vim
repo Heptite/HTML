@@ -7,14 +7,14 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: August 16, 2021
+# Last Change: August 20, 2021
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 2004-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
-# Based on "mangleImageTag" by Devin Weaver <ktohg@tritarget.com>
+# Based on "mangleImageTag" by Devin Weaver <ktohg(at)tritarget(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -57,7 +57,7 @@ def MangleImageTag#Update(): bool  # {{{1
 
   # Get the rest of the tag if we have a partial tag:
   while line =~? '<img\_[^>]*$'
-    end_linenr += 1
+    ++end_linenr
     line = line .. "\n" .. getline(end_linenr)
   endwhile
 
@@ -94,7 +94,10 @@ def MangleImageTag#Update(): bool  # {{{1
     return false
   endif
 
-  if ! src->filereadable()
+  if src == ''
+    HTMLERROR No image specified.
+    return false
+  elseif !src->filereadable()
     if filereadable(expand('%:p:h') .. '/' .. src)
       src = expand('%:p:h') .. '/' .. src
     else
@@ -139,62 +142,45 @@ enddef
 def ImageSize(image: string): list<number>  # {{{1
   var ext = image->fnamemodify(':e')
   var size: list<number>
+  var buf: list<number>
 
   if ext !~? '^png$\|^gif$\|^jpe\?g$'
     execute 'HTMLERROR Image type not supported: ' .. tolower(ext)
     return []
-  endif
-
-  if filereadable(image) == 1
-    var buf: list<number>
-    var i = 0
-
-    # Note that the 1024 here is not bytes, but lines,
-    # whereas below the 1024 IS bytes:
-    for line in image->readfile('b', 1024)
-      var string = line->split('\zs')
-      for c in string
-        var char = c->char2nr()
-        buf->add((char == 10 ? 0 : char))
-
-        # Keep the script from being too slow, but could cause a JPG
-        # (and GIF/PNG?) to return as "malformed":
-        i += 1
-        if i > 1024 * 8
-          break
-        endif
-      endfor
-      buf->add(10)
-    endfor
-
-    if ext ==? 'png'
-      size = buf->SizePng()
-    elseif ext ==? 'gif'
-      size = buf->SizeGif()
-    elseif ext ==? 'jpg' || ext ==? 'jpeg'
-      size = buf->SizeJpg()
-    endif
-  else
+  elseif !image->filereadable()
     execute 'HTMLERROR Can not read file: ' .. image
     return []
+  endif
+
+  # Read the image and convert it to a list of numbers:
+  for byte in image->readblob()[0 : 1024 * 32]
+    buf->add(<number>byte)
+  endfor
+
+  if ext ==? 'png'
+    size = buf->SizePng()
+  elseif ext ==? 'gif'
+    size = buf->SizeGif()
+  elseif ext ==? 'jpg' || ext ==? 'jpeg'
+    size = buf->SizeJpg()
   endif
 
   return size
 enddef
 
-def SizeGif(lines: list<number>): list<number>  # {{{1
+def SizeGif(buf: list<number>): list<number>  # {{{1
   var i = 0
-  var len = lines->len()
+  var len = buf->len()
 
   while i <= len
-    if lines[i : i + 9]->join(' ') =~ '^71 73 70\%( \d\+\)\{7}'
-      var width = lines[i + 6 : i + 7]->reverse()->Vec()
-      var height = lines[i + 8 : i + 9]->reverse()->Vec()
+    if buf[i : i + 9]->join(' ') =~ '^71 73 70\%( \d\+\)\{7}'
+      var width = buf[i + 6 : i + 7]->reverse()->Vec()
+      var height = buf[i + 8 : i + 9]->reverse()->Vec()
 
       return [width, height]
     endif
 
-    i += 1
+    ++i
   endwhile
 
   HTMLERROR Malformed GIF file.
@@ -202,18 +188,19 @@ def SizeGif(lines: list<number>): list<number>  # {{{1
   return []
 enddef
 
-def SizeJpg(lines: list<number>): list<number>  # {{{1
+def SizeJpg(buf: list<number>): list<number>  # {{{1
   var i = 0
-  var len = lines->len()
+  var len = buf->len()
 
   while i <= len
-    if lines[i : i + 8]->join(' ') =~ '^255 192\%( \d\+\)\{7}'
-      var height = lines[i + 5 : i + 6]->Vec()
-      var width = lines[i + 7 : i + 8]->Vec()
+    if buf[i : i + 8]->join(' ') =~ '^255 192\%( \d\+\)\{7}'
+      var height = buf[i + 5 : i + 6]->Vec()
+      var width = buf[i + 7 : i + 8]->Vec()
 
       return [width, height]
     endif
-    i += 1
+
+    ++i
   endwhile
 
   HTMLERROR Malformed JPEG file.
@@ -221,18 +208,19 @@ def SizeJpg(lines: list<number>): list<number>  # {{{1
   return []
 enddef
 
-def SizePng(lines: list<number>): list<number>  # {{{1
+def SizePng(buf: list<number>): list<number>  # {{{1
   var i = 0
-  var len = lines->len()
+  var len = buf->len()
 
   while i <= len
-    if lines[i : i + 11]->join(' ') =~ '^73 72 68 82\%( \d\+\)\{8}'
-      var width = lines[i + 4 : i + 7]->Vec()
-      var height = lines[i + 8 : i + 11]->Vec()
+    if buf[i : i + 11]->join(' ') =~ '^73 72 68 82\%( \d\+\)\{8}'
+      var width = buf[i + 4 : i + 7]->Vec()
+      var height = buf[i + 8 : i + 11]->Vec()
 
       return [width, height]
     endif
-    i += 1
+
+    ++i
   endwhile
 
   HTMLERROR Malformed PNG file.
@@ -243,9 +231,8 @@ enddef
 def Vec(numbers: list<number>): number  # {{{1
   var n = 0
   numbers->mapnew(
-    (_, i) => {
+    (_, i): void => {
       n = n * 256 + i
-      return
     }
   )
   return n
