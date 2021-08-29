@@ -15,7 +15,7 @@
    ["U'",      "&Uacute;",   ["&Acutes", "U-acute"],                        "\\xDA"],
    ["Y'",      "&Yacute;",   ["&Acutes", "Y-acute"],                        "\\xDD"],
 
-   ["",        "",           ["&Acutes", "-sep2-"],                         "<nop>"],
+   ["",        "",           ["&Acutes", "-sep1-"],                         "<nop>"],
 
    ["a'",      "&aacute;",   ["&Acutes", "a-acute"],                        "\\xE1"],
    ["e'",      "&eacute;",   ["&Acutes", "e-acute"],                        "\\xE9"],

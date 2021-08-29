@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: August 19, 2021
+# Last Change: August 28, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -34,39 +34,37 @@ if exists('g:htmlplugin.did_commands') && g:htmlplugin.did_commands == true
 endif
 
 command! -nargs=+ HTMLWARN {
-  echohl WarningMsg
-  echomsg <q-args>
-  echohl None
-}
+    echohl WarningMsg
+    echomsg <q-args>
+    echohl None
+  }
 
 command! -nargs=+ HTMLMESG {
-  echohl Todo
-  echo <q-args>
-  echohl None
-}
+    echohl Todo
+    echo <q-args>
+    echohl None
+  }
 
 command! -nargs=+ HTMLERROR {
-  echohl ErrorMsg
-  echomsg <q-args>
-  echohl None
-}
+    echohl ErrorMsg
+    echomsg <q-args>
+    echohl None
+  }
 
 command! HTMLAbout HTML#About()
 command! HTMLabout HTML#About()
 
 command! -nargs=+ SetIfUnset HTML#SetIfUnset(<f-args>)
 
-command! -nargs=1 HTMLmappings HTML#MappingsControl(<f-args>)
-command! -nargs=1 HTMLMappings HTML#MappingsControl(<f-args>)
+command! -nargs=1 HTMLplugin HTML#PluginControl(<f-args>)
+command! -nargs=1 HTMLPlugin HTML#PluginControl(<f-args>)
+command! -nargs=1 HTMLmappings HTML#PluginControl(<f-args>)
+command! -nargs=1 HTMLMappings HTML#PluginControl(<f-args>)
 if exists(':HTML') != 2
-  command! -nargs=1 HTML HTML#MappingsControl(<f-args>)
+  command! -nargs=1 HTML HTML#PluginControl(<f-args>)
 endif
 
-command! -nargs=? ColorSelect HTML#ColorChooser(<f-args>)
 command! -nargs=? ColorChooser HTML#ColorChooser(<f-args>)
-if exists(':CS') != 2
-  command! -nargs=? CS HTML#ColorChooser(<f-args>)
-endif
 if exists(':CC') != 2
   command! -nargs=? CC HTML#ColorChooser(<f-args>)
 endif
@@ -75,15 +73,15 @@ endif
 #command! HTMLtemplate HTMLTemplate
 
 command! HTMLReloadFunctions {
-  if exists('g:htmlplugin.function_files')
-	for f in copy(g:htmlplugin.function_files)
-	  execute 'HTMLMESG Reloading: ' .. fnamemodify(f, ':t')
-	  execute 'source ' .. f
-	endfor
-  else
-    HTMLERROR Somehow the global variable describing the loaded function files is non-existent.
-  endif
-}
+    if exists('g:htmlplugin.function_files')
+      for f in copy(g:htmlplugin.function_files)
+        execute 'HTMLMESG Reloading: ' .. fnamemodify(f, ':t')
+        execute 'source ' .. f
+      endfor
+    else
+      HTMLERROR Somehow the global variable describing the loaded function files is non-existent.
+    endif
+  }
 
 g:htmlplugin.did_commands = true
 

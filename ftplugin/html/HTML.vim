@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      August 19, 2021
+# Last Change:      August 28, 2021
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -97,7 +97,7 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
   SetIfUnset g:htmlplugin.vlinkcolor             #990066
   SetIfUnset g:htmlplugin.tag_case               lowercase
   SetIfUnset g:htmlplugin.map_leader             ;
-  SetIfUnset g:htmlplugin.map_entity_leader      &
+  SetIfUnset g:htmlplugin.entity_map_leader      &
   SetIfUnset g:htmlplugin.default_charset        UTF-8
   # No way to know sensible defaults here so just make sure the
   # variables are set:
@@ -139,12 +139,12 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
   silent! setlocal clipboard+=html
   setlocal matchpairs+=<:>
 
-  if g:htmlplugin.map_entity_leader ==# g:htmlplugin.map_leader
-    HTMLERROR "g:htmlplugin.map_entity_leader" and "g:htmlplugin.map_leader" have the same value!
+  if g:htmlplugin.entity_map_leader ==# g:htmlplugin.map_leader
+    HTMLERROR "g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!
     HTMLERROR Resetting both to their defaults.
     sleep 3
     g:htmlplugin.map_leader = ';'
-    g:htmlplugin.map_entity_leader = '&'
+    g:htmlplugin.entity_map_leader = '&'
   endif
 
   if exists('b:htmlplugin.tag_case')
@@ -191,24 +191,28 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
 
   if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
     b:htmlplugin.internal_template = INTERNAL_HTML_TEMPLATE->extendnew([
-      '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
-      ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
-      '<html xmlns="http://www.w3.org/1999/xhtml">'
-    ], 0)
+        '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
+        ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
+        '<html xmlns="http://www.w3.org/1999/xhtml">'
+      ], 0)
 
     b:htmlplugin.internal_template =
-      b:htmlplugin.internal_template->HTML#ConvertCase()->join("\n")
+      b:htmlplugin.internal_template->HTML#ConvertCase()
   else
     b:htmlplugin.internal_template = INTERNAL_HTML_TEMPLATE->extendnew([
-      '<!DOCTYPE html>',
-      '<[{HTML}]>'
-    ], 0)
+        '<!DOCTYPE html>',
+        '<[{HTML}]>'
+      ], 0)
 
     b:htmlplugin.internal_template =
-      b:htmlplugin.internal_template->HTML#ConvertCase()->join("\n")
+      b:htmlplugin.internal_template->HTML#ConvertCase()
 
     b:htmlplugin.internal_template =
-      b:htmlplugin.internal_template->substitute(' />', '>', 'g')
+      b:htmlplugin.internal_template->mapnew(
+          (_, line) => {
+            return line->substitute(' />', '>', 'g')
+          }
+        )
   endif
 
   # }}}2
@@ -231,7 +235,7 @@ HTML#Map('inoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leade
 HTML#Map('vnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {'extra': false})
 HTML#Map('nnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
 # Make it easy to insert a & (or whatever the entity leader is):
-HTML#Map('inoremap', '<lead>' .. g:htmlplugin.map_entity_leader, g:htmlplugin.map_entity_leader)
+HTML#Map('inoremap', '<lead>' .. g:htmlplugin.entity_map_leader, g:htmlplugin.entity_map_leader)
 
 if !HTML#BoolVar('g:htmlplugin.no_tab_mapping')
   # Allow hard tabs to be used:
@@ -317,21 +321,21 @@ endif
 # entity or otherwise decimal HTML entities:
 # (Note that this can be very slow due to syntax highlighting. Maybe find a
 # different way to do it?)
-HTML#Map('vnoremap', '<lead>&', "s<C-R>=HTML#EncodeString(@\")->HTML#SI()<CR><Esc>", {'extra': false})
+HTML#Map('vnoremap', '<lead>&', "s<C-R>=HTML#TranscodeString(@\")->HTML#SI()<CR><Esc>", {'extra': false})
 HTML#Mapo('<lead>&')
 
 # Convert the character under the cursor or the highlighted string to hex
 # HTML entities:
-HTML#Map('vnoremap', '<lead>*', "s<C-R>=HTML#EncodeString(@\", 'x')->HTML#SI()<CR><Esc>", {'extra': false})
+HTML#Map('vnoremap', '<lead>*', "s<C-R>=HTML#TranscodeString(@\", 'x')->HTML#SI()<CR><Esc>", {'extra': false})
 HTML#Mapo('<lead>*')
 
 # Convert the character under the cursor or the highlighted string to a %XX
 # string:
-HTML#Map('vnoremap', '<lead>%', "s<C-R>=HTML#EncodeString(@\", '%')->HTML#SI()<CR><Esc>", {'extra': false})
+HTML#Map('vnoremap', '<lead>%', "s<C-R>=HTML#TranscodeString(@\", '%')->HTML#SI()<CR><Esc>", {'extra': false})
 HTML#Mapo('<lead>%')
 
 # Decode a &...;, &#...;, or %XX encoded string:
-HTML#Map('vnoremap', '<lead>^', "s<C-R>=HTML#EncodeString(@\", 'd')->HTML#SI()<CR><Esc>", {'extra': false})
+HTML#Map('vnoremap', '<lead>^', "s<C-R>=HTML#TranscodeString(@\", 'd')->HTML#SI()<CR><Esc>", {'extra': false})
 HTML#Mapo('<lead>^')
 
 # The actual entity mappings are now defined in a json file to reduce
@@ -908,7 +912,7 @@ HTML#ReadTags(true, true)
 HTML#ReadEntities(true, true)
 
 # Create the rest of the colors menu:
-COLOR_LIST->mapnew((_, value) => HTML#ColorsMenu(value[0], value[1], value[2]))
+COLOR_LIST->mapnew((_, value) => HTML#ColorsMenu(value[0], value[1], value[2], value[3]))
 
 g:htmlplugin.did_menus = true
 

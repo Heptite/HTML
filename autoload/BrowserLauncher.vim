@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 20, 2021
+# Last Change: August 28, 2021
 #
 # Currently supported browsers:
 # Unix:
@@ -82,7 +82,7 @@ endif
 # Not ideal to do this at the beginning of the script instead of the end, but
 # this script could finish before it reaches the end:
 if !exists('g:htmlplugin.function_files') | g:htmlplugin.function_files = [] | endif
-add(g:htmlplugin.function_files, expand('<sfile>:p'))->sort()->uniq()
+g:htmlplugin.function_files->add(expand('<sfile>:p'))->sort()->uniq()
 
 
 if ! exists('g:htmlplugin.did_commands') || ! g:htmlplugin.did_commands   # {{{1
@@ -127,7 +127,7 @@ def FindTextmodeBrowsers()
       if v:shell_error == 0
         Browsers[textbrowser] = [textbrowser, temp, '', '', '']
       else
-        TextmodeBrowsers->remove(TextmodeBrowsers->match('^\c\V' .. textbrowser .. '\$'))
+        TextmodeBrowsers->filter("v:val !=? '" .. textbrowser .. "'")
       endif
       return
     }

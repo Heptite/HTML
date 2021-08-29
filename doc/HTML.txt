@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2021 Aug 18
+*HTML.txt*	For Vim version 9.0	Last change: 2021 Aug 28
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -58,8 +58,8 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 ;&	The HTML |character-entities| insert mode mappings start with &, so
 	typing ;& in insert mode will insert a literal & character.
 	(In actuality this mapping is defined as |g:htmlplugin.map_leader| +
-	|g:htmlplugin.map_entity_leader| to insert whatever is in
-	|g:htmlplugin.map_entity_leader|.) (Note that this mapping behaves
+	|g:htmlplugin.entity_map_leader| to insert whatever is in
+	|g:htmlplugin.entity_map_leader|.) (Note that this mapping behaves
 	very differently in visual mode. See: |v_;&|)
 
 				*html-<Tab>* *html-tab* *html-CTRL-I*
@@ -167,13 +167,13 @@ be set before HTML.vim is sourced. You can set this to your |mapleader| or
 |maplocalleader|. e.g.: >
 	:let g:htmlpluign.map_leader = g:maplocalleader
 
-*g:htmlpluign.map_entity_leader*
+*g:htmlpluign.entity_map_leader*
 This variable can be set to the character you want for the leader of the
 character entity insert mode mappings defined under |character-entities|, the
 default being "&". This variable must be set before HTML.vim is sourced. If
 you attempt to set this to the same value as |g:htmlpluign.map_leader| you
 will get an error. e.g.: >
-	:let g:htmlpluign.map_entity_leader = '\'
+	:let g:htmlpluign.entity_map_leader = '\'
 
 *g:htmlpluign.no_map_override*
 Set this variable to a nonzero value if you do not want this plugin to
@@ -188,20 +188,20 @@ when there is an already existing mapping and the mapping will still be
 overridden.
 
 *g:htmlplugin.no_maps* *b:htmlplugin.no_maps*
-Set this variable to a regular expression to match against mappings. If a
-mapping to be defined matches this regular expression it will not be defined.
-You can also set this on a per-buffer basis by using b:htmlplugin.no_maps
-instead.  The patterns are case sensitive, will not undergo
-|g:htmlplugin.map_leader| and |g:htmlplugin.map_entity_leader| substitution,
-and must be set before HTML.vim is sourced. e.g., to suppress the <A HREF>,
-<IMG SRC> and the centered headings tags: >
-	:let g:htmlplugin.no_maps = '^\(;ah\|;im\|;H\d\)$'
+Set this variable to a |List| to match against mappings. If a mapping to be
+defined matches one of the items in the list it will not be defined.  You can
+also set this on a per-buffer basis by using b:htmlplugin.no_maps instead.
+The list items are case sensitive, will not undergo |g:htmlplugin.map_leader|
+and |g:htmlplugin.entity_map_leader| substitution, and must be set before
+HTML.vim is sourced. e.g., to suppress the <A HREF>, <IMG SRC> and the
+centered headings tags: >
+	:let g:htmlplugin.no_maps = [';ah', ';im', ';H1', ';H2', ';H3',
+		\ ';H4', ';H5', ';H6']
 
 This only applies to the mappings defined internally to the plugin. If you
 call the |HTML#Map()| function elsewhere the mapping will be defined even if
-it matches this regular expression. This is useful if you wish to define
-custom variants of some of the plugin's mappings without getting warning
-messages.
+it matches this list; this is useful if you wish to define custom variants of
+some of the plugin's mappings without getting warning messages.
 
 *g:htmplugin.no_tab_mapping*
 Set this variable to a nonzero value if you do not want the tab key to be
@@ -274,7 +274,7 @@ internal template.
 The default for these variables are empty strings.
 
 *g:htmlplugin.authoremail_encoded*
-This variable will be set using |HTML#EncodeString()| if your
+This variable will be set using |HTML#TranscodeString()| if your
 |g:htmlplugin.authoremail| variable is set. (Do not set this variable
 yourself, it will be overwritten when the template macro is used.)
 
@@ -347,8 +347,8 @@ This is replaced by a string that is automatically detected based on the
 
 %vimversion%					*%vimversion%*
 The current version of Vim, based on |v:version| and |v:versionlong|. For
-example, if v:version was "802" and v:versionlong was "8020220" the
-%vimversion% token would be replaced by "8.2.220".
+example, if v:version was "901" and v:versionlong was "9010220" the
+%vimversion% token would be replaced by "9.1.220".
 
 For example, if you had the template: >
  <!DOCTYPE html>
@@ -403,23 +403,20 @@ You would get something like: >
 :HTMLabout
 	Show information about the plugin.
 
-	*disable-HTML-macros*	*HTML-macros-disable*	*HTML-disable-macros*
-	*disable-HTML-mappings*	*HTML-mappings-disable*	*HTML-disable-mappings*
-	*enable-HTML-macros*	*HTML-macros-enable*	*HTML-enable-macros*
-	*enable-HTML-mappings*	*HTML-mappings-enable*	*HTML-enable-mappings*
-	*reload-HTML-macros*	*HTML-macros-reload*	*HTML-reload-macros*
-	*reload-HTML-mappings*	*HTML-mappings-reload*	*HTML-reload-mappings*
-							*:HTMLmappings*
-:HTML[mappings] {disable/off/enable/on/html/xhtml/uppercase/lowercase/reload}
+	*disable-HTML-macros*	*disable-HTML-mappings*	*disable-HTML-plugin*
+	*enable-HTML-macros*	*enable-HTML-mappings*	*enable-HTML-plugin*
+	*reload-HTML-macros*	*reload-HTML-mappings*	*reload-HTML-plugin*
+							*:HTMLplugin*
+:HTML[plugin] {disable/off/enable/on/html/xhtml/uppercase/lowercase/reload}
 	This command allows the HTML macros to be disabled and re-enabled.
 	This is useful for editing inline PHP, JavaScript, etc. where you
 	would want to be able to type literal ";", "&" and tab characters
 	without interference. (Also see |i_;;|, |i_;&| and |i_;<Tab>|)
 
-	You may also use this command to switch the mappings into HTML or
+	You may also use this command to switch the plugin into HTML or
 	XHTML mode, or switch between uppercase or lowercase.
 
-	Finally, you can use the :HTMLmappings command to reload the entire
+	Finally, you can use the :HTMLplugin command to reload the entire
 	HTML macros plugin.
 
 	The argument to this command can be abbreviated to the first character
@@ -435,13 +432,10 @@ You would get something like: >
 							*:HTMLReloadFunctions*
 :HTMLReloadFunctions
 	This command reloads all the previously loaded functions for this
-	plugin. This is normally called by `:HTMLmappings`.
+	plugin. This is normally called by `:HTMLplugin`.
 
-							*:ColorSelect* *:CS*
 							*:ColorChooser* *:CC*
-:ColorSelect
 :ColorChooser
-:CS
 :CC
 	Open a popup with the standard HTML color palette displayed and
 	highlighted with their respective color. (Note that the highlighting
@@ -449,15 +443,17 @@ You would get something like: >
 
 	Keyboard movement commands such as "j" and "k" apply in this popup.
 	Pressing enter selects the hexadecimal color number, shift-enter
-	selects the color name, and "r" selects the rgb() value. You can abort
-	by pressing escape or "q".  You can also either double-click on the
-	name to select it, or the color number to select that. Finally you can
-	hold down shift while you double click to insert the rgb() value.
+	selects the color name, "r" selects the rgb() value, and "R" selects
+	the rgb() percent value. You can abort by pressing escape or "q".  You
+	can also either double-click on the name to select it, or the color
+	number to select that. Finally you can hold down shift while you
+	double click to insert the rgb() value, or hold down control and
+	double click to insert the rgb() percent value.
 
 	This command fails if you are not in an HTML buffer.
 
 							*n_;cc* *i_;cc* *v_;cc*
-;cc	A shortcut mapping to call |:ColorSelect|.
+;cc	A shortcut mapping to call |:ColorChooser|.
 
 
 ==============================================================================
@@ -1029,9 +1025,8 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 <	(|n_;|)
 							*n_;tA*
 ;tA	Interactive table; you will be interactively prompted for the table
-	rows, columns, border width, table header and table footer. (Note that
-	border width is not HTML 5 compatible; leave it empty and use CSS
-	instead.)
+	rows, columns, border width (using CSS), table header and table
+	footer.
 							*html-table-header*
 							*i_;tH* *v_;tH* *n_;tH*
 ;tH	Table header row: >
@@ -1301,7 +1296,7 @@ characters into the HTML buffer. These are known as characters entities.
 	highlighting is enabled.
 
 	(Note that the "&" in this mapping is not translated to whatever
-	|g:htmlplugin.map_entity_leader| is set to.)
+	|g:htmlplugin.entity_map_leader| is set to.)
 							*n_;star* *v_;star*
 ;*	Similar to |n_;&| / |v_;&| but encodes to purely hexadecimal codes
 	instead.
@@ -1313,12 +1308,7 @@ characters into the HTML buffer. These are known as characters entities.
 	(|n_;|)
 
 	(Note that this will not touch Unicode characters. See
-	|HTML#EncodeString()|)
-
-Note: Previously the ;& and ;% normal mode mappings did not require a motion
-and operated on the character "under" the cursor. This was changed for
-multiple reasons. Type ;&l or ;%l to emulate the old behavior.
-
+	|HTML#TranscodeString()|)
 							*n_;^* *v_;^*
 ;^	This mapping will decode the &..., &#...; and %XX elements of the
 	motion or visually selected characters to their actual characters.
@@ -1328,7 +1318,7 @@ multiple reasons. Type ;&l or ;%l to emulate the old behavior.
 The following mappings work in insert mode only.
 
 Note that you can change the leader character for these mappings from '&' to
-another character of your preference. See |g:htmlplugin.map_entity_leader|.
+another character of your preference. See |g:htmlplugin.entity_map_leader|.
 
 Name:			Symbol:		HTML:		Macro: ~
 ------------------------------------------------------------------------------
@@ -1736,7 +1726,7 @@ drive).
 Some of the functions used by the HTML mappings:	*html-functions*
 ------------------------------------------------
 
-HTML#EncodeString({string} [, {...}])			*HTML#EncodeString()*
+HTML#TranscodeString({string} [, {...}])		*HTML#TranscodeString()*
 	Returns {string} encoded into HTML entities, or decode HTML encoded
 	strings.
 
@@ -1760,11 +1750,6 @@ HTML#EncodeString({string} [, {...}])			*HTML#EncodeString()*
 	  or from &...; entities.
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
-
-HTML#DecodeSymbol({symbol})				*HTML#DecodeSymbol()*
-	Returns the character representation of {symbol}, if it is in &#NNN;,
-	&#xNNN, &aaa;, or %XX format. This function is typically used by
-	|HTML#EncodeString()| to decode strings.
 
 							*HTML#GenerateTable()*
 HTML#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
@@ -1795,7 +1780,7 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 	contents of |g:htmlplugin.map_leader|.
 
 	If {lhs} starts with "<elead>" that string will replaced with the
-	contents of |g:htmlplugin.map_entity_leader|.
+	contents of |g:htmlplugin.entity_map_leader|.
 
 	Any text in {rhs} that is enclosed by [{}] will be converted to
 	uppercase/lowercase according to the |g:htmlplugin.tag_case| or
@@ -1871,4 +1856,4 @@ I will never include mappings for certain tags, such as <BLINK></BLINK> and
 <MARQUEE></MARQUEE> (which were always nonstandard). As far as I am concerned
 these tags should never have existed.
 
- vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:fenc=utf8:
+ vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:
