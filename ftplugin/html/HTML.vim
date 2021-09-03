@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      August 28, 2021
+# Last Change:      August 30, 2021
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -360,6 +360,27 @@ if BrowserLauncherExists
       'nnoremap',
       '<lead>db',
       ":vim9cmd BrowserLauncher#Launch('default')<CR>"
+    )
+  endif
+
+  if BrowserLauncher#Exists('brave')
+    # Chrome: View current file, starting Chrome if it's not running:
+    HTML#Map(
+      'nnoremap',
+      '<lead>bv',
+      ":vim9cmd BrowserLauncher#Launch('brave', 0)<CR>"
+    )
+    # Chrome: Open a new window, and view the current file:
+    HTML#Map(
+      'nnoremap',
+      '<lead>nbv',
+      ":vim9cmd BrowserLauncher#Launch('brave', 1)<CR>"
+    )
+    # Chrome: Open a new tab, and view the current file:
+    HTML#Map(
+      'nnoremap',
+      '<lead>tbv',
+      ":vim9cmd BrowserLauncher#Launch('brave', 2)<CR>"
     )
   endif
 
@@ -724,6 +745,12 @@ if !HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
     HTML#LeadMenu('amenu', '1.510', ['ToolBar', 'Browser'], 'db')
   endif
 
+  if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
+    HTML#Menu('tmenu', '1.530', ['ToolBar', 'Brave'],
+      'Launch Brave on the Current File')
+    HTML#LeadMenu('amenu', '1.530', ['ToolBar', 'Brave'], 'bv')
+  endif
+
   if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
     HTML#Menu('tmenu', '1.520', ['ToolBar', 'Firefox'],
       'Launch Firefox on the Current File')
@@ -858,50 +885,56 @@ endif
 if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Default Browser'], 'db')
 endif
-if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
+if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
   HTML#Menu('menu', '-', ['Preview', '-sep1-'], '<nop>')
+  HTML#LeadMenu('amenu', '-', ['&Preview', '&Brave'], 'bv')
+  HTML#LeadMenu('amenu', '-', ['&Preview', 'Brave (New Window)'], 'nbv')
+  HTML#LeadMenu('amenu', '-', ['&Preview', 'Brave (New Tab)'], 'tbv')
+endif
+if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
+  HTML#Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Firefox'], 'ff')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Window)'], 'nff')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Tab)'], 'tff')
 endif
 if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
+  HTML#Menu('menu', '-', ['Preview', '-sep3-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Chrome'], 'gc')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Window)'], 'ngc')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Tab)'], 'tgc')
 endif
 if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep3-'], '<nop>')
+  HTML#Menu('menu', '-', ['Preview', '-sep4-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Edge'], 'ed')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Edge (New Window)'], 'ned')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Edge (New Tab)'], 'ted')
 endif
 if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep4-'], '<nop>')
+  HTML#Menu('menu', '-', ['Preview', '-sep5-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Opera'], 'oa')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Opera (New Window)'], 'noa')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Opera (New Tab)'], 'toa')
 endif
 if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep5-'], '<nop>')
+  HTML#Menu('menu', '-', ['Preview', '-sep6-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Safari'], 'sf')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Safari (New Window)'], 'nsf')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Safari (New Tab)'], 'tsf')
 endif
 if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep6-'], '<nop>')
+  HTML#Menu('menu', '-', ['Preview', '-sep7-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&Lynx'], 'ly')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Lynx (New Window)'], 'nly')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Lynx (:terminal)'], 'tly')
 endif
 if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep7-'], '<nop>')
+  HTML#Menu('menu', '-', ['Preview', '-sep8-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', '&w3m'], 'w3')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'w3m (New Window)'], 'nw3')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'w3m (:terminal)'], 'tw3')
 endif
 if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep8-'], '<nop>')
+  HTML#Menu('menu', '-', ['Preview', '-sep9-'], '<nop>')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Li&nks'], 'ln')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Links (New Window)'], 'nln')
   HTML#LeadMenu('amenu', '-', ['&Preview', 'Links (:terminal)'], 'tln')

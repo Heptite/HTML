@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
 #
-# Last Change: August 28, 2021
+# Last Change: September 01, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -144,7 +144,7 @@ def ImageSize(image: string): list<number>  # {{{1
   var size: list<number>
   var buf: list<number>
 
-  if ext !~? '^png$\|^gif$\|^jpe\?g$'
+  if ext !~? '^png$\|^gif$\|^jpe\?g\|^tiff\?$\|^webp$'
     execute 'HTMLERROR Image type not supported: ' .. tolower(ext)
     return []
   elseif !image->filereadable()
@@ -153,7 +153,7 @@ def ImageSize(image: string): list<number>  # {{{1
   endif
 
   # Read the image and convert it to a list of numbers:
-  for byte in image->readblob()[0 : 1024 * 32]
+  for byte in image->readblob()
     buf->add(<number>byte)
   endfor
 
@@ -162,7 +162,11 @@ def ImageSize(image: string): list<number>  # {{{1
   elseif ext ==? 'gif'
     size = buf->SizeGif()
   elseif ext ==? 'jpg' || ext ==? 'jpeg'
-    size = buf->SizeJpg()
+    size = buf->SizeJpeg()
+  elseif ext ==? 'tif' || ext ==? 'tiff'
+    size = buf->SizeTiff()
+  elseif ext ==? 'webp'
+    size = buf->SizeWebP()
   endif
 
   return size
@@ -188,7 +192,7 @@ def SizeGif(buf: list<number>): list<number>  # {{{1
   return []
 enddef
 
-def SizeJpg(buf: list<number>): list<number>  # {{{1
+def SizeJpeg(buf: list<number>): list<number>  # {{{1
   var i = 0
   var len = buf->len()
 
@@ -224,6 +228,92 @@ def SizePng(buf: list<number>): list<number>  # {{{1
   endwhile
 
   HTMLERROR Malformed PNG file.
+
+  return []
+enddef
+
+def SizeTiff(buf: list<number>): list<number>  # {{{1
+  var i: number
+  var j: number
+  var len = buf->len()
+  var width = -1
+  var height = -1
+  var bigendian: bool
+  var type: number
+
+  if buf[0 : 1]->join(' ') == '73 73'
+    #echomsg "TIFF is Little Endian"
+    bigendian = false
+  elseif buf[0 : 1]->join(' ') == '77 77'
+    #echomsg "TIFF is Big Endian"
+    bigendian = true
+  else
+    HTMLERROR Malformed TIFF file, Endian identifier not found.
+    return []
+  endif
+
+  if (bigendian ? buf[2 : 3]->Vec() : buf[2 : 3]->reverse()->Vec()) != 42
+    HTMLERROR Malformed TIFF file, identifier not found.
+    return []
+  endif
+
+  i = bigendian ? buf[4 : 7]->Vec() : buf[4 : 7]->reverse()->Vec()
+  j = bigendian ? buf[i : i + 1]->Vec() : buf[i : i + 1]->reverse()->Vec()
+  i += 2
+
+  while i <= len
+    type = bigendian ? buf[i : i + 1]->Vec() : buf[i : i + 1]->reverse()->Vec()
+
+    if type == 0x100
+      width = bigendian ? buf[i + 8 : i + 11]->Vec() : buf[i + 8 : i + 11]->reverse()->Vec()
+    elseif type == 0x101
+      height = bigendian ? buf[i + 8 : i + 11]->Vec() : buf[i + 8 : i + 11]->reverse()->Vec()
+    endif
+
+    if width > 0 && height > 0
+      return [width, height]
+    endif
+
+    i += 12
+
+    if j == 0
+      i = bigendian ? buf[i + 4 : i + 7]->Vec() : buf[i + 4 : i + 7]->reverse()->Vec()
+      j = bigendian ? buf[i : i + 1]->Vec() : buf[i : i + 1]->reverse()->Vec()
+      i += 2
+    else
+      --j
+    endif
+  endwhile
+
+  HTMLERROR Malformed TIFF file.
+
+  return []
+enddef
+
+def SizeWebP(buf: list<number>): list<number>  # {{{1
+  var i = 0
+  var len = buf->len()
+
+  if buf[0 : 11]->join(' ') !~ '^82 73 70 70\%( \d\+\)\{4} 87 69 66 80'
+    HTMLERROR Malformed WEBP file.
+    return []
+  endif
+
+  i += 12
+
+  while i <= len
+    if buf[i : i + 3]->join(' ') =~ '^86 80 56 \d\d'
+      i += 14
+      var width = and(buf[i : i + 1]->reverse()->Vec(), 0x3fff)
+      var height = and(buf[i + 2 : i + 3]->reverse()->Vec(), 0x3fff)
+
+      return [width, height]
+    endif
+
+    ++i
+  endwhile
+
+  HTMLERROR Malformed WEBP file.
 
   return []
 enddef

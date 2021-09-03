@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2021 Aug 28
+*HTML.txt*	For Vim version 9.0	Last change: 2021 Sep 01
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -878,7 +878,8 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 							*html-update-image-size*
 							*i_;mi* *v_;mi* *n_;mi*
 ;mi	Automatically add or update the WIDTH and HEIGHT attributes of the
-	<IMG> tag under the cursor.
+	<IMG> tag under the cursor.  Currently this only supports GIF, JPEG,
+	PNG, TIFF (not supported by most browsers), and WEBP files.
 							*html-navigation*
 							*i_;na* *v_;na* *n_;na*
 ;na	Navigation links: >

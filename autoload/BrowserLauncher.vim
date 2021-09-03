@@ -9,14 +9,15 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 28, 2021
+# Last Change: August 30, 2021
 #
 # Currently supported browsers:
 # Unix:
-#  - Firefox  (remote [new window / new tab] / launch)
-#    (This will fall back to Iceweasel for Debian installs.)
+#  - Brave    (remote [new window / new tab] / launch)
 #  - Chrome   (remote [new window / new tab] / launch)
 #    (This will fall back to Chromium if it's installed and Chrome isn't.)
+#  - Firefox  (remote [new window / new tab] / launch)
+#    (This will fall back to Iceweasel for Debian installs.)
 #  - Opera    (remote [new window / new tab] / launch)
 #  - Lynx     (Under the current TTY if not running the GUI, or a new xterm
 #              window if DISPLAY is set.)
@@ -33,10 +34,11 @@ endif
 #  - Default
 #
 # Windows and Cygwin:
-#  - Firefox  (remote [new window / new tab] / launch)
-#  - Opera    (remote [new window / new tab] / launch)
+#  - Brave    (remote [new window / new tab] / launch)
 #  - Chrome   (remote [new window / new tab] / launch)
 #  - Edge     (remote [new window / new tab] / launch)
+#  - Firefox  (remote [new window / new tab] / launch)
+#  - Opera    (remote [new window / new tab] / launch)
 #  - Plus lynx, w3m, and links on Cygwin if they can be found.
 #  - Default
 #
@@ -326,6 +328,8 @@ elseif has('unix') && ! has('win32unix') # {{{1
 
   Browsers['firefox'] = [['firefox', 'iceweasel'], 
     '', '', '--new-tab', '--new-window']
+  Browsers['brave']   = [['brave-browser', 'brave'],
+    '', '', '',          '--new-window']
   Browsers['chrome']  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
     '', '', '',          '--new-window']
   Browsers['opera']   = ['opera',
@@ -357,6 +361,10 @@ elseif has('win32') || has('win64') || has('win32unix')  # {{{1
   # These applications _could_ be installed elsewhere, but there's no reliable
   # way to find them if they are, so just assume they would be in a standard
   # location:
+  if filereadable('C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe')
+    || filereadable('C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe')
+    Browsers['brave'] = ['brave', '', '', '', '--new-window']
+  endif
   if filereadable('C:\Program Files\Mozilla Firefox\firefox.exe')
     || filereadable('C:\Program Files (x86)\Mozilla Firefox\firefox.exe')
     Browsers['firefox'] = ['firefox', '', '', '--new-tab', '--new-window']
