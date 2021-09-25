@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023316
+if v:version < 802 || v:versionlong < 8023438
   finish
 endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: August 28, 2021
+# Last Change: September 14, 2021
 #
 # Requirements:
 #       Vim 9 or later
@@ -73,7 +73,7 @@ def HTML#About(): void
     .. "Version: " .. (HTML.VERSION) .. "\n" .. "Written by: "
     .. (HTML.AUTHOR) .. ' <' .. (HTML.EMAIL) .. ">\n"
     .. "With thanks to Doug Renze for the original concept,\n"
-    .. "Devin Weaver for the original mangleImageTag, "
+    .. "Devin Weaver for the original mangleImageTag,\n"
     .. "Israel Chauca Fuentes for the MacOS version of the browser\n"
     .. "launcher code, and several others for their contributions.\n"
     .. (HTML.COPYRIGHT) .. "\n" .. "URL: " .. (HTML.HOMEPAGE)

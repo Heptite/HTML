@@ -1,16 +1,18 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023316
+if v:version < 802 || v:versionlong < 8023438
   finish
 endif
 
-# MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT tags.
+# MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: September 01, 2021
+# Last Change: September 18, 2021
 #
 # Requirements:
-#       Vim 9 or later
+#   Vim 9 or later
+# Assumptions:
+#   The file extension is correct for the image type
 #
 # Copyright © 1998-2021 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
@@ -95,7 +97,7 @@ def MangleImageTag#Update(): bool  # {{{1
   endif
 
   if src == ''
-    HTMLERROR No image specified.
+    HTMLERROR No image specified in SRC.
     return false
   elseif !src->filereadable()
     if filereadable(expand('%:p:h') .. '/' .. src)
@@ -153,9 +155,7 @@ def ImageSize(image: string): list<number>  # {{{1
   endif
 
   # Read the image and convert it to a list of numbers:
-  for byte in image->readblob()
-    buf->add(<number>byte)
-  endfor
+  buf = image->readblob()->blob2list()
 
   if ext ==? 'png'
     size = buf->SizePng()
@@ -176,7 +176,7 @@ def SizeGif(buf: list<number>): list<number>  # {{{1
   var i = 0
   var len = buf->len()
 
-  while i <= len
+  while i < len
     if buf[i : i + 9]->join(' ') =~ '^71 73 70\%( \d\+\)\{7}'
       var width = buf[i + 6 : i + 7]->reverse()->Vec()
       var height = buf[i + 8 : i + 9]->reverse()->Vec()
@@ -196,7 +196,7 @@ def SizeJpeg(buf: list<number>): list<number>  # {{{1
   var i = 0
   var len = buf->len()
 
-  while i <= len
+  while i < len
     if buf[i : i + 8]->join(' ') =~ '^255 192\%( \d\+\)\{7}'
       var height = buf[i + 5 : i + 6]->Vec()
       var width = buf[i + 7 : i + 8]->Vec()
@@ -216,7 +216,7 @@ def SizePng(buf: list<number>): list<number>  # {{{1
   var i = 0
   var len = buf->len()
 
-  while i <= len
+  while i < len
     if buf[i : i + 11]->join(' ') =~ '^73 72 68 82\%( \d\+\)\{8}'
       var width = buf[i + 4 : i + 7]->Vec()
       var height = buf[i + 8 : i + 11]->Vec()
@@ -261,7 +261,7 @@ def SizeTiff(buf: list<number>): list<number>  # {{{1
   j = bigendian ? buf[i : i + 1]->Vec() : buf[i : i + 1]->reverse()->Vec()
   i += 2
 
-  while i <= len
+  while i < len
     type = bigendian ? buf[i : i + 1]->Vec() : buf[i : i + 1]->reverse()->Vec()
 
     if type == 0x100
@@ -301,8 +301,8 @@ def SizeWebP(buf: list<number>): list<number>  # {{{1
 
   i += 12
 
-  while i <= len
-    if buf[i : i + 3]->join(' ') =~ '^86 80 56 \d\d'
+  while i < len
+    if buf[i : i + 3]->join(' ') =~ '^86 80 56 \d\+'
       i += 14
       var width = and(buf[i : i + 1]->reverse()->Vec(), 0x3fff)
       var height = and(buf[i + 2 : i + 3]->reverse()->Vec(), 0x3fff)

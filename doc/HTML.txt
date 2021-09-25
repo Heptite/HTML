@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2021 Sep 01
+*HTML.txt*	For Vim version 9.0	Last change: 2021 Sep 25
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -8,10 +8,10 @@
 
 This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim 9 or
 later to make editing HTML files easier. The original Copyright goes to Doug
-Renze, although his efforts have been heavily modified in this implementation.
-All the changes are Copyright © 1998 - 2021 Christian J. Robinson. These
-macros and the supporting scripts are distributable under the terms of the GNU
-|GPL| version 3 or later.
+Renze, although his efforts have been heavily modified and extended in this
+implementation.  All the changes are Copyright © 1998 - 2021 Christian J.
+Robinson. These macros and the supporting scripts are distributable under the
+terms of the GNU |GPL| version 3 or later.
 
 ------------------------------------------------------------------------------
 
@@ -397,7 +397,9 @@ You would get something like: >
  </HTML>
 <
 ==============================================================================
-3. Commands						 *html-commands*
+3. Commands						*html-commands*
+
+The following commands are only defined in HTML buffers.
 
 							*:HTMLabout*
 :HTMLabout
@@ -417,7 +419,7 @@ You would get something like: >
 	XHTML mode, or switch between uppercase or lowercase.
 
 	Finally, you can use the :HTMLplugin command to reload the entire
-	HTML macros plugin.
+	HTML macros plugin, although this is not recommended.
 
 	The argument to this command can be abbreviated to the first character
 	rather than the full word, and the command can be abbreviated to
