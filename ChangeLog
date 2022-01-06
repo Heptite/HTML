@@ -1,3 +1,6 @@
+Sat, 25 Sep 2021 13:33:07 -0600 Christian J. Robinson
+ * Tweaks, speed improvements, some plugin commands are now local to the buffer.
+
 Thu, 2 Sep 2021 22:23:14 -0600 Christian J. Robinson
  * Support Brave browser. Image tag WIDTHxHEIGHT updater supports more image types.
 

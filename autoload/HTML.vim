@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023438
+if v:version < 802 || v:versionlong < 8024023
   finish
 endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: September 14, 2021
+# Last Change: January 06, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -47,7 +47,7 @@ if ! exists('g:htmlplugin.did_commands') || ! g:htmlplugin.did_commands   # {{{1
     }
 endif  # }}}1
 
-import * as HTML from "../import/HTML.vim"
+import "../import/HTML.vim"
 
 # Used in a bunch of places so some functions don't have to be globally
 # exposed:
@@ -537,7 +537,8 @@ def MapCheck(map: string, mode: string, internal: bool = false): number
       return 2
     else
       execute 'HTMLWARN WARNING: A mapping of "' .. map .. '" for '
-        .. HTML.MODES[mode] .. ' mode has been overridden for this buffer.'
+        .. HTML.MODES[mode] .. ' mode has been overridden for buffer: '
+        .. expand('%')
       return 1
     endif
   endif
@@ -1506,49 +1507,6 @@ def HTML#Template(): bool
     # Return Value:
     #  String or List: The new text
     def TokenReplace(text: list<string>): list<string>
-
-      # DetectCharset()  {{{4
-      #
-      # Purpose:
-      #  Detects the HTTP-EQUIV Content-Type charset based on Vim's current
-      #  encoding/fileencoding.
-      # Arguments:
-      #  1 - String: Optional, the charset to try to match with the internal
-      #              table
-      # Return Value:
-      #  The value for the Content-Type charset based on 'fileencoding' or
-      #  'encoding'.
-      def DetectCharset(charset: string = ''): string
-        var enc: string
-
-        if exists('b:htmlplugin.charset')
-          return b:htmlplugin.charset
-        elseif exists('g:htmlplugin.charset')
-          return g:htmlplugin.charset
-        endif
-
-        if charset != ''
-          enc = charset
-        elseif &fileencoding == ''
-          enc = tolower(&encoding)
-        else
-          enc = tolower(&fileencoding)
-        endif
-
-        # The iso-8859-* encodings are valid for the Content-Type charset header:
-        if enc =~? '^iso-8859-'
-          return toupper(enc)
-        endif
-
-        enc = enc->substitute('\W', '_', 'g')
-
-        if HTML.CHARSETS[enc] != ''
-          return HTML.CHARSETS[enc]
-        endif
-
-        return g:htmlplugin.default_charset
-      enddef  # }}}4
-
       var newtext: list<string>
 
       newtext = text->mapnew(
@@ -1639,6 +1597,48 @@ def HTML#Template(): bool
   &showcmd = HTML.saveopts['showcmd']
 
   return ret
+enddef
+
+# DetectCharset()  {{{1
+#
+# Purpose:
+#  Detects the HTTP-EQUIV Content-Type charset based on Vim's current
+#  encoding/fileencoding.
+# Arguments:
+#  1 - String: Optional, the charset to try to match with the internal
+#              table
+# Return Value:
+#  The value for the Content-Type charset based on 'fileencoding' or
+#  'encoding'.
+def DetectCharset(charset: string = ''): string
+  var enc: string
+
+  if exists('b:htmlplugin.charset')
+    return b:htmlplugin.charset
+  elseif exists('g:htmlplugin.charset')
+    return g:htmlplugin.charset
+  endif
+
+  if charset != ''
+    enc = charset
+  elseif &fileencoding == ''
+    enc = tolower(&encoding)
+  else
+    enc = tolower(&fileencoding)
+  endif
+
+  # The iso-8859-* encodings are valid for the Content-Type charset header:
+  if enc =~? '^iso-8859-'
+    return toupper(enc)
+  endif
+
+  enc = enc->substitute('\W', '_', 'g')
+
+  if HTML.CHARSETS[enc] != ''
+    return HTML.CHARSETS[enc]
+  endif
+
+  return g:htmlplugin.default_charset
 enddef
 
 # HTML#MenuJoin()  {{{1

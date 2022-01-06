@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023438
+if v:version < 802 || v:versionlong < 8024023
   finish
 endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: September 14, 2021
+# Last Change: January 06, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -34,7 +34,7 @@ export const EMAIL = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
 export const HOMEPAGE = 'https://christianrobinson.name/HTML/'
 export const COPYRIGHT = 'Copyright © 1998-2021 under the terms of the GPL3'
 
-export const VERSION = '1.1.15'
+export const VERSION = '1.1.16'
 
 # Used by some of the functions to save then restore some options:
 export var saveopts: dict<any>
@@ -58,7 +58,7 @@ export const MENU_NAME = 'HTM&L'
 export const TAGS_FILE = 'json/htmltags.json'
 export const ENTITIES_FILE = 'json/htmlentities.json'
 
-export const INTERNAL_HTML_TEMPLATE = [  # {{{
+export const INTERNAL_TEMPLATE = [  # {{{
     # Don't insert the start of the <html> tag here, since logic in the main
     # plugin file adds it depending on the filetype.
     ' <[{HEAD}]>',

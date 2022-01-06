@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8023438
+if v:version < 802 || v:versionlong < 8024023
   echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.3438'
   sleep 3
   finish
@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      September 14, 2021
+# Last Change:      January 06, 2022
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -69,8 +69,7 @@ endif
 
 # ---- Initialization: -------------------------------------------------- {{{1
 
-import {COLOR_LIST, HOMEPAGE, INTERNAL_HTML_TEMPLATE, MENU_NAME}
-  from "../../import/HTML.vim"
+import "../../import/HTML.vim"
 
 # Do this here instead of below, because it's referenced early:
 if !exists('g:htmlplugin')
@@ -131,7 +130,7 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
 
   if !exists('g:htmlplugin.toplevel_menu_escaped')
     g:htmlplugin.toplevel_menu_escaped =
-      g:htmlplugin.toplevel_menu->add(MENU_NAME)->HTML#MenuJoin()
+      g:htmlplugin.toplevel_menu->add(HTML.MENU_NAME)->HTML#MenuJoin()
     lockvar g:htmlplugin.toplevel_menu
     lockvar g:htmlplugin.toplevel_menu_escaped
   endif
@@ -190,7 +189,7 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
   # Template Creation: {{{2
 
   if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
-    b:htmlplugin.internal_template = INTERNAL_HTML_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = HTML.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
         ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
         '<html xmlns="http://www.w3.org/1999/xhtml">'
@@ -199,7 +198,7 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
     b:htmlplugin.internal_template =
       b:htmlplugin.internal_template->HTML#ConvertCase()
   else
-    b:htmlplugin.internal_template = INTERNAL_HTML_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = HTML.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html>',
         '<[{HTML}]>'
       ], 0)
@@ -558,11 +557,28 @@ endif
 endif # ! exists('b:htmlplugin.did_mappings')
 
 # ---- ToolBar Buttons: ------------------------------------------------- {{{1
+
 if ! has('gui_running') && !HTML#BoolVar('g:htmlplugin.force_menu')
+  def CreateBufEnterOnce(): void
+    augroup HTMLpluginonce
+      au!
+      autocmd BufEnter * {
+          if HTML#BoolVar('b:htmlplugin.did_mappings_init')
+            execute 'source ' .. g:htmlplugin.file
+            execute 'autocmd! HTMLpluginonce'
+          endif
+        }
+    augroup END
+  enddef
+
   augroup HTMLplugin
     au!
     autocmd GUIEnter * ++once {
-        execute 'source ' .. g:htmlplugin.file
+        if HTML#BoolVar('b:htmlplugin.did_mappings_init')
+          execute 'source ' .. g:htmlplugin.file
+        else
+          eval CreateBufEnterOnce()
+        endif
       }
   augroup END
 
@@ -584,7 +600,7 @@ if !HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
   if findfile('bitmaps/Browser.bmp', &runtimepath) == ''
     var message = "Warning:\nYou need to install the Toolbar Bitmaps for the "
       .. g:htmlplugin.file->fnamemodify(':t') .. " plugin.\n"
-      .. 'See: ' .. HOMEPAGE .. "#files\n"
+      .. 'See: ' .. HTML.HOMEPAGE .. "#files\n"
       .. 'Or see ":help g:htmlplugin.no_toolbar".'
     var ret = message->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
 
@@ -593,14 +609,20 @@ if !HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
       # Go to the previous window or everything gets messy:
       wincmd p
     elseif ret == 3
-      BrowserLauncher#Launch('default', 0, HOMEPAGE .. '#files')
+      BrowserLauncher#Launch('default', 0, HTML.HOMEPAGE .. '#files')
     endif
   endif
 
   # In the context of running ":gui" after starting the non-GUI, unfortunately
   # there's no way to make this work if the user has 'guioptions' set in their
   # gvimrc, and it removes the 'T'.
-  set guioptions+=T
+  if has('gui_running')
+    set guioptions+=T
+  else
+    augroup HTMLplugin
+      autocmd GUIEnter * set guioptions+=T
+    augroup END
+  endif
 
   # Save some menu stuff from the global menu.vim so we can reuse them
   # later--this makes sure updates from menu.vim make it into this codebase:
@@ -945,7 +967,7 @@ HTML#ReadTags(true, true)
 HTML#ReadEntities(true, true)
 
 # Create the rest of the colors menu:
-COLOR_LIST->mapnew((_, value) => HTML#ColorsMenu(value[0], value[1], value[2], value[3]))
+HTML.COLOR_LIST->mapnew((_, value) => HTML#ColorsMenu(value[0], value[1], value[2], value[3]))
 
 g:htmlplugin.did_menus = true
 
