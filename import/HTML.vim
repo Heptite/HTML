@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: January 06, 2022
+# Last Change: January 09, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -55,8 +55,8 @@ export var smarttags: dict<any>
 
 export const MENU_NAME = 'HTM&L'
 
-export const TAGS_FILE = 'json/htmltags.json'
-export const ENTITIES_FILE = 'json/htmlentities.json'
+export const TAGS_FILE = 'json/tags.json'
+export const ENTITIES_FILE = 'json/entities.json'
 
 export const INTERNAL_TEMPLATE = [  # {{{
     # Don't insert the start of the <html> tag here, since logic in the main

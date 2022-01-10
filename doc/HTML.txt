@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2021 Sep 25
+*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 09
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -9,7 +9,7 @@
 This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim 9 or
 later to make editing HTML files easier. The original Copyright goes to Doug
 Renze, although his efforts have been heavily modified and extended in this
-implementation.  All the changes are Copyright © 1998 - 2021 Christian J.
+implementation.  All the changes are Copyright © 1998 - 2022 Christian J.
 Robinson. These macros and the supporting scripts are distributable under the
 terms of the GNU |GPL| version 3 or later.
 

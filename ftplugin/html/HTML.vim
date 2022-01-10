@@ -2,7 +2,7 @@ vim9script
 scriptencoding utf8
 
 if v:version < 802 || v:versionlong < 8024023
-  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.3438'
+  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.4023'
   sleep 3
   finish
 endif
@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      January 06, 2022
+# Last Change:      January 09, 2022
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -268,8 +268,8 @@ endif
 
 # ---- General Markup Tag Mappings: ------------------------------------- {{{1
 
-# Cannot conditionally set mappings in the htmltags.json file, so do this set
-# of mappings here instead:
+# Cannot conditionally set mappings in the tags.json file, so do this set of
+# mappings here instead:
 
 #       SGML Doctype Command
 if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
@@ -600,7 +600,7 @@ if !HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
   if findfile('bitmaps/Browser.bmp', &runtimepath) == ''
     var message = "Warning:\nYou need to install the Toolbar Bitmaps for the "
       .. g:htmlplugin.file->fnamemodify(':t') .. " plugin.\n"
-      .. 'See: ' .. HTML.HOMEPAGE .. "#files\n"
+      .. 'See: ' .. (HTML.HOMEPAGE) .. "#files\n"
       .. 'Or see ":help g:htmlplugin.no_toolbar".'
     var ret = message->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
 
