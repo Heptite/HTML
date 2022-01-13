@@ -1,18 +1,18 @@
-vim9script
+vim9script autoload
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024023
+if v:version < 802 || v:versionlong < 8024072
   finish
 endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: January 09, 2022
+# Last Change: January 12, 2022
 #
 # Requirements:
 #   Vim 9 or later
 # Assumptions:
-#   The file extension is correct for the image type
+#   The filename extension is correct for the image type
 #
 # Copyright © 1998-2022 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
@@ -33,15 +33,18 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-if exists(':HTMLERROR') != 2  # {{{1
-  command! -nargs=+ HTMLERROR {
-      echohl ErrorMsg
-      echomsg <q-args>
-      echohl None
-    }
-endif  # }}}1
+def Error(error_message: string, quiet: bool = false): void  # {{{1
+  if quiet
+    return
+  endif
 
-def MangleImageTag#Update(): bool  # {{{1
+  echohl ErrorMsg
+  echomsg error_message
+  echohl None
+enddef
+
+# TODO: remove this when the bug is fixed
+export def Update(quiet: bool = false): bool  # {{{1
   var start_linenr: number
   var end_linenr: number
   var col: number
@@ -53,7 +56,7 @@ def MangleImageTag#Update(): bool  # {{{1
   line = getline(start_linenr)
 
   if line !~? '<img'
-    HTMLERROR The cursor is not on an IMG tag.
+    Error('The cursor is not on an IMG tag.', quiet) 
     return false
   endif
 
@@ -78,7 +81,7 @@ def MangleImageTag#Update(): bool  # {{{1
   tag = tag->strpart(0, tagend)
 
   if tag[0] != '<' || col > strlen(savestart .. tag) - 1
-    HTMLERROR The cursor is not on an IMG tag.
+    Error('The cursor is not on an IMG tag.', quiet)
     return false
   endif
 
@@ -92,24 +95,23 @@ def MangleImageTag#Update(): bool  # {{{1
       case = true
     endif
   else
-    HTMLERROR Image SRC not specified in the tag.
+    Error('Image SRC not specified in the tag.', quiet)
     return false
   endif
 
   if src == ''
-    HTMLERROR No image specified in SRC.
+    Error('No image specified in SRC.', quiet)
     return false
   elseif !src->filereadable()
     if filereadable(expand('%:p:h') .. '/' .. src)
       src = expand('%:p:h') .. '/' .. src
     else
-      execute 'HTMLERROR Can not find image file (or it is not readable): '
-        .. src
+      Error('Can not find image file (or it is not readable): ' .. src, quiet)
       return false
     endif
   endif
 
-  var size = ImageSize(src)
+  var size = ImageSize(src, quiet)
   if size->len() != 2
     return false
   endif
@@ -141,16 +143,20 @@ def MangleImageTag#Update(): bool  # {{{1
   return true
 enddef
 
-def ImageSize(image: string): list<number>  # {{{1
+def ImageSize(image: string, quiet: bool = false): list<number>  # {{{1
   var ext = image->fnamemodify(':e')
   var size: list<number>
   var buf: list<number>
 
   if ext !~? '^png$\|^gif$\|^jpe\?g\|^tiff\?$\|^webp$'
-    execute 'HTMLERROR Image type not supported: ' .. tolower(ext)
+    if !quiet
+      Error('Image type not supported: ' .. tolower(ext))
+    endif
     return []
   elseif !image->filereadable()
-    execute 'HTMLERROR Can not read file: ' .. image
+    if !quiet
+      Error('Can not read file: ' .. image)
+    endif
     return []
   endif
 
@@ -187,7 +193,7 @@ def SizeGif(buf: list<number>): list<number>  # {{{1
     ++i
   endwhile
 
-  HTMLERROR Malformed GIF file.
+  Error('Malformed GIF file.')
 
   return []
 enddef
@@ -207,7 +213,7 @@ def SizeJpeg(buf: list<number>): list<number>  # {{{1
     ++i
   endwhile
 
-  HTMLERROR Malformed JPEG file.
+  Error('Malformed JPEG file.')
 
   return []
 enddef
@@ -227,7 +233,7 @@ def SizePng(buf: list<number>): list<number>  # {{{1
     ++i
   endwhile
 
-  HTMLERROR Malformed PNG file.
+  Error('Malformed PNG file.')
 
   return []
 enddef
@@ -248,12 +254,12 @@ def SizeTiff(buf: list<number>): list<number>  # {{{1
     #echomsg "TIFF is Big Endian"
     bigendian = true
   else
-    HTMLERROR Malformed TIFF file, Endian identifier not found.
+    Error('Malformed TIFF file, Endian identifier not found.')
     return []
   endif
 
   if (bigendian ? buf[2 : 3]->Vec() : buf[2 : 3]->reverse()->Vec()) != 42
-    HTMLERROR Malformed TIFF file, identifier not found.
+    Error('Malformed TIFF file, identifier not found.')
     return []
   endif
 
@@ -285,7 +291,7 @@ def SizeTiff(buf: list<number>): list<number>  # {{{1
     endif
   endwhile
 
-  HTMLERROR Malformed TIFF file.
+  Error('Malformed TIFF file.')
 
   return []
 enddef
@@ -295,7 +301,7 @@ def SizeWebP(buf: list<number>): list<number>  # {{{1
   var len = buf->len()
 
   if buf[0 : 11]->join(' ') !~ '^82 73 70 70\%( \d\+\)\{4} 87 69 66 80'
-    HTMLERROR Malformed WEBP file.
+    Error('Malformed WEBP file.')
     return []
   endif
 
@@ -313,7 +319,7 @@ def SizeWebP(buf: list<number>): list<number>  # {{{1
     ++i
   endwhile
 
-  HTMLERROR Malformed WEBP file.
+  Error('Malformed WEBP file.')
 
   return []
 enddef
@@ -328,10 +334,7 @@ def Vec(numbers: list<number>): number  # {{{1
   return n
 enddef
 
-defcompile
-
-if !exists('g:htmlplugin.function_files') | g:htmlplugin.function_files = [] | endif
-g:htmlplugin.function_files->add(expand('<sfile>:p'))->sort()->uniq()
+#defcompile
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=2:comments=b\:#:commentstring=\ #\ %s:

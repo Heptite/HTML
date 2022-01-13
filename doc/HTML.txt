@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 09
+*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 12
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -80,8 +80,9 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 	 <TABLE>
 	 </TABLE>
 <
-	See |g:htmlplugin.no_tab_mapping| if you do not want these mappings to be
-	defined, in which case ;<Tab> will be used for the mappings instead.
+	See |g:htmlplugin.no_tab_mapping| if you do not want these mappings to
+	be defined, in which case ;<Tab> will be used for the mappings
+	instead.
 
 	[I think the use of tab is acceptable because I do not like the idea
 	of hard tabs or indentation greater than one or two spaces in HTML.]
@@ -100,7 +101,7 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 	|html-tab| mapping instead.  (See |g:htmlplugin.map_leader|) And
 	likewise, ;<S-Tab> (shift-tab) can be used.
 
-								*html-template*
+							*html-template*
 								*n_;html*
 ;html	This macro inserts a basic template at the top of the file. If the
 	buffer already contains some text you are asked if you want to replace
@@ -114,9 +115,9 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 					*html-customization* *g:htmlplugin*
 
 You can set the g:htmlplugin global |Dictonary| variable to control the
-behavior of the plugin. It is recommended you set this variable in your |vimrc|,
-as some of the keys are only effective if they are set before the plugin
-loads.
+behavior of the plugin. It is recommended you set this variable in your
+|vimrc|, as some of the keys are only effective if they are set before the
+plugin loads.
 
 Note that you may have to do ":let g:htmlplugin = {}" first or you will get an
 error, or you can just set everything at once in your |vimrc|, e.g.: >
@@ -135,8 +136,8 @@ Set this variable to a nonzero value if you prefer XHTML compatible tags to be
 defined. Setting this forces |b:htmlplugin.tag_case| to "lowercase". This is
 automatic if you are already editing a file that Vim detects as XHTML. This
 variable must be set before HTML.vim is sourced for the current buffer. You
-can also set this on a per-buffer basis by using b:htmlplugin.do_xhtml_mappings
-instead.  e.g.: >
+can also set this on a per-buffer basis by using
+b:htmlplugin.do_xhtml_mappings instead.  e.g.: >
 	:let g:htmlplugin.do_xhtml_mappings = 'yes'
 (However, XHTML is out of date and this mode is not recommended, and is only
 supported for historical reasons.)
@@ -183,9 +184,9 @@ must be set before HTML.vim is sourced. e.g.: >
 	:let g:htmlpluign.no_map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |HTML#Map()| function elsewhere you will still get a warning message
-when there is an already existing mapping and the mapping will still be
-overridden.
+call the |HTML#functions#Map()| function elsewhere you will still get a warning
+message when there is an already existing mapping and the mapping will still
+be overridden.
 
 *g:htmlplugin.no_maps* *b:htmlplugin.no_maps*
 Set this variable to a |List| to match against mappings. If a mapping to be
@@ -199,9 +200,9 @@ centered headings tags: >
 		\ ';H4', ';H5', ';H6']
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |HTML#Map()| function elsewhere the mapping will be defined even if
-it matches this list; this is useful if you wish to define custom variants of
-some of the plugin's mappings without getting warning messages.
+call the |HTML#functions#Map()| function elsewhere the mapping will be defined
+even if it matches this list; this is useful if you wish to define custom
+variants of some of the plugin's mappings without getting warning messages.
 
 *g:htmplugin.no_tab_mapping*
 Set this variable to a nonzero value if you do not want the tab key to be
@@ -224,16 +225,6 @@ Set this variable to a nonzero value if you do not want the menu items to be
 defined at all. This implies that |g:htmlplugin.no_toolbar| is set as well.
 This variable must be set before HTML.vim is sourced. e.g.: >
 	:let g:htmplugin.no_menu = 'yes'
-
-*g:htmlplugin.force_menu*
-Set this variable to a nonzero value if you want the menu items to be defined
-even if you are not in the |GUI|. This is useful if you want to use the menus
-in the console (see |console-menus|). This variable is ignored if
-|g:htmlplugin.no_menu| is set. This variable must be set before HTML.vim is
-sourced. e.g.: >
-	:let g:htmlplugin.force_menu = 'yes'
-Note: Setting this variable will also force the system menu.vim to load as
-well, or a race condition could occur.
 
 *g:htmlplugin.toplevel_menu*
 Set this to the toplevel menu where you want the HTML menu to become a
@@ -274,7 +265,7 @@ internal template.
 The default for these variables are empty strings.
 
 *g:htmlplugin.authoremail_encoded*
-This variable will be set using |HTML#TranscodeString()| if your
+This variable will be set using |HTML#functions#TranscodeString()| if your
 |g:htmlplugin.authoremail| variable is set. (Do not set this variable
 yourself, it will be overwritten when the template macro is used.)
 
@@ -407,34 +398,17 @@ The following commands are only defined in HTML buffers.
 
 	*disable-HTML-macros*	*disable-HTML-mappings*	*disable-HTML-plugin*
 	*enable-HTML-macros*	*enable-HTML-mappings*	*enable-HTML-plugin*
-	*reload-HTML-macros*	*reload-HTML-mappings*	*reload-HTML-plugin*
 							*:HTMLplugin*
-:HTML[plugin] {disable/off/enable/on/html/xhtml/uppercase/lowercase/reload}
+:HTML[plugin] {disable/off/enable/on}
 	This command allows the HTML macros to be disabled and re-enabled.
 	This is useful for editing inline PHP, JavaScript, etc. where you
 	would want to be able to type literal ";", "&" and tab characters
 	without interference. (Also see |i_;;|, |i_;&| and |i_;<Tab>|)
 
-	You may also use this command to switch the plugin into HTML or
-	XHTML mode, or switch between uppercase or lowercase.
-
-	Finally, you can use the :HTMLplugin command to reload the entire
-	HTML macros plugin, although this is not recommended.
-
-	The argument to this command can be abbreviated to the first character
-	rather than the full word, and the command can be abbreviated to
-	:HTML.
-
-	Note that all of the mappings defined by calling |HTML#Map()| or
-	|HTML#Mapo()|--including all of the mappings defined by this
-	script--are disabled/enabled when this command is used, regardless of
-	what |g:htmlplugin.map_leader| is set to.
-
-	*reload-HTML-functions*	*HTML-reload-functions*	*HTML-functions-reload*
-							*:HTMLReloadFunctions*
-:HTMLReloadFunctions
-	This command reloads all the previously loaded functions for this
-	plugin. This is normally called by `:HTMLplugin`.
+	Note that all of the mappings defined by calling |HTML#functions#Map()|
+	or |HTML#functions#Mapo()|--including all of the mappings defined by
+	this script--are disabled/enabled when this command is used,
+	regardless of what |g:htmlplugin.map_leader| is set to.
 
 							*:ColorChooser* *:CC*
 :ColorChooser
@@ -549,10 +523,10 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 <	Visual mode puts the visually selected text <ABBR TITLE="">here</ABBR>
 	and positions the cursor on the second ". (|n_;|)
 							*i_;aB* *v_;aB* *n_;aB*
-;aB	Same as |i_;ab|, but puts the visually selected text <ABBR TITLE="here">
-	and places the cursor on the < of </ABBREV>. If this is used in
-	insert mode rather than visual mode, the contents of the |clipboard| are
-	placed between the quotes. (|n_;|)
+;aB	Same as |i_;ab|, but puts the visually selected text <ABBR
+	TITLE="here"> and places the cursor on the < of </ABBREV>. If this is
+	used in insert mode rather than visual mode, the contents of the
+	|clipboard| are placed between the quotes. (|n_;|)
 							*html-address*
 							*i_;ad* *v_;ad* *n_;ad*
 ;ad	Address: >
@@ -1311,7 +1285,7 @@ characters into the HTML buffer. These are known as characters entities.
 	(|n_;|)
 
 	(Note that this will not touch Unicode characters. See
-	|HTML#TranscodeString()|)
+	|HTML#functions#TranscodeString()|)
 							*n_;^* *v_;^*
 ;^	This mapping will decode the &..., &#...; and %XX elements of the
 	motion or visually selected characters to their actual characters.
@@ -1333,8 +1307,10 @@ Space (non-breaking)	 		&nbsp;		&<space>
 Quotation mark (")	"		&quot;		&'		*i_&'*
 Left Single Quote	‘		&lsquo;		&l'		*i_&l'*
 Right Single Quote	’		&rsquo;		&r'		*i_&r'*
-Left Double Quote	“		&ldquo;		&l"		*i_&lquote*
-Right Double Quote	”		&rdquo;		&r"		*i_&rquote*
+								*i_&lquote*
+Left Double Quote	“		&ldquo;		&l"
+								*i_&rquote*
+Right Double Quote	”		&rdquo;		&r"
 Left Angle Quote	«		&laquo;		&2<		*i_&2<*
 Right Angle Quote	»		&raquo;		&2>		*i_&2>*
 Cent			¢		&cent;		&c|		*i_&cbar*
@@ -1433,18 +1409,30 @@ O-circumflex		Ô		&Ocirc;		&O^		*i_&O^*
 o-circumflex		ô		&ocirc;		&o^		*i_&o^*
 U-circumflex		Û		&Ucirc;		&U^		*i_&U^*
 u-circumflex		û		&ucirc;		&u^		*i_&u^*
-A-umlaut		Ä		&Auml;		&A"		*i_&Aquote*
-a-umlaut		ä		&auml;		&a"		*i_&aquote*
-E-umlaut		Ë		&Euml;		&E"		*i_&Equote*
-e-umlaut		ë		&euml;		&e"		*i_&equote*
-I-umlaut		Ï		&Iuml;		&I"		*i_&Iquote*
-i-umlaut		ï		&iuml;		&i"		*i_&iquote*
-O-umlaut		Ö		&Ouml;		&O"		*i_&Oquote*
-o-umlaut		ö		&ouml;		&o"		*i_&oquote*
-U-umlaut		Ü		&Uuml;		&U"		*i_&Uquote*
-u-umlaut		ü		&uuml;		&u"		*i_&uquote*
-y-umlaut		ÿ		&yuml;		&y"		*i_&yquote*
-Umlaut			¨		&uml;		&"		*i_&quote*
+								*i_&Aquote*
+A-umlaut		Ä		&Auml;		&A"
+								*i_&aquote*
+a-umlaut		ä		&auml;		&a"
+								*i_&Equote*
+E-umlaut		Ë		&Euml;		&E"
+								*i_&equote*
+e-umlaut		ë		&euml;		&e"
+								*i_&Iquote*
+I-umlaut		Ï		&Iuml;		&I"
+								*i_&iquote*
+i-umlaut		ï		&iuml;		&i"
+								*i_&Oquote*
+O-umlaut		Ö		&Ouml;		&O"
+								*i_&oquote*
+o-umlaut		ö		&ouml;		&o"
+								*i_&Uquote*
+U-umlaut		Ü		&Uuml;		&U"
+								*i_&uquote*
+u-umlaut		ü		&uuml;		&u"
+								*i_&yquote*
+y-umlaut		ÿ		&yuml;		&y"
+								*i_&quote*
+Umlaut			¨		&uml;		&"
 A-ring			Å		&Aring;		&Ao		*i_&Ao*
 a-ring			å		&aring;		&ao		*i_&ao*
 AE-ligature		Æ		&AElig;		&AE		*i_&AE*
@@ -1485,8 +1473,10 @@ G Clef			𝄞		&#x1D11E;	&gc		*i_&gc*
 F Clef			𝄢		&#x1D122;	&fc		*i_&fc*
 Checkmark		✓		&check;		&ok		*i_&ok*
 X mark			✗		&cross;		&xx		*i_&xx*
-Filled Star		★		&starf;		&2*		*i_&2star*
-Hollow Star		☆		&star;		&3*		*i_&3star*
+								*i_&2star*
+Filled Star		★		&starf;		&2*
+								*i_&3star*
+Hollow Star		☆		&star;		&3*
 Maltese Cross		✠		&malt;		&m+		*i_&m+*
 Spades Suit		♠		&spades;	&sp		*i_&sp*
 Clubs Suit		♣		&clubs;		&cl		*i_&cl*
@@ -1683,8 +1673,8 @@ drive).
 ;tsf	Same as |n_;nsf|, but open a new tab. (Only on MacOS.)
 							*html-lynx-browser*
 								*n_;ly*
-;ly	Use Lynx to view the current file. This behaves like |n_;nly| if the Vim
-	|GUI| is running. (Only on Unix and Cygwin.)
+;ly	Use Lynx to view the current file. This behaves like |n_;nly| if the
+	Vim |GUI| is running. (Only on Unix and Cygwin.)
 								*n_;nly*
 ;nly	Same as |n_;ly|, but in a new xterm. This behaves like |n_;ly| if there
 	is no DISPLAY environmental variable. (Note that this will fall back
@@ -1723,13 +1713,14 @@ drive).
 
 
 :SetIfUnset {variable} {value}				*:SetIfUnset*
-	This command calls |HTML#SetIfUnset()|.
+	This command calls |HTML#functions#SetIfUnset()|.
 
 
 Some of the functions used by the HTML mappings:	*html-functions*
 ------------------------------------------------
 
-HTML#TranscodeString({string} [, {...}])		*HTML#TranscodeString()*
+					*HTML#functions#TranscodeString()*
+HTML#functions#TranscodeString({string} [, {...}])
 	Returns {string} encoded into HTML entities, or decode HTML encoded
 	strings.
 
@@ -1754,8 +1745,8 @@ HTML#TranscodeString({string} [, {...}])		*HTML#TranscodeString()*
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 
-							*HTML#GenerateTable()*
-HTML#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
+					*HTML#functions#GenerateTable()*
+HTML#functions#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 	This is normally called by the |n_;tA|, mapping but it can be called
 	with argumetns to non-interactively generate a table:
 
@@ -1773,7 +1764,8 @@ HTML#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 
 	This function returns true if a table was generated, false otherwise.
 
-HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
+						*HTML#functions#Map()*
+HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
 	This function defines a mapping, local to the buffer and silent.
 	{maptype} is any map command. {lhs} and {rhs} are equivalent to `:map`
 	arguments, see |map.txt|. This is useful for autocommands and HTML
@@ -1799,8 +1791,8 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 
 	{"insert": true} ~
 	The visual mapping enters insert mode. (Note this doesn't put the
-	mapping into insert mode itself, but only tells HTML#Map that the
-	visual mapping ends in insert mode so it behaves somewhat
+	mapping into insert mode itself, but only tells HTML#functions#Map that
+	the visual mapping ends in insert mode so it behaves somewhat
 	differently.)
 
 	{"reindent": N} ~
@@ -1809,14 +1801,15 @@ HTML#Map({maptype}, {lhs}, {rhs} [, {options}])		*HTML#Map()*
 
 	This function returns true if a map was defined, false otherwise.
 
-HTML#Mapo({map} [, {insert}])				*HTML#Mapo()*
+HTML#functions#Mapo({map} [, {insert}])			*HTML#functions#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
 	visual mapping by the same name. {insert} is a |Boolean| value that
 	indicates whether to end in insert mode, default false.
 
 	This function returns true if a map was defined, false otherwise.
 
-HTML#NextInsertPoint([{mode}, {direction}])		*HTML#NextInsertPoint()*
+					*HTML#functions#NextInsertPoint()*
+HTML#functions#NextInsertPoint([{mode}, {direction}])
 	This is normally called by the |i_;<Tab>| mapping, but it works the
 	same if called any other way. The {mode} argument is either 'i' or 'n'
 	(default) which means |Insert| or |Normal|. In insert mode, if the
@@ -1827,14 +1820,14 @@ HTML#NextInsertPoint([{mode}, {direction}])		*HTML#NextInsertPoint()*
 
 	This function returns true if the cursor was moved, false otherwise.
 
-HTML#Template()						*HTML#Template()*
+HTML#functions#Template()			*HTML#functions#Template()*
 	This is normally called by the |n_;html| mapping, but it works
 	the same if called any other way.
 
 	This function returns true if the cursor is on an insert point, false
 	otherwise.
 
-HTML#SetIfUnset({variable}, {value})			*HTML#SetIfUnset()*
+HTML#functions#SetIfUnset({variable}, {value})	*HTML#functions#SetIfUnset()*
 	This function sets {variable} to {value} if the variable is not
 	already set. A {value} of "" makes sure the variable is set with an
 	empty string, a {value} of [] initializes to an empty list, and a

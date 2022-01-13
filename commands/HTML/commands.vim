@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024023
+if v:version < 802 || v:versionlong < 8024072
   finish
 endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: January 09, 2022
+# Last Change: January 12, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -33,32 +33,23 @@ if exists('b:htmlplugin.did_commands') && b:htmlplugin.did_commands == true
   finish
 endif
 
-command! -buffer -nargs=1 HTMLplugin HTML#PluginControl(<f-args>)
-command! -buffer -nargs=1 HTMLPlugin HTML#PluginControl(<f-args>)
-command! -buffer -nargs=1 HTMLmappings HTML#PluginControl(<f-args>)
-command! -buffer -nargs=1 HTMLMappings HTML#PluginControl(<f-args>)
+import autoload 'HTML/functions.vim'
+
+command! -buffer -nargs=1 HTMLplugin functions.PluginControl(<f-args>)
+command! -buffer -nargs=1 HTMLPlugin functions.PluginControl(<f-args>)
+command! -buffer -nargs=1 HTMLmappings functions.PluginControl(<f-args>)
+command! -buffer -nargs=1 HTMLMappings functions.PluginControl(<f-args>)
 if exists(':HTML') != 2
-  command! -buffer -nargs=1 HTML HTML#PluginControl(<f-args>)
+  command! -buffer -nargs=1 HTML functions.PluginControl(<f-args>)
 endif
 
-command! -buffer -nargs=? ColorChooser HTML#ColorChooser(<f-args>)
+command! -buffer -nargs=? ColorChooser functions.ColorChooser(<f-args>)
 if exists(':CC') != 2
-  command! -buffer -nargs=? CC HTML#ColorChooser(<f-args>)
+  command! -buffer -nargs=? CC functions.ColorChooser(<f-args>)
 endif
 
-command! -buffer HTMLTemplate if HTML#Template() | startinsert | endif
+command! -buffer HTMLTemplate if functions.Template() | startinsert | endif
 command! -buffer HTMLtemplate HTMLTemplate
-
-command! -buffer HTMLReloadFunctions {
-    if exists('g:htmlplugin.function_files')
-      for f in copy(g:htmlplugin.function_files)
-        execute 'HTMLMESG Reloading: ' .. fnamemodify(f, ':t')
-        execute 'source ' .. f
-      endfor
-    else
-      HTMLERROR Somehow the global variable describing the loaded function files is non-existent.
-    endif
-  }
 
 b:htmlplugin.did_commands = true
 
@@ -67,28 +58,10 @@ if exists('g:htmlplugin.did_commands') && g:htmlplugin.did_commands == true
   finish
 endif
 
-command! -nargs=+ HTMLWARN {
-    echohl WarningMsg
-    echomsg <q-args>
-    echohl None
-  }
+command! HTMLAbout functions.About()
+command! HTMLabout functions.About()
 
-command! -nargs=+ HTMLMESG {
-    echohl Todo
-    echo <q-args>
-    echohl None
-  }
-
-command! -nargs=+ HTMLERROR {
-    echohl ErrorMsg
-    echomsg <q-args>
-    echohl None
-  }
-
-command! HTMLAbout HTML#About()
-command! HTMLabout HTML#About()
-
-command! -nargs=+ SetIfUnset HTML#SetIfUnset(<f-args>)
+command! -nargs=+ SetIfUnset functions.SetIfUnset(<f-args>)
 
 g:htmlplugin.did_commands = true
 

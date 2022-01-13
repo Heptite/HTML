@@ -1092,9 +1092,9 @@
 		"lhs": "mi",
 
 		"maps": {
-			"n": ["", "<Cmd>vim9cmd MangleImageTag#Update()<CR>", ""],
-			"i": ["", "<Cmd>vim9cmd MangleImageTag#Update()<CR>", ""],
-			"v": ["", "<C-c>:vim9cmd MangleImageTag#Update()<CR>", {"extra": false}]
+			"n": ["", "<Cmd>vim9cmd HTML#MangleImageTag#Update()<CR>", ""],
+			"i": ["", "<Cmd>vim9cmd HTML#MangleImageTag#Update()<CR>", ""],
+			"v": ["", "<C-c>:vim9cmd HTML#MangleImageTag#Update()<CR>", {"extra": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "Update Image Size Attributes"], {
@@ -2256,7 +2256,7 @@
 		"lhs": "tA",
 
 		"maps": {
-			"n": ["", ":vim9cmd HTML#GenerateTable()<CR>"]
+			"n": ["", "<Cmd>vim9cmd HTML#functions#GenerateTable()<CR>"]
 		},
 
 		"menu": ["-", ["&Tables", "Interactive Table"], {
@@ -2382,7 +2382,7 @@
 		"lhs": "html",
 
 		"maps": {
-			"n": ["", "<Cmd>vim9cmd if HTML#Template() \\| startinsert \\| endif<CR>"]
+			"n": ["", "<Cmd>vim9cmd if HTML#functions#Template() \\| startinsert \\| endif<CR>"]
 		},
 
 		"menu": ["-", ["Template"], {
@@ -2400,7 +2400,7 @@
 		"lhs": "ct",
 
 		"maps": {
-			"i": ["", "<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=<C-R>=HTML#DetectCharset()<CR>\" />"]
+			"i": ["", "<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=<C-R>=HTML#functions#DetectCharset()<CR>\" />"]
 		},
 
 		"menu": ["-", ["Content-Type"], {

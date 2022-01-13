@@ -1,8 +1,8 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024023
-  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.4023'
+if v:version < 802 || v:versionlong < 8024072
+  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.4072'
   sleep 3
   finish
 endif
@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      January 09, 2022
+# Last Change:      January 12, 2022
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -69,8 +69,6 @@ endif
 
 # ---- Initialization: -------------------------------------------------- {{{1
 
-import "../../import/HTML.vim"
-
 # Do this here instead of below, because it's referenced early:
 if !exists('g:htmlplugin')
   g:htmlplugin = {}
@@ -79,12 +77,26 @@ if !exists('b:htmlplugin')
   b:htmlplugin = {}
 endif
 
-runtime! commands/HTML.vim
+runtime commands/HTML/commands.vim
 
-if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
-  # This must be a number, not a boolean, because a -1 special case is used by
-  # one of the functions:
-  b:htmlplugin.did_mappings_init = 1
+import '../../import/HTMLvariables.vim'
+import autoload 'HTML/functions.vim'
+import autoload 'HTML/BrowserLauncher.vim'
+
+g:HTML#functions#DetectCharset   = functions.DetectCharset
+g:HTML#functions#GenerateTable   = functions.GenerateTable
+g:HTML#functions#Map             = functions.Map
+g:HTML#functions#Mapo            = functions.Mapo
+g:HTML#functions#NextInsertPoint = functions.NextInsertPoint
+g:HTML#functions#SetIfUnset      = functions.SetIfUnset
+g:HTML#functions#Template        = functions.Template
+g:HTML#functions#TranscodeString = functions.TranscodeString
+
+g:HTML#BrowserLauncher#Exists = BrowserLauncher.Exists
+g:HTML#BrowserLauncher#Launch = BrowserLauncher.Launch
+
+if !functions.BoolVar('b:htmlplugin.did_mappings_init')
+  b:htmlplugin.did_mappings_init = true
 
   # Configuration variables:  {{{2
   # (These should be set in the user's vimrc or a filetype plugin, rather than
@@ -109,11 +121,10 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
   # END configurable variables
 
   # Intitialize some necessary variables:  {{{2
-  SetIfUnset g:htmlplugin.function_files []
 
   # Need to inerpolate the value, which the command form of SetIfUnset doesn't
   # do:
-  HTML#SetIfUnset('g:htmlplugin.save_clipboard', &clipboard)
+  functions.SetIfUnset('g:htmlplugin.save_clipboard', &clipboard)
 
   # Always set this, even if it was already set:
   if exists('g:htmlplugin.file')
@@ -123,14 +134,14 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
   lockvar g:htmlplugin.file
 
   if type(g:htmlplugin.toplevel_menu) != v:t_list
-    HTMLERROR g:htmlplugin.toplevel_menu must be a list! Overriding.
+    functions.Error('g:htmlplugin.toplevel_menu must be a list! Overriding.')
     sleep 3
     g:htmlplugin.toplevel_menu = []
   endif
 
   if !exists('g:htmlplugin.toplevel_menu_escaped')
     g:htmlplugin.toplevel_menu_escaped =
-      g:htmlplugin.toplevel_menu->add(HTML.MENU_NAME)->HTML#MenuJoin()
+      functions.MenuJoin(g:htmlplugin.toplevel_menu->add(HTMLvariables.MENU_NAME))
     lockvar g:htmlplugin.toplevel_menu
     lockvar g:htmlplugin.toplevel_menu_escaped
   endif
@@ -139,28 +150,22 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
   setlocal matchpairs+=<:>
 
   if g:htmlplugin.entity_map_leader ==# g:htmlplugin.map_leader
-    HTMLERROR "g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!
-    HTMLERROR Resetting both to their defaults.
+    functions.Error('"g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!')
+    functions.Error('Resetting both to their defaults.')
     sleep 3
     g:htmlplugin.map_leader = ';'
     g:htmlplugin.entity_map_leader = '&'
   endif
 
-  if exists('b:htmlplugin.tag_case')
-    # Used by the conrol function to preserve what the user selected when
-    # switching off XHTML mode:
-    b:htmlplugin.tag_case_save = b:htmlplugin.tag_case
-  endif
-
   # Detect whether to force uppper or lower case:  {{{2
   if &filetype ==? 'xhtml'
-      || HTML#BoolVar('g:htmlplugin.do_xhtml_mappings')
-      || HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
+      || functions.BoolVar('g:htmlplugin.do_xhtml_mappings')
+      || functions.BoolVar('b:htmlplugin.do_xhtml_mappings')
     b:htmlplugin.do_xhtml_mappings = true
   else
     b:htmlplugin.do_xhtml_mappings = false
 
-    if HTML#BoolVar('g:htmlplugin.tag_case_autodetect')
+    if functions.BoolVar('g:htmlplugin.tag_case_autodetect')
         && (line('$') != 1 || getline(1) != '')
 
       var found_upper = search('\C<\(\s*/\)\?\s*\u\+\_[^<>]*>', 'wn')
@@ -178,33 +183,33 @@ if !HTML#BoolVar('b:htmlplugin.did_mappings_init')
     endif
   endif
 
-  if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
+  if functions.BoolVar('b:htmlplugin.do_xhtml_mappings')
     b:htmlplugin.tag_case = 'lowercase'
   endif
 
   # Need to inerpolate the value, which the command form of SetIfUnset doesn't
   # do:
-  HTML#SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
+  functions.SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
 
   # Template Creation: {{{2
 
-  if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
-    b:htmlplugin.internal_template = HTML.INTERNAL_TEMPLATE->extendnew([
+  if functions.BoolVar('b:htmlplugin.do_xhtml_mappings')
+    b:htmlplugin.internal_template = HTMLvariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
         ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
         '<html xmlns="http://www.w3.org/1999/xhtml">'
       ], 0)
 
     b:htmlplugin.internal_template =
-      b:htmlplugin.internal_template->HTML#ConvertCase()
+      functions.ConvertCase(b:htmlplugin.internal_template)
   else
-    b:htmlplugin.internal_template = HTML.INTERNAL_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = HTMLvariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html>',
         '<[{HTML}]>'
       ], 0)
 
     b:htmlplugin.internal_template =
-      b:htmlplugin.internal_template->HTML#ConvertCase()
+      functions.ConvertCase(b:htmlplugin.internal_template)
 
     b:htmlplugin.internal_template =
       b:htmlplugin.internal_template->mapnew(
@@ -222,46 +227,44 @@ endif # !exists('b:htmlplugin.did_mappings_init')
 
 # ---- Miscellaneous Mappings: ------------------------------------------ {{{1
 
-b:htmlplugin.doing_internal_mappings = true
-
-if !HTML#BoolVar('b:htmlplugin.did_mappings')
+if !functions.BoolVar('b:htmlplugin.did_mappings')
 b:htmlplugin.did_mappings = true
 
 b:htmlplugin.clear_mappings = []
 
 # Make it easy to use a ; (or whatever the map leader is) as normal:
-HTML#Map('inoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
-HTML#Map('vnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {'extra': false})
-HTML#Map('nnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
+functions.Map('inoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
+functions.Map('vnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {'extra': false})
+functions.Map('nnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
 # Make it easy to insert a & (or whatever the entity leader is):
-HTML#Map('inoremap', '<lead>' .. g:htmlplugin.entity_map_leader, g:htmlplugin.entity_map_leader)
+functions.Map('inoremap', '<lead>' .. g:htmlplugin.entity_map_leader, g:htmlplugin.entity_map_leader)
 
-if !HTML#BoolVar('g:htmlplugin.no_tab_mapping')
+if !functions.BoolVar('g:htmlplugin.no_tab_mapping')
   # Allow hard tabs to be used:
-  HTML#Map('inoremap', '<lead><tab>', '<tab>')
-  HTML#Map('nnoremap', '<lead><tab>', '<tab>')
-  HTML#Map('vnoremap', '<lead><tab>', '<tab>', {'extra': false})
+  functions.Map('inoremap', '<lead><tab>', '<tab>')
+  functions.Map('nnoremap', '<lead><tab>', '<tab>')
+  functions.Map('vnoremap', '<lead><tab>', '<tab>', {'extra': false})
   # And shift-tabs too:
-  HTML#Map('inoremap', '<lead><s-tab>', '<s-tab>')
-  HTML#Map('nnoremap', '<lead><s-tab>', '<s-tab>')
-  HTML#Map('vnoremap', '<lead><s-tab>', '<s-tab>', {'extra': false})
+  functions.Map('inoremap', '<lead><s-tab>', '<s-tab>')
+  functions.Map('nnoremap', '<lead><s-tab>', '<s-tab>')
+  functions.Map('vnoremap', '<lead><s-tab>', '<s-tab>', {'extra': false})
 
   # Tab takes us to a (hopefully) reasonable next insert point:
-  HTML#Map('inoremap', '<tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i')<CR>")
-  HTML#Map('nnoremap', '<tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>")
-  HTML#Map('vnoremap', '<tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>", {'extra': false})
+  functions.Map('inoremap', '<tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('i')<CR>")
+  functions.Map('nnoremap', '<tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n')<CR>")
+  functions.Map('vnoremap', '<tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n')<CR>", {'extra': false})
   # ...And shift-tab goes backwards:
-  HTML#Map('inoremap', '<s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i', 'b')<CR>")
-  HTML#Map('nnoremap', '<s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n', 'b')<CR>")
-  HTML#Map('vnoremap', '<s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n', 'b')<CR>", {'extra': false})
+  functions.Map('inoremap', '<s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('i', 'b')<CR>")
+  functions.Map('nnoremap', '<s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n', 'b')<CR>")
+  functions.Map('vnoremap', '<s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n', 'b')<CR>", {'extra': false})
 else
-  HTML#Map('inoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i')<CR>")
-  HTML#Map('nnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>")
-  HTML#Map('vnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n')<CR>", {'extra': false})
+  functions.Map('inoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('i')<CR>")
+  functions.Map('nnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n')<CR>")
+  functions.Map('vnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n')<CR>", {'extra': false})
 
-  HTML#Map('inoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('i', 'b')<CR>")
-  HTML#Map('nnoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n', 'b')<CR>")
-  HTML#Map('vnoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#NextInsertPoint('n', 'b')<CR>", {'extra': false})
+  functions.Map('inoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('i', 'b')<CR>")
+  functions.Map('nnoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n', 'b')<CR>")
+  functions.Map('vnoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n', 'b')<CR>", {'extra': false})
 endif
 
 # ----------------------------------------------------------------------------
@@ -272,45 +275,37 @@ endif
 # mappings here instead:
 
 #       SGML Doctype Command
-if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
+if functions.BoolVar('b:htmlplugin.do_xhtml_mappings')
   # Transitional XHTML (Looser):
-  HTML#Map('nnoremap', '<lead>4', "<Cmd>vim9cmd append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">')<CR>")
+  functions.Map('nnoremap', '<lead>4', "<Cmd>vim9cmd append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">')<CR>")
   # Strict XHTML:
-  HTML#Map('nnoremap', '<lead>s4', "<Cmd>vim9cmd append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">')<CR>")
+  functions.Map('nnoremap', '<lead>s4', "<Cmd>vim9cmd append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">')<CR>")
 else
   # Transitional HTML (Looser):
-  HTML#Map('nnoremap', '<lead>4', "<Cmd>vim9cmd append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/html4/loose.dtd\">')<CR>")
+  functions.Map('nnoremap', '<lead>4', "<Cmd>vim9cmd append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/html4/loose.dtd\">')<CR>")
   # Strict HTML:
-  HTML#Map('nnoremap', '<lead>s4', "<Cmd>vim9cmd append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
+  functions.Map('nnoremap', '<lead>s4', "<Cmd>vim9cmd append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
 endif
-HTML#Map('imap', '<lead>4', '<C-O>' .. g:htmlplugin.map_leader .. '4')
-HTML#Map('imap', '<lead>s4', '<C-O>' .. g:htmlplugin.map_leader .. 's4')
+functions.Map('imap', '<lead>4', '<C-O>' .. g:htmlplugin.map_leader .. '4')
+functions.Map('imap', '<lead>s4', '<C-O>' .. g:htmlplugin.map_leader .. 's4')
 
 #       HTML5 Doctype Command           HTML 5
-HTML#Map('nnoremap', '<lead>5', "<Cmd>vim9cmd append(0, '<!DOCTYPE html>')<CR>")
-HTML#Map('imap', '<lead>5', '<C-O>' .. g:htmlplugin.map_leader .. '5')
+functions.Map('nnoremap', '<lead>5', "<Cmd>vim9cmd append(0, '<!DOCTYPE html>')<CR>")
+functions.Map('imap', '<lead>5', '<C-O>' .. g:htmlplugin.map_leader .. '5')
 
 
 #       HTML
-if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
-  HTML#Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html><ESC>O')
+if functions.BoolVar('b:htmlplugin.do_xhtml_mappings')
+  functions.Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html><ESC>O')
   # Visual mapping:
-  HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></html><C-O>`<<html xmlns="http://www.w3.org/1999/xhtml"><CR><ESC>', {'reindent': 1})
+  functions.Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></html><C-O>`<<html xmlns="http://www.w3.org/1999/xhtml"><CR><ESC>', {'reindent': 1})
 else
-  HTML#Map('inoremap', '<lead>ht', '<[{HTML}]><CR></[{HTML}]><ESC>O')
+  functions.Map('inoremap', '<lead>ht', '<[{HTML}]><CR></[{HTML}]><ESC>O')
   # Visual mapping:
-  HTML#Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></[{HTML}]><C-O>`<<[{HTML}]><CR><ESC>', {'reindent': 1})
+  functions.Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></[{HTML}]><C-O>`<<[{HTML}]><CR><ESC>', {'reindent': 1})
 endif
 # Motion mapping:
-HTML#Mapo('<lead>ht')
-
-if HTML#BoolVar('g:htmlplugin.did_menus')
-  # Basically, we get here by having the user open a new HTML file after
-  # already loading one, so the menus don't need to be loaded again, just the
-  # mappings for this buffer:
-  HTML#ReadEntities(false, true)
-  HTML#ReadTags(false, true)
-endif
+functions.Mapo('<lead>ht')
 
 # ----------------------------------------------------------------------------
 
@@ -320,22 +315,22 @@ endif
 # entity or otherwise decimal HTML entities:
 # (Note that this can be very slow due to syntax highlighting. Maybe find a
 # different way to do it?)
-HTML#Map('vnoremap', '<lead>&', "s<C-R>=HTML#TranscodeString(@\")->HTML#SI()<CR><Esc>", {'extra': false})
-HTML#Mapo('<lead>&')
+functions.Map('vnoremap', '<lead>&', "s<C-R>=functions.TranscodeString(@\")->functions.SI()<CR><Esc>", {'extra': false})
+functions.Mapo('<lead>&')
 
 # Convert the character under the cursor or the highlighted string to hex
 # HTML entities:
-HTML#Map('vnoremap', '<lead>*', "s<C-R>=HTML#TranscodeString(@\", 'x')->HTML#SI()<CR><Esc>", {'extra': false})
-HTML#Mapo('<lead>*')
+functions.Map('vnoremap', '<lead>*', "s<C-R>=functions.TranscodeString(@\", 'x')->functions.SI()<CR><Esc>", {'extra': false})
+functions.Mapo('<lead>*')
 
 # Convert the character under the cursor or the highlighted string to a %XX
 # string:
-HTML#Map('vnoremap', '<lead>%', "s<C-R>=HTML#TranscodeString(@\", '%')->HTML#SI()<CR><Esc>", {'extra': false})
-HTML#Mapo('<lead>%')
+functions.Map('vnoremap', '<lead>%', "s<C-R>=functions.TranscodeString(@\", '%')->functions.SI()<CR><Esc>", {'extra': false})
+functions.Mapo('<lead>%')
 
 # Decode a &...;, &#...;, or %XX encoded string:
-HTML#Map('vnoremap', '<lead>^', "s<C-R>=HTML#TranscodeString(@\", 'd')->HTML#SI()<CR><Esc>", {'extra': false})
-HTML#Mapo('<lead>^')
+functions.Map('vnoremap', '<lead>^', "s<C-R>=functions.TranscodeString(@\", 'd')->functions.SI()<CR><Esc>", {'extra': false})
+functions.Mapo('<lead>^')
 
 # The actual entity mappings are now defined in a json file to reduce
 # work on defining both the entities and entity menu items, see below.
@@ -347,207 +342,207 @@ HTML#Mapo('<lead>^')
 var BrowserLauncherExists: bool
 # try/catch because the function won't autoload if it's not installed:
 try
-  BrowserLauncherExists = BrowserLauncher#Exists() != []
-catch /^Vim\%((\a\+)\)\=:E117:.\+BrowserLauncher#Exists/
+  BrowserLauncherExists = BrowserLauncher.Exists() != []
+catch /^Vim\%((\a\+)\)\=:E117:.\+BrowserLauncher.Exists/
   BrowserLauncherExists = false
 endtry
 
 if BrowserLauncherExists
-  if BrowserLauncher#Exists('default')
+  if BrowserLauncher.Exists('default')
     # Run the default browser:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>db',
-      ":vim9cmd BrowserLauncher#Launch('default')<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('default')<CR>"
     )
   endif
 
-  if BrowserLauncher#Exists('brave')
+  if BrowserLauncher.Exists('brave')
     # Chrome: View current file, starting Chrome if it's not running:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>bv',
-      ":vim9cmd BrowserLauncher#Launch('brave', 0)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('brave', 0)<CR>"
     )
     # Chrome: Open a new window, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>nbv',
-      ":vim9cmd BrowserLauncher#Launch('brave', 1)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('brave', 1)<CR>"
     )
     # Chrome: Open a new tab, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>tbv',
-      ":vim9cmd BrowserLauncher#Launch('brave', 2)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('brave', 2)<CR>"
     )
   endif
 
-  if BrowserLauncher#Exists('firefox')
+  if BrowserLauncher.Exists('firefox')
     # Firefox: View current file, starting Firefox if it's not running:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>ff',
-      ":vim9cmd BrowserLauncher#Launch('firefox', 0)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('firefox', 0)<CR>"
     )
     # Firefox: Open a new window, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>nff',
-      ":vim9cmd BrowserLauncher#Launch('firefox', 1)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('firefox', 1)<CR>"
     )
     # Firefox: Open a new tab, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>tff',
-      ":vim9cmd BrowserLauncher#Launch('firefox', 2)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('firefox', 2)<CR>"
     )
   endif
 
-  if BrowserLauncher#Exists('chrome')
+  if BrowserLauncher.Exists('chrome')
     # Chrome: View current file, starting Chrome if it's not running:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>gc',
-      ":vim9cmd BrowserLauncher#Launch('chrome', 0)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('chrome', 0)<CR>"
     )
     # Chrome: Open a new window, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>ngc',
-      ":vim9cmd BrowserLauncher#Launch('chrome', 1)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('chrome', 1)<CR>"
     )
     # Chrome: Open a new tab, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>tgc',
-      ":vim9cmd BrowserLauncher#Launch('chrome', 2)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('chrome', 2)<CR>"
     )
   endif
 
-  if BrowserLauncher#Exists('edge')
+  if BrowserLauncher.Exists('edge')
     # Edge: View current file, starting Microsoft Edge if it's not running:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>ed',
-      ":vim9cmd BrowserLauncher#Launch('edge', 0)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('edge', 0)<CR>"
     )
     # Edge: Open a new window, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>ned',
-      ":vim9cmd BrowserLauncher#Launch('edge', 1)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('edge', 1)<CR>"
     )
     # Edge: Open a new tab, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>ted',
-      ":vim9cmd BrowserLauncher#Launch('edge', 2)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('edge', 2)<CR>"
     )
   endif
 
-  if BrowserLauncher#Exists('opera')
+  if BrowserLauncher.Exists('opera')
     # Opera: View current file, starting Opera if it's not running:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>oa',
-      ":vim9cmd BrowserLauncher#Launch('opera', 0)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('opera', 0)<CR>"
     )
     # Opera: Open a new window, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>noa',
-      ":vim9cmd BrowserLauncher#Launch('opera', 1)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('opera', 1)<CR>"
     )
     # Opera: Open a new tab, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>toa',
-      ":vim9cmd BrowserLauncher#Launch('opera', 2)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('opera', 2)<CR>"
     )
   endif
 
-  if BrowserLauncher#Exists('safari')
+  if BrowserLauncher.Exists('safari')
     # Safari: View current file, starting Safari if it's not running:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>sf',
-      ":vim9cmd BrowserLauncher#Launch('safari', 0)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('safari', 0)<CR>"
     )
     # Safari: Open a new window, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>nsf',
-      ":vim9cmd BrowserLauncher#Launch('safari', 1)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('safari', 1)<CR>"
       )
     # Safari: Open a new tab, and view the current file:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>tsf',
-      ":vim9cmd BrowserLauncher#Launch('safari', 2)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('safari', 2)<CR>"
     )
   endif
 
-  if BrowserLauncher#Exists('lynx')
+  if BrowserLauncher.Exists('lynx')
     # Lynx:  (This may happen anyway if there's no GUI available.)
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>ly',
-      ":vim9cmd BrowserLauncher#Launch('lynx', 0)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('lynx', 0)<CR>"
     )
     # Lynx in an xterm:  (This always happens in the Vim GUI.)
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>nly',
-      ":vim9cmd BrowserLauncher#Launch('lynx', 1)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('lynx', 1)<CR>"
     )
     # Lynx in a new Vim window, using :terminal:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>tly',
-      ":vim9cmd BrowserLauncher#Launch('lynx', 2)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('lynx', 2)<CR>"
     )
   endif
 
-  if BrowserLauncher#Exists('w3m')
+  if BrowserLauncher.Exists('w3m')
     # w3m:  (This may happen anyway if there's no GUI available.)
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>w3',
-      ":vim9cmd BrowserLauncher#Launch('w3m', 0)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('w3m', 0)<CR>"
     )
     # w3m in an xterm:  (This always happens in the Vim GUI.)
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>nw3',
-      ":vim9cmd BrowserLauncher#Launch('w3m', 1)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('w3m', 1)<CR>"
     )
     # w3m in a new Vim window, using :terminal:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>tw3',
-      ":vim9cmd BrowserLauncher#Launch('w3m', 2)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('w3m', 2)<CR>"
     )
   endif
 
-  if BrowserLauncher#Exists('links')
+  if BrowserLauncher.Exists('links')
     # Links:  (This may happen anyway if there's no GUI available.)
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>ln',
-      ":vim9cmd BrowserLauncher#Launch('links', 0)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('links', 0)<CR>"
     )
     # Lynx in an xterm:  (This always happens in the Vim GUI.)
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>nln',
-      ":vim9cmd BrowserLauncher#Launch('links', 1)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('links', 1)<CR>"
     )
     # Lynx in a new Vim window, using :terminal:
-    HTML#Map(
+    functions.Map(
       'nnoremap',
       '<lead>tln',
-      ":vim9cmd BrowserLauncher#Launch('links', 2)<CR>"
+      ":vim9cmd HTML#BrowserLauncher#Launch('links', 2)<CR>"
     )
   endif
 endif
@@ -558,49 +553,29 @@ endif # ! exists('b:htmlplugin.did_mappings')
 
 # ---- ToolBar Buttons: ------------------------------------------------- {{{1
 
-if ! has('gui_running') && !HTML#BoolVar('g:htmlplugin.force_menu')
-  def CreateBufEnterOnce(): void
-    augroup HTMLpluginonce
-      au!
-      autocmd BufEnter * {
-          if HTML#BoolVar('b:htmlplugin.did_mappings_init')
-            execute 'source ' .. g:htmlplugin.file
-            execute 'autocmd! HTMLpluginonce'
-          endif
-        }
-    augroup END
-  enddef
-
-  augroup HTMLplugin
-    au!
-    autocmd GUIEnter * ++once {
-        if HTML#BoolVar('b:htmlplugin.did_mappings_init')
-          execute 'source ' .. g:htmlplugin.file
-        else
-          eval CreateBufEnterOnce()
-        endif
-      }
-  augroup END
-
-  # Since the user didn't start the GUI and didn't force menus, bring in the
-  # entities and tags mappings, without the menus:
-  HTML#ReadEntities(false, true)
-  HTML#ReadTags(false, true)
-elseif HTML#BoolVar('g:htmlplugin.did_menus')
-  HTML#MenuControl()
-elseif !HTML#BoolVar('g:htmlplugin.no_menu')
+if functions.BoolVar('g:htmlplugin.did_menus')
+  # Already did the menus but the tags mappings need to be defined for this
+  # new buffer:
+  functions.MenuControl()
+  functions.ReadTags(false, true)
+  functions.ReadEntities(false, true)
+elseif functions.BoolVar('g:htmlplugin.no_menu')
+  # No menus were requested, so just define the tags mappings:
+  functions.ReadTags(false, true)
+  functions.ReadEntities(false, true)
+else
 
 # Solve a race condition:
 if ! exists('g:did_install_default_menus')
   source $VIMRUNTIME/menu.vim
 endif
 
-if !HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
+if !functions.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
 
   if findfile('bitmaps/Browser.bmp', &runtimepath) == ''
     var message = "Warning:\nYou need to install the Toolbar Bitmaps for the "
       .. g:htmlplugin.file->fnamemodify(':t') .. " plugin.\n"
-      .. 'See: ' .. (HTML.HOMEPAGE) .. "#files\n"
+      .. 'See: ' .. (HTMLvariables.HOMEPAGE) .. "#files\n"
       .. 'Or see ":help g:htmlplugin.no_toolbar".'
     var ret = message->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
 
@@ -609,7 +584,7 @@ if !HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
       # Go to the previous window or everything gets messy:
       wincmd p
     elseif ret == 3
-      BrowserLauncher#Launch('default', 0, HTML.HOMEPAGE .. '#files')
+      BrowserLauncher.Launch('default', 0, (HTMLvariables.HOMEPAGE) .. '#files')
     endif
   endif
 
@@ -646,340 +621,306 @@ if !HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
   # commands for that menu item, or GTK versions of gVim don't show the
   # icons properly.
 
-  HTML#Menu('tmenu',     '1.10',  ['ToolBar', 'Open'],      'Open File')
-  HTML#Menu('anoremenu', '1.10',  ['ToolBar', 'Open'],      save_toolbar['open'])
-  HTML#Menu('tmenu',     '1.20',  ['ToolBar', 'Save'],      'Save Current File')
-  HTML#Menu('anoremenu', '1.20',  ['ToolBar', 'Save'],      save_toolbar['save'])
-  HTML#Menu('tmenu',     '1.30',  ['ToolBar', 'SaveAll'],   'Save All Files')
-  HTML#Menu('anoremenu', '1.30',  ['ToolBar', 'SaveAll'],   save_toolbar['saveall'])
+  functions.Menu('tmenu',     '1.10',  ['ToolBar', 'Open'],      'Open File')
+  functions.Menu('anoremenu', '1.10',  ['ToolBar', 'Open'],      save_toolbar['open'])
+  functions.Menu('tmenu',     '1.20',  ['ToolBar', 'Save'],      'Save Current File')
+  functions.Menu('anoremenu', '1.20',  ['ToolBar', 'Save'],      save_toolbar['save'])
+  functions.Menu('tmenu',     '1.30',  ['ToolBar', 'SaveAll'],   'Save All Files')
+  functions.Menu('anoremenu', '1.30',  ['ToolBar', 'SaveAll'],   save_toolbar['saveall'])
 
-  HTML#Menu('menu',      '1.50',  ['ToolBar', '-sep1-'],    '<Nop>')
+  functions.Menu('menu',      '1.50',  ['ToolBar', '-sep1-'],    '<Nop>')
 
-  HTML#Menu('tmenu',     '1.60',  ['ToolBar', 'Template'],  'Insert Template')
-  HTML#LeadMenu('amenu', '1.60',  ['ToolBar', 'Template'],  'html')
+  functions.Menu('tmenu',     '1.60',  ['ToolBar', 'Template'],  'Insert Template')
+  functions.LeadMenu('amenu', '1.60',  ['ToolBar', 'Template'],  'html')
 
-  HTML#Menu('menu',      '1.65',  ['ToolBar', '-sep2-'],    '<Nop>')
+  functions.Menu('menu',      '1.65',  ['ToolBar', '-sep2-'],    '<Nop>')
 
-  HTML#Menu('tmenu',     '1.70',  ['ToolBar', 'Paragraph'], 'Create Paragraph')
-  HTML#LeadMenu('imenu', '1.70',  ['ToolBar', 'Paragraph'], 'pp')
-  HTML#LeadMenu('vmenu', '-',     ['ToolBar', 'Paragraph'], 'pp')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Paragraph'], 'pp', 'i')
-  HTML#Menu('tmenu',     '1.80',  ['ToolBar', 'Break'],     'Line Break')
-  HTML#LeadMenu('imenu', '1.80',  ['ToolBar', 'Break'],     'br')
-  HTML#LeadMenu('vmenu', '-',     ['ToolBar', 'Break'],     'br')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Break'],     'br', 'i')
+  functions.Menu('tmenu',     '1.70',  ['ToolBar', 'Paragraph'], 'Create Paragraph')
+  functions.LeadMenu('imenu', '1.70',  ['ToolBar', 'Paragraph'], 'pp')
+  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Paragraph'], 'pp')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Paragraph'], 'pp', 'i')
+  functions.Menu('tmenu',     '1.80',  ['ToolBar', 'Break'],     'Line Break')
+  functions.LeadMenu('imenu', '1.80',  ['ToolBar', 'Break'],     'br')
+  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Break'],     'br')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Break'],     'br', 'i')
 
-  HTML#Menu('menu',      '1.85',  ['ToolBar', '-sep3-'],    '<Nop>')
+  functions.Menu('menu',      '1.85',  ['ToolBar', '-sep3-'],    '<Nop>')
 
-  HTML#Menu('tmenu',     '1.90',  ['ToolBar', 'Link'],      'Create Hyperlink')
-  HTML#LeadMenu('imenu', '1.90',  ['ToolBar', 'Link'],      'ah')
-  HTML#LeadMenu('vmenu', '-',     ['ToolBar', 'Link'],      'ah')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Link'],      'ah', 'i')
-  HTML#Menu('tmenu',     '1.100', ['ToolBar', 'Image'],     'Insert Image')
-  HTML#LeadMenu('imenu', '1.100', ['ToolBar', 'Image'],     'im')
-  HTML#LeadMenu('vmenu', '-',     ['ToolBar', 'Image'],     'im')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Image'],     'im', 'i')
+  functions.Menu('tmenu',     '1.90',  ['ToolBar', 'Link'],      'Create Hyperlink')
+  functions.LeadMenu('imenu', '1.90',  ['ToolBar', 'Link'],      'ah')
+  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Link'],      'ah')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Link'],      'ah', 'i')
+  functions.Menu('tmenu',     '1.100', ['ToolBar', 'Image'],     'Insert Image')
+  functions.LeadMenu('imenu', '1.100', ['ToolBar', 'Image'],     'im')
+  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Image'],     'im')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Image'],     'im', 'i')
 
-  HTML#Menu('menu',      '1.105', ['ToolBar', '-sep4-'],    '<Nop>')
+  functions.Menu('menu',      '1.105', ['ToolBar', '-sep4-'],    '<Nop>')
 
-  HTML#Menu('tmenu',     '1.110', ['ToolBar', 'Hline'],     'Create Horizontal Rule')
-  HTML#LeadMenu('imenu', '1.110', ['ToolBar', 'Hline'],     'hr')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Hline'],     'hr', 'i')
+  functions.Menu('tmenu',     '1.110', ['ToolBar', 'Hline'],     'Create Horizontal Rule')
+  functions.LeadMenu('imenu', '1.110', ['ToolBar', 'Hline'],     'hr')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Hline'],     'hr', 'i')
 
-  HTML#Menu('menu',      '1.115', ['ToolBar', '-sep5-'],    '<Nop>')
+  functions.Menu('menu',      '1.115', ['ToolBar', '-sep5-'],    '<Nop>')
 
-  HTML#Menu('tmenu',     '1.120', ['ToolBar', 'Table'],     'Create Table')
-  HTML#LeadMenu('imenu', '1.120', ['ToolBar', 'Table'],     'tA <ESC>')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Table'],     'tA')
+  functions.Menu('tmenu',     '1.120', ['ToolBar', 'Table'],     'Create Table')
+  functions.LeadMenu('imenu', '1.120', ['ToolBar', 'Table'],     'tA <ESC>')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Table'],     'tA')
 
-  HTML#Menu('menu',      '1.125', ['ToolBar', '-sep6-'],    '<Nop>')
+  functions.Menu('menu',      '1.125', ['ToolBar', '-sep6-'],    '<Nop>')
 
-  HTML#Menu('tmenu',     '1.130', ['ToolBar', 'Blist'],     'Create Bullet List')
-  HTML#Menu('imenu',     '1.130', ['ToolBar', 'Blist'],
+  functions.Menu('tmenu',     '1.130', ['ToolBar', 'Blist'],     'Create Bullet List')
+  functions.Menu('imenu',     '1.130', ['ToolBar', 'Blist'],
     g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
-  HTML#Menu('vmenu',     '-',     ['ToolBar', 'Blist'], 
+  functions.Menu('vmenu',     '-',     ['ToolBar', 'Blist'], 
     g:htmlplugin.map_leader .. 'uli' .. g:htmlplugin.map_leader .. 'li<ESC>')
-  HTML#Menu('nmenu',     '-',     ['ToolBar', 'Blist'], 
+  functions.Menu('nmenu',     '-',     ['ToolBar', 'Blist'], 
     'i' .. g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
-  HTML#Menu('tmenu',     '1.140', ['ToolBar', 'Nlist'],     'Create Numbered List')
-  HTML#Menu('imenu',     '1.140', ['ToolBar', 'Nlist'], 
+  functions.Menu('tmenu',     '1.140', ['ToolBar', 'Nlist'],     'Create Numbered List')
+  functions.Menu('imenu',     '1.140', ['ToolBar', 'Nlist'], 
     g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
-  HTML#Menu('vmenu',     '-',     ['ToolBar', 'Nlist'], 
+  functions.Menu('vmenu',     '-',     ['ToolBar', 'Nlist'], 
     g:htmlplugin.map_leader .. 'oli' .. g:htmlplugin.map_leader .. 'li<ESC>')
-  HTML#Menu('nmenu',     '-',     ['ToolBar', 'Nlist'], 
+  functions.Menu('nmenu',     '-',     ['ToolBar', 'Nlist'], 
     'i' .. g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
-  HTML#Menu('tmenu',     '1.150', ['ToolBar', 'Litem'],     'Add List Item')
-  HTML#LeadMenu('imenu', '1.150', ['ToolBar', 'Litem'],     'li')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Litem'],     'li', 'i')
+  functions.Menu('tmenu',     '1.150', ['ToolBar', 'Litem'],     'Add List Item')
+  functions.LeadMenu('imenu', '1.150', ['ToolBar', 'Litem'],     'li')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Litem'],     'li', 'i')
 
-  HTML#Menu('menu',      '1.155', ['ToolBar', '-sep7-'],    '<Nop>')
+  functions.Menu('menu',      '1.155', ['ToolBar', '-sep7-'],    '<Nop>')
 
-  HTML#Menu('tmenu',     '1.160', ['ToolBar', 'Bold'],      'Bold')
-  HTML#LeadMenu('imenu', '1.160', ['ToolBar', 'Bold'],      'bo')
-  HTML#LeadMenu('vmenu', '-',     ['ToolBar', 'Bold'],      'bo')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Bold'],      'bo', 'i')
-  HTML#Menu('tmenu',     '1.170', ['ToolBar', 'Italic'],    'Italic')
-  HTML#LeadMenu('imenu', '1.170', ['ToolBar', 'Italic'],    'it')
-  HTML#LeadMenu('vmenu', '-',     ['ToolBar', 'Italic'],    'it')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Italic'],    'it', 'i')
-  HTML#Menu('tmenu',     '1.180', ['ToolBar', 'Underline'], 'Underline')
-  HTML#LeadMenu('imenu', '1.180', ['ToolBar', 'Underline'], 'un')
-  HTML#LeadMenu('vmenu', '-',     ['ToolBar', 'Underline'], 'un')
-  HTML#LeadMenu('nmenu', '-',     ['ToolBar', 'Underline'], 'un', 'i')
+  functions.Menu('tmenu',     '1.160', ['ToolBar', 'Bold'],      'Bold')
+  functions.LeadMenu('imenu', '1.160', ['ToolBar', 'Bold'],      'bo')
+  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Bold'],      'bo')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Bold'],      'bo', 'i')
+  functions.Menu('tmenu',     '1.170', ['ToolBar', 'Italic'],    'Italic')
+  functions.LeadMenu('imenu', '1.170', ['ToolBar', 'Italic'],    'it')
+  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Italic'],    'it')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Italic'],    'it', 'i')
+  functions.Menu('tmenu',     '1.180', ['ToolBar', 'Underline'], 'Underline')
+  functions.LeadMenu('imenu', '1.180', ['ToolBar', 'Underline'], 'un')
+  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Underline'], 'un')
+  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Underline'], 'un', 'i')
 
-  HTML#Menu('menu',      '1.185', ['ToolBar', '-sep8-'],    '<Nop>')
+  functions.Menu('menu',      '1.185', ['ToolBar', '-sep8-'],    '<Nop>')
 
-  HTML#Menu('tmenu',     '1.190', ['ToolBar', 'Undo'],      'Undo')
-  HTML#Menu('anoremenu', '1.190', ['ToolBar', 'Undo'],      'u')
-  HTML#Menu('tmenu',     '1.200', ['ToolBar', 'Redo'],      'Redo')
-  HTML#Menu('anoremenu', '1.200', ['ToolBar', 'Redo'],      '<C-R>')
+  functions.Menu('tmenu',     '1.190', ['ToolBar', 'Undo'],      'Undo')
+  functions.Menu('anoremenu', '1.190', ['ToolBar', 'Undo'],      'u')
+  functions.Menu('tmenu',     '1.200', ['ToolBar', 'Redo'],      'Redo')
+  functions.Menu('anoremenu', '1.200', ['ToolBar', 'Redo'],      '<C-R>')
 
-  HTML#Menu('menu',      '1.205', ['ToolBar', '-sep9-'],    '<Nop>')
+  functions.Menu('menu',      '1.205', ['ToolBar', '-sep9-'],    '<Nop>')
 
-  HTML#Menu('tmenu',     '1.210', ['ToolBar', 'Cut'],       'Cut to Clipboard')
-  HTML#Menu('vnoremenu', '1.210', ['ToolBar', 'Cut'],       save_toolbar['cut_v'])
-  HTML#Menu('tmenu',     '1.220', ['ToolBar', 'Copy'],      'Copy to Clipboard')
-  HTML#Menu('vnoremenu', '1.220', ['ToolBar', 'Copy'],      save_toolbar['copy_v'])
-  HTML#Menu('tmenu',     '1.230', ['ToolBar', 'Paste'],     'Paste from Clipboard')
-  HTML#Menu('nnoremenu', '1.230', ['ToolBar', 'Paste'],     save_toolbar['paste_n'])
-  HTML#Menu('cnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_c'])
-  HTML#Menu('inoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_i'])
-  HTML#Menu('vnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_v'])
+  functions.Menu('tmenu',     '1.210', ['ToolBar', 'Cut'],       'Cut to Clipboard')
+  functions.Menu('vnoremenu', '1.210', ['ToolBar', 'Cut'],       save_toolbar['cut_v'])
+  functions.Menu('tmenu',     '1.220', ['ToolBar', 'Copy'],      'Copy to Clipboard')
+  functions.Menu('vnoremenu', '1.220', ['ToolBar', 'Copy'],      save_toolbar['copy_v'])
+  functions.Menu('tmenu',     '1.230', ['ToolBar', 'Paste'],     'Paste from Clipboard')
+  functions.Menu('nnoremenu', '1.230', ['ToolBar', 'Paste'],     save_toolbar['paste_n'])
+  functions.Menu('cnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_c'])
+  functions.Menu('inoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_i'])
+  functions.Menu('vnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_v'])
 
-  HTML#Menu('menu',      '1.235', ['ToolBar', '-sep10-'],   '<Nop>')
+  functions.Menu('menu',      '1.235', ['ToolBar', '-sep10-'],   '<Nop>')
 
   if !has('gui_athena')
-    HTML#Menu('tmenu',       '1.240', ['ToolBar', 'Replace'],  'Find / Replace')
-    HTML#Menu('anoremenu',   '1.240', ['ToolBar', 'Replace'],  save_toolbar['replace'])
+    functions.Menu('tmenu',       '1.240', ['ToolBar', 'Replace'],  'Find / Replace')
+    functions.Menu('anoremenu',   '1.240', ['ToolBar', 'Replace'],  save_toolbar['replace'])
     vunmenu ToolBar.Replace
-    HTML#Menu('vnoremenu',   '-',     ['ToolBar', 'Replace'],  save_toolbar['replace_v'])
-    HTML#Menu('tmenu',       '1.250', ['ToolBar', 'FindNext'], 'Find Next')
-    HTML#Menu('anoremenu',   '1.250', ['ToolBar', 'FindNext'], 'n')
-    HTML#Menu('tmenu',       '1.260', ['ToolBar', 'FindPrev'], 'Find Previous')
-    HTML#Menu('anoremenu',   '1.260', ['ToolBar', 'FindPrev'], 'N')
+    functions.Menu('vnoremenu',   '-',     ['ToolBar', 'Replace'],  save_toolbar['replace_v'])
+    functions.Menu('tmenu',       '1.250', ['ToolBar', 'FindNext'], 'Find Next')
+    functions.Menu('anoremenu',   '1.250', ['ToolBar', 'FindNext'], 'n')
+    functions.Menu('tmenu',       '1.260', ['ToolBar', 'FindPrev'], 'Find Previous')
+    functions.Menu('anoremenu',   '1.260', ['ToolBar', 'FindPrev'], 'N')
   endif
 
-  HTML#Menu('menu', '1.500', ['ToolBar', '-sep50-'], '<Nop>')
+  functions.Menu('menu', '1.500', ['ToolBar', '-sep50-'], '<Nop>')
 
   if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
-    HTML#Menu('tmenu', '1.510', ['ToolBar', 'Browser'],
+    functions.Menu('tmenu', '1.510', ['ToolBar', 'Browser'],
       'Launch the Default Browser on the Current File')
-    HTML#LeadMenu('amenu', '1.510', ['ToolBar', 'Browser'], 'db')
+    functions.LeadMenu('amenu', '1.510', ['ToolBar', 'Browser'], 'db')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
-    HTML#Menu('tmenu', '1.530', ['ToolBar', 'Brave'],
+    functions.Menu('tmenu', '1.530', ['ToolBar', 'Brave'],
       'Launch Brave on the Current File')
-    HTML#LeadMenu('amenu', '1.530', ['ToolBar', 'Brave'], 'bv')
+    functions.LeadMenu('amenu', '1.530', ['ToolBar', 'Brave'], 'bv')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
-    HTML#Menu('tmenu', '1.520', ['ToolBar', 'Firefox'],
+    functions.Menu('tmenu', '1.520', ['ToolBar', 'Firefox'],
       'Launch Firefox on the Current File')
-    HTML#LeadMenu('amenu', '1.520', ['ToolBar', 'Firefox'], 'ff')
+    functions.LeadMenu('amenu', '1.520', ['ToolBar', 'Firefox'], 'ff')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
-    HTML#Menu('tmenu', '1.530', ['ToolBar', 'Chrome'],
+    functions.Menu('tmenu', '1.530', ['ToolBar', 'Chrome'],
       'Launch Chrome on the Current File')
-    HTML#LeadMenu('amenu', '1.530', ['ToolBar', 'Chrome'], 'gc')
+    functions.LeadMenu('amenu', '1.530', ['ToolBar', 'Chrome'], 'gc')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
-    HTML#Menu('tmenu', '1.540', ['ToolBar', 'Edge'],
+    functions.Menu('tmenu', '1.540', ['ToolBar', 'Edge'],
       'Launch Edge on the Current File')
-    HTML#LeadMenu('amenu', '1.540', ['ToolBar', 'Edge'], 'ed')
+    functions.LeadMenu('amenu', '1.540', ['ToolBar', 'Edge'], 'ed')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
-    HTML#Menu('tmenu', '1.550', ['ToolBar', 'Opera'],
+    functions.Menu('tmenu', '1.550', ['ToolBar', 'Opera'],
       'Launch Opera on the Current File')
-    HTML#LeadMenu('amenu', '1.550', ['ToolBar', 'Opera'], 'oa')
+    functions.LeadMenu('amenu', '1.550', ['ToolBar', 'Opera'], 'oa')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
-    HTML#Menu('tmenu', '1.560', ['ToolBar', 'Safari'],
+    functions.Menu('tmenu', '1.560', ['ToolBar', 'Safari'],
       'Launch Safari on the Current File')
-    HTML#LeadMenu('amenu', '1.560', ['ToolBar', 'Safari'], 'sf')
+    functions.LeadMenu('amenu', '1.560', ['ToolBar', 'Safari'], 'sf')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
-    HTML#Menu('tmenu', '1.570', ['ToolBar', 'w3m'],
+    functions.Menu('tmenu', '1.570', ['ToolBar', 'w3m'],
       'Launch w3m on the Current File')
-    HTML#LeadMenu('amenu', '1.570', ['ToolBar', 'w3m'], 'w3')
+    functions.LeadMenu('amenu', '1.570', ['ToolBar', 'w3m'], 'w3')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
-    HTML#Menu('tmenu', '1.580', ['ToolBar', 'Lynx'],
+    functions.Menu('tmenu', '1.580', ['ToolBar', 'Lynx'],
       'Launch Lynx on the Current File')
-    HTML#LeadMenu('amenu', '1.580', ['ToolBar', 'Lynx'], 'ly')
+    functions.LeadMenu('amenu', '1.580', ['ToolBar', 'Lynx'], 'ly')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
-    HTML#Menu('tmenu', '1.580', ['ToolBar', 'Links'],
+    functions.Menu('tmenu', '1.580', ['ToolBar', 'Links'],
       'Launch Links on the Current File')
-    HTML#LeadMenu('amenu', '1.580', ['ToolBar', 'Links'], 'ln')
+    functions.LeadMenu('amenu', '1.580', ['ToolBar', 'Links'], 'ln')
   endif
 
-  HTML#Menu('menu',      '1.997', ['ToolBar', '-sep99-'], '<Nop>')
-  HTML#Menu('tmenu',     '1.998', ['ToolBar', 'HTMLHelp'], 'HTML Plugin Help')
-  HTML#Menu('anoremenu', '1.998', ['ToolBar', 'HTMLHelp'], ':help HTML.txt<CR>')
+  functions.Menu('menu',      '1.997', ['ToolBar', '-sep99-'], '<Nop>')
+  functions.Menu('tmenu',     '1.998', ['ToolBar', 'HTMLHelp'], 'HTML Plugin Help')
+  functions.Menu('anoremenu', '1.998', ['ToolBar', 'HTMLHelp'], ':help HTML.txt<CR>')
 
-  HTML#Menu('tmenu',     '1.999', ['ToolBar', 'Help'], 'Help')
-  HTML#Menu('anoremenu', '1.999', ['ToolBar', 'Help'], ':help<CR>')
+  functions.Menu('tmenu',     '1.999', ['ToolBar', 'Help'], 'Help')
+  functions.Menu('anoremenu', '1.999', ['ToolBar', 'Help'], ':help<CR>')
 
   g:htmlplugin.did_toolbar = true
-endif  # !HTML#BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
+endif  # !functions.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
 # ----------------------------------------------------------------------------
 
 # ---- Menu Items: ------------------------------------------------------ {{{1
 
 # Add to the PopUp menu:   {{{2
-HTML#Menu('nnoremenu', '1.91', ['PopUp', 'Select Ta&g'],        'vat')
-HTML#Menu('onoremenu', '-',    ['PopUp', 'Select Ta&g'],        'at')
-HTML#Menu('vnoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-c>vat')
-HTML#Menu('inoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-O>vat')
-HTML#Menu('cnoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-c>vat')
+functions.Menu('nnoremenu', '1.91', ['PopUp', 'Select Ta&g'],        'vat')
+functions.Menu('onoremenu', '-',    ['PopUp', 'Select Ta&g'],        'at')
+functions.Menu('vnoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-c>vat')
+functions.Menu('inoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-O>vat')
+functions.Menu('cnoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-c>vat')
 
-HTML#Menu('nnoremenu', '1.92', ['PopUp', 'Select &Inner Ta&g'], 'vit')
-HTML#Menu('onoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], 'it')
-HTML#Menu('vnoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-c>vit')
-HTML#Menu('inoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-O>vit')
-HTML#Menu('cnoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-c>vit')
+functions.Menu('nnoremenu', '1.92', ['PopUp', 'Select &Inner Ta&g'], 'vit')
+functions.Menu('onoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], 'it')
+functions.Menu('vnoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-c>vit')
+functions.Menu('inoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-O>vit')
+functions.Menu('cnoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-c>vit')
 # }}}2
 
 augroup HTMLmenu
-au!
+  au!
   autocmd BufEnter,WinEnter * {
-      HTML#MenuControl()
-      HTML#ToggleClipboard()
+      functions.MenuControl()
+      functions.ToggleClipboard()
     }
 augroup END
 
 # Very first non-ToolBar, non-PopUp menu gets "auto" for its priority to place
 # the HTML menu according to user configuration:
-HTML#Menu('amenu', 'auto', ['Co&ntrol', '&Disable Mappings<tab>:HTML disable'],
+functions.Menu('amenu', 'auto', ['&Disable Mappings<tab>:HTML disable'],
   ':HTMLmappings disable<CR>')
-HTML#Menu('amenu', '-',    ['Co&ntrol', '&Enable Mappings<tab>:HTML enable'],
+functions.Menu('amenu', '-',    ['&Enable Mappings<tab>:HTML enable'],
   ':HTMLmappings enable<CR>')
-HTML#Menu('menu',  '-',    ['Control',  '-sep1-'], '<Nop>')
-HTML#Menu('amenu', '-',    ['Co&ntrol', 'Switch to &HTML mode<tab>:HTML html'],
-  ':HTMLmappings html<CR>')
-HTML#Menu('amenu', '-',    ['Co&ntrol', 'Switch to &XHTML mode<tab>:HTML xhtml'],
-  ':HTMLmappings xhtml<CR>')
-HTML#Menu('menu',  '-',    ['Control',  '-sep2-'], '<Nop>')
-HTML#Menu('amenu', '-',    ['Co&ntrol', 'Switch to lowercase<tab>:HTML lowercase'],
-  ':HTMLmappings lowercase<CR>')
-HTML#Menu('amenu', '-',    ['Co&ntrol', 'Switch to uppercase<tab>:HTML uppercase'],
-  ':HTMLmappings uppercase<CR>')
-HTML#Menu('menu',  '-',    ['Control',  '-sep3-'], '<Nop>')
-HTML#Menu('amenu', '-',    ['Co&ntrol', '&Reload Mappings<tab>:HTML reload'],
-  ':HTMLmappings reload<CR>')
-
-HTML#Menu('menu',  '.9999', ['-sep999-'], '<Nop>')
-
-HTML#Menu('amenu', '.9999', ['Help', 'HTML Plugin Help<TAB>:help HTML.txt'],
-  ':help HTML.txt<CR>')
-HTML#Menu('amenu', '.9999', ['Help', 'About the HTML Plugin<TAB>:HTMLAbout'],
-  ':HTMLAbout<CR>')
 
 execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-  .. '.Control.Enable\ Mappings'
-if HTML#BoolVar('b:htmlplugin.do_xhtml_mappings')
-  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-    .. '.Control.Switch\ to\ XHTML\ mode'
-  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-    .. '.Control.Switch\ to\ uppercase'
-  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-    .. '.Control.Switch\ to\ lowercase'
-else
-  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-    .. '.Control.Switch\ to\ HTML\ mode'
-  if b:htmlplugin.tag_case =~? '^u\(pper\(case\)\?\)\?'
-    execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-      .. '.Control.Switch\ to\ uppercase'
-  else
-    execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-      .. '.Control.Switch\ to\ lowercase'
-  endif
-endif
+  .. '.Enable\ Mappings'
+
+functions.Menu('menu',  '.9999', ['-sep999-'], '<Nop>')
+
+functions.Menu('amenu', '.9999', ['Help', 'HTML Plugin Help<TAB>:help HTML.txt'],
+  ':help HTML.txt<CR>')
+functions.Menu('amenu', '.9999', ['Help', 'About the HTML Plugin<TAB>:HTMLAbout'],
+  ':HTMLAbout<CR>')
 
 if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
-  HTML#LeadMenu('amenu', '-', ['&Preview', '&Default Browser'], 'db')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&Default Browser'], 'db')
 endif
 if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep1-'], '<nop>')
-  HTML#LeadMenu('amenu', '-', ['&Preview', '&Brave'], 'bv')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Brave (New Window)'], 'nbv')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Brave (New Tab)'], 'tbv')
+  functions.Menu('menu', '-', ['Preview', '-sep1-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&Brave'], 'bv')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Window)'], 'nbv')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Tab)'], 'tbv')
 endif
 if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
-  HTML#LeadMenu('amenu', '-', ['&Preview', '&Firefox'], 'ff')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Window)'], 'nff')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Tab)'], 'tff')
+  functions.Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&Firefox'], 'ff')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Window)'], 'nff')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Tab)'], 'tff')
 endif
 if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep3-'], '<nop>')
-  HTML#LeadMenu('amenu', '-', ['&Preview', '&Chrome'], 'gc')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Window)'], 'ngc')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Tab)'], 'tgc')
+  functions.Menu('menu', '-', ['Preview', '-sep3-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&Chrome'], 'gc')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Window)'], 'ngc')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Tab)'], 'tgc')
 endif
 if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep4-'], '<nop>')
-  HTML#LeadMenu('amenu', '-', ['&Preview', '&Edge'], 'ed')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Edge (New Window)'], 'ned')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Edge (New Tab)'], 'ted')
+  functions.Menu('menu', '-', ['Preview', '-sep4-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&Edge'], 'ed')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Window)'], 'ned')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Tab)'], 'ted')
 endif
 if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep5-'], '<nop>')
-  HTML#LeadMenu('amenu', '-', ['&Preview', '&Opera'], 'oa')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Opera (New Window)'], 'noa')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Opera (New Tab)'], 'toa')
+  functions.Menu('menu', '-', ['Preview', '-sep5-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&Opera'], 'oa')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Opera (New Window)'], 'noa')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Opera (New Tab)'], 'toa')
 endif
 if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep6-'], '<nop>')
-  HTML#LeadMenu('amenu', '-', ['&Preview', '&Safari'], 'sf')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Safari (New Window)'], 'nsf')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Safari (New Tab)'], 'tsf')
+  functions.Menu('menu', '-', ['Preview', '-sep6-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&Safari'], 'sf')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Safari (New Window)'], 'nsf')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Safari (New Tab)'], 'tsf')
 endif
 if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep7-'], '<nop>')
-  HTML#LeadMenu('amenu', '-', ['&Preview', '&Lynx'], 'ly')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Lynx (New Window)'], 'nly')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Lynx (:terminal)'], 'tly')
+  functions.Menu('menu', '-', ['Preview', '-sep7-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&Lynx'], 'ly')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Lynx (New Window)'], 'nly')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Lynx (:terminal)'], 'tly')
 endif
 if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep8-'], '<nop>')
-  HTML#LeadMenu('amenu', '-', ['&Preview', '&w3m'], 'w3')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'w3m (New Window)'], 'nw3')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'w3m (:terminal)'], 'tw3')
+  functions.Menu('menu', '-', ['Preview', '-sep8-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&w3m'], 'w3')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'w3m (New Window)'], 'nw3')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'w3m (:terminal)'], 'tw3')
 endif
 if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
-  HTML#Menu('menu', '-', ['Preview', '-sep9-'], '<nop>')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Li&nks'], 'ln')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Links (New Window)'], 'nln')
-  HTML#LeadMenu('amenu', '-', ['&Preview', 'Links (:terminal)'], 'tln')
+  functions.Menu('menu', '-', ['Preview', '-sep9-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Li&nks'], 'ln')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Links (New Window)'], 'nln')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Links (:terminal)'], 'tln')
 endif
 
 # Bring in the tags and entities menus and mappings at the same time:
-HTML#ReadTags(true, true)
-HTML#ReadEntities(true, true)
+functions.ReadTags(true, true)
+functions.ReadEntities(true, true)
 
 # Create the rest of the colors menu:
-HTML.COLOR_LIST->mapnew((_, value) => HTML#ColorsMenu(value[0], value[1], value[2], value[3]))
+HTMLvariables.COLOR_LIST->mapnew((_, value) => functions.ColorsMenu(value[0], value[1], value[2], value[3]))
 
 g:htmlplugin.did_menus = true
-
 endif
 # ---------------------------------------------------------------------------
 
 # ---- Finalize and Clean Up: ------------------------------------------- {{{1
 
-b:htmlplugin.doing_internal_mappings = false
-
 # Try to reduce support requests from users:  {{{
-if !HTML#BoolVar('g:htmlplugin.did_old_variable_check') &&
+if !functions.BoolVar('g:htmlplugin.did_old_variable_check') &&
     (exists('g:html_author_name') || exists('g:html_author_email')
     || exists('g:html_bgcolor') || exists('g:html_textcolor')
     || exists('g:html_alinkcolor') || exists('g:html_vlinkcolor')
@@ -998,11 +939,11 @@ if !HTML#BoolVar('g:htmlplugin.did_old_variable_check') &&
     wincmd p
   endif
 endif
-if !HTML#BoolVar('g:htmlplugin.did_plugin_warning_check')
+if !functions.BoolVar('g:htmlplugin.did_plugin_warning_check')
   g:htmlplugin.did_plugin_warning_check = true
   var files = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
   if files->len() > 1
-    var filesmatched = files->HTML#FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)
+    var filesmatched = files->functions.FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)
     if filesmatched->len() > 1
       var message = "Multiple versions of the HTML plugin are installed.\n"
         .. "Locations:\n   " .. filesmatched->map((_, value) => value->fnamemodify(':~'))->join("\n   ")
