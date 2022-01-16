@@ -124,8 +124,8 @@ error, or you can just set everything at once in your |vimrc|, e.g.: >
 	let g:htmlplugin = {
 		\	'authorname': 'John Smith',
 		\	'authoremail': 'jsmith@example.com',
-		\	"do_xhtml_mappings": v:false,
-		\	"tag_case": 'uppercase'
+		\	'do_xhtml_mappings': v:false,
+		\	'tag_case': 'uppercase'
 		\}
 <
 Also note that in the following text, "nonzero" means anything besides "no",
