@@ -1,13 +1,13 @@
 vim9script autoload
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024072
+if v:version < 802 || v:versionlong < 8024102
   finish
 endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: January 12, 2022
+# Last Change: January 15, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -29,11 +29,9 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import '../../import/HTMLvariables.vim'
+import '../../import/HTML/variables.vim' as HTMLvariables
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/MangleImageTag.vim'
-
-g:HTML#MangleImageTag#Update = MangleImageTag.Update
 
 # Used in a bunch of places so some functions don't have to be globally
 # exposed:
@@ -44,6 +42,11 @@ const off = 'off'
 const on = 'on'
 #const yes = 'yes'
 #const no = 'no'
+
+const E_NOMAPLEAD = ' g:htmlplugin.map_leader is not set! No mapping defined.'
+const E_NOEMAPLEAD = ' g:htmlplugin.entity_map_leader is not set! No mapping defined.'
+const E_EMPTYLHS = ' must have a non-empty lhs. No mapping defined.'
+const E_EMPTYRHS = ' must have a non-empty rhs. No mapping defined.'
 
 export def Warn(message: string): void  # {{{1
   echohl WarningMsg
@@ -63,7 +66,7 @@ export def Error(message: string): void  # {{{1
   echohl None
 enddef
 
-# HTMLfunctions#About()  {{{1
+# HTML#functions#About()  {{{1
 #
 # Purpose:
 #  Self-explanatory
@@ -86,7 +89,7 @@ export def About(): void
   endif
 enddef
 
-# HTMLfunctions#SetIfUnset()  {{{1
+# HTML#functions#SetIfUnset()  {{{1
 #
 # Purpose:
 #  Set a variable if it's not already set. Cannot be used for script-local
@@ -150,7 +153,7 @@ enddef
 # Bool()  {{{1
 #
 # Purpose:
-#  Helper to HTMLfunctions#BoolVar() -- Test the string passed to it and
+#  Helper to HTML#functions#BoolVar() -- Test the string passed to it and
 #  return true/false based on that string.
 # Arguments:
 #  1 - String: 1|true|yes|y|on / 0|false|no|n|off|none|null
@@ -175,7 +178,7 @@ def Bool(value: any): bool
   return false
 enddef
 
-# HTMLfunctions#BoolVar()  {{{1
+# HTML#functions#BoolVar()  {{{1
 #
 # Purpose:
 #  Given a string, test to see if a variable by that string name exists, and
@@ -217,7 +220,7 @@ def IsSet(str: string): bool
   endif
 enddef
 
-# HTMLfunctions#FilesWithMatch()  {{{1
+# HTML#functions#FilesWithMatch()  {{{1
 #
 # Purpose:
 #  Create a list of files that have contents matching a pattern.
@@ -249,7 +252,7 @@ export def FilesWithMatch(files: list<string>, pat: string, max: number = -1): l
   return matched
 enddef
 
-# HTMLfunctions#TranscodeString()  {{{1
+# HTML#functions#TranscodeString()  {{{1
 #
 # Purpose:
 #  Encode the characters in a string to/from their HTML representations.
@@ -355,7 +358,7 @@ def DecodeSymbol(symbol: string): string
   return char
 enddef
 
-# HTMLfunctions#Map()  {{{1
+# HTML#functions#Map()  {{{1
 #
 # Purpose:
 #  Define the HTML mappings with the appropriate case, plus some extra stuff.
@@ -376,26 +379,22 @@ enddef
 
 export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, internal: bool = false): bool
   if !exists('g:htmlplugin.map_leader') && map =~? '^<lead>'
-    Error(expand('<stack>')
-      .. ' g:htmlplugin.map_leader is not set! No mapping defined.')
+    Error(expand('<stack>') .. E_NOMAPLEAD)
     return false
   endif
 
   if !exists('g:htmlplugin.entity_map_leader') && map =~? '^<elead>'
-    Error(expand('<stack>')
-      .. ' g:htmlplugin.entity_map_leader is not set! No mapping defined.')
+    Error(expand('<stack>') .. E_NOEMAPLEAD)
     return false
   endif
 
   if map == '' || map ==? "<lead>" || map ==? "<elead>"
-    Error(expand('<stack>')
-      .. ' must have a non-empty lhs. No mapping defined.')
+    Error(expand('<stack>') .. E_EMPTYLHS)
     return false
   endif
 
   if arg == ''
-    Error(expand('<stack>')
-      .. ' must have a non-empty rhs. No mapping defined.')
+    Error(expand('<stack>') .. E_EMPTYRHS)
     return false
   endif
 
@@ -424,35 +423,38 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
   if mode == 'v'
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
-    newarg = newarg->substitute('`>a\C', '`>i<C-R>=' .. self_sid .. 'VI()<CR>', 'g')
+    newarg = newarg->substitute('`>a\C', '`>i<C-R>='
+      .. self_sid .. 'VI()<CR>', 'g')
 
-    # Note that <C-c>:-command is necessary instead of just <Cmd> because
-    # <Cmd> doesn't update visual marks, which the mappings rely on:
-    if opts->has_key('extra') && ! opts['extra']
-      execute cmd .. ' <buffer> <silent> ' .. newmap .. " " .. newarg
-    elseif opts->has_key('insert') && opts['insert'] && opts->has_key('reindent')
+    # Note that <C-c> is necessary instead of just <ScriptCmd> because
+    # <ScriptCmd> doesn't update visual marks, which the mappings rely on:
+    if opts->has_key('extra') && ! opts.extra
+      execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
+    elseif opts->has_key('insert') && opts.insert && opts->has_key('reindent')
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c>:vim9cmd ' .. self_sid .. 'TO(false)<CR><C-O>gv' .. newarg
-        .. "<C-O>:vim9cmd " .. self_sid
-        .. "TO(true)<CR><C-O>m'<C-O>:vim9cmd " .. self_sid .. "ReIndent(line(\"'<\"), line(\"'>\"), "
-        .. opts['reindent'] .. ')<CR><C-O>``'
-    elseif opts->has_key('insert') && opts['insert']
+        .. ' <C-c><ScriptCmd>TO(false)<CR>' .. newarg
+        .. "<ScriptCmd>TO(true)<CR>m'<ScriptCmd>"
+        .. "ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. opts.reindent .. ')<CR><C-O>``'
+    elseif opts->has_key('insert') && opts.insert
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c>:vim9cmd ' .. self_sid .. 'TO(false)<CR>gv' .. newarg
-        .. '<C-O>:vim9cmd ' .. self_sid .. 'TO(true)<CR>'
+        .. ' <C-c><ScriptCmd>TO(false)<CR>' .. newarg
+        .. '<ScriptCmd>TO(true)<CR>'
     elseif opts->has_key('reindent')
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c>:vim9cmd ' .. self_sid .. 'TO(false)<CR>gv' .. newarg
-        .. ":vim9cmd " .. self_sid
-        .. "TO(true)<CR>m':vim9cmd " .. self_sid .. "ReIndent(line(\"'<\"), line(\"'>\"), "
-        .. opts['reindent'] .. ')<CR>``'
+        .. ' <C-c><ScriptCmd>TO(false)<CR>' .. newarg
+        .. "<ScriptCmd>TO(true)<CR>m'<ScriptCmd>"
+        .. "ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. opts.reindent .. ')<CR>``'
     else
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c>:vim9cmd ' .. self_sid .. 'TO(false)<CR>gv' .. newarg
-        .. ':vim9cmd ' .. self_sid .. 'TO(true)<CR>'
+        .. ' <C-c><ScriptCmd>TO(false)<CR>' .. newarg
+        .. '<ScriptCmd>TO(true)<CR>'
     endif
+  elseif mode == 'i' && opts->has_key('expr') && opts.expr
+    execute cmd .. ' <buffer> <silent> <expr> ' .. newmap .. ' ' .. newarg
   else
-    execute cmd .. ' <buffer> <silent> ' .. newmap .. " " .. newarg
+    execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
   endif
 
   if HTMLvariables.MODES->has_key(mode)
@@ -467,7 +469,7 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
   return true
 enddef
 
-# HTMLfunctions#Mapo()  {{{1
+# HTML#functions#Mapo()  {{{1
 #
 # Purpose:
 #  Define a normal mode map that takes an operator and assign it to its
@@ -480,14 +482,12 @@ enddef
 #  Boolean: Whether a mapping was defined
 export def Mapo(map: string, insert: bool = false, internal: bool = false): bool
   if !exists('g:htmlplugin.map_leader') && map =~? '^<lead>'
-    Error(expand('<stack>')
-      .. ' g:htmlplugin.map_leader is not set! No mapping defined.')
+    Error(expand('<stack>') .. E_NOMAPLEAD)
     return false
   endif
 
   if map == '' || map ==? "<lead>"
-    Error(expand('<stack>')
-      .. ' must have a non-empty lhs. No mapping defined.')
+    Error(expand('<stack>') .. E_EMPTYLHS)
     return false
   endif
 
@@ -499,9 +499,9 @@ export def Mapo(map: string, insert: bool = false, internal: bool = false): bool
   endif
 
   execute 'nnoremap <buffer> <silent> ' .. newmap
-    .. " :vim9cmd b:htmlplugin.tagaction = '" .. newmap .. "'<CR>"
-    .. ':vim9cmd b:htmlplugin.taginsert = ' .. insert .. "<CR>"
-    .. ':vim9cmd &operatorfunc = "' .. self_sid .. 'WR"<CR>g@'
+    .. " <ScriptCmd>b:htmlplugin.tagaction = '" .. newmap .. "'<CR>"
+    .. '<ScriptCmd>b:htmlplugin.taginsert = ' .. insert .. "<CR>"
+    .. '<ScriptCmd>&operatorfunc = "' .. self_sid .. 'WR"<CR>g@'
 
   add(b:htmlplugin.clear_mappings, ':nunmap <buffer> ' .. newmap)
   newmap->maparg('n', false, true)->MappingsListAdd('n', internal)
@@ -560,7 +560,7 @@ def MapCheck(map: string, mode: string, internal: bool = false): number
   return 0
 enddef
 
-# HTMLfunctions#SI()  {{{1
+# HTML#functions#SI()  {{{1
 #
 # Purpose:
 #  'Escape' special characters with a control-v so Vim doesn't handle them as
@@ -691,7 +691,7 @@ def TC(s: bool)
   endif
 enddef
 
-# HTMLfunctions#ToggleClipboard()  {{{1
+# HTML#functions#ToggleClipboard()  {{{1
 #
 # Used to turn off/on the inclusion of "html" in the 'clipboard' option when
 # switching buffers.
@@ -735,7 +735,7 @@ enddef
 # VI()  {{{1
 #
 # Purpose:
-#  Used by HTMLfunctions#Map() to enter insert mode in Visual mappings in the right
+#  Used by HTML#functions#Map() to enter insert mode in Visual mappings in the right
 #  place, depending on what 'selection' is set to.
 # Arguments:
 #   None
@@ -749,7 +749,7 @@ def VI(): string
   endif
 enddef
 
-# HTMLfunctions#ConvertCase()  {{{1
+# HTML#functions#ConvertCase()  {{{1
 #
 # Purpose:
 #  Convert special regions in a string to the appropriate case determined by
@@ -798,7 +798,7 @@ enddef
 # ReIndent()  {{{1
 #
 # Purpose:
-#  Re-indent a region.  (Usually called by HTMLfunctions#Map.)
+#  Re-indent a region.  (Usually called by HTML#functions#Map.)
 #  Nothing happens if filetype indenting isn't enabled and 'indentexpr' is
 #  unset.
 # Arguments:
@@ -860,7 +860,7 @@ def ReIndent(first: number, last: number, extralines: number = 0, prelines: numb
   return true
 enddef
 
-# HTMLfunctions#NextInsertPoint()  {{{1
+# HTML#functions#NextInsertPoint()  {{{1
 #
 # Purpose:
 #  Position the cursor at the next point in the file that needs data.
@@ -879,14 +879,15 @@ enddef
 #  multiple matches.
 export def NextInsertPoint(mode: string = 'n', direction: string = 'f'): bool
   var done: bool
+  var line = line('.')->getline()
 
   # Tab in insert mode on the beginning of a closing tag jumps us to
   # after the tag:
   if mode =~? '^i' && direction =~? '^f'
-    if line('.')->getline()->strpart(col('.') - 1, 2) == '</'
+    if line->strpart(col('.') - 1, 2) == '</'
       normal! %
       done = true
-    elseif line('.')->getline()->strpart(col('.') - 1) =~ '^ *-->'
+    elseif line->strpart(col('.') - 1) =~ '^ *-->'
       normal! f>
       done = true
     else
@@ -963,7 +964,7 @@ def SmartTag(tag: string, mode: string): string
   return ret
 enddef
 
-# HTMLfunctions#GenerateTable()  {{{1
+# HTML#functions#GenerateTable()  {{{1
 #
 # Purpose:
 #  Interactively creates a table.
@@ -1107,11 +1108,11 @@ export def GenerateTable(rows: number = -1, columns: number = -1, border: number
   return true
 enddef
 
-# HTMLfunctions#PluginControl()  {{{1
+# HTML#functions#PluginControl()  {{{1
 #
 # Purpose:
 #  Disable/enable all the mappings defined by
-#  HTMLfunctions#Map()/HTMLfunctions#Mapo().
+#  HTML#functions#Map()/HTML#functions#Mapo().
 # Arguments:
 #  1 - String: Whether to disable or enable the mappings:
 #               d/disable/off:   Clear the mappings
@@ -1186,7 +1187,7 @@ export def PluginControl(dowhat: string): bool
   return true
 enddef
 
-# HTMLfunctions#MenuControl()  {{{1
+# HTML#functions#MenuControl()  {{{1
 #
 # Purpose:
 #  Disable/enable the HTML menu and toolbar.
@@ -1271,7 +1272,7 @@ def ToRGB(color: string, percent: bool = false): string
   return printf('rgb(%d, %d, %d)', rgb[0], rgb[1], rgb[2])
 enddef
 
-# HTMLfunctions#ColorChooser()  {{{1
+# HTML#functions#ColorChooser()  {{{1
 #
 # Purpose:
 #  Use the popup feature of Vim to display HTML colors for selection
@@ -1397,7 +1398,7 @@ export def ColorChooser(how: string = 'i'): void
     )
 enddef
 
-# HTMLfunctions#Template()  {{{1
+# HTML#functions#Template()  {{{1
 #
 # Purpose:
 #  Determine whether to insert the HTML template.
@@ -1507,7 +1508,7 @@ export def Template(): bool
     if YesNoOverwrite == 1
       ret = InsertTemplate()
     elseif YesNoOverwrite == 3
-      execute '%delete'
+      execute ':%delete'
       ret = InsertTemplate()
     endif
   endif
@@ -1518,7 +1519,7 @@ export def Template(): bool
   return ret
 enddef
 
-# HTMLfunctions#DetectCharset()  {{{1
+# DetectCharset()  {{{1
 #
 # Purpose:
 #  Detects the HTTP-EQUIV Content-Type charset based on Vim's current
@@ -1529,7 +1530,7 @@ enddef
 # Return Value:
 #  The value for the Content-Type charset based on 'fileencoding' or
 #  'encoding'.
-export def DetectCharset(charset: string = ''): string
+def DetectCharset(charset: string = ''): string
   var enc: string
 
   if exists('b:htmlplugin.charset')
@@ -1560,7 +1561,7 @@ export def DetectCharset(charset: string = ''): string
   return g:htmlplugin.default_charset
 enddef
 
-# HTMLfunctions#MenuJoin()  {{{1
+# HTML#functions#MenuJoin()  {{{1
 #
 # Purpose:
 #  Simple function to join menu name array into a valid menu name, escaped
@@ -1589,7 +1590,7 @@ def MenuPriorityPrefix(menu: string): string
   endif
 enddef
 
-# HTMLfunctions#Menu()  {{{1
+# HTML#functions#Menu()  {{{1
 #
 # Purpose:
 #  Generate plain HTML menu items without any extra magic
@@ -1631,7 +1632,7 @@ export def Menu(type: string, level: string, name: list<string>, item: string): 
   execute type .. ' ' .. newlevel .. ' ' .. nameescaped .. ' ' .. item
 enddef
 
-# HTMLfunctions#LeadMenu()  {{{1
+# HTML#functions#LeadMenu()  {{{1
 #
 # Purpose:
 #  Generate HTML menu items
@@ -1668,7 +1669,7 @@ export def LeadMenu(type: string, level: string, name: list<string>, item: strin
     .. leaderescaped .. item .. ' ' .. pre .. g:htmlplugin.map_leader .. item
 enddef
 
-# HTMLfunctions#EntityMenu()  {{{1
+# HTML#functions#EntityMenu()  {{{1
 #
 # Purpose:
 #  Generate HTML character entity menu items
@@ -1713,7 +1714,7 @@ export def EntityMenu(name: list<string>, item: string, symb: string = ''): void
     .. g:htmlplugin.entity_map_leader .. item .. '<esc>'
 enddef
 
-# HTMLfunctions#ColorsMenu()  {{{1
+# HTML#functions#ColorsMenu()  {{{1
 #
 # Purpose:
 #  Generate HTML colors menu items
@@ -1815,7 +1816,7 @@ export def ColorsMenu(name: string, color: string, namens: string = '', rgb: str
   endif
 enddef
 
-# HTMLfunctions#ReadTags()  {{{1
+# HTML#functions#ReadTags()  {{{1
 #
 #  Purpose:
 #   Read in the HTML tags JSON file and define both the mappings and menu at
@@ -1876,7 +1877,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
           if Map('inoremap',
               (maplhs == '' ? '<lead>' .. json.maps.i[0] : maplhs),
               json.maps.i[1],
-              v:none,
+              len(json.maps.i) >= 3 ? json.maps.i[2] : {},
               internal)
             ++did_mappings
           endif
@@ -1888,7 +1889,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
           if Map('vnoremap',
               (maplhs == '' ? '<lead>' .. json.maps.v[0] : maplhs),
               json.maps.v[1],
-              json.maps.v[2],
+              len(json.maps.v) >= 3 ? json.maps.v[2] : {},
               internal)
             ++did_mappings
           endif
@@ -1969,7 +1970,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
   return rval
 enddef
 
-# HTMLfunctions#ReadEntities()  {{{1
+# HTML#functions#ReadEntities()  {{{1
 #
 #  Purpose:
 #   Read in the HTML entities JSON file and define both the mappings and menu

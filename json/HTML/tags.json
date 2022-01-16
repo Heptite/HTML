@@ -23,9 +23,9 @@
 		"lhs": "cc",
 
 		"maps": {
-			"n": ["", "<Cmd>ColorChooser<CR>"],
-			"i": ["", "<Cmd>ColorChooser<CR>"],
-			"v": ["", "s<Cmd>ColorChooser<CR>", {"extra": false}]
+			"n": ["", "<ScriptCmd>ColorChooser()<CR>"],
+			"i": ["", "<ScriptCmd>ColorChooser()<CR>"],
+			"v": ["", "s<ScriptCmd>ColorChooser()<CR>", {"extra": false}]
 		},
 
 		"menu": ["-", ["&Colors", "Display All && Select"], {
@@ -41,8 +41,8 @@
 		"lhs": "bo",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('b', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('b', 'v')<CR>", {}],
+			"i": ["", "SmartTag('b', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('b', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -69,8 +69,8 @@
 		"lhs": "st",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('strong', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('strong', 'v')<CR>", {}],
+			"i": ["", "SmartTag('strong', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('strong', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -97,8 +97,8 @@
 		"lhs": "it",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('i', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('i', 'v')<CR>", {}],
+			"i": ["", "SmartTag('i', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('i', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -125,8 +125,8 @@
 		"lhs": "em",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('em', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('em', 'v')<CR>", {}],
+			"i": ["", "SmartTag('em', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('em', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -153,8 +153,8 @@
 		"lhs": "un",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('u', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('u', 'v')<CR>", {}],
+			"i": ["", "SmartTag('u', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('u', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -241,8 +241,8 @@
 		"lhs": "ci",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('cite', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('cite', 'v')<CR>", {}],
+			"i": ["", "SmartTag('cite', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('cite', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -269,8 +269,8 @@
 		"lhs": "co",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('code', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('code', 'v')<CR>", {}],
+			"i": ["", "SmartTag('code', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('code', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -297,8 +297,8 @@
 		"lhs": "in",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('ins', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('ins', 'v')<CR>", {}],
+			"i": ["", "SmartTag('ins', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('ins', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -325,8 +325,8 @@
 		"lhs": "de",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('del', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('del', 'v')<CR>", {}],
+			"i": ["", "SmartTag('del', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('del', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -353,8 +353,8 @@
 		"lhs": "kb",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('kbd', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('kbd', 'v')<CR>", {}],
+			"i": ["", "SmartTag('kbd', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('kbd', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -381,8 +381,8 @@
 		"lhs": "sa",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('samp', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('samp', 'v')<CR>", {}],
+			"i": ["", "SmartTag('samp', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('samp', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -409,8 +409,8 @@
 		"lhs": "sb",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('sub', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('sub', 'v')<CR>", {}],
+			"i": ["", "SmartTag('sub', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('sub', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -437,8 +437,8 @@
 		"lhs": "sp",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('sup', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('sup', 'v')<CR>", {}],
+			"i": ["", "SmartTag('sup', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('sup', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -479,8 +479,8 @@
 		"lhs": "va",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('var', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('var', 'v')<CR>", {}],
+			"i": ["", "SmartTag('var', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('var', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -661,8 +661,8 @@
 		"lhs": "op",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('option', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('option', 'v')<CR>", {}],
+			"i": ["", "SmartTag('option', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('option', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -976,8 +976,8 @@
 		"lhs": "ah",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('a1', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('a1', 'v')<CR>", {"insert": true}],
+			"i": ["", "SmartTag('a1', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('a1', 'v')<CR>", {"insert": true}],
 			"o": ["", true]
 		},
 
@@ -1002,8 +1002,8 @@
 
 	{
 		"maps": {
-			"i": ["aH", "<C-R>=<SID>SmartTag('a2', 'i')<CR>"],
-			"v": ["aH", "<C-c>:execute 'normal! ' .. <SID>SmartTag('a2', 'v')<CR>", {"insert": true}],
+			"i": ["aH", "SmartTag('a2', 'i')", {"expr": true}],
+			"v": ["aH", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('a2', 'v')<CR>", {"insert": true}],
 			"o": ["aH", true]
 		},
 
@@ -1024,8 +1024,8 @@
 
 	{
 		"maps": {
-			"i": ["at", "<C-R>=<SID>SmartTag('a3', 'i')<CR>"],
-			"v": ["at", "<C-c>:execute 'normal! ' .. <SID>SmartTag('a3', 'v')<CR>", {"insert": true}],
+			"i": ["at", "SmartTag('a3', 'i')", {"expr": true}],
+			"v": ["at", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('a3', 'v')<CR>", {"insert": true}],
 			"o": ["at", true]
 		},
 
@@ -1046,8 +1046,8 @@
 
 	{
 		"maps": {
-			"i": ["aT", "<C-R>=<SID>SmartTag('a4', 'i')<CR>"],
-			"v": ["aT", "<C-c>:execute 'normal! ' .. <SID>SmartTag('a4', 'v')<CR>", {"insert": true}],
+			"i": ["aT", "SmartTag('a4', 'i')", {"expr": true}],
+			"v": ["aT", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('a4', 'v')<CR>", {"insert": true}],
 			"o": ["aT", true]
 		},
 
@@ -1092,9 +1092,9 @@
 		"lhs": "mi",
 
 		"maps": {
-			"n": ["", "<Cmd>vim9cmd HTML#MangleImageTag#Update()<CR>", ""],
-			"i": ["", "<Cmd>vim9cmd HTML#MangleImageTag#Update()<CR>", ""],
-			"v": ["", "<C-c>:vim9cmd HTML#MangleImageTag#Update()<CR>", {"extra": false}]
+			"n": ["", "<ScriptCmd>MangleImageTag.Update()<CR>"],
+			"i": ["", "<ScriptCmd>MangleImageTag.Update()<CR>"],
+			"v": ["", "<C-c><ScriptCmd>MangleImageTag.Update()<CR>", {"extra": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "Update Image Size Attributes"], {
@@ -1118,8 +1118,8 @@
 		"lhs": "pp",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('p', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('p', 'v')<CR>", {"reindent": 1}],
+			"i": ["", "SmartTag('p', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('p', 'v')<CR>", {"reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1152,8 +1152,8 @@
 		"lhs": "pr",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('pre', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('pre', 'v')<CR>", {}],
+			"i": ["", "SmartTag('pre', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('pre', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -1440,8 +1440,8 @@
 		"lhs": "fg",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('figure', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('figure', 'v')<CR>", {"reindent": 1}],
+			"i": ["", "SmartTag('figure', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('figure', 'v')<CR>", {"reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1469,8 +1469,8 @@
 		"lhs": "fp",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('figcaption', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('figcaption', 'v')<CR>", {"reindent": 1}],
+			"i": ["", "SmartTag('figcaption', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('figcaption', 'v')<CR>", {"reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1539,8 +1539,8 @@
 		"lhs": "mk",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('mark', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('mark', 'v')<CR>", {}],
+			"i": ["", "SmartTag('mark', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('mark', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -1799,8 +1799,8 @@
 		"lhs": "bl",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('blockquote', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('blockquote', 'v')<CR>", {}],
+			"i": ["", "SmartTag('blockquote', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('blockquote', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -1827,8 +1827,8 @@
 		"lhs": "cm",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('comment', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('comment', 'v')<CR>", {}],
+			"i": ["", "SmartTag('comment', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('comment', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -1855,8 +1855,8 @@
 		"lhs": "df",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('dfn', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('dfn', 'v')<CR>", {}],
+			"i": ["", "SmartTag('dfn', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('dfn', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -1912,8 +1912,8 @@
 		"lhs": "js",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('script', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('script', 'v')<CR>", {"reindent": 3}],
+			"i": ["", "SmartTag('script', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('script', 'v')<CR>", {"reindent": 3}],
 			"o": ["", false]
 		},
 
@@ -1924,12 +1924,12 @@
 		"smarttag": {
 			"script": {
 				"i": {
-					"o": "\\<C-O>:vim9cmd <SID>TC(false)\\<CR>i<[{SCRIPT TYPE}]=\"text/javascript\">\\<ESC>==o<!--\\<CR>// -->\\<CR></[{SCRIPT}]>\\<ESC>:vim9cmd <SID>TC(true)\\<CR>kko",
-					"c": "\\<C-O>:vim9cmd <SID>TC(false)\\<CR>i// -->\\<CR></[{SCRIPT}]>\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<C-O>:vim9cmd <SID>TC(true)\\<CR>"
+					"o": "\\<C-O>\\<ScriptCmd>TC(false)\\<CR>\\<C-c>i<[{SCRIPT TYPE}]=\"text/javascript\">\\<ESC>==o<!--\\<CR>// -->\\<CR></[{SCRIPT}]>\\<ESC><ScriptCmd>TC(true)\\<CR>kko",
+					"c": "\\<C-O>\\<ScriptCmd>TC(false)\\<CR>\\<C-c>i// -->\\<CR></[{SCRIPT}]>\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<C-O><ScriptCmd>TC(true)\\<CR>"
 				},
 				"v": {
-					"o": ":vim9cmd <SID>TC(false)\\<CR>`>a\\<CR>// -->\\<CR></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<ESC>:vim9cmd <SID>TC(true)\\<CR>",
-					"c": ":vim9cmd <SID>TC(false)\\<CR>`>a\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<C-O>`<// -->\\<CR></[{SCRIPT}]>\\<CR>\\<ESC>:vim9cmd <SID>TC(true)\\<CR>",
+					"o": "\\<ScriptCmd>TC(false)\\<CR>`>\\<C-c>a\\<CR>// -->\\<CR></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<ESC><ScriptCmd>TC(true)\\<CR>",
+					"c": "\\<ScriptCmd>TC(false)\\<CR>`>\\<C-c>a\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<C-O>`<// -->\\<CR></[{SCRIPT}]>\\<CR>\\<ESC><ScriptCmd>TC(true)\\<CR>",
 					"insert": false
 				}
 			}
@@ -2046,8 +2046,8 @@
 		"lhs": "qu",
 
 		"maps": {
-			"i": ["", "<C-R>=<SID>SmartTag('q', 'i')<CR>"],
-			"v": ["", "<C-c>:execute 'normal! ' .. <SID>SmartTag('q', 'v')<CR>", {}],
+			"i": ["", "SmartTag('q', 'i')", {"expr": true}],
+			"v": ["", "<C-c><ScriptCmd>execute 'normal! ' .. SmartTag('q', 'v')<CR>", {}],
 			"o": ["", false]
 		},
 
@@ -2256,7 +2256,7 @@
 		"lhs": "tA",
 
 		"maps": {
-			"n": ["", "<Cmd>vim9cmd HTML#functions#GenerateTable()<CR>"]
+			"n": ["", "<ScriptCmd>GenerateTable()<CR>"]
 		},
 
 		"menu": ["-", ["&Tables", "Interactive Table"], {
@@ -2382,7 +2382,7 @@
 		"lhs": "html",
 
 		"maps": {
-			"n": ["", "<Cmd>vim9cmd if HTML#functions#Template() \\| startinsert \\| endif<CR>"]
+			"n": ["", "<ScriptCmd>if Template() \\| startinsert \\| endif<CR>"]
 		},
 
 		"menu": ["-", ["Template"], {
@@ -2400,7 +2400,7 @@
 		"lhs": "ct",
 
 		"maps": {
-			"i": ["", "<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=<C-R>=HTML#functions#DetectCharset()<CR>\" />"]
+			"i": ["", "<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=<C-R>=<SID>DetectCharset()<CR>\" />"]
 		},
 
 		"menu": ["-", ["Content-Type"], {

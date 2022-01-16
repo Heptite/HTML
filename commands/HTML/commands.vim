@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024072
+if v:version < 802 || v:versionlong < 8024102
   finish
 endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: January 12, 2022
+# Last Change: January 15, 2022
 #
 # Requirements:
 #       Vim 9 or later

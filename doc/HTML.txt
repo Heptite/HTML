@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 12
+*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 15
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -184,7 +184,7 @@ must be set before HTML.vim is sourced. e.g.: >
 	:let g:htmlpluign.no_map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |HTML#functions#Map()| function elsewhere you will still get a warning
+call the |g:HTML#functions#Map()| function elsewhere you will still get a warning
 message when there is an already existing mapping and the mapping will still
 be overridden.
 
@@ -200,7 +200,7 @@ centered headings tags: >
 		\ ';H4', ';H5', ';H6']
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |HTML#functions#Map()| function elsewhere the mapping will be defined
+call the |g:HTML#functions#Map()| function elsewhere the mapping will be defined
 even if it matches this list; this is useful if you wish to define custom
 variants of some of the plugin's mappings without getting warning messages.
 
@@ -265,7 +265,7 @@ internal template.
 The default for these variables are empty strings.
 
 *g:htmlplugin.authoremail_encoded*
-This variable will be set using |HTML#functions#TranscodeString()| if your
+This variable will be set using |g:HTML#functions#TranscodeString()| if your
 |g:htmlplugin.authoremail| variable is set. (Do not set this variable
 yourself, it will be overwritten when the template macro is used.)
 
@@ -405,8 +405,8 @@ The following commands are only defined in HTML buffers.
 	would want to be able to type literal ";", "&" and tab characters
 	without interference. (Also see |i_;;|, |i_;&| and |i_;<Tab>|)
 
-	Note that all of the mappings defined by calling |HTML#functions#Map()|
-	or |HTML#functions#Mapo()|--including all of the mappings defined by
+	Note that all of the mappings defined by calling |g:HTML#functions#Map()|
+	or |g:HTML#functions#Mapo()|--including all of the mappings defined by
 	this script--are disabled/enabled when this command is used,
 	regardless of what |g:htmlplugin.map_leader| is set to.
 
@@ -1285,7 +1285,7 @@ characters into the HTML buffer. These are known as characters entities.
 	(|n_;|)
 
 	(Note that this will not touch Unicode characters. See
-	|HTML#functions#TranscodeString()|)
+	|g:HTML#functions#TranscodeString()|)
 							*n_;^* *v_;^*
 ;^	This mapping will decode the &..., &#...; and %XX elements of the
 	motion or visually selected characters to their actual characters.
@@ -1713,14 +1713,14 @@ drive).
 
 
 :SetIfUnset {variable} {value}				*:SetIfUnset*
-	This command calls |HTML#functions#SetIfUnset()|.
+	This command calls |g:HTML#functions#SetIfUnset()|.
 
 
 Some of the functions used by the HTML mappings:	*html-functions*
 ------------------------------------------------
 
-					*HTML#functions#TranscodeString()*
-HTML#functions#TranscodeString({string} [, {...}])
+					*g:HTML#functions#TranscodeString()*
+g:HTML#functions#TranscodeString({string} [, {...}])
 	Returns {string} encoded into HTML entities, or decode HTML encoded
 	strings.
 
@@ -1745,8 +1745,8 @@ HTML#functions#TranscodeString({string} [, {...}])
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 
-					*HTML#functions#GenerateTable()*
-HTML#functions#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
+					*g:HTML#functions#GenerateTable()*
+g:HTML#functions#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 	This is normally called by the |n_;tA|, mapping but it can be called
 	with argumetns to non-interactively generate a table:
 
@@ -1764,8 +1764,8 @@ HTML#functions#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot
 
 	This function returns true if a table was generated, false otherwise.
 
-						*HTML#functions#Map()*
-HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
+						*g:HTML#functions#Map()*
+g:HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
 	This function defines a mapping, local to the buffer and silent.
 	{maptype} is any map command. {lhs} and {rhs} are equivalent to `:map`
 	arguments, see |map.txt|. This is useful for autocommands and HTML
@@ -1783,7 +1783,12 @@ HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
 	removed.
 
 	{options} is optional, but if it exists it's a |Dictionary| that
-	specifies behavior for visual mappings:
+	specifies changed mapping behavior; for insert mode mappings:
+
+	{"expr": true} ~
+	Run the {rhs} of the mapping as an expression and "type" the result.
+
+	For visual mappings:
 
 	{"extra": false} ~
 	Do not add extra magic to the visual mapping. This suppresses the
@@ -1791,8 +1796,8 @@ HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
 
 	{"insert": true} ~
 	The visual mapping enters insert mode. (Note this doesn't put the
-	mapping into insert mode itself, but only tells HTML#functions#Map that
-	the visual mapping ends in insert mode so it behaves somewhat
+	mapping into insert mode itself, but only tells g:HTML#functions#Map
+	that the visual mapping ends in insert mode so it behaves somewhat
 	differently.)
 
 	{"reindent": N} ~
@@ -1801,15 +1806,15 @@ HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
 
 	This function returns true if a map was defined, false otherwise.
 
-HTML#functions#Mapo({map} [, {insert}])			*HTML#functions#Mapo()*
+g:HTML#functions#Mapo({map} [, {insert}])		*g:HTML#functions#Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
 	visual mapping by the same name. {insert} is a |Boolean| value that
 	indicates whether to end in insert mode, default false.
 
 	This function returns true if a map was defined, false otherwise.
 
-					*HTML#functions#NextInsertPoint()*
-HTML#functions#NextInsertPoint([{mode}, {direction}])
+					*g:HTML#functions#NextInsertPoint()*
+g:HTML#functions#NextInsertPoint([{mode}, {direction}])
 	This is normally called by the |i_;<Tab>| mapping, but it works the
 	same if called any other way. The {mode} argument is either 'i' or 'n'
 	(default) which means |Insert| or |Normal|. In insert mode, if the
@@ -1820,14 +1825,15 @@ HTML#functions#NextInsertPoint([{mode}, {direction}])
 
 	This function returns true if the cursor was moved, false otherwise.
 
-HTML#functions#Template()			*HTML#functions#Template()*
+g:HTML#functions#Template()			*g:HTML#functions#Template()*
 	This is normally called by the |n_;html| mapping, but it works
 	the same if called any other way.
 
 	This function returns true if the cursor is on an insert point, false
 	otherwise.
 
-HTML#functions#SetIfUnset({variable}, {value})	*HTML#functions#SetIfUnset()*
+						*g:HTML#functions#SetIfUnset()*
+g:HTML#functions#SetIfUnset({variable}, {value})
 	This function sets {variable} to {value} if the variable is not
 	already set. A {value} of "" makes sure the variable is set with an
 	empty string, a {value} of [] initializes to an empty list, and a

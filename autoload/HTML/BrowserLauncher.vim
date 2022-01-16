@@ -1,7 +1,7 @@
 vim9script autoload
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024072
+if v:version < 802 || v:versionlong < 8024102
   finish
 endif
 
@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: January 12, 2022
+# Last Change: January 15, 2022
 #
 # Currently supported browsers:
 # Unix:
@@ -80,8 +80,10 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-
 import autoload 'HTML/functions.vim'
+
+const E_NOFILE = 'No file is associated with the current buffer and no URL was specified.'
+const W_UNSAVED = 'Warning: The current buffer has unsaved modifications.'
 
 var Browsers: dict<list<any>>
 var TextmodeBrowsers = ['lynx', 'w3m', 'links']
@@ -91,7 +93,7 @@ export def Exists(browser: string = ''): any  # {{{1
   if has('mac') == 1 || has('macunix') == 1
     return MacExists(browser)
   else
-    return UnxWinExists(browser)
+    return UnixWinExists(browser)
   endif
 enddef
 
@@ -99,7 +101,7 @@ export def Launch(browser: string = 'default', new: number = 0, url: string = ''
   if has('mac') == 1 || has('macunix') == 1
     return MacLaunch(browser, new, url)
   else
-    return UnxWinLaunch(browser, new, url)
+    return UnixWinLaunch(browser, new, url)
   endif
 enddef  # }}}1
 
@@ -174,9 +176,12 @@ if has('mac') == 1 || has('macunix') == 1  # {{{1
     if url != ''
       file = url
     elseif expand('%') == ''
-      functions.Error('No file is loaded in the current buffer and no URL was specified.')
+      functions.Error(E_NOFILE)
       return false
     else
+      if &modified
+        functions.Warn(W_UNSAVED)
+      endif
       file = expand('%:p')
     endif
 
@@ -392,14 +397,14 @@ else # OS not recognized, can't do any browser control: {{{1
 
 endif # }}}1
 
-# UnxWinExists() {{{1
+# UnixWinExists() {{{1
 #
 # Usage:
-#  UnxWinExists([browser])
+#  UnixWinExists([browser])
 # Return value:
 #  With an argument: True or False - Whether the browser was found (exists)
 #  Without an argument: list - The names of the browsers that were found
-def UnxWinExists(browser: string = ''): any
+def UnixWinExists(browser: string = ''): any
   if browser == ''
     return Browsers->keys()->sort()
   else
@@ -407,10 +412,10 @@ def UnxWinExists(browser: string = ''): any
   endif
 enddef
 
-# UnxWinLaunch() {{{1
+# UnixWinLaunch() {{{1
 #
 # Usage:
-#  UnxWinLaunch({...}, [{0/1/2}], [url])
+#  UnixWinLaunch({...}, [{0/1/2}], [url])
 #    The first argument is which browser to launch, by name (not executable).
 #    Use BrowserLauncher#Exists() to see which ones are available.
 #
@@ -426,7 +431,7 @@ enddef
 # Return value:
 #  false - Failure (No browser was launched/controlled.)
 #  true  - Success (A browser was launched/controlled.)
-def UnxWinLaunch(browser: string = 'default', new: number = 0, url: string = ''): bool
+def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''): bool
 
   # Cap() {{{2
   #
@@ -446,7 +451,7 @@ def UnxWinLaunch(browser: string = 'default', new: number = 0, url: string = '')
   var output: string
   var file: string
 
-  if !UnxWinExists(which)
+  if !UnixWinExists(which)
     functions.Error('Unknown browser ID: ' .. which)
     return false
   endif
@@ -459,7 +464,7 @@ def UnxWinLaunch(browser: string = 'default', new: number = 0, url: string = '')
     file = url
   elseif expand('%') != ''
     if &modified
-      functions.Warn('Warning: The current buffer has unsaved modifications.')
+      functions.Warn(W_UNSAVED)
     endif
 
     # If we're on Cygwin and not using a text mode browser, translate the file
@@ -469,7 +474,7 @@ def UnxWinLaunch(browser: string = 'default', new: number = 0, url: string = '')
       .. (has('win32unix') == 1 && TextmodeBrowsers->match('^\c\V' .. which .. '\$') < 0 ?
         system('cygpath -w ' .. expand('%:p')->shellescape())->trim() : expand('%:p'))
   else
-    functions.Error('No file is loaded in the current buffer and no URL was specified.')
+    functions.Error(E_NOFILE)
     return false
   endif
 

@@ -1,8 +1,8 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024072
-  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.4072'
+if v:version < 802 || v:versionlong < 8024102
+  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.4102'
   sleep 3
   finish
 endif
@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      January 12, 2022
+# Last Change:      January 15, 2022
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -79,21 +79,25 @@ endif
 
 runtime commands/HTML/commands.vim
 
-import '../../import/HTMLvariables.vim'
+import '../../import/HTML/variables.vim' as HTMLvariables
 import autoload 'HTML/functions.vim'
 import autoload 'HTML/BrowserLauncher.vim'
+import autoload 'HTML/MangleImageTag.vim'
 
-g:HTML#functions#DetectCharset   = functions.DetectCharset
-g:HTML#functions#GenerateTable   = functions.GenerateTable
-g:HTML#functions#Map             = functions.Map
-g:HTML#functions#Mapo            = functions.Mapo
-g:HTML#functions#NextInsertPoint = functions.NextInsertPoint
-g:HTML#functions#SetIfUnset      = functions.SetIfUnset
-g:HTML#functions#Template        = functions.Template
-g:HTML#functions#TranscodeString = functions.TranscodeString
-
-g:HTML#BrowserLauncher#Exists = BrowserLauncher.Exists
-g:HTML#BrowserLauncher#Launch = BrowserLauncher.Launch
+## workaround until the bug is fixed:
+#if !has('fname_case')
+#  g:HTML#functions#Map             = functions.Map
+#  g:HTML#functions#Mapo            = functions.Mapo
+#  g:HTML#functions#NextInsertPoint = functions.NextInsertPoint
+#  g:HTML#functions#SetIfUnset      = functions.SetIfUnset
+#  g:HTML#functions#Template        = functions.Template
+#  g:HTML#functions#TranscodeString = functions.TranscodeString
+#
+#  g:HTML#BrowserLauncher#Exists = BrowserLauncher.Exists
+#  g:HTML#BrowserLauncher#Launch = BrowserLauncher.Launch
+#
+#  g:HTML#MangleImageTag#Update = MangleImageTag.Update
+#endif
 
 if !functions.BoolVar('b:htmlplugin.did_mappings_init')
   b:htmlplugin.did_mappings_init = true
@@ -250,21 +254,21 @@ if !functions.BoolVar('g:htmlplugin.no_tab_mapping')
   functions.Map('vnoremap', '<lead><s-tab>', '<s-tab>', {'extra': false})
 
   # Tab takes us to a (hopefully) reasonable next insert point:
-  functions.Map('inoremap', '<tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('i')<CR>")
-  functions.Map('nnoremap', '<tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n')<CR>")
-  functions.Map('vnoremap', '<tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n')<CR>", {'extra': false})
+  functions.Map('inoremap', '<tab>', "<ScriptCmd>NextInsertPoint('i')<CR>")
+  functions.Map('nnoremap', '<tab>', "<ScriptCmd>NextInsertPoint('n')<CR>")
+  functions.Map('vnoremap', '<tab>', "<ScriptCmd>NextInsertPoint('n')<CR>", {'extra': false})
   # ...And shift-tab goes backwards:
-  functions.Map('inoremap', '<s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('i', 'b')<CR>")
-  functions.Map('nnoremap', '<s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n', 'b')<CR>")
-  functions.Map('vnoremap', '<s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n', 'b')<CR>", {'extra': false})
+  functions.Map('inoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('i', 'b')<CR>")
+  functions.Map('nnoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>")
+  functions.Map('vnoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>", {'extra': false})
 else
-  functions.Map('inoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('i')<CR>")
-  functions.Map('nnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n')<CR>")
-  functions.Map('vnoremap', '<lead><tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n')<CR>", {'extra': false})
+  functions.Map('inoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('i')<CR>")
+  functions.Map('nnoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('n')<CR>")
+  functions.Map('vnoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('n')<CR>", {'extra': false})
 
-  functions.Map('inoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('i', 'b')<CR>")
-  functions.Map('nnoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n', 'b')<CR>")
-  functions.Map('vnoremap', '<lead><s-tab>', "<Cmd>vim9cmd HTML#functions#NextInsertPoint('n', 'b')<CR>", {'extra': false})
+  functions.Map('inoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('i', 'b')<CR>")
+  functions.Map('nnoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>")
+  functions.Map('vnoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>", {'extra': false})
 endif
 
 # ----------------------------------------------------------------------------
@@ -277,20 +281,20 @@ endif
 #       SGML Doctype Command
 if functions.BoolVar('b:htmlplugin.do_xhtml_mappings')
   # Transitional XHTML (Looser):
-  functions.Map('nnoremap', '<lead>4', "<Cmd>vim9cmd append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">')<CR>")
+  functions.Map('nnoremap', '<lead>4', "<ScriptCmd>append(0, ['<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"', ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">'])<CR>")
   # Strict XHTML:
-  functions.Map('nnoremap', '<lead>s4', "<Cmd>vim9cmd append(0, '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">')<CR>")
+  functions.Map('nnoremap', '<lead>s4', "<ScriptCmd>append(0, ['<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"', ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">'])<CR>")
 else
   # Transitional HTML (Looser):
-  functions.Map('nnoremap', '<lead>4', "<Cmd>vim9cmd append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/html4/loose.dtd\">')<CR>")
+  functions.Map('nnoremap', '<lead>4', "<ScriptCmd>append(0, ['<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"', ' \"http://www.w3.org/TR/html4/loose.dtd\">'])<CR>")
   # Strict HTML:
-  functions.Map('nnoremap', '<lead>s4', "<Cmd>vim9cmd append(0, '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"') \\\| vim9cmd append(1, ' \"http://www.w3.org/TR/html4/strict.dtd\">')<CR>")
+  functions.Map('nnoremap', '<lead>s4', "<ScriptCmd>append(0, ['<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"', ' \"http://www.w3.org/TR/html4/strict.dtd\">'])<CR>")
 endif
 functions.Map('imap', '<lead>4', '<C-O>' .. g:htmlplugin.map_leader .. '4')
 functions.Map('imap', '<lead>s4', '<C-O>' .. g:htmlplugin.map_leader .. 's4')
 
 #       HTML5 Doctype Command           HTML 5
-functions.Map('nnoremap', '<lead>5', "<Cmd>vim9cmd append(0, '<!DOCTYPE html>')<CR>")
+functions.Map('nnoremap', '<lead>5', "<ScriptCmd>append(0, '<!DOCTYPE html>')<CR>")
 functions.Map('imap', '<lead>5', '<C-O>' .. g:htmlplugin.map_leader .. '5')
 
 
@@ -353,7 +357,7 @@ if BrowserLauncherExists
     functions.Map(
       'nnoremap',
       '<lead>db',
-      ":vim9cmd HTML#BrowserLauncher#Launch('default')<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('default')<CR>"
     )
   endif
 
@@ -362,40 +366,19 @@ if BrowserLauncherExists
     functions.Map(
       'nnoremap',
       '<lead>bv',
-      ":vim9cmd HTML#BrowserLauncher#Launch('brave', 0)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('brave', 0)<CR>"
     )
     # Chrome: Open a new window, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>nbv',
-      ":vim9cmd HTML#BrowserLauncher#Launch('brave', 1)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('brave', 1)<CR>"
     )
     # Chrome: Open a new tab, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>tbv',
-      ":vim9cmd HTML#BrowserLauncher#Launch('brave', 2)<CR>"
-    )
-  endif
-
-  if BrowserLauncher.Exists('firefox')
-    # Firefox: View current file, starting Firefox if it's not running:
-    functions.Map(
-      'nnoremap',
-      '<lead>ff',
-      ":vim9cmd HTML#BrowserLauncher#Launch('firefox', 0)<CR>"
-    )
-    # Firefox: Open a new window, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>nff',
-      ":vim9cmd HTML#BrowserLauncher#Launch('firefox', 1)<CR>"
-    )
-    # Firefox: Open a new tab, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>tff',
-      ":vim9cmd HTML#BrowserLauncher#Launch('firefox', 2)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('brave', 2)<CR>"
     )
   endif
 
@@ -404,19 +387,19 @@ if BrowserLauncherExists
     functions.Map(
       'nnoremap',
       '<lead>gc',
-      ":vim9cmd HTML#BrowserLauncher#Launch('chrome', 0)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('chrome', 0)<CR>"
     )
     # Chrome: Open a new window, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>ngc',
-      ":vim9cmd HTML#BrowserLauncher#Launch('chrome', 1)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('chrome', 1)<CR>"
     )
     # Chrome: Open a new tab, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>tgc',
-      ":vim9cmd HTML#BrowserLauncher#Launch('chrome', 2)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('chrome', 2)<CR>"
     )
   endif
 
@@ -425,19 +408,40 @@ if BrowserLauncherExists
     functions.Map(
       'nnoremap',
       '<lead>ed',
-      ":vim9cmd HTML#BrowserLauncher#Launch('edge', 0)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('edge', 0)<CR>"
     )
     # Edge: Open a new window, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>ned',
-      ":vim9cmd HTML#BrowserLauncher#Launch('edge', 1)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('edge', 1)<CR>"
     )
     # Edge: Open a new tab, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>ted',
-      ":vim9cmd HTML#BrowserLauncher#Launch('edge', 2)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('edge', 2)<CR>"
+    )
+  endif
+
+  if BrowserLauncher.Exists('firefox')
+    # Firefox: View current file, starting Firefox if it's not running:
+    functions.Map(
+      'nnoremap',
+      '<lead>ff',
+      "<ScriptCmd>BrowserLauncher.Launch('firefox', 0)<CR>"
+    )
+    # Firefox: Open a new window, and view the current file:
+    functions.Map(
+      'nnoremap',
+      '<lead>nff',
+      "<ScriptCmd>BrowserLauncher.Launch('firefox', 1)<CR>"
+    )
+    # Firefox: Open a new tab, and view the current file:
+    functions.Map(
+      'nnoremap',
+      '<lead>tff',
+      "<ScriptCmd>BrowserLauncher.Launch('firefox', 2)<CR>"
     )
   endif
 
@@ -446,19 +450,19 @@ if BrowserLauncherExists
     functions.Map(
       'nnoremap',
       '<lead>oa',
-      ":vim9cmd HTML#BrowserLauncher#Launch('opera', 0)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('opera', 0)<CR>"
     )
     # Opera: Open a new window, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>noa',
-      ":vim9cmd HTML#BrowserLauncher#Launch('opera', 1)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('opera', 1)<CR>"
     )
     # Opera: Open a new tab, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>toa',
-      ":vim9cmd HTML#BrowserLauncher#Launch('opera', 2)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('opera', 2)<CR>"
     )
   endif
 
@@ -467,19 +471,19 @@ if BrowserLauncherExists
     functions.Map(
       'nnoremap',
       '<lead>sf',
-      ":vim9cmd HTML#BrowserLauncher#Launch('safari', 0)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('safari', 0)<CR>"
     )
     # Safari: Open a new window, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>nsf',
-      ":vim9cmd HTML#BrowserLauncher#Launch('safari', 1)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('safari', 1)<CR>"
       )
     # Safari: Open a new tab, and view the current file:
     functions.Map(
       'nnoremap',
       '<lead>tsf',
-      ":vim9cmd HTML#BrowserLauncher#Launch('safari', 2)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('safari', 2)<CR>"
     )
   endif
 
@@ -488,19 +492,19 @@ if BrowserLauncherExists
     functions.Map(
       'nnoremap',
       '<lead>ly',
-      ":vim9cmd HTML#BrowserLauncher#Launch('lynx', 0)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('lynx', 0)<CR>"
     )
     # Lynx in an xterm:  (This always happens in the Vim GUI.)
     functions.Map(
       'nnoremap',
       '<lead>nly',
-      ":vim9cmd HTML#BrowserLauncher#Launch('lynx', 1)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('lynx', 1)<CR>"
     )
     # Lynx in a new Vim window, using :terminal:
     functions.Map(
       'nnoremap',
       '<lead>tly',
-      ":vim9cmd HTML#BrowserLauncher#Launch('lynx', 2)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('lynx', 2)<CR>"
     )
   endif
 
@@ -509,19 +513,19 @@ if BrowserLauncherExists
     functions.Map(
       'nnoremap',
       '<lead>w3',
-      ":vim9cmd HTML#BrowserLauncher#Launch('w3m', 0)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('w3m', 0)<CR>"
     )
     # w3m in an xterm:  (This always happens in the Vim GUI.)
     functions.Map(
       'nnoremap',
       '<lead>nw3',
-      ":vim9cmd HTML#BrowserLauncher#Launch('w3m', 1)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('w3m', 1)<CR>"
     )
     # w3m in a new Vim window, using :terminal:
     functions.Map(
       'nnoremap',
       '<lead>tw3',
-      ":vim9cmd HTML#BrowserLauncher#Launch('w3m', 2)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('w3m', 2)<CR>"
     )
   endif
 
@@ -530,19 +534,19 @@ if BrowserLauncherExists
     functions.Map(
       'nnoremap',
       '<lead>ln',
-      ":vim9cmd HTML#BrowserLauncher#Launch('links', 0)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('links', 0)<CR>"
     )
     # Lynx in an xterm:  (This always happens in the Vim GUI.)
     functions.Map(
       'nnoremap',
       '<lead>nln',
-      ":vim9cmd HTML#BrowserLauncher#Launch('links', 1)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('links', 1)<CR>"
     )
     # Lynx in a new Vim window, using :terminal:
     functions.Map(
       'nnoremap',
       '<lead>tln',
-      ":vim9cmd HTML#BrowserLauncher#Launch('links', 2)<CR>"
+      "<ScriptCmd>BrowserLauncher.Launch('links', 2)<CR>"
     )
   endif
 endif
@@ -743,15 +747,9 @@ if !functions.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
-    functions.Menu('tmenu', '1.530', ['ToolBar', 'Brave'],
+    functions.Menu('tmenu', '1.520', ['ToolBar', 'Brave'],
       'Launch Brave on the Current File')
-    functions.LeadMenu('amenu', '1.530', ['ToolBar', 'Brave'], 'bv')
-  endif
-
-  if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
-    functions.Menu('tmenu', '1.520', ['ToolBar', 'Firefox'],
-      'Launch Firefox on the Current File')
-    functions.LeadMenu('amenu', '1.520', ['ToolBar', 'Firefox'], 'ff')
+    functions.LeadMenu('amenu', '1.520', ['ToolBar', 'Brave'], 'bv')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
@@ -766,34 +764,40 @@ if !functions.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
     functions.LeadMenu('amenu', '1.540', ['ToolBar', 'Edge'], 'ed')
   endif
 
+  if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
+    functions.Menu('tmenu', '1.550', ['ToolBar', 'Firefox'],
+      'Launch Firefox on the Current File')
+    functions.LeadMenu('amenu', '1.550', ['ToolBar', 'Firefox'], 'ff')
+  endif
+
   if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
-    functions.Menu('tmenu', '1.550', ['ToolBar', 'Opera'],
+    functions.Menu('tmenu', '1.560', ['ToolBar', 'Opera'],
       'Launch Opera on the Current File')
-    functions.LeadMenu('amenu', '1.550', ['ToolBar', 'Opera'], 'oa')
+    functions.LeadMenu('amenu', '1.560', ['ToolBar', 'Opera'], 'oa')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
-    functions.Menu('tmenu', '1.560', ['ToolBar', 'Safari'],
+    functions.Menu('tmenu', '1.570', ['ToolBar', 'Safari'],
       'Launch Safari on the Current File')
-    functions.LeadMenu('amenu', '1.560', ['ToolBar', 'Safari'], 'sf')
+    functions.LeadMenu('amenu', '1.570', ['ToolBar', 'Safari'], 'sf')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
-    functions.Menu('tmenu', '1.570', ['ToolBar', 'w3m'],
+    functions.Menu('tmenu', '1.580', ['ToolBar', 'w3m'],
       'Launch w3m on the Current File')
-    functions.LeadMenu('amenu', '1.570', ['ToolBar', 'w3m'], 'w3')
+    functions.LeadMenu('amenu', '1.580', ['ToolBar', 'w3m'], 'w3')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
-    functions.Menu('tmenu', '1.580', ['ToolBar', 'Lynx'],
+    functions.Menu('tmenu', '1.590', ['ToolBar', 'Lynx'],
       'Launch Lynx on the Current File')
-    functions.LeadMenu('amenu', '1.580', ['ToolBar', 'Lynx'], 'ly')
+    functions.LeadMenu('amenu', '1.590', ['ToolBar', 'Lynx'], 'ly')
   endif
 
   if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
-    functions.Menu('tmenu', '1.580', ['ToolBar', 'Links'],
+    functions.Menu('tmenu', '1.600', ['ToolBar', 'Links'],
       'Launch Links on the Current File')
-    functions.LeadMenu('amenu', '1.580', ['ToolBar', 'Links'], 'ln')
+    functions.LeadMenu('amenu', '1.600', ['ToolBar', 'Links'], 'ln')
   endif
 
   functions.Menu('menu',      '1.997', ['ToolBar', '-sep99-'], '<Nop>')
@@ -857,12 +861,6 @@ if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
   functions.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Window)'], 'nbv')
   functions.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Tab)'], 'tbv')
 endif
-if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', '&Firefox'], 'ff')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Window)'], 'nff')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Tab)'], 'tff')
-endif
 if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
   functions.Menu('menu', '-', ['Preview', '-sep3-'], '<nop>')
   functions.LeadMenu('amenu', '-', ['&Preview', '&Chrome'], 'gc')
@@ -874,6 +872,12 @@ if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
   functions.LeadMenu('amenu', '-', ['&Preview', '&Edge'], 'ed')
   functions.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Window)'], 'ned')
   functions.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Tab)'], 'ted')
+endif
+if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
+  functions.Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
+  functions.LeadMenu('amenu', '-', ['&Preview', '&Firefox'], 'ff')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Window)'], 'nff')
+  functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Tab)'], 'tff')
 endif
 if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
   functions.Menu('menu', '-', ['Preview', '-sep5-'], '<nop>')

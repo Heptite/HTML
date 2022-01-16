@@ -1,13 +1,13 @@
 vim9script autoload
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024072
+if v:version < 802 || v:versionlong < 8024102
   finish
 endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: January 12, 2022
+# Last Change: January 15, 2022
 #
 # Requirements:
 #   Vim 9 or later
@@ -33,6 +33,8 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
+const E_NOIMG = 'The cursor is not on an IMG tag.'
+
 def Error(error_message: string, quiet: bool = false): void  # {{{1
   if quiet
     return
@@ -56,7 +58,7 @@ export def Update(quiet: bool = false): bool  # {{{1
   line = getline(start_linenr)
 
   if line !~? '<img'
-    Error('The cursor is not on an IMG tag.', quiet) 
+    Error(E_NOIMG, quiet) 
     return false
   endif
 
@@ -81,7 +83,7 @@ export def Update(quiet: bool = false): bool  # {{{1
   tag = tag->strpart(0, tagend)
 
   if tag[0] != '<' || col > strlen(savestart .. tag) - 1
-    Error('The cursor is not on an IMG tag.', quiet)
+    Error(E_NOIMG, quiet)
     return false
   endif
 

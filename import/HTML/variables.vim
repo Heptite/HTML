@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024072
+if v:version < 802 || v:versionlong < 8024102
   finish
 endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: January 12, 2022
+# Last Change: January 15, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -29,12 +29,12 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-export const AUTHOR = 'Christian J. Robinson'
-export const EMAIL = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
-export const HOMEPAGE = 'https://christianrobinson.name/HTML/'
+export const AUTHOR    = 'Christian J. Robinson'
+export const EMAIL     = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
+export const HOMEPAGE  = 'https://christianrobinson.name/HTML/'
 export const COPYRIGHT = 'Copyright © 1998-2022 under the terms of the GPL3'
 
-export const VERSION = '1.2.0'
+export const VERSION   = '1.2.0'
 
 # Used by some of the functions to save then restore some options:
 export var saveopts: dict<any>
@@ -55,8 +55,8 @@ export var smarttags: dict<any>
 
 export const MENU_NAME = 'HTM&L'
 
-export const TAGS_FILE = 'json/tags.json'
-export const ENTITIES_FILE = 'json/entities.json'
+export const TAGS_FILE = 'json/HTML/tags.json'
+export const ENTITIES_FILE = 'json/HTML/entities.json'
 
 export const INTERNAL_TEMPLATE = [  # {{{
     # Don't insert the start of the <html> tag here, since logic in the main
