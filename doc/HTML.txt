@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 15
+*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 16
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -1783,12 +1783,13 @@ g:HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
 	removed.
 
 	{options} is optional, but if it exists it's a |Dictionary| that
-	specifies changed mapping behavior; for insert mode mappings:
+	specifies changed mapping behavior; for insert mode and visual mode
+	mappings:
 
 	{"expr": true} ~
 	Run the {rhs} of the mapping as an expression and "type" the result.
 
-	For visual mappings:
+	For visual mappings only:
 
 	{"extra": false} ~
 	Do not add extra magic to the visual mapping. This suppresses the

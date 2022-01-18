@@ -1,13 +1,13 @@
-vim9script autoload
+vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024102
+if v:version < 802 || v:versionlong < 8024128
   finish
 endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: January 15, 2022
+# Last Change: January 18, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -37,16 +37,10 @@ import autoload 'HTML/MangleImageTag.vim'
 # exposed:
 const self_sid = expand('<SID>')
 
-# Can't be imported because then it would have a prefix:
-const off = 'off'
-const on = 'on'
-#const yes = 'yes'
-#const no = 'no'
-
-const E_NOMAPLEAD = ' g:htmlplugin.map_leader is not set! No mapping defined.'
+const E_NOMAPLEAD  = ' g:htmlplugin.map_leader is not set! No mapping defined.'
 const E_NOEMAPLEAD = ' g:htmlplugin.entity_map_leader is not set! No mapping defined.'
-const E_EMPTYLHS = ' must have a non-empty lhs. No mapping defined.'
-const E_EMPTYRHS = ' must have a non-empty rhs. No mapping defined.'
+const E_EMPTYLHS   = ' must have a non-empty lhs. No mapping defined.'
+const E_EMPTYRHS   = ' must have a non-empty rhs. No mapping defined.'
 
 export def Warn(message: string): void  # {{{1
   echohl WarningMsg
@@ -428,11 +422,15 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
 
     # Note that <C-c> is necessary instead of just <ScriptCmd> because
     # <ScriptCmd> doesn't update visual marks, which the mappings rely on:
+    if opts->has_key('expr') && opts.expr
+      newarg = "<C-c><ScriptCmd>execute 'normal! ' .. " .. newarg .. '<CR>'
+    endif
+
     if opts->has_key('extra') && ! opts.extra
       execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
     elseif opts->has_key('insert') && opts.insert && opts->has_key('reindent')
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c><ScriptCmd>TO(false)<CR>' .. newarg
+        .. ' <ScriptCmd>TO(false)<CR>' .. newarg
         .. "<ScriptCmd>TO(true)<CR>m'<ScriptCmd>"
         .. "ReIndent(line(\"'<\"), line(\"'>\"), "
         .. opts.reindent .. ')<CR><C-O>``'
@@ -765,11 +763,13 @@ export def ConvertCase(str: any, case: string = 'config'): any
   var newstr: list<string>
   var newnewstr: list<string>
   var newcase: string
+
   if type(str) == v:t_list
     newstr = str
   else
     newstr = [str]
   endif
+
   if case == 'config'
     newcase = b:htmlplugin.tag_case
   else

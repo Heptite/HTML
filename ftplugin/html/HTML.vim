@@ -1,8 +1,8 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024102
-  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.4102'
+if v:version < 802 || v:versionlong < 8024128
+  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.4128'
   sleep 3
   finish
 endif
@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      January 15, 2022
+# Last Change:      January 18, 2022
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -82,22 +82,6 @@ runtime commands/HTML/commands.vim
 import '../../import/HTML/variables.vim' as HTMLvariables
 import autoload 'HTML/functions.vim'
 import autoload 'HTML/BrowserLauncher.vim'
-import autoload 'HTML/MangleImageTag.vim'
-
-## workaround until the bug is fixed:
-#if !has('fname_case')
-#  g:HTML#functions#Map             = functions.Map
-#  g:HTML#functions#Mapo            = functions.Mapo
-#  g:HTML#functions#NextInsertPoint = functions.NextInsertPoint
-#  g:HTML#functions#SetIfUnset      = functions.SetIfUnset
-#  g:HTML#functions#Template        = functions.Template
-#  g:HTML#functions#TranscodeString = functions.TranscodeString
-#
-#  g:HTML#BrowserLauncher#Exists = BrowserLauncher.Exists
-#  g:HTML#BrowserLauncher#Launch = BrowserLauncher.Launch
-#
-#  g:HTML#MangleImageTag#Update = MangleImageTag.Update
-#endif
 
 if !functions.BoolVar('b:htmlplugin.did_mappings_init')
   b:htmlplugin.did_mappings_init = true
@@ -126,7 +110,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
 
   # Intitialize some necessary variables:  {{{2
 
-  # Need to inerpolate the value, which the command form of SetIfUnset doesn't
+  # Need to interpolate the value, which the command form of SetIfUnset doesn't
   # do:
   functions.SetIfUnset('g:htmlplugin.save_clipboard', &clipboard)
 
@@ -145,7 +129,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
 
   if !exists('g:htmlplugin.toplevel_menu_escaped')
     g:htmlplugin.toplevel_menu_escaped =
-      functions.MenuJoin(g:htmlplugin.toplevel_menu->add(HTMLvariables.MENU_NAME))
+      g:htmlplugin.toplevel_menu->add(HTMLvariables.MENU_NAME)->functions.MenuJoin()
     lockvar g:htmlplugin.toplevel_menu
     lockvar g:htmlplugin.toplevel_menu_escaped
   endif
@@ -191,7 +175,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
     b:htmlplugin.tag_case = 'lowercase'
   endif
 
-  # Need to inerpolate the value, which the command form of SetIfUnset doesn't
+  # Need to interpolate the value, which the command form of SetIfUnset doesn't
   # do:
   functions.SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
 
@@ -205,7 +189,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
       ], 0)
 
     b:htmlplugin.internal_template =
-      functions.ConvertCase(b:htmlplugin.internal_template)
+      b:htmlplugin.internal_template->functions.ConvertCase()
   else
     b:htmlplugin.internal_template = HTMLvariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html>',
@@ -213,7 +197,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
       ], 0)
 
     b:htmlplugin.internal_template =
-      functions.ConvertCase(b:htmlplugin.internal_template)
+      b:htmlplugin.internal_template->functions.ConvertCase()
 
     b:htmlplugin.internal_template =
       b:htmlplugin.internal_template->mapnew(
@@ -225,7 +209,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
 
   # }}}2
 
-endif # !exists('b:htmlplugin.did_mappings_init')
+endif # !functions.BoolVar('b:htmlplugin.did_mappings_init')
 
 # ----------------------------------------------------------------------------
 
@@ -238,7 +222,7 @@ b:htmlplugin.clear_mappings = []
 
 # Make it easy to use a ; (or whatever the map leader is) as normal:
 functions.Map('inoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
-functions.Map('vnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {'extra': false})
+functions.Map('vnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {extra: false})
 functions.Map('nnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
 # Make it easy to insert a & (or whatever the entity leader is):
 functions.Map('inoremap', '<lead>' .. g:htmlplugin.entity_map_leader, g:htmlplugin.entity_map_leader)
@@ -247,28 +231,28 @@ if !functions.BoolVar('g:htmlplugin.no_tab_mapping')
   # Allow hard tabs to be used:
   functions.Map('inoremap', '<lead><tab>', '<tab>')
   functions.Map('nnoremap', '<lead><tab>', '<tab>')
-  functions.Map('vnoremap', '<lead><tab>', '<tab>', {'extra': false})
+  functions.Map('vnoremap', '<lead><tab>', '<tab>', {extra: false})
   # And shift-tabs too:
   functions.Map('inoremap', '<lead><s-tab>', '<s-tab>')
   functions.Map('nnoremap', '<lead><s-tab>', '<s-tab>')
-  functions.Map('vnoremap', '<lead><s-tab>', '<s-tab>', {'extra': false})
+  functions.Map('vnoremap', '<lead><s-tab>', '<s-tab>', {extra: false})
 
   # Tab takes us to a (hopefully) reasonable next insert point:
   functions.Map('inoremap', '<tab>', "<ScriptCmd>NextInsertPoint('i')<CR>")
   functions.Map('nnoremap', '<tab>', "<ScriptCmd>NextInsertPoint('n')<CR>")
-  functions.Map('vnoremap', '<tab>', "<ScriptCmd>NextInsertPoint('n')<CR>", {'extra': false})
+  functions.Map('vnoremap', '<tab>', "<ScriptCmd>NextInsertPoint('n')<CR>", {extra: false})
   # ...And shift-tab goes backwards:
   functions.Map('inoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('i', 'b')<CR>")
   functions.Map('nnoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>")
-  functions.Map('vnoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>", {'extra': false})
+  functions.Map('vnoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>", {extra: false})
 else
   functions.Map('inoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('i')<CR>")
   functions.Map('nnoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('n')<CR>")
-  functions.Map('vnoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('n')<CR>", {'extra': false})
+  functions.Map('vnoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('n')<CR>", {extra: false})
 
   functions.Map('inoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('i', 'b')<CR>")
   functions.Map('nnoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>")
-  functions.Map('vnoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>", {'extra': false})
+  functions.Map('vnoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>", {extra: false})
 endif
 
 # ----------------------------------------------------------------------------
@@ -302,11 +286,11 @@ functions.Map('imap', '<lead>5', '<C-O>' .. g:htmlplugin.map_leader .. '5')
 if functions.BoolVar('b:htmlplugin.do_xhtml_mappings')
   functions.Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html><ESC>O')
   # Visual mapping:
-  functions.Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></html><C-O>`<<html xmlns="http://www.w3.org/1999/xhtml"><CR><ESC>', {'reindent': 1})
+  functions.Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></html><C-O>`<<html xmlns="http://www.w3.org/1999/xhtml"><CR><ESC>', {reindent: 1})
 else
   functions.Map('inoremap', '<lead>ht', '<[{HTML}]><CR></[{HTML}]><ESC>O')
   # Visual mapping:
-  functions.Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></[{HTML}]><C-O>`<<[{HTML}]><CR><ESC>', {'reindent': 1})
+  functions.Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></[{HTML}]><C-O>`<<[{HTML}]><CR><ESC>', {reindent: 1})
 endif
 # Motion mapping:
 functions.Mapo('<lead>ht')
@@ -319,21 +303,21 @@ functions.Mapo('<lead>ht')
 # entity or otherwise decimal HTML entities:
 # (Note that this can be very slow due to syntax highlighting. Maybe find a
 # different way to do it?)
-functions.Map('vnoremap', '<lead>&', "s<C-R>=functions.TranscodeString(@\")->functions.SI()<CR><Esc>", {'extra': false})
+functions.Map('vnoremap', '<lead>&', "s<C-R>=functions.TranscodeString(@\")->functions.SI()<CR><Esc>", {extra: false})
 functions.Mapo('<lead>&')
 
 # Convert the character under the cursor or the highlighted string to hex
 # HTML entities:
-functions.Map('vnoremap', '<lead>*', "s<C-R>=functions.TranscodeString(@\", 'x')->functions.SI()<CR><Esc>", {'extra': false})
+functions.Map('vnoremap', '<lead>*', "s<C-R>=functions.TranscodeString(@\", 'x')->functions.SI()<CR><Esc>", {extra: false})
 functions.Mapo('<lead>*')
 
 # Convert the character under the cursor or the highlighted string to a %XX
 # string:
-functions.Map('vnoremap', '<lead>%', "s<C-R>=functions.TranscodeString(@\", '%')->functions.SI()<CR><Esc>", {'extra': false})
+functions.Map('vnoremap', '<lead>%', "s<C-R>=functions.TranscodeString(@\", '%')->functions.SI()<CR><Esc>", {extra: false})
 functions.Mapo('<lead>%')
 
 # Decode a &...;, &#...;, or %XX encoded string:
-functions.Map('vnoremap', '<lead>^', "s<C-R>=functions.TranscodeString(@\", 'd')->functions.SI()<CR><Esc>", {'extra': false})
+functions.Map('vnoremap', '<lead>^', "s<C-R>=functions.TranscodeString(@\", 'd')->functions.SI()<CR><Esc>", {extra: false})
 functions.Mapo('<lead>^')
 
 # The actual entity mappings are now defined in a json file to reduce
@@ -347,7 +331,7 @@ var BrowserLauncherExists: bool
 # try/catch because the function won't autoload if it's not installed:
 try
   BrowserLauncherExists = BrowserLauncher.Exists() != []
-catch /^Vim\%((\a\+)\)\=:E117:.\+BrowserLauncher.Exists/
+catch /^Vim\%((\a\+)\)\=:E121:.\+BrowserLauncher/
   BrowserLauncherExists = false
 endtry
 
@@ -500,7 +484,7 @@ if BrowserLauncherExists
       '<lead>nly',
       "<ScriptCmd>BrowserLauncher.Launch('lynx', 1)<CR>"
     )
-    # Lynx in a new Vim window, using :terminal:
+    # Lynx in a new Vim window, using ":terminal":
     functions.Map(
       'nnoremap',
       '<lead>tly',
@@ -521,7 +505,7 @@ if BrowserLauncherExists
       '<lead>nw3',
       "<ScriptCmd>BrowserLauncher.Launch('w3m', 1)<CR>"
     )
-    # w3m in a new Vim window, using :terminal:
+    # w3m in a new Vim window, using ":terminal":
     functions.Map(
       'nnoremap',
       '<lead>tw3',
@@ -542,7 +526,7 @@ if BrowserLauncherExists
       '<lead>nln',
       "<ScriptCmd>BrowserLauncher.Launch('links', 1)<CR>"
     )
-    # Lynx in a new Vim window, using :terminal:
+    # Lynx in a new Vim window, using ":terminal":
     functions.Map(
       'nnoremap',
       '<lead>tln',
@@ -553,7 +537,7 @@ endif
 
 # ----------------------------------------------------------------------------
 
-endif # ! exists('b:htmlplugin.did_mappings')
+endif # !functions.BoolVar('b:htmlplugin.did_mappings')
 
 # ---- ToolBar Buttons: ------------------------------------------------- {{{1
 
@@ -943,6 +927,7 @@ if !functions.BoolVar('g:htmlplugin.did_old_variable_check') &&
     wincmd p
   endif
 endif
+
 if !functions.BoolVar('g:htmlplugin.did_plugin_warning_check')
   g:htmlplugin.did_plugin_warning_check = true
   var files = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)

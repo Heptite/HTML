@@ -1,3 +1,12 @@
+Sat, 15 Jan 2022 20:49:31 -0700 Christian J. Robinson
+ * Doc tweak, version update
+
+Sat, 15 Jan 2022 19:33:12 -0700 Christian J. Robinson
+ * More refactoring. Visual mappings are not quite as complicated.
+
+Wed, 12 Jan 2022 22:41:03 -0700 Christian J. Robinson
+ * Major refactor for new Vim9 autoload mechanism. Stop supporting reloading of the plugin.
+
 Sun, 9 Jan 2022 18:09:46 -0700 Christian J. Robinson
  * Fix permissions
 
