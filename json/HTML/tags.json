@@ -57,8 +57,8 @@
 					"c": "<[{/B><B}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{B}]>\\<C-O>`<<[{B}]>",
-					"c": "`>a<[{B}]>\\<C-O>`<</[{B}]>",
+					"o": "\\<C-C>`>a</[{B}]>\\<C-O>`<<[{B}]>",
+					"c": "\\<C-C>`>a<[{B}]>\\<C-O>`<</[{B}]>",
 					"insert": false
 				}
 			}
@@ -85,8 +85,8 @@
 					"c": "<[{/STRONG><STRONG}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{STRONG}]>\\<C-O>`<<[{STRONG}]>",
-					"c": "`>a<[{STRONG}]>\\<C-O>`<</[{STRONG}]>",
+					"o": "\\<C-C>`>a</[{STRONG}]>\\<C-O>`<<[{STRONG}]>",
+					"c": "\\<C-C>`>a<[{STRONG}]>\\<C-O>`<</[{STRONG}]>",
 					"insert": false
 				}
 			}
@@ -113,8 +113,8 @@
 					"c": "<[{/I><I}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{I}]>\\<C-O>`<<[{I}]>",
-					"c": "`>a<[{I}]>\\<C-O>`<</[{I}]>",
+					"o": "\\<C-C>`>a</[{I}]>\\<C-O>`<<[{I}]>",
+					"c": "\\<C-C>`>a<[{I}]>\\<C-O>`<</[{I}]>",
 					"insert": false
 				}
 			}
@@ -141,8 +141,8 @@
 					"c": "<[{/EM><EM}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{EM}]>\\<C-O>`<<[{EM}]>",
-					"c": "`>a<[{EM}]>\\<C-O>`<</[{EM}]>",
+					"o": "\\<C-C>`>a</[{EM}]>\\<C-O>`<<[{EM}]>",
+					"c": "\\<C-C>`>a<[{EM}]>\\<C-O>`<</[{EM}]>",
 					"insert": false
 				}
 			}
@@ -169,8 +169,8 @@
 					"c": "<[{/U><U}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{U}]>\\<C-O>`<<[{U}]>",
-					"c": "`>a<[{U}]>\\<C-O>`<</[{U}]>",
+					"o": "\\<C-C>`>a</[{U}]>\\<C-O>`<<[{U}]>",
+					"c": "\\<C-C>`>a<[{U}]>\\<C-O>`<</[{U}]>",
 					"insert": false
 				}
 			}
@@ -257,8 +257,8 @@
 					"c": "<[{/CITE><CITE}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{CITE}]>\\<C-O>`<<[{CITE}]>",
-					"c": "`>a<[{CITE}]>\\<C-O>`<</[{CITE}]>",
+					"o": "\\<C-C>`>a</[{CITE}]>\\<C-O>`<<[{CITE}]>",
+					"c": "\\<C-C>`>a<[{CITE}]>\\<C-O>`<</[{CITE}]>",
 					"insert": false
 				}
 			}
@@ -285,8 +285,8 @@
 					"c": "<[{/CODE><CODE}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{CODE}]>\\<C-O>`<<[{CODE}]>",
-					"c": "`>a<[{CODE}]>\\<C-O>`<</[{CODE}]>",
+					"o": "\\<C-C>`>a</[{CODE}]>\\<C-O>`<<[{CODE}]>",
+					"c": "\\<C-C>`>a<[{CODE}]>\\<C-O>`<</[{CODE}]>",
 					"insert": false
 				}
 			}
@@ -313,8 +313,8 @@
 					"c": "<[{/INS><INS}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{INS}]>\\<C-O>`<<[{INS}]>",
-					"c": "`>a<[{INS}]>\\<C-O>`<</[{INS}]>",
+					"o": "\\<C-C>`>a</[{INS}]>\\<C-O>`<<[{INS}]>",
+					"c": "\\<C-C>`>a<[{INS}]>\\<C-O>`<</[{INS}]>",
 					"insert": false
 				}
 			}
@@ -341,8 +341,8 @@
 					"c": "<[{/DEL><DEL}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{DEL}]>\\<C-O>`<<[{DEL}]>",
-					"c": "`>a<[{DEL}]>\\<C-O>`<</[{DEL}]>",
+					"o": "\\<C-C>`>a</[{DEL}]>\\<C-O>`<<[{DEL}]>",
+					"c": "\\<C-C>`>a<[{DEL}]>\\<C-O>`<</[{DEL}]>",
 					"insert": false
 				}
 			}
@@ -369,8 +369,8 @@
 					"c": "<[{/KBD><KBD}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{KBD}]>\\<C-O>`<<[{KBD}]>",
-					"c": "`>a<[{KBD}]>\\<C-O>`<</[{KBD}]>",
+					"o": "\\<C-C>`>a</[{KBD}]>\\<C-O>`<<[{KBD}]>",
+					"c": "\\<C-C>`>a<[{KBD}]>\\<C-O>`<</[{KBD}]>",
 					"insert": false
 				}
 			}
@@ -397,8 +397,8 @@
 					"c": "<[{/SAMP><SAMP}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{SAMP}]>\\<C-O>`<<[{SAMP}]>",
-					"c": "`>a<[{SAMP}]>\\<C-O>`<</[{SAMP}]>",
+					"o": "\\<C-C>`>a</[{SAMP}]>\\<C-O>`<<[{SAMP}]>",
+					"c": "\\<C-C>`>a<[{SAMP}]>\\<C-O>`<</[{SAMP}]>",
 					"insert": false
 				}
 			}
@@ -425,8 +425,8 @@
 					"c": "<[{/SUB><SUB}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{SUB}]>\\<C-O>`<<[{SUB}]>",
-					"c": "`>a<[{SUB}]>\\<C-O>`<</[{SUB}]>",
+					"o": "\\<C-C>`>a</[{SUB}]>\\<C-O>`<<[{SUB}]>",
+					"c": "\\<C-C>`>a<[{SUB}]>\\<C-O>`<</[{SUB}]>",
 					"insert": false
 				}
 			}
@@ -453,8 +453,8 @@
 					"c": "<[{/SUP><SUP}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{SUP}]>\\<C-O>`<<[{SUP}]>",
-					"c": "`>a<[{SUP}]>\\<C-O>`<</[{SUP}]>",
+					"o": "\\<C-C>`>a</[{SUP}]>\\<C-O>`<<[{SUP}]>",
+					"c": "\\<C-C>`>a<[{SUP}]>\\<C-O>`<</[{SUP}]>",
 					"insert": false
 				}
 			}
@@ -495,8 +495,8 @@
 					"c": "<[{/VAR><VAR}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{VAR}]>\\<C-O>`<<[{VAR}]>",
-					"c": "`>a<[{VAR}]>\\<C-O>`<</[{VAR}]>",
+					"o": "\\<C-C>`>a</[{VAR}]>\\<C-O>`<<[{VAR}]>",
+					"c": "\\<C-C>`>a<[{VAR}]>\\<C-O>`<</[{VAR}]>",
 					"insert": false
 				}
 			}
@@ -507,14 +507,28 @@
 		"lhs": "fm",
 
 		"maps": {
-			"i": ["", "<[{FORM ACTION}]=\"\"><CR></[{FORM}]><ESC>k$F\"i"],
-			"v": ["", "<ESC>`>a<CR></[{FORM}]><C-O>`<<[{FORM ACTION}]=\"\"><CR><ESC>k$F\"i", {"reindent": 1, "insert": true}],
+			"i": ["", "SmartTag('form', 'i')", {"expr": true}],
+			"v": ["", "SmartTag('form', 'v')", {"expr": true, "reindent": 1}],
 			"o": ["", true]
 		},
 
+
 		"menu": ["-", ["F&orms", "FORM"], {
 			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
-		}]
+		}],
+
+		"smarttag": {
+			"form": {
+				"i": {
+					"o": "<[{FORM ACTION}]=\"\">\\<CR></[{FORM}]>\\<ESC>k$F\"i",
+					"c": "\\<CR><[{/FORM}]>\\<CR><[{FORM ACTION}]=\"\">\\<CR>\\<ESC>k$F\"i"
+				},
+				"v": {
+					"o": "\\<C-C>`>a\\<CR></[{FORM}]>\\<C-O>`<<[{FORM ACTION}]=\"\">\\<CR>\\<ESC>`<k$F\"",
+					"c": "\\<C-C>`>a\\<CR><[{FORM ACTION}]=\"\">\\<CR>\\<C-O>`<\\<CR></[{FORM}]>\\<CR>\\<ESC>`>j$F\""
+				}
+			}
+		}
 	},
 
 	{
@@ -578,8 +592,8 @@
 
 		"maps": {
 			"i": ["", "<[{INPUT TYPE=\"DATE\" NAME}]=\"\" /><C-O>F\""],
-			"v": ["", "<ESC>`>a\" /><C-O>`<<[{INPUT TYPE=\"DATE\" NAME}]=\"<C-O>2F\"", {"insert": true}],
-			"o": ["", true]
+			"v": ["", "<ESC>`>a\" /><C-O>`<<[{INPUT TYPE=\"DATE\" NAME}]=\"<Esc>", {}],
+			"o": ["", false]
 		},
 
 		"menu": ["-", ["F&orms", "DATE"], {
@@ -677,8 +691,8 @@
 					"c": "<[{/OPTION><OPTION}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{OPTION}]>\\<C-O>`<<[{OPTION}]>",
-					"c": "`>a<[{OPTION}]>\\<C-O>`<</[{OPTION}]>",
+					"o": "<ESC>`>a</[{OPTION}]>\\<C-O>`<<[{OPTION}]>",
+					"c": "<ESC>`>a<[{OPTION}]>\\<C-O>`<</[{OPTION}]>",
 					"insert": false
 				}
 			}
@@ -846,7 +860,6 @@
 		}]
 	},
 
-
 	{
 		"lhs": "su",
 
@@ -992,8 +1005,8 @@
 					"c": "<[{/A><A HREF=\"\"}]>\\<C-O>F\""
 				},
 				"v": {
-					"o": "`>a</[{A}]>\\<C-O>`<<[{A HREF=\"\"}]>\\<C-O>F\"",
-					"c": "`>a<[{A HREF=\"\"}]>\\<C-O>`<</[{A}]>\\<C-O>2f\"",
+					"o": "\\<C-C>`>a</[{A}]>\\<C-O>`<<[{A HREF=\"\"}]>\\<C-O>F\"",
+					"c": "\\<C-C>`>a<[{A HREF=\"\"}]>\\<C-O>`<</[{A}]>\\<C-O>2f\"",
 					"insert": true
 				}
 			}
@@ -1014,8 +1027,8 @@
 					"c": "<[{/A><A HREF=\"\\<C-R>*\"}]>"
 				},
 				"v": {
-					"o": "`>a\"></[{A}]>\\<C-O>`<<[{A HREF}]=\"\\<C-O>f<",
-					"c": "`>a\">\\<C-O>`<</[{A><A HREF}]=\"\\<C-O>f<",
+					"o": "\\<C-C>`>a\"></[{A}]>\\<C-O>`<<[{A HREF}]=\"\\<C-O>f<",
+					"c": "\\<C-C>`>a\">\\<C-O>`<</[{A><A HREF}]=\"\\<C-O>f<",
 					"insert": true
 				}
 			}
@@ -1036,8 +1049,8 @@
 					"c": "<[{/A><A HREF=\"\" TARGET=\"\"}]>\\<C-O>3F\""
 				},
 				"v": {
-					"o": "`>a</[{A}]>\\<C-O>`<<[{A HREF=\"\" TARGET=\"\"}]>\\<C-O>3F\"",
-					"c": "`>a<[{A HREF=\"\" TARGET=\"\"}]>\\<C-O>`<</[{A}]>\\<C-O>2f\"",
+					"o": "\\<C-C>`>a</[{A}]>\\<C-O>`<<[{A HREF=\"\" TARGET=\"\"}]>\\<C-O>3F\"",
+					"c": "\\<C-C>`>a<[{A HREF=\"\" TARGET=\"\"}]>\\<C-O>`<</[{A}]>\\<C-O>2f\"",
 					"insert": true
 				}
 			}
@@ -1058,8 +1071,8 @@
 					"c": "<[{/A><A HREF=\"\\<C-R>*\" TARGET=\"\"}]>\\<C-O>F\""
 				},
 				"v": {
-					"o": "`>a\" [{TARGET=\"\"></A}]>\\<C-O>`<<[{A HREF}]=\"\\<C-O>3f\"",
-					"c": "`>a\" [{TARGET=\"\"}]>\\<C-O>`<</[{A><A HREF}]=\"\\<C-O>3f\"",
+					"o": "\\<C-C>`>a\" [{TARGET=\"\"></A}]>\\<C-O>`<<[{A HREF}]=\"\\<C-O>3f\"",
+					"c": "\\<C-C>`>a\" [{TARGET=\"\"}]>\\<C-O>`<</[{A><A HREF}]=\"\\<C-O>3f\"",
 					"insert": true
 				}
 			}
@@ -1134,8 +1147,8 @@
 					"c": "</[{P}]>\\<CR>\\<CR><[{P}]>\\<CR>"
 				},
 				"v": {
-					"o": "`>a\\<CR></[{P}]>\\<C-O>`<<[{P}]>\\<CR>",
-					"c": "`>a\\<CR><[{P}]>\\<C-O>`<</[{P}]>\\<CR>",
+					"o": "\\<C-C>`>a\\<CR></[{P}]>\\<C-O>`<<[{P}]>\\<CR>",
+					"c": "\\<C-C>`>a\\<CR><[{P}]>\\<C-O>`<</[{P}]>\\<CR>",
 					"insert": false
 				}
 			}
@@ -1168,8 +1181,8 @@
 					"c": "</[{PRE}]>\\<CR>\\<CR><[{PRE}]>\\<CR>"
 				},
 				"v": {
-					"o": "`>a\\<CR></[{PRE}]>\\<C-O>`<<[{PRE}]>\\<CR>",
-					"c": "`>a\\<CR><[{PRE}]>\\<C-O>`<</[{PRE}]>\\<CR>",
+					"o": "\\<C-C>`>a\\<CR></[{PRE}]>\\<C-O>`<<[{PRE}]>\\<CR>",
+					"c": "\\<C-C>`>a\\<CR><[{PRE}]>\\<C-O>`<</[{PRE}]>\\<CR>",
 					"insert": false
 				}
 			}
@@ -1189,8 +1202,6 @@
 			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
 		}]
 	},
-
-
 
 	{
 		"lhs": "h1",
@@ -1445,7 +1456,6 @@
 			"o": ["", false]
 		},
 
-
 		"menu": ["-", ["HTML &5 Tags", "&FIGURE"], {
 			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
 		}],
@@ -1457,8 +1467,8 @@
 					"c": "</[{FIGURE}]>\\<CR>\\<CR><[{FIGURE}]>\\<CR>"
 				},
 				"v": {
-					"o": "`>a\\<CR></[{FIGURE}]>\\<C-O>`<<[{FIGURE}]>\\<CR>",
-					"c": "`>a\\<CR><[{FIGURE}]>\\<C-O>`<</[{FIGURE}]>\\<CR>",
+					"o": "\\<C-C>`>a\\<CR></[{FIGURE}]>\\<C-O>`<<[{FIGURE}]>\\<CR>",
+					"c": "\\<C-C>`>a\\<CR><[{FIGURE}]>\\<C-O>`<</[{FIGURE}]>\\<CR>",
 					"insert": false
 				}
 			}
@@ -1485,8 +1495,8 @@
 					"c": "<[{/FIGCAPTION><FIGCAPTION}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{FIGCAPTION}]>\\<C-O>`<<[{FIGCAPTION}]>",
-					"c": "`>a<[{FIGCAPTION}]>\\<C-O>`<</[{FIGCAPTION}]>",
+					"o": "\\<C-C>`>a</[{FIGCAPTION}]>\\<C-O>`<<[{FIGCAPTION}]>",
+					"c": "\\<C-C>`>a<[{FIGCAPTION}]>\\<C-O>`<</[{FIGCAPTION}]>",
 					"insert": false
 				}
 			}
@@ -1555,8 +1565,8 @@
 					"c": "<[{/MARK><MARK}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{MARK}]>\\<C-O>`<<[{MARK}]>",
-					"c": "`>a<[{MARK}]>\\<C-O>`<</[{MARK}]>",
+					"o": "\\<C-C>`>a</[{MARK}]>\\<C-O>`<<[{MARK}]>",
+					"c": "\\<C-C>`>a<[{MARK}]>\\<C-O>`<</[{MARK}]>",
 					"insert": false
 				}
 			}
@@ -1815,8 +1825,8 @@
 					"c": "</[{BLOCKQUOTE}]>\\<CR>\\<CR><[{BLOCKQUOTE}]>\\<CR>"
 				},
 				"v": {
-					"o": "`>a\\<CR></[{BLOCKQUOTE}]>\\<C-O>`<<[{BLOCKQUOTE}]>\\<CR>",
-					"c": "`>a\\<CR><[{BLOCKQUOTE}]>\\<C-O>`<</[{BLOCKQUOTE}]>\\<CR>",
+					"o": "\\<C-C>`>a\\<CR></[{BLOCKQUOTE}]>\\<C-O>`<<[{BLOCKQUOTE}]>\\<CR>",
+					"c": "\\<C-C>`>a\\<CR><[{BLOCKQUOTE}]>\\<C-O>`<</[{BLOCKQUOTE}]>\\<CR>",
 					"insert": false
 				}
 			}
@@ -1843,8 +1853,8 @@
 					"c": " --><!-- \\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a -->\\<C-O>`<<!-- ",
-					"c": "`>a<!-- \\<C-O>`< -->",
+					"o": "\\<C-C>`>a -->\\<C-O>`<<!-- ",
+					"c": "\\<C-C>`>a<!-- \\<C-O>`< -->",
 					"insert": false
 				}
 			}
@@ -1871,8 +1881,8 @@
 					"c": "<[{/DFN><DFN}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{DFN}]>\\<C-O>`<<[{DFN}]>",
-					"c": "`>a<[{DFN}]>\\<C-O>`<</[{DFN}]>",
+					"o": "\\<C-C>`>a</[{DFN}]>\\<C-O>`<<[{DFN}]>",
+					"c": "\\<C-C>`>a<[{DFN}]>\\<C-O>`<</[{DFN}]>",
 					"insert": false
 				}
 			}
@@ -1907,13 +1917,12 @@
 		}]
 	},
 
-
 	{
 		"lhs": "js",
 
 		"maps": {
-			"i": ["", "SmartTag('script', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('script', 'v')", {"expr": true, "reindent": 3}],
+			"i": ["", "SmartTag('script1', 'i')", {"expr": true}],
+			"v": ["", "SmartTag('script1', 'v')", {"expr": true, "reindent": 3}],
 			"o": ["", false]
 		},
 
@@ -1922,14 +1931,42 @@
 		}],
 
 		"smarttag": {
-			"script": {
+			"script1": {
 				"i": {
-					"o": "\\<C-O>\\<ScriptCmd>TC(false)\\<CR>\\<C-c>i<[{SCRIPT TYPE}]=\"text/javascript\">\\<ESC>==o<!--\\<CR>// -->\\<CR></[{SCRIPT}]>\\<ESC><ScriptCmd>TC(true)\\<CR>kko",
-					"c": "\\<C-O>\\<ScriptCmd>TC(false)\\<CR>\\<C-c>i// -->\\<CR></[{SCRIPT}]>\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<C-O><ScriptCmd>TC(true)\\<CR>"
+					"o": "<[{SCRIPT TYPE}]=\"application/javascript\">\\<CR></[{SCRIPT}]>\\<ESC>O",
+					"c": "</[{SCRIPT}]>\\<CR><[{SCRIPT TYPE}]=\"application/javascript\">\\<CR>"
 				},
 				"v": {
-					"o": "\\<ScriptCmd>TC(false)\\<CR>`>\\<C-c>a\\<CR>// -->\\<CR></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<CR>\\<ESC><ScriptCmd>TC(true)\\<CR>",
-					"c": "\\<ScriptCmd>TC(false)\\<CR>`>\\<C-c>a\\<CR><[{SCRIPT TYPE}]=\"text/javascript\">\\<CR><!--\\<C-O>`<// -->\\<CR></[{SCRIPT}]>\\<CR>\\<ESC><ScriptCmd>TC(true)\\<CR>",
+					"o": "\\<C-C>`>a\\<CR></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT TYPE}]=\"application/javascript\">\\<CR>\\<ESC>",
+					"c": "\\<C-C>`>a\\<CR><[{SCRIPT TYPE}]=\"application/javascript\">\\<CR>\\<C-O>`<</[{SCRIPT}]>\\<CR>\\<ESC>",
+					"insert": false
+				}
+			}
+		}
+	},
+
+	{
+		"lhs": "jm",
+
+		"maps": {
+			"i": ["", "SmartTag('script2', 'i')", {"expr": true}],
+			"v": ["", "SmartTag('script2', 'v')", {"expr": true, "reindent": 3}],
+			"o": ["", false]
+		},
+
+		"menu": ["-", ["&More Tags", "JavaScript Module"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}],
+
+		"smarttag": {
+			"script2": {
+				"i": {
+					"o": "<[{SCRIPT TYPE}]=\"module\">\\<CR></[{SCRIPT}]>\\<ESC>O",
+					"c": "</[{SCRIPT}]>\\<CR><[{SCRIPT TYPE}]=\"module\">\\<CR>"
+				},
+				"v": {
+					"o": "\\<C-C>`>a\\<CR></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT TYPE}]=\"module\">\\<CR>\\<ESC>",
+					"c": "\\<C-C>`>a\\<CR><[{SCRIPT TYPE}]=\"module\">\\<CR>\\<C-O>`<</[{SCRIPT}]>\\<CR>\\<ESC>",
 					"insert": false
 				}
 			}
@@ -1940,12 +1977,26 @@
 		"lhs": "sj",
 
 		"maps": {
-			"i": ["", "<[{SCRIPT SRC}]=\"\" [{TYPE}]=\"text/javascript\"></[{SCRIPT}]><C-O>3F\""],
-			"v": ["", "<ESC>`>a\" [{TYPE}]=\"text/javascript\"></[{SCRIPT}]><C-O>`<<[{SCRIPT SRC}]=\"<C-O>`><C-O>f<", {"insert": true}],
+			"i": ["", "<[{SCRIPT SRC}]=\"\" [{TYPE}]=\"application/javascript\"></[{SCRIPT}]><C-O>3F\""],
+			"v": ["", "<ESC>`>a\" [{TYPE}]=\"application/javascript\"></[{SCRIPT}]><C-O>`<<[{SCRIPT SRC}]=\"<C-O>`><C-O>f<", {"insert": true}],
 			"o": ["", true]
 		},
 
 		"menu": ["-", ["&More Tags", "Sourced JavaScript"], {
+			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
+		}]
+	},
+
+	{
+		"lhs": "mo",
+
+		"maps": {
+			"i": ["", "<[{SCRIPT SRC}]=\"\" [{TYPE}]=\"module\"></[{SCRIPT}]><C-O>3F\""],
+			"v": ["", "<ESC>`>a\" [{TYPE}]=\"module\"></[{SCRIPT}]><C-O>`<<[{SCRIPT SRC}]=\"<C-O>`><C-O>f<", {"insert": true}],
+			"o": ["", true]
+		},
+
+		"menu": ["-", ["&More Tags", "Sourced JavaScript Module"], {
 			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
 		}]
 	},
@@ -2062,8 +2113,8 @@
 					"c": "<[{/Q><Q}]>\\<C-O>F<"
 				},
 				"v": {
-					"o": "`>a</[{Q}]>\\<C-O>`<<[{Q}]>",
-					"c": "`>a<[{Q}]>\\<C-O>`<</[{Q}]>",
+					"o": "\\<C-C>`>a</[{Q}]>\\<C-O>`<<[{Q}]>",
+					"c": "\\<C-C>`>a<[{Q}]>\\<C-O>`<</[{Q}]>",
 					"insert": false
 				}
 			}

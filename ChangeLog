@@ -1,3 +1,6 @@
+Tue, 18 Jan 2022 09:52:00 -0700 Christian J. Robinson
+ * vim9script command syntax changed
+
 Sat, 15 Jan 2022 20:49:31 -0700 Christian J. Robinson
  * Doc tweak, version update
 

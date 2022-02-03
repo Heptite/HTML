@@ -10,13 +10,13 @@ use of macros. For example:
 * In normal mode, type `;html` to insert a configurable template
 * Use `<Tab>` to skip to unfilled parts of the template
 * Use insert mode ;-mappings to insert tags. For example:
-    * `;pp` inserts:  
-      &lt;p&gt;  
-      &lt;/p&gt;
-    * `;im` inserts &lt;img src="" alt=""&gt; and correctly positions the cursor
-    * `;br` inserts &lt;br&gt;
-    * `&<` inserts &amp;lt;, `&>` inserts &amp;gt;, `&&` inserts &amp;amp;
-    * and so on...
+  * `;pp` inserts:  
+    &lt;p&gt;  
+    &lt;/p&gt;
+  * `;im` inserts &lt;img src="" alt=""&gt; and correctly positions the cursor
+  * `;br` inserts &lt;br&gt;
+  * `&<` inserts &amp;lt;, `&>` inserts &amp;gt;, `&&` inserts &amp;amp;
+  * and so on...
 * `;db` in normal mode launches the default browser on the current buffer file
 * Commands are included to disable and re-enable the mappings, so it is easier
   to edit JavaScript, PHP, etc.
@@ -35,16 +35,23 @@ support:
 
 ### Unix/MacOS
 
-    mkdir -p ~/.vim/pack/cjr/start
-    cd ~/.vim/pack/cjr/start
-    git clone https://github.com/Heptite/HTML.git
+In a terminal type these commands:
+
+```
+mkdir -p ~/.vim/pack/cjr/start
+cd ~/.vim/pack/cjr/start
+git clone https://github.com/Heptite/HTML.git
+```
 
 ### Windows
 
-    Press Windows+R and type in "cmd"
-    mkdir %USERPROFILE%\vimfiles\pack\cjr\start
-    cd %USERPROFILE%\vimfiles\pack\cjr\start
-    git clone https://github.com/Heptite/HTML.git
+Press Windows+R and type in "cmd" and in that window run these commands:
+
+```
+mkdir %USERPROFILE%\vimfiles\pack\cjr\start
+cd %USERPROFILE%\vimfiles\pack\cjr\start
+git clone https://github.com/Heptite/HTML.git
+```
 
 After installing using git you can always update by going into the
 `pack/cjr/start/HTML` directory and typing: `git pull`

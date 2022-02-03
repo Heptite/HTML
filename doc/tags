@@ -154,9 +154,11 @@ html-image	HTML.txt	/*html-image*
 html-inline-css	HTML.txt	/*html-inline-css*
 html-inline-frame	HTML.txt	/*html-inline-frame*
 html-inline-javascript	HTML.txt	/*html-inline-javascript*
+html-inline-javascript-module	HTML.txt	/*html-inline-javascript-module*
 html-inserted	HTML.txt	/*html-inserted*
 html-intro	HTML.txt	/*html-intro*
 html-italics	HTML.txt	/*html-italics*
+html-javascript-module	HTML.txt	/*html-javascript-module*
 html-line-break	HTML.txt	/*html-line-break*
 html-linked-css	HTML.txt	/*html-linked-css*
 html-links-browser	HTML.txt	/*html-links-browser*
@@ -579,6 +581,7 @@ i_;im	HTML.txt	/*i_;im*
 i_;in	HTML.txt	/*i_;in*
 i_;it	HTML.txt	/*i_;it*
 i_;iv	HTML.txt	/*i_;iv*
+i_;jm	HTML.txt	/*i_;jm*
 i_;js	HTML.txt	/*i_;js*
 i_;la	HTML.txt	/*i_;la*
 i_;li	HTML.txt	/*i_;li*
@@ -590,6 +593,7 @@ i_;me	HTML.txt	/*i_;me*
 i_;mh	HTML.txt	/*i_;mh*
 i_;mi	HTML.txt	/*i_;mi*
 i_;mk	HTML.txt	/*i_;mk*
+i_;mo	HTML.txt	/*i_;mo*
 i_;ms	HTML.txt	/*i_;ms*
 i_;mt	HTML.txt	/*i_;mt*
 i_;na	HTML.txt	/*i_;na*

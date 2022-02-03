@@ -1,8 +1,8 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024128
-  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.4128'
+if v:version < 802 || v:versionlong < 8024285
+  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 8.2.4285'
   sleep 3
   finish
 endif
@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      January 18, 2022
+# Last Change:      February 02, 2022
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -259,7 +259,7 @@ endif
 
 # ---- General Markup Tag Mappings: ------------------------------------- {{{1
 
-# Cannot conditionally set mappings in the tags.json file, so do this set of
+# Can't conditionally set mappings in the tags.json file, so do this set of
 # mappings here instead:
 
 #       SGML Doctype Command
@@ -299,20 +299,18 @@ functions.Mapo('<lead>ht')
 
 # ---- Character Entities Mappings: ------------------------------------- {{{1
 
-# Convert the character under the cursor or the highlighted string to its name
-# entity or otherwise decimal HTML entities:
+# Convert the selected string to its name entity or otherwise decimal HTML
+# entities:
 # (Note that this can be very slow due to syntax highlighting. Maybe find a
 # different way to do it?)
 functions.Map('vnoremap', '<lead>&', "s<C-R>=functions.TranscodeString(@\")->functions.SI()<CR><Esc>", {extra: false})
 functions.Mapo('<lead>&')
 
-# Convert the character under the cursor or the highlighted string to hex
-# HTML entities:
+# Convert the selected string to hex HTML entities:
 functions.Map('vnoremap', '<lead>*', "s<C-R>=functions.TranscodeString(@\", 'x')->functions.SI()<CR><Esc>", {extra: false})
 functions.Mapo('<lead>*')
 
-# Convert the character under the cursor or the highlighted string to a %XX
-# string:
+# Convert the selected string to a %XX string:
 functions.Map('vnoremap', '<lead>%', "s<C-R>=functions.TranscodeString(@\", '%')->functions.SI()<CR><Esc>", {extra: false})
 functions.Mapo('<lead>%')
 
@@ -327,212 +325,202 @@ functions.Mapo('<lead>^')
 
 # ---- Browser Remote Controls: ----------------------------------------- {{{1
 
-var BrowserLauncherExists: bool
-# try/catch because the function won't autoload if it's not installed:
-try
-  BrowserLauncherExists = BrowserLauncher.Exists() != []
-catch /^Vim\%((\a\+)\)\=:E121:.\+BrowserLauncher/
-  BrowserLauncherExists = false
-endtry
+if BrowserLauncher.Exists('default')
+  # Run the default browser:
+  functions.Map(
+    'nnoremap',
+    '<lead>db',
+    "<ScriptCmd>BrowserLauncher.Launch('default')<CR>"
+  )
+endif
 
-if BrowserLauncherExists
-  if BrowserLauncher.Exists('default')
-    # Run the default browser:
-    functions.Map(
-      'nnoremap',
-      '<lead>db',
-      "<ScriptCmd>BrowserLauncher.Launch('default')<CR>"
-    )
-  endif
+if BrowserLauncher.Exists('brave')
+  # Chrome: View current file, starting Chrome if it's not running:
+  functions.Map(
+    'nnoremap',
+    '<lead>bv',
+    "<ScriptCmd>BrowserLauncher.Launch('brave', 0)<CR>"
+  )
+  # Chrome: Open a new window, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>nbv',
+    "<ScriptCmd>BrowserLauncher.Launch('brave', 1)<CR>"
+  )
+  # Chrome: Open a new tab, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>tbv',
+    "<ScriptCmd>BrowserLauncher.Launch('brave', 2)<CR>"
+  )
+endif
 
-  if BrowserLauncher.Exists('brave')
-    # Chrome: View current file, starting Chrome if it's not running:
-    functions.Map(
-      'nnoremap',
-      '<lead>bv',
-      "<ScriptCmd>BrowserLauncher.Launch('brave', 0)<CR>"
-    )
-    # Chrome: Open a new window, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>nbv',
-      "<ScriptCmd>BrowserLauncher.Launch('brave', 1)<CR>"
-    )
-    # Chrome: Open a new tab, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>tbv',
-      "<ScriptCmd>BrowserLauncher.Launch('brave', 2)<CR>"
-    )
-  endif
+if BrowserLauncher.Exists('chrome')
+  # Chrome: View current file, starting Chrome if it's not running:
+  functions.Map(
+    'nnoremap',
+    '<lead>gc',
+    "<ScriptCmd>BrowserLauncher.Launch('chrome', 0)<CR>"
+  )
+  # Chrome: Open a new window, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>ngc',
+    "<ScriptCmd>BrowserLauncher.Launch('chrome', 1)<CR>"
+  )
+  # Chrome: Open a new tab, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>tgc',
+    "<ScriptCmd>BrowserLauncher.Launch('chrome', 2)<CR>"
+  )
+endif
 
-  if BrowserLauncher.Exists('chrome')
-    # Chrome: View current file, starting Chrome if it's not running:
-    functions.Map(
-      'nnoremap',
-      '<lead>gc',
-      "<ScriptCmd>BrowserLauncher.Launch('chrome', 0)<CR>"
-    )
-    # Chrome: Open a new window, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>ngc',
-      "<ScriptCmd>BrowserLauncher.Launch('chrome', 1)<CR>"
-    )
-    # Chrome: Open a new tab, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>tgc',
-      "<ScriptCmd>BrowserLauncher.Launch('chrome', 2)<CR>"
-    )
-  endif
+if BrowserLauncher.Exists('edge')
+  # Edge: View current file, starting Microsoft Edge if it's not running:
+  functions.Map(
+    'nnoremap',
+    '<lead>ed',
+    "<ScriptCmd>BrowserLauncher.Launch('edge', 0)<CR>"
+  )
+  # Edge: Open a new window, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>ned',
+    "<ScriptCmd>BrowserLauncher.Launch('edge', 1)<CR>"
+  )
+  # Edge: Open a new tab, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>ted',
+    "<ScriptCmd>BrowserLauncher.Launch('edge', 2)<CR>"
+  )
+endif
 
-  if BrowserLauncher.Exists('edge')
-    # Edge: View current file, starting Microsoft Edge if it's not running:
-    functions.Map(
-      'nnoremap',
-      '<lead>ed',
-      "<ScriptCmd>BrowserLauncher.Launch('edge', 0)<CR>"
-    )
-    # Edge: Open a new window, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>ned',
-      "<ScriptCmd>BrowserLauncher.Launch('edge', 1)<CR>"
-    )
-    # Edge: Open a new tab, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>ted',
-      "<ScriptCmd>BrowserLauncher.Launch('edge', 2)<CR>"
-    )
-  endif
+if BrowserLauncher.Exists('firefox')
+  # Firefox: View current file, starting Firefox if it's not running:
+  functions.Map(
+    'nnoremap',
+    '<lead>ff',
+    "<ScriptCmd>BrowserLauncher.Launch('firefox', 0)<CR>"
+  )
+  # Firefox: Open a new window, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>nff',
+    "<ScriptCmd>BrowserLauncher.Launch('firefox', 1)<CR>"
+  )
+  # Firefox: Open a new tab, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>tff',
+    "<ScriptCmd>BrowserLauncher.Launch('firefox', 2)<CR>"
+  )
+endif
 
-  if BrowserLauncher.Exists('firefox')
-    # Firefox: View current file, starting Firefox if it's not running:
-    functions.Map(
-      'nnoremap',
-      '<lead>ff',
-      "<ScriptCmd>BrowserLauncher.Launch('firefox', 0)<CR>"
-    )
-    # Firefox: Open a new window, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>nff',
-      "<ScriptCmd>BrowserLauncher.Launch('firefox', 1)<CR>"
-    )
-    # Firefox: Open a new tab, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>tff',
-      "<ScriptCmd>BrowserLauncher.Launch('firefox', 2)<CR>"
-    )
-  endif
+if BrowserLauncher.Exists('opera')
+  # Opera: View current file, starting Opera if it's not running:
+  functions.Map(
+    'nnoremap',
+    '<lead>oa',
+    "<ScriptCmd>BrowserLauncher.Launch('opera', 0)<CR>"
+  )
+  # Opera: Open a new window, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>noa',
+    "<ScriptCmd>BrowserLauncher.Launch('opera', 1)<CR>"
+  )
+  # Opera: Open a new tab, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>toa',
+    "<ScriptCmd>BrowserLauncher.Launch('opera', 2)<CR>"
+  )
+endif
 
-  if BrowserLauncher.Exists('opera')
-    # Opera: View current file, starting Opera if it's not running:
-    functions.Map(
-      'nnoremap',
-      '<lead>oa',
-      "<ScriptCmd>BrowserLauncher.Launch('opera', 0)<CR>"
+if BrowserLauncher.Exists('safari')
+  # Safari: View current file, starting Safari if it's not running:
+  functions.Map(
+    'nnoremap',
+    '<lead>sf',
+    "<ScriptCmd>BrowserLauncher.Launch('safari', 0)<CR>"
+  )
+  # Safari: Open a new window, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>nsf',
+    "<ScriptCmd>BrowserLauncher.Launch('safari', 1)<CR>"
     )
-    # Opera: Open a new window, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>noa',
-      "<ScriptCmd>BrowserLauncher.Launch('opera', 1)<CR>"
-    )
-    # Opera: Open a new tab, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>toa',
-      "<ScriptCmd>BrowserLauncher.Launch('opera', 2)<CR>"
-    )
-  endif
+  # Safari: Open a new tab, and view the current file:
+  functions.Map(
+    'nnoremap',
+    '<lead>tsf',
+    "<ScriptCmd>BrowserLauncher.Launch('safari', 2)<CR>"
+  )
+endif
 
-  if BrowserLauncher.Exists('safari')
-    # Safari: View current file, starting Safari if it's not running:
-    functions.Map(
-      'nnoremap',
-      '<lead>sf',
-      "<ScriptCmd>BrowserLauncher.Launch('safari', 0)<CR>"
-    )
-    # Safari: Open a new window, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>nsf',
-      "<ScriptCmd>BrowserLauncher.Launch('safari', 1)<CR>"
-      )
-    # Safari: Open a new tab, and view the current file:
-    functions.Map(
-      'nnoremap',
-      '<lead>tsf',
-      "<ScriptCmd>BrowserLauncher.Launch('safari', 2)<CR>"
-    )
-  endif
+if BrowserLauncher.Exists('lynx')
+  # Lynx:  (This may happen anyway if there's no GUI available.)
+  functions.Map(
+    'nnoremap',
+    '<lead>ly',
+    "<ScriptCmd>BrowserLauncher.Launch('lynx', 0)<CR>"
+  )
+  # Lynx in an xterm:  (This always happens in the Vim GUI.)
+  functions.Map(
+    'nnoremap',
+    '<lead>nly',
+    "<ScriptCmd>BrowserLauncher.Launch('lynx', 1)<CR>"
+  )
+  # Lynx in a new Vim window, using ":terminal":
+  functions.Map(
+    'nnoremap',
+    '<lead>tly',
+    "<ScriptCmd>BrowserLauncher.Launch('lynx', 2)<CR>"
+  )
+endif
 
-  if BrowserLauncher.Exists('lynx')
-    # Lynx:  (This may happen anyway if there's no GUI available.)
-    functions.Map(
-      'nnoremap',
-      '<lead>ly',
-      "<ScriptCmd>BrowserLauncher.Launch('lynx', 0)<CR>"
-    )
-    # Lynx in an xterm:  (This always happens in the Vim GUI.)
-    functions.Map(
-      'nnoremap',
-      '<lead>nly',
-      "<ScriptCmd>BrowserLauncher.Launch('lynx', 1)<CR>"
-    )
-    # Lynx in a new Vim window, using ":terminal":
-    functions.Map(
-      'nnoremap',
-      '<lead>tly',
-      "<ScriptCmd>BrowserLauncher.Launch('lynx', 2)<CR>"
-    )
-  endif
+if BrowserLauncher.Exists('w3m')
+  # w3m:  (This may happen anyway if there's no GUI available.)
+  functions.Map(
+    'nnoremap',
+    '<lead>w3',
+    "<ScriptCmd>BrowserLauncher.Launch('w3m', 0)<CR>"
+  )
+  # w3m in an xterm:  (This always happens in the Vim GUI.)
+  functions.Map(
+    'nnoremap',
+    '<lead>nw3',
+    "<ScriptCmd>BrowserLauncher.Launch('w3m', 1)<CR>"
+  )
+  # w3m in a new Vim window, using ":terminal":
+  functions.Map(
+    'nnoremap',
+    '<lead>tw3',
+    "<ScriptCmd>BrowserLauncher.Launch('w3m', 2)<CR>"
+  )
+endif
 
-  if BrowserLauncher.Exists('w3m')
-    # w3m:  (This may happen anyway if there's no GUI available.)
-    functions.Map(
-      'nnoremap',
-      '<lead>w3',
-      "<ScriptCmd>BrowserLauncher.Launch('w3m', 0)<CR>"
-    )
-    # w3m in an xterm:  (This always happens in the Vim GUI.)
-    functions.Map(
-      'nnoremap',
-      '<lead>nw3',
-      "<ScriptCmd>BrowserLauncher.Launch('w3m', 1)<CR>"
-    )
-    # w3m in a new Vim window, using ":terminal":
-    functions.Map(
-      'nnoremap',
-      '<lead>tw3',
-      "<ScriptCmd>BrowserLauncher.Launch('w3m', 2)<CR>"
-    )
-  endif
-
-  if BrowserLauncher.Exists('links')
-    # Links:  (This may happen anyway if there's no GUI available.)
-    functions.Map(
-      'nnoremap',
-      '<lead>ln',
-      "<ScriptCmd>BrowserLauncher.Launch('links', 0)<CR>"
-    )
-    # Lynx in an xterm:  (This always happens in the Vim GUI.)
-    functions.Map(
-      'nnoremap',
-      '<lead>nln',
-      "<ScriptCmd>BrowserLauncher.Launch('links', 1)<CR>"
-    )
-    # Lynx in a new Vim window, using ":terminal":
-    functions.Map(
-      'nnoremap',
-      '<lead>tln',
-      "<ScriptCmd>BrowserLauncher.Launch('links', 2)<CR>"
-    )
-  endif
+if BrowserLauncher.Exists('links')
+  # Links:  (This may happen anyway if there's no GUI available.)
+  functions.Map(
+    'nnoremap',
+    '<lead>ln',
+    "<ScriptCmd>BrowserLauncher.Launch('links', 0)<CR>"
+  )
+  # Lynx in an xterm:  (This always happens in the Vim GUI.)
+  functions.Map(
+    'nnoremap',
+    '<lead>nln',
+    "<ScriptCmd>BrowserLauncher.Launch('links', 1)<CR>"
+  )
+  # Lynx in a new Vim window, using ":terminal":
+  functions.Map(
+    'nnoremap',
+    '<lead>tln',
+    "<ScriptCmd>BrowserLauncher.Launch('links', 2)<CR>"
+  )
 endif
 
 # ----------------------------------------------------------------------------

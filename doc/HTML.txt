@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 16
+*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 31
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -791,15 +791,21 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 							*html-inline-javascript*
 							*i_;js*
 ;js	Inline JavaScript: >
-	<SCRIPT TYPE="text/javascript" LANGUAGE="javascript">
-	 <!--
-
-	 // -->
+	<SCRIPT TYPE="application/javascript">
+	</SCRIPT>
+< 						*html-inline-javascript-module*
+							*i_;jm*
+;jm	JavaScript module: >
+	<SCRIPT TYPE="module">
 	</SCRIPT>
 <							*html-sourced-javascript*
 							*i_;sj*
 ;sj	External (sourced) JavaScript: >
-	<SCRIPT SRC="" TYPE="text/javascript" LANGUAGE="javascript"></SCRIPT>
+	<SCRIPT SRC="" TYPE="application/javascript"></SCRIPT>
+<							*html-javascript-module*
+							*i_;mo*
+;mo	External (sourced) JavaScript module: >
+	<SCRIPT SRC="" TYPE="module"></SCRIPT>
 <							*html-noscript*
 							*i_;ns* *v_;ns* *n_;ns*
 ;ns	Alternate content for browsers with script handling turned off: >
@@ -1046,7 +1052,7 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 ;fm	Form container: >
 	<FORM ACTION="">
 	</FORM>
-<	(|n_;|)
+<	(|html-smart-tag|) (|n_;|)
 							*html-form-button*
 							*i_;bu* *v_;bu* *n_;bu*
 ;bu	Form button: >

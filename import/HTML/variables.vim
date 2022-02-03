@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024128
+if v:version < 802 || v:versionlong < 8024285
   finish
 endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: January 18, 2022
+# Last Change: February 02, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -34,7 +34,7 @@ export const EMAIL     = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
 export const HOMEPAGE  = 'https://christianrobinson.name/HTML/'
 export const COPYRIGHT = 'Copyright © 1998-2022 under the terms of the GPL3'
 
-export const VERSION   = '1.2.1'
+export const VERSION   = '1.2.2'
 
 # Used by some of the functions to save then restore some options:
 export var saveopts: dict<any>

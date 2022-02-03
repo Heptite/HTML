@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024128
+if v:version < 802 || v:versionlong < 8024285
   finish
 endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: January 18, 2022
+# Last Change: February 02, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -420,33 +420,33 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
     newarg = newarg->substitute('`>a\C', '`>i<C-R>='
       .. self_sid .. 'VI()<CR>', 'g')
 
-    # Note that <C-c> is necessary instead of just <ScriptCmd> because
-    # <ScriptCmd> doesn't update visual marks, which the mappings rely on:
     if opts->has_key('expr') && opts.expr
-      newarg = "<C-c><ScriptCmd>execute 'normal! ' .. " .. newarg .. '<CR>'
+      newarg = "<ScriptCmd>execute 'normal! ' .. " .. newarg .. '<CR>'
     endif
 
     if opts->has_key('extra') && ! opts.extra
       execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
     elseif opts->has_key('insert') && opts.insert && opts->has_key('reindent')
+      # TODO: find a way to properly restore the cursor position after
+      #       ReIndent() is called
       execute cmd .. ' <buffer> <silent> ' .. newmap
         .. ' <ScriptCmd>TO(false)<CR>' .. newarg
-        .. "<ScriptCmd>TO(true)<CR>m'<ScriptCmd>"
-        .. "ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. "<ScriptCmd>TO(true)<CR><C-O>m`<ScriptCmd>"
+        .. "ReIndent(line('v'), line('.'), "
         .. opts.reindent .. ')<CR><C-O>``'
     elseif opts->has_key('insert') && opts.insert
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c><ScriptCmd>TO(false)<CR>' .. newarg
+        .. ' <ScriptCmd>TO(false)<CR>' .. newarg
         .. '<ScriptCmd>TO(true)<CR>'
     elseif opts->has_key('reindent')
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c><ScriptCmd>TO(false)<CR>' .. newarg
+        .. ' <ScriptCmd>TO(false)<CR>' .. newarg
         .. "<ScriptCmd>TO(true)<CR>m'<ScriptCmd>"
-        .. "ReIndent(line(\"'<\"), line(\"'>\"), "
+        .. "ReIndent(line('v'), line('.'), "
         .. opts.reindent .. ')<CR>``'
     else
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <C-c><ScriptCmd>TO(false)<CR>' .. newarg
+        .. ' <ScriptCmd>TO(false)<CR>' .. newarg
         .. '<ScriptCmd>TO(true)<CR>'
     endif
   elseif mode == 'i' && opts->has_key('expr') && opts.expr
@@ -645,7 +645,7 @@ def TO(which: bool)
 
     # Restore the last visual mode if it was changed:
     if HTMLvariables.saveopts->has_key('visualmode') && HTMLvariables.saveopts['visualmode'] != ''
-      execute 'normal! gv' .. HTMLvariables.saveopts['visualmode'] .. "\<C-c>"
+      execute 'normal! gv' .. HTMLvariables.saveopts['visualmode']
       HTMLvariables.saveopts->remove('visualmode')
     endif
   else
@@ -663,7 +663,7 @@ def TO(which: bool)
     # selection and exclude the leading indent):
     if visualmode() ==# 'V'
       HTMLvariables.saveopts['visualmode'] = visualmode()
-      execute "normal! `<^v`>\<C-c>"
+      execute "normal! \<c-c>`<^v`>"
     endif
   endif
 enddef
@@ -676,18 +676,18 @@ enddef
 # Arguments:
 #  1 - Boolean: false - Clear option
 #               true  - Restore option
-def TC(s: bool)
-  if s
-    if HTMLvariables.saveopts->has_key('comments') && HTMLvariables.saveopts['comments'] != ''
-      &l:comments = HTMLvariables.saveopts['comments']
-    endif
-  else
-    if &l:comments != ''
-      HTMLvariables.saveopts['comments'] = &l:comments
-      &l:comments = ''
-    endif
-  endif
-enddef
+#def TC(s: bool)
+#  if s
+#    if HTMLvariables.saveopts->has_key('comments') && HTMLvariables.saveopts['comments'] != ''
+#      &l:comments = HTMLvariables.saveopts['comments']
+#    endif
+#  else
+#    if &l:comments != ''
+#      HTMLvariables.saveopts['comments'] = &l:comments
+#      &l:comments = ''
+#    endif
+#  endif
+#enddef
 
 # HTML#functions#ToggleClipboard()  {{{1
 #
@@ -825,13 +825,13 @@ def ReIndent(first: number, last: number, extralines: number = 0, prelines: numb
 
   var firstline: number
   var lastline: number
+  var offset: number
 
   if !GetFiletypeInfo()['indent']->Bool() && &indentexpr == ''
     return false
   endif
 
-  # Make sure the range is in the proper order (although this may not be
-  # necesssary for modern versions of Vim?):
+  # Make sure the range is in the proper order:
   if last >= first
     firstline = first
     lastline = last
@@ -855,7 +855,9 @@ def ReIndent(first: number, last: number, extralines: number = 0, prelines: numb
     lastline = line('$')
   endif
 
+  offset = line('.')->line2byte() + col('.') - 1
   execute ':' .. firstline .. ',' .. lastline .. 'normal! =='
+  execute 'go ' .. offset
 
   return true
 enddef

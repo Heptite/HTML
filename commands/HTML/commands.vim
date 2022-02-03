@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024128
+if v:version < 802 || v:versionlong < 8024285
   finish
 endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: January 18, 2022
+# Last Change: February 02, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -35,21 +35,21 @@ endif
 
 import autoload 'HTML/functions.vim'
 
-command! -buffer -nargs=1 HTMLplugin functions.PluginControl(<f-args>)
-command! -buffer -nargs=1 HTMLPlugin functions.PluginControl(<f-args>)
-command! -buffer -nargs=1 HTMLmappings functions.PluginControl(<f-args>)
-command! -buffer -nargs=1 HTMLMappings functions.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLplugin functions.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLPlugin functions.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLmappings functions.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLMappings functions.PluginControl(<f-args>)
 if exists(':HTML') != 2
-  command! -buffer -nargs=1 HTML functions.PluginControl(<f-args>)
+  command! -buffer -bar -nargs=1 HTML functions.PluginControl(<f-args>)
 endif
 
-command! -buffer -nargs=? ColorChooser functions.ColorChooser(<f-args>)
+command! -buffer -bar -nargs=? ColorChooser functions.ColorChooser(<f-args>)
 if exists(':CC') != 2
-  command! -buffer -nargs=? CC functions.ColorChooser(<f-args>)
+  command! -buffer -bar -nargs=? CC functions.ColorChooser(<f-args>)
 endif
 
-command! -buffer HTMLTemplate if functions.Template() | startinsert | endif
-command! -buffer HTMLtemplate HTMLTemplate
+command! -buffer -bar HTMLTemplate if functions.Template() | startinsert | endif
+command! -buffer -bar HTMLtemplate HTMLTemplate
 
 b:htmlplugin.did_commands = true
 
@@ -58,8 +58,8 @@ if exists('g:htmlplugin.did_commands') && g:htmlplugin.did_commands == true
   finish
 endif
 
-command! HTMLAbout functions.About()
-command! HTMLabout functions.About()
+command! HTMLAbout -bar functions.About()
+command! HTMLabout -bar functions.About()
 
 command! -nargs=+ SetIfUnset functions.SetIfUnset(<f-args>)
 
