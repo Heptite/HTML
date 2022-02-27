@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      February 02, 2022
+# Last Change:      February 27, 2022
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -294,32 +294,6 @@ else
 endif
 # Motion mapping:
 functions.Mapo('<lead>ht')
-
-# ----------------------------------------------------------------------------
-
-# ---- Character Entities Mappings: ------------------------------------- {{{1
-
-# Convert the selected string to its name entity or otherwise decimal HTML
-# entities:
-# (Note that this can be very slow due to syntax highlighting. Maybe find a
-# different way to do it?)
-functions.Map('vnoremap', '<lead>&', "s<C-R>=functions.TranscodeString(@\")->functions.SI()<CR><Esc>", {extra: false})
-functions.Mapo('<lead>&')
-
-# Convert the selected string to hex HTML entities:
-functions.Map('vnoremap', '<lead>*', "s<C-R>=functions.TranscodeString(@\", 'x')->functions.SI()<CR><Esc>", {extra: false})
-functions.Mapo('<lead>*')
-
-# Convert the selected string to a %XX string:
-functions.Map('vnoremap', '<lead>%', "s<C-R>=functions.TranscodeString(@\", '%')->functions.SI()<CR><Esc>", {extra: false})
-functions.Mapo('<lead>%')
-
-# Decode a &...;, &#...;, or %XX encoded string:
-functions.Map('vnoremap', '<lead>^', "s<C-R>=functions.TranscodeString(@\", 'd')->functions.SI()<CR><Esc>", {extra: false})
-functions.Mapo('<lead>^')
-
-# The actual entity mappings are now defined in a json file to reduce
-# work on defining both the entities and entity menu items, see below.
 
 # ----------------------------------------------------------------------------
 

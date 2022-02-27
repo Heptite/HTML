@@ -2,20 +2,54 @@
 	{"menu": ["-", ["-sep4-"], {"n": ["<nop>"]}]},
 
 	{
+		"lhs": "&",
+
+		"maps": {
+			"v": ["", "s<C-R><C-R>=HTML#functions#TranscodeString(@\")<CR><Esc>", {"extra": false}],
+			"o": ["", false]
+		},
+
 		"menu": ["-", ["Character &Entities", "Convert to Entities"], {
-			"v": ["&", ""]
+			"v": ["", ""]
 		}]
 	},
 
 	{
+		"lhs": "*",
+
+		"maps": {
+			"v": ["", "s<C-R><C-R>=HTML#functions#TranscodeString(@\",'x')<CR><Esc>", {"extra": false}],
+			"o": ["", false]
+		},
+
+		"menu": ["-", ["Character Entities", "Convert to Hexadecimal Entities"], {
+			"v": ["", ""]
+		}]
+	},
+
+	{
+		"lhs": "%",
+
+		"maps": {
+			"v": ["", "s<C-R><C-R>=HTML#functions#TranscodeString(@\",'%')<CR><Esc>", {"extra": false}],
+			"o": ["", false]
+		},
+
 		"menu": ["-", ["Character &Entities", "Convert to %XX (URI Encode)"], {
-			"v": ["%", ""]
+			"v": ["", ""]
 		}]
 	},
 
 	{
+		"lhs": "^",
+
+		"maps": {
+			"v": ["", "s<C-R><C-R>=HTML#functions#TranscodeString(@\",'d')<CR><Esc>", {"extra": false}],
+			"o": ["", false]
+		},
+
 		"menu": ["-", ["Character &Entities", "Convert from Entities and URI/%XX"], {
-			"v": ["^", ""]
+			"v": ["", ""]
 		}]
 	},
 

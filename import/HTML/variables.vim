@@ -34,7 +34,7 @@ export const EMAIL     = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
 export const HOMEPAGE  = 'https://christianrobinson.name/HTML/'
 export const COPYRIGHT = 'Copyright © 1998-2022 under the terms of the GPL3'
 
-export const VERSION   = '1.2.2'
+export const VERSION   = '1.2.3'
 
 # Used by some of the functions to save then restore some options:
 export var saveopts: dict<any>

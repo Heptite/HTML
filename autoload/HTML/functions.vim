@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: February 02, 2022
+# Last Change: February 27, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -556,24 +556,6 @@ def MapCheck(map: string, mode: string, internal: bool = false): number
   endif
 
   return 0
-enddef
-
-# HTML#functions#SI()  {{{1
-#
-# Purpose:
-#  'Escape' special characters with a control-v so Vim doesn't handle them as
-#  special keys during insertion.  For use in <C-R>=... type calls in
-#  mappings.
-# Arguments:
-#  1 - String: The string to escape.
-# Return Value:
-#  String: The 'escaped' string.
-#
-# Limitations:
-#  Null strings have to be left unescaped, due to a limitation in Vim itself.
-#  (VimL represents newline characters as nulls...ouch.)
-export def SI(str: string): string
-  return str->substitute('[^\x00\x20-\x7E]', '\="\x16" .. submatch(0)', 'g')
 enddef
 
 # WR()  {{{1
