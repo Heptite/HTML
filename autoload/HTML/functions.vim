@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: February 27, 2022
+# Last Change: March 05, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -289,67 +289,73 @@ export def TranscodeString(str: string, code: string = ''): string
     return newchar
   enddef  # }}}2
 
-  var out = str
-
-  if code == ''
-    out = out->split('\zs')->mapnew((_, char) => char->CharToEntity())->join('')
-  elseif code == 'x'
-    out = out->split('\zs')->mapnew((_, char) => printf("&#x%x;", char->char2nr()))->join('')
-  elseif code == '%'
-    out = out->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
-  elseif code =~? '^d\%(ecode\)\=$'
-    out = out->substitute('\(&[A-Za-z0-9]\+;\|&#x\x\+;\|&#\d\+;\|%\x\x\)', '\=submatch(1)->DecodeSymbol()', 'g')
-  endif
-
-  return out
-enddef
-
-# DecodeSymbol()  {{{1
-#
-# Purpose:
-#  Decode the HTML entity or URI symbol string to its literal character
-#  counterpart
-# Arguments:
-#  1 - String: The string to decode.
-# Return Value:
-#  Character: The decoded character.
-def DecodeSymbol(symbol: string): string
-
-  # EntityToChar()  {{{2
+  # DecodeSymbol()  {{{2
   #
   # Purpose:
-  #  Convert character entities to its corresponing character.
+  #  Decode the HTML entity or URI symbol string to its literal character
+  #  counterpart
   # Arguments:
-  #  1 - String: The entity to decode
+  #  1 - String: The string to decode.
   # Return Value:
-  #  String: The decoded character
-  def EntityToChar(entity: string): string
+  #  Character: The decoded character.
+  def DecodeSymbol(symbol: string): string
+
+    # EntityToChar()  {{{3
+    #
+    # Purpose:
+    #  Convert character entities to its corresponing character.
+    # Arguments:
+    #  1 - String: The entity to decode
+    # Return Value:
+    #  String: The decoded character
+    def EntityToChar(entity: string): string
+      var char: string
+
+      if HTMLvariables.DictEntitiesToChar->has_key(entity)
+        char = HTMLvariables.DictEntitiesToChar[entity]
+      elseif entity =~ '^&#\%(x\x\+\);$'
+        char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
+      elseif entity =~ '^&#\%(\d\+\);$'
+        char = entity->strpart(2, entity->strlen() - 3)->str2nr()->nr2char()
+      else
+        char = entity
+      endif
+
+      return char
+    enddef  # }}}3
+
     var char: string
 
-    if HTMLvariables.DictEntitiesToChar->has_key(entity)
-      char = HTMLvariables.DictEntitiesToChar[entity]
-    elseif entity =~ '^&#\%(x\x\+\);$'
-      char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
-    elseif entity =~ '^&#\%(\d\+\);$'
-      char = entity->strpart(2, entity->strlen() - 3)->str2nr()->nr2char()
+    if symbol =~ '^&#\%(x\x\+\);$\|^&#\%(\d\+\);$\|^&\%([A-Za-z0-9]\+\);$'
+      char = EntityToChar(symbol)
+    elseif symbol =~ '^%\%(\x\x\)$'
+      char = symbol->strpart(1, symbol->strlen() - 1)->str2nr(16)->nr2char()
     else
-      char = entity
+      char = symbol
     endif
 
     return char
   enddef  # }}}2
 
-  var char: string
+  var out = str
 
-  if symbol =~ '^&#\%(x\x\+\);$\|^&#\%(\d\+\);$\|^&\%([A-Za-z0-9]\+\);$'
-    char = EntityToChar(symbol)
-  elseif symbol =~ '^%\%(\x\x\)$'
-    char = symbol->strpart(1, symbol->strlen() - 1)->str2nr(16)->nr2char()
-  else
-    char = symbol
+  if code == ''
+    out = out->split('\zs')
+        ->mapnew((_, char) => char->CharToEntity())
+        ->join('')
+  elseif code == 'x'
+    out = out->split('\zs')
+        ->mapnew((_, char) => printf("&#x%x;", char->char2nr()))
+        ->join('')
+  elseif code == '%'
+    out = out->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
+  elseif code =~? '^d\%(ecode\)\=$'
+    out = out->split('\(&[A-Za-z0-9]\+;\|&#x\x\+;\|&#\d\+;\|%\x\x\)\zs')
+        ->mapnew((_, s) => s->DecodeSymbol())
+        ->join('')
   endif
 
-  return char
+  return out
 enddef
 
 # HTML#functions#Map()  {{{1
@@ -573,18 +579,22 @@ def WR(type: string)
   HTMLvariables.saveopts['selection'] = &selection
   &selection = 'inclusive'
 
-  if type == 'line'
-    execute 'normal `[V`]' .. b:htmlplugin.tagaction
-  elseif type == 'block'
-    execute "normal `[\<C-V>`]" .. b:htmlplugin.tagaction
-  else
-    execute 'normal `[v`]' .. b:htmlplugin.tagaction
-  endif
-
-  &selection = HTMLvariables.saveopts['selection']
+  try
+    if type == 'line'
+      execute 'normal `[V`]' .. b:htmlplugin.tagaction
+    elseif type == 'block'
+      execute "normal `[\<C-V>`]" .. b:htmlplugin.tagaction
+    else
+      execute 'normal `[v`]' .. b:htmlplugin.tagaction
+    endif
+  catch
+    Warn('Caught an error: ' .. v:exception)
+  finally
+    &selection = HTMLvariables.saveopts['selection']
+  endtry
 
   if b:htmlplugin.taginsert
-    normal! l
+    exe "normal! \<c-\>\<c-n>l"
     silent startinsert
   endif
 enddef
@@ -645,7 +655,7 @@ def TO(which: bool)
     # selection and exclude the leading indent):
     if visualmode() ==# 'V'
       HTMLvariables.saveopts['visualmode'] = visualmode()
-      execute "normal! \<c-c>`<^v`>"
+      execute "normal! \<c-\>\<c-n>`<^v`>"
     endif
   endif
 enddef
@@ -796,12 +806,16 @@ def ReIndent(first: number, last: number, extralines: number = 0, prelines: numb
 
   def GetFiletypeInfo(): dict<string>  # {{{2
     var filetypeoutput: dict<string>
-    execute('filetype')->trim()->strpart(9)->split('  ')->mapnew(
-      (_, val) => {
-        var newval = val->split(':')
-        filetypeoutput[newval[0]] = newval[1]
-      }
-    )
+    execute('filetype')
+      ->trim()
+      ->strpart(9)
+      ->split('  ')
+      ->mapnew(
+        (_, val) => {
+          var newval = val->split(':')
+          filetypeoutput[newval[0]] = newval[1]
+        }
+      )
     return filetypeoutput
   enddef  # }}}2
 
@@ -1411,30 +1425,23 @@ export def Template(): bool
     # Return Value:
     #  String or List: The new text
     def TokenReplace(text: list<string>): list<string>
-      var newtext: list<string>
-
-      newtext = text->mapnew(
-        (_, str) => {
-            var newstr = str
-            newstr = newstr->substitute('\C%authorname%', '\=g:htmlplugin.authorname', 'g')
-            newstr = newstr->substitute('\C%authoremail%', '\=g:htmlplugin.authoremail_encoded', 'g')
-            newstr = newstr->substitute('\C%bgcolor%', '\=g:htmlplugin.bgcolor', 'g')
-            newstr = newstr->substitute('\C%textcolor%', '\=g:htmlplugin.textcolor', 'g')
-            newstr = newstr->substitute('\C%linkcolor%', '\=g:htmlplugin.linkcolor', 'g')
-            newstr = newstr->substitute('\C%alinkcolor%', '\=g:htmlplugin.alinkcolor', 'g')
-            newstr = newstr->substitute('\C%vlinkcolor%', '\=g:htmlplugin.vlinkcolor', 'g')
-            newstr = newstr->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
-            newstr = newstr->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%', '\=submatch(1)->substitute(''\\%'', "%%", "g")->substitute(''\\\@<!!'', "%", "g")->strftime()', 'g')
-            newstr = newstr->substitute('\C%time%', '\=strftime("%r %Z")', 'g')
-            newstr = newstr->substitute('\C%time12%', '\=strftime("%r %Z")', 'g')
-            newstr = newstr->substitute('\C%time24%', '\=strftime("%T")', 'g')
-            newstr = newstr->substitute('\C%charset%', '\=DetectCharset()', 'g')
-            newstr = newstr->substitute('\C%vimversion%', '\=(v:version / 100) .. "." .. (v:version % 100) .. "." .. (v:versionlong % 10000)', 'g')
-            return newstr
-          }
+      return text->mapnew(
+        (_, str) =>
+            str->substitute('\C%authorname%', '\=g:htmlplugin.authorname', 'g')
+                ->substitute('\C%authoremail%', '\=g:htmlplugin.authoremail_encoded', 'g')
+                ->substitute('\C%bgcolor%', '\=g:htmlplugin.bgcolor', 'g')
+                ->substitute('\C%textcolor%', '\=g:htmlplugin.textcolor', 'g')
+                ->substitute('\C%linkcolor%', '\=g:htmlplugin.linkcolor', 'g')
+                ->substitute('\C%alinkcolor%', '\=g:htmlplugin.alinkcolor', 'g')
+                ->substitute('\C%vlinkcolor%', '\=g:htmlplugin.vlinkcolor', 'g')
+                ->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
+                ->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%', '\=submatch(1)->substitute(''\\%'', "%%", "g")->substitute(''\\\@<!!'', "%", "g")->strftime()', 'g')
+                ->substitute('\C%time%', '\=strftime("%r %Z")', 'g')
+                ->substitute('\C%time12%', '\=strftime("%r %Z")', 'g')
+                ->substitute('\C%time24%', '\=strftime("%T")', 'g')
+                ->substitute('\C%charset%', '\=DetectCharset()', 'g')
+                ->substitute('\C%vimversion%', '\=(v:version / 100) .. "." .. (v:version % 100) .. "." .. (v:versionlong % 10000)', 'g')
         )
-
-      return newtext
     enddef  # }}}3
 
     if g:htmlplugin.authoremail != ''
@@ -1443,11 +1450,11 @@ export def Template(): bool
       g:htmlplugin.authoremail_encoded = ''
     endif
 
-    var template = ''
+    var template: string
 
-    if exists('b:htmlplugin.template') && b:htmlplugin.template != ''
+    if get(b:htmlplugin, 'template', '') != ''
       template = b:htmlplugin.template
-    elseif exists('g:htmlplugin.template') && g:htmlplugin.template != ''
+    elseif get(g:htmlplugin, 'template', '') != ''
       template = g:htmlplugin.template
     endif
 
@@ -1943,7 +1950,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
             json.menu[2].a[1])
         endif
       endif
-    catch /.*/
+    catch
       Error(v:exception)
       Error('Potentially malformed json in ' .. file
         .. ', section: ' .. json->string())
