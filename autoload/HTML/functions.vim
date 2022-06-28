@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 802 || v:versionlong < 8024285
+if v:version < 900
   finish
 endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 05, 2022
+# Last Change: June 28, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -1337,11 +1337,12 @@ export def ColorChooser(how: string = 'i'): void
       call popup_close(id, -2)
       return true
     elseif key == "\<2-leftmouse>" || key == "\<s-2-leftmouse>" || key == "\<c-2-leftmouse>"
-      if getmousepos()['screencol'] < (popup_getpos(id)['core_col'] - 1) ||
-          getmousepos()['screenrow'] < (popup_getpos(id)['core_line']) ||
-          getmousepos()['screencol'] > (popup_getpos(id)['core_col']
+      var mousepos = getmousepos()
+      if mousepos['screencol'] < (popup_getpos(id)['core_col'] - 1) ||
+          mousepos['screenrow'] < (popup_getpos(id)['core_line']) ||
+          mousepos['screencol'] > (popup_getpos(id)['core_col']
             + popup_getpos(id)['core_width'] - 1) ||
-          getmousepos()['screenrow'] > (popup_getpos(id)['core_line']
+          mousepos['screenrow'] > (popup_getpos(id)['core_line']
             + popup_getpos(id)['core_height'] - 1)
         newkey = key
       else
@@ -1349,13 +1350,13 @@ export def ColorChooser(how: string = 'i'): void
           dorgb = true
         elseif key == "\<c-2-leftmouse>"
           dorgbpercent = true
-        elseif getmousepos()['screencol'] < (popup_getpos(id)['core_col']
+        elseif mousepos['screencol'] < (popup_getpos(id)['core_col']
             + popup_getpos(id)['core_width'] - 9)
           doname = true
         endif
 
         call popup_close(id, popup_getpos(id)['firstline']
-          + getmousepos()['winrow'] - 2)
+          + mousepos['winrow'] - 2)
         return true
       endif
     endif

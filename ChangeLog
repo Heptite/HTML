@@ -1,3 +1,6 @@
+Sun, 6 Mar 2022 20:49:03 -0700 Christian J. Robinson
+ * Catch some errors so they won't cause (some) mappings to abort
+
 Sun, 27 Feb 2022 10:32:16 -0700 Christian J. Robinson
  * Fix the character entity conversion mappings
 
