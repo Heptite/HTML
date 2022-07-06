@@ -58,8 +58,8 @@ if exists('g:htmlplugin.did_commands') && g:htmlplugin.did_commands == true
   finish
 endif
 
-command! HTMLAbout -bar functions.About()
-command! HTMLabout -bar functions.About()
+command! -bar HTMLAbout functions.About()
+command! -bar HTMLabout functions.About()
 
 command! -nargs=+ SetIfUnset functions.SetIfUnset(<f-args>)
 

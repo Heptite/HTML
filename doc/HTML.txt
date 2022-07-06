@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 31
+i*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 31
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -46,7 +46,7 @@ are grouped in various ways, which interferes with that ordering.
 The noted tags are "smart", meaning Vim will detect whether to close then open
 a tag instead of open then close the tag.  For example, if the cursor is
 inside italicized text and you type ;it, it will insert </I><I> instead of
-<I></I>.  Only tags that shoul never nest are candidates for being "smart".
+<I></I>.  Only tags that should never nest are candidates for being "smart".
 
 							*n_;;* *i_;;* *v_;;*
 ;;	Most of the mappings start with ; so ;; is mapped to insert a single
@@ -114,7 +114,7 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 2. Customization Variables		*html-variables* *html-configuration*
 					*html-customization* *g:htmlplugin*
 
-You can set the g:htmlplugin global |Dictonary| variable to control the
+You can set the g:htmlplugin global |Dictionary| variable to control the
 behavior of the plugin. It is recommended you set this variable in your
 |vimrc|, as some of the keys are only effective if they are set before the
 plugin loads.
@@ -142,46 +142,46 @@ b:htmlplugin.do_xhtml_mappings instead.  e.g.: >
 (However, XHTML is out of date and this mode is not recommended, and is only
 supported for historical reasons.)
 
-*g:htmlpluign.tag_case* *b:htmlpluign.tag_case*
+*g:htmlplugin.tag_case* *b:htmlplugin.tag_case*
 This variable can be set to "l" / "lower" / "lowercase" or "u" / "upper" /
 "uppercase" to determine the case of the text in the HTML tags. This variable
 must be set before HTML.vim is sourced for the current buffer (i.e. before the
 buffer is loaded). The default is "lowercase". You can also set this
-globally by setting |g:htmlpluign.tag_case| or on a per-buffer basis by using
-|b:htmlpluign.tag_case| instead. This variable is ignored when editing XHTML
-files (see |g:htmlpluign.do_xhtml_mappings|). e.g: >
-	:let g:htmlpluign.tag_case = 'lowercase'
+globally by setting |g:htmlplugin.tag_case| or on a per-buffer basis by using
+|b:htmlplugin.tag_case| instead. This variable is ignored when editing XHTML
+files (see |g:htmlplugin.do_xhtml_mappings|). e.g: >
+	:let g:htmlplugin.tag_case = 'lowercase'
 
-*g:htmlpluign.tag_case_autodetect*
+*g:htmlplugin.tag_case_autodetect*
 Set this variable to a nonzero value if you want to automatically detect what
-the value of |b:htmlpluign.tag_case| should be. This is done by examining the
+the value of |b:htmlplugin.tag_case| should be. This is done by examining the
 file for both upper and lower case tags (tag attributes are not examined). If
 only one type is found the tag case for the buffer is set to that value. This
-variable is ignored if you have set |g:htmlpluign.do_xhtml_mappings| or
-|b:htmlpluign.do_xhtml_mappings|. e.g.: >
-	:let g:htmlpluign.tag_case_autodetect = 'yes'
+variable is ignored if you have set |g:htmlplugin.do_xhtml_mappings| or
+|b:htmlplugin.do_xhtml_mappings|. e.g.: >
+	:let g:htmlplugin.tag_case_autodetect = 'yes'
 
-*g:htmlpluign.map_leader*
+*g:htmlplugin.map_leader*
 This variable can be set to the character you want for the leader of the
 mappings defined under |html-tags|, the default being ";". This variable must
 be set before HTML.vim is sourced. You can set this to your |mapleader| or
 |maplocalleader|. e.g.: >
-	:let g:htmlpluign.map_leader = g:maplocalleader
+	:let g:htmlplugin.map_leader = g:maplocalleader
 
-*g:htmlpluign.entity_map_leader*
+*g:htmlplugin.entity_map_leader*
 This variable can be set to the character you want for the leader of the
 character entity insert mode mappings defined under |character-entities|, the
 default being "&". This variable must be set before HTML.vim is sourced. If
-you attempt to set this to the same value as |g:htmlpluign.map_leader| you
+you attempt to set this to the same value as |g:htmlplugin.map_leader| you
 will get an error. e.g.: >
-	:let g:htmlpluign.entity_map_leader = '\'
+	:let g:htmlplugin.entity_map_leader = '\'
 
-*g:htmlpluign.no_map_override*
+*g:htmlplugin.no_map_override*
 Set this variable to a nonzero value if you do not want this plugin to
 override mappings that already exist. When this variable is not set you will
 get a warning message when this plugin overrides a mapping. This variable
 must be set before HTML.vim is sourced. e.g.: >
-	:let g:htmlpluign.no_map_override = 'yes'
+	:let g:htmlplugin.no_map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin. If you
 call the |g:HTML#functions#Map()| function elsewhere you will still get a warning
@@ -204,12 +204,12 @@ call the |g:HTML#functions#Map()| function elsewhere the mapping will be defined
 even if it matches this list; this is useful if you wish to define custom
 variants of some of the plugin's mappings without getting warning messages.
 
-*g:htmplugin.no_tab_mapping*
+*g:htmlplugin.no_tab_mapping*
 Set this variable to a nonzero value if you do not want the tab key to be
 mapped in normal, visual and insert mode. ;<Tab> will be used instead. See
 |html-tab| and |i_;tab|. This variable must be set before HTML.vim is sourced
 for the current buffer. e.g.: >
-	:let g:htmplugin.no_tab_mapping = 'yes'
+	:let g:htmlplugin.no_tab_mapping = 'yes'
 
 Note that you can suppress the defining of both <Tab> and ;<Tab> as a mapping
 by adding "\t" to |g:htmlplugin.no_maps| instead.
@@ -220,11 +220,11 @@ the Vim toolbar and add "T" to 'guioptions'. This variable must be set before
 HTML.vim is sourced. e.g.: >
 	:let g:htmlplugin.no_toolbar = 'yes'
 
-*g:htmplugin.no_menu*
+*g:htmlplugin.no_menu*
 Set this variable to a nonzero value if you do not want the menu items to be
 defined at all. This implies that |g:htmlplugin.no_toolbar| is set as well.
 This variable must be set before HTML.vim is sourced. e.g.: >
-	:let g:htmplugin.no_menu = 'yes'
+	:let g:htmlplugin.no_menu = 'yes'
 
 *g:htmlplugin.toplevel_menu*
 Set this to the toplevel menu where you want the HTML menu to become a
@@ -292,8 +292,8 @@ these should be left unset.
 ------------------------------------------------------------------------------
 					*html-template-tokens* *html-tokens*
 
-When you define a template file with the |g:htmlplugin.template|  or
-*b:htmlplugin.template* variable, special tokens within the template will
+When you define a template file with the |g:htmlplugin.template| or
+|b:htmlplugin.template| variable, special tokens within the template will
 automatically replaced with their corresponding variable value:
 
 Token:			Variable: 			Description: ~
@@ -1010,7 +1010,7 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 ;tA	Interactive table; you will be interactively prompted for the table
 	rows, columns, border width (using CSS), table header and table
 	footer.
-							*html-table-header*
+							*html-table-headrow*
 							*i_;tH* *v_;tH* *n_;tH*
 ;tH	Table header row: >
 	<THEAD></THEAD>
@@ -1041,7 +1041,7 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 ;td	Table data (column element): >
 	<TD></TD>
 <	(|n_;|)
-							*html-table-header*
+							*html-table-cheader*
 							*i_;th* *v_;th* *n_;th*
 ;th	Table column header: >
 	<TH></TH>
@@ -1149,7 +1149,7 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 <	here >
 	</SELECT>.
 <	(|n_;|)
-						*html-form-multple-selection*
+						*html-form-multiple-selection*
 							*i_;ms* *v_;ms* *n_;ms*
 ;ms	Form multiple selection box: >
 	<SELECT NAME="" MULTIPLE>
@@ -1224,7 +1224,7 @@ highlighted text is inserted between the ""'s for visual mode, except the
 <	(|n_;|)
 							*html-ssi-echo*
 							*i_;ev* *v_;ev* *n_;ev*
-;ev	Echo contents of an environmenetal variable: >
+;ev	Echo contents of an environmental variable: >
 	<!--#echo var="" -->
 <	(|n_;|)
 							*html-ssi-include*
@@ -1350,10 +1350,10 @@ Three Fifths		⅗		&frac35;	&35		*i_&35*
 Four Fifths		⅘		&frac45;	&45		*i_&45*
 One Sixth		⅙		&frac16;	&16		*i_&16*
 Five Sixths		⅚		&frac56;	&56		*i_&56*
-One Eigth		⅛		&frac18;	&18		*i_&18*
-Three Eigths		⅜		&frac38;	&38		*i_&38*
-Five Eigths		⅝		&frac58;	&58		*i_&58*
-Seven Eigths		⅞		&frac78;	&78		*i_&78*
+One Eight		⅛		&frac18;	&18		*i_&18*
+Three Eights		⅜		&frac38;	&38		*i_&38*
+Five Eights		⅝		&frac58;	&58		*i_&58*
+Seven Eights		⅞		&frac78;	&78		*i_&78*
 Superscript 0		⁰		&#x2070;	&0^		*i_&0^*
 Superscript 1		¹		&sup1;		&1^		*i_&1^*
 Superscript 2		²		&sup2;		&2^		*i_&2^*
@@ -1456,7 +1456,7 @@ Left-right single arrow	↔		&harr;		&ha		*i_&ha*
 Up-down single arrow	↕		&varr;		&va		*i_&va*
 North-West single arrow	↖		&nwarr;		&nw		*i_&nw*
 North-East single arrow	↗		&nearr;		&ne		*i_&ne*
-South-East single arrow	↘		&searr;		&se		*i_&se*
+South-East single arrow	↘		&searr;		&sE		*i_&sa*
 South-West single arrow	↙		&swarr;		&sw		*i_&sw*
 Left double arrow	⇐		&lArr;		&lA		*i_&lA*
 Right double arrow	⇒		&rArr;		&rA		*i_&rA*
@@ -1472,11 +1472,11 @@ Female			♀		&female;	&fm		*i_&fm*
 Male			♂		&male;		&ml		*i_&ml*
 Quarter Note (music)	♩		&#x2669;	&md		*i_&md*
 Sung (music)		♪		&sung;		&m8		*i_&m8*
-Eigth Note (music)	♫		&#x266B;	&m2		*i_&m2*
+Eight Note (music)	♫		&#x266B;	&m2		*i_&m2*
 Flat (music)		♭		&flat;		&mb		*i_&mb*
 Sharp (music)		♯		&sharp;		&mx		*i_&mx*
-G Clef			𝄞		&#x1D11E;	&gc		*i_&gc*
-F Clef			𝄢		&#x1D122;	&fc		*i_&fc*
+G Clef			𝄞		#x1D11E;	&gc		*i_&gc*
+F Clef			𝄢		#x1D122;	&fc		*i_&fc*
 Checkmark		✓		&check;		&ok		*i_&ok*
 X mark			✗		&cross;		&xx		*i_&xx*
 								*i_&2star*
@@ -1809,7 +1809,7 @@ g:HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
 
 	{"reindent": N} ~
 	Re-indent the visually selected lines, plus N lines below. This value
-	is usally going to be 1, and sometimes 2; very rarely other values.
+	is usually going to be 1, and sometimes 2; very rarely other values.
 
 	This function returns true if a map was defined, false otherwise.
 
