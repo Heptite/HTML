@@ -1,4 +1,4 @@
-i*HTML.txt*	For Vim version 9.0	Last change: 2022 Jan 31
+*HTML.txt*	For Vim version 9.0	Last change: 2022 Jul 06
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson

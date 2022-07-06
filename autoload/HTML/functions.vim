@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: June 28, 2022
+# Last Change: June 30, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -627,37 +627,41 @@ enddef
 #  1 - Boolean: false - Turn options off.
 #               true  - Turn options back on, if they were on before.
 def TO(which: bool)
-  if which
-    if HTMLvariables.saveopts->has_key('formatoptions')
-        && HTMLvariables.saveopts['formatoptions'] != ''
-      &l:showmatch = HTMLvariables.saveopts['showmatch']
-      &l:indentexpr = HTMLvariables.saveopts['indentexpr']
-      &l:formatoptions = HTMLvariables.saveopts['formatoptions']
-    endif
+  try
+    if which
+      if HTMLvariables.saveopts->has_key('formatoptions')
+          && HTMLvariables.saveopts['formatoptions'] != ''
+        &l:showmatch = HTMLvariables.saveopts['showmatch']
+        &l:indentexpr = HTMLvariables.saveopts['indentexpr']
+        &l:formatoptions = HTMLvariables.saveopts['formatoptions']
+      endif
 
-    # Restore the last visual mode if it was changed:
-    if HTMLvariables.saveopts->has_key('visualmode') && HTMLvariables.saveopts['visualmode'] != ''
-      execute 'normal! gv' .. HTMLvariables.saveopts['visualmode']
-      HTMLvariables.saveopts->remove('visualmode')
-    endif
-  else
-    if &l:formatoptions != ''
-      HTMLvariables.saveopts['showmatch'] = &l:showmatch
-      HTMLvariables.saveopts['indentexpr'] = &l:indentexpr
-      HTMLvariables.saveopts['formatoptions'] = &l:formatoptions
-    endif
-    &l:showmatch = false
-    &l:indentexpr = ''
-    &l:formatoptions = ''
+      # Restore the last visual mode if it was changed:
+      if HTMLvariables.saveopts->has_key('visualmode') && HTMLvariables.saveopts['visualmode'] != ''
+        execute 'normal! gv' .. HTMLvariables.saveopts['visualmode']
+        HTMLvariables.saveopts->remove('visualmode')
+      endif
+    else
+      if &l:formatoptions != ''
+        HTMLvariables.saveopts['showmatch'] = &l:showmatch
+        HTMLvariables.saveopts['indentexpr'] = &l:indentexpr
+        HTMLvariables.saveopts['formatoptions'] = &l:formatoptions
+      endif
+      &l:showmatch = false
+      &l:indentexpr = ''
+      &l:formatoptions = ''
 
-    # A trick to make leading indent on the first line of visual-line
-    # selections is handled properly (turn it into a character-wise
-    # selection and exclude the leading indent):
-    if visualmode() ==# 'V'
-      HTMLvariables.saveopts['visualmode'] = visualmode()
-      execute "normal! \<c-\>\<c-n>`<^v`>"
+      # A trick to make leading indent on the first line of visual-line
+      # selections is handled properly (turn it into a character-wise
+      # selection and exclude the leading indent):
+      if visualmode() ==# 'V'
+        HTMLvariables.saveopts['visualmode'] = visualmode()
+        execute "normal! \<c-\>\<c-n>`<^v`>"
+      endif
     endif
-  endif
+  catch
+    Error(v:exception)
+  endtry
 enddef
 
 # TC()  {{{1
@@ -852,8 +856,13 @@ def ReIndent(first: number, last: number, extralines: number = 0, prelines: numb
   endif
 
   offset = line('.')->line2byte() + col('.') - 1
-  execute ':' .. firstline .. ',' .. lastline .. 'normal! =='
-  execute 'go ' .. offset
+
+  try
+    execute ':' .. firstline .. ',' .. lastline .. 'normal! =='
+    execute 'go ' .. offset
+  catch
+    Error(v:exception)
+  endtry
 
   return true
 enddef
