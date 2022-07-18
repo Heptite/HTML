@@ -13,6 +13,7 @@ GPL	gpl-3.0.txt	/*GPL*
 GPL3	gpl-3.0.txt	/*GPL3*
 HTML-macros	HTML.txt	/*HTML-macros*
 HTML-plugin	HTML.txt	/*HTML-plugin*
+HTML.txt	HTML.txt	/*HTML.txt*
 HTML.vim	HTML.txt	/*HTML.vim*
 HTML.zip	HTML.txt	/*HTML.zip*
 SSI-includes	HTML.txt	/*SSI-includes*

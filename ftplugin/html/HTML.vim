@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      June 28, 2022
+# Last Change:      July 17, 2022
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -115,7 +115,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
   functions.SetIfUnset('g:htmlplugin.save_clipboard', &clipboard)
 
   # Always set this, even if it was already set:
-  if exists('g:htmlplugin.file')
+  if g:htmlplugin->has_key('file')
     unlockvar g:htmlplugin.file
   endif
   g:htmlplugin.file = expand('<sfile>:p')
@@ -127,7 +127,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
     g:htmlplugin.toplevel_menu = []
   endif
 
-  if !exists('g:htmlplugin.toplevel_menu_escaped')
+  if !g:htmlplugin->has_key('toplevel_menu_escaped')
     g:htmlplugin.toplevel_menu_escaped =
       g:htmlplugin.toplevel_menu->add(HTMLvariables.MENU_NAME)->functions.MenuJoin()
     lockvar g:htmlplugin.toplevel_menu
@@ -221,37 +221,37 @@ b:htmlplugin.did_mappings = true
 b:htmlplugin.clear_mappings = []
 
 # Make it easy to use a ; (or whatever the map leader is) as normal:
-functions.Map('inoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
+functions.Map('inoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {extra: false})
 functions.Map('vnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {extra: false})
 functions.Map('nnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
 # Make it easy to insert a & (or whatever the entity leader is):
-functions.Map('inoremap', '<lead>' .. g:htmlplugin.entity_map_leader, g:htmlplugin.entity_map_leader)
+functions.Map('inoremap', '<lead>' .. g:htmlplugin.entity_map_leader, g:htmlplugin.entity_map_leader, {extra: false})
 
 if !functions.BoolVar('g:htmlplugin.no_tab_mapping')
   # Allow hard tabs to be used:
-  functions.Map('inoremap', '<lead><tab>', '<tab>')
+  functions.Map('inoremap', '<lead><tab>', '<tab>', {extra: false})
   functions.Map('nnoremap', '<lead><tab>', '<tab>')
   functions.Map('vnoremap', '<lead><tab>', '<tab>', {extra: false})
   # And shift-tabs too:
-  functions.Map('inoremap', '<lead><s-tab>', '<s-tab>')
+  functions.Map('inoremap', '<lead><s-tab>', '<s-tab>', {extra: false})
   functions.Map('nnoremap', '<lead><s-tab>', '<s-tab>')
   functions.Map('vnoremap', '<lead><s-tab>', '<s-tab>', {extra: false})
 
   # Tab takes us to a (hopefully) reasonable next insert point:
-  functions.Map('inoremap', '<tab>', "<ScriptCmd>NextInsertPoint('i')<CR>")
+  functions.Map('inoremap', '<tab>', "<ScriptCmd>NextInsertPoint('i')<CR>", {extra: false})
   functions.Map('nnoremap', '<tab>', "<ScriptCmd>NextInsertPoint('n')<CR>")
   functions.Map('vnoremap', '<tab>', "<ScriptCmd>NextInsertPoint('n')<CR>", {extra: false})
   # ...And shift-tab goes backwards:
-  functions.Map('inoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('i', 'b')<CR>")
+  functions.Map('inoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('i', 'b')<CR>", {extra: false})
   functions.Map('nnoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>")
   functions.Map('vnoremap', '<s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>", {extra: false})
 else
-  functions.Map('inoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('i')<CR>")
+  functions.Map('inoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('i')<CR>", {extra: false})
   functions.Map('nnoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('n')<CR>")
   functions.Map('vnoremap', '<lead><tab>', "<ScriptCmd>NextInsertPoint('n')<CR>", {extra: false})
 
   functions.Map('inoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('i', 'b')<CR>")
-  functions.Map('nnoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>")
+  functions.Map('nnoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>", {extra: false})
   functions.Map('vnoremap', '<lead><s-tab>', "<ScriptCmd>NextInsertPoint('n', 'b')<CR>", {extra: false})
 endif
 
@@ -274,23 +274,23 @@ else
   # Strict HTML:
   functions.Map('nnoremap', '<lead>s4', "<ScriptCmd>append(0, ['<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"', ' \"http://www.w3.org/TR/html4/strict.dtd\">'])<CR>")
 endif
-functions.Map('imap', '<lead>4', '<C-O>' .. g:htmlplugin.map_leader .. '4')
-functions.Map('imap', '<lead>s4', '<C-O>' .. g:htmlplugin.map_leader .. 's4')
+functions.Map('imap', '<lead>4', '\<C-O>' .. g:htmlplugin.map_leader .. '4')
+functions.Map('imap', '<lead>s4', '\<C-O>' .. g:htmlplugin.map_leader .. 's4')
 
 #       HTML5 Doctype Command           HTML 5
 functions.Map('nnoremap', '<lead>5', "<ScriptCmd>append(0, '<!DOCTYPE html>')<CR>")
-functions.Map('imap', '<lead>5', '<C-O>' .. g:htmlplugin.map_leader .. '5')
+functions.Map('imap', '<lead>5', '\<C-O>' .. g:htmlplugin.map_leader .. '5')
 
 
 #       HTML
 if functions.BoolVar('b:htmlplugin.do_xhtml_mappings')
-  functions.Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html><ESC>O')
+  functions.Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html>\<ESC>O')
   # Visual mapping:
-  functions.Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></html><C-O>`<<html xmlns="http://www.w3.org/1999/xhtml"><CR><ESC>', {reindent: 1})
+  functions.Map('vnoremap', '<lead>ht', '\<ESC>`>a\<CR></html>\<C-O>`<<html xmlns="http://www.w3.org/1999/xhtml">\<CR>\<ESC>', {reindent: 1})
 else
-  functions.Map('inoremap', '<lead>ht', '<[{HTML}]><CR></[{HTML}]><ESC>O')
+  functions.Map('inoremap', '<lead>ht', '<[{HTML}]>\<CR></[{HTML}]>\<ESC>O')
   # Visual mapping:
-  functions.Map('vnoremap', '<lead>ht', '<ESC>`>a<CR></[{HTML}]><C-O>`<<[{HTML}]><CR><ESC>', {reindent: 1})
+  functions.Map('vnoremap', '<lead>ht', '\<ESC>`>a\<CR></[{HTML}]>\<C-O>`<<[{HTML}]>\<CR>\<ESC>', {reindent: 1})
 endif
 # Motion mapping:
 functions.Mapo('<lead>ht')

@@ -1,3 +1,12 @@
+Wed, 6 Jul 2022 09:23:14 -0600 Christian J. Robinson
+ * Bug and doc fixes, try catch some errors
+
+Wed, 6 Jul 2022 11:48:21 +0400 Ivan Pešić
+ * Fix several typos and duplicate tags
+
+Wed, 6 Jul 2022 11:47:34 +0400 Ivan Pešić
+ * Fix HTMLAbout and HTMLabout commands
+
 Tue, 28 Jun 2022 09:35:34 -0600 Christian J. Robinson
  * Update for Vim 9.0
 
