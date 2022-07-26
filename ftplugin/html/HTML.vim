@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      July 17, 2022
+# Last Change:      July 26, 2022
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -139,7 +139,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
 
   if g:htmlplugin.entity_map_leader ==# g:htmlplugin.map_leader
     functions.Error('"g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!')
-    functions.Error('Resetting both to their defaults.')
+    functions.Error('Resetting both to their defaults (";" and "&" respectively).')
     sleep 3
     g:htmlplugin.map_leader = ';'
     g:htmlplugin.entity_map_leader = '&'
@@ -501,369 +501,360 @@ endif
 
 endif # !functions.BoolVar('b:htmlplugin.did_mappings')
 
-# ---- ToolBar Buttons: ------------------------------------------------- {{{1
+# ---- ToolBar Buttons and Menu Items: ---------------------------------- {{{1
 
 if functions.BoolVar('g:htmlplugin.did_menus')
-  # Already did the menus but the tags mappings need to be defined for this
-  # new buffer:
+  # Already did the menus but the tags and entities mappings need to be
+  # defined for this new buffer:
   functions.MenuControl()
   functions.ReadTags(false, true)
   functions.ReadEntities(false, true)
 elseif functions.BoolVar('g:htmlplugin.no_menu')
-  # No menus were requested, so just define the tags mappings:
+  # No menus were requested, so just define the tags and entities mappings:
   functions.ReadTags(false, true)
   functions.ReadEntities(false, true)
 else
 
-# Solve a race condition:
-if ! exists('g:did_install_default_menus')
-  source $VIMRUNTIME/menu.vim
-endif
+  # Solve a race condition:
+  if ! exists('g:did_install_default_menus')
+    source $VIMRUNTIME/menu.vim
+  endif
 
-if !functions.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
+  if !functions.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
 
-  if findfile('bitmaps/Browser.bmp', &runtimepath) == ''
-    var message = "Warning:\nYou need to install the Toolbar Bitmaps for the "
-      .. g:htmlplugin.file->fnamemodify(':t') .. " plugin.\n"
-      .. 'See: ' .. (HTMLvariables.HOMEPAGE) .. "#files\n"
-      .. 'Or see ":help g:htmlplugin.no_toolbar".'
-    var ret = message->confirm("&Dismiss\nView &Help\nGet &Bitmaps", 1, 'Warning')
-
-    if ret == 2
-      help g:htmlplugin.no_toolbar
-      # Go to the previous window or everything gets messy:
-      wincmd p
-    elseif ret == 3
-      BrowserLauncher.Launch('default', 0, (HTMLvariables.HOMEPAGE) .. '#files')
+    # In the context of running ":gui" after starting the non-GUI, unfortunately
+    # there's no way to make this work if the user has 'guioptions' set in their
+    # gvimrc, and it removes the 'T'.
+    if has('gui_running')
+      set guioptions+=T
+    else
+      augroup HTMLplugin
+        autocmd GUIEnter * set guioptions+=T
+      augroup END
     endif
-  endif
 
-  # In the context of running ":gui" after starting the non-GUI, unfortunately
-  # there's no way to make this work if the user has 'guioptions' set in their
-  # gvimrc, and it removes the 'T'.
-  if has('gui_running')
-    set guioptions+=T
-  else
-    augroup HTMLplugin
-      autocmd GUIEnter * set guioptions+=T
-    augroup END
-  endif
+    # Save some menu stuff from the global menu.vim so we can reuse them
+    # later--this makes sure updates from menu.vim make it into this codebase:
+    var save_toolbar: dict<string>
+    save_toolbar['open']      = menu_info('ToolBar.Open')['rhs']->escape('|')
+    save_toolbar['save']      = menu_info('ToolBar.Save')['rhs']->escape('|')
+    save_toolbar['saveall']   = menu_info('ToolBar.SaveAll')['rhs']->escape('|')
+    save_toolbar['replace']   = menu_info('ToolBar.Replace')['rhs']->escape('|')
+    save_toolbar['replace_v'] = menu_info('ToolBar.Replace', 'v')['rhs']->escape('|')
+    save_toolbar['cut_v']     = menu_info('ToolBar.Cut', 'v')['rhs']->escape('|')
+    save_toolbar['copy_v']    = menu_info('ToolBar.Copy', 'v')['rhs']->escape('|')
+    save_toolbar['paste_n']   = menu_info('ToolBar.Paste', 'n')['rhs']->escape('|')
+    save_toolbar['paste_c']   = menu_info('ToolBar.Paste', 'c')['rhs']->escape('|')
+    save_toolbar['paste_i']   = menu_info('ToolBar.Paste', 'i')['rhs']->escape('|')
+    save_toolbar['paste_v']   = menu_info('ToolBar.Paste', 'v')['rhs']->escape('|')
 
-  # Save some menu stuff from the global menu.vim so we can reuse them
-  # later--this makes sure updates from menu.vim make it into this codebase:
-  var save_toolbar: dict<string>
-  save_toolbar['open']      = menu_info('ToolBar.Open')['rhs']->escape('|')
-  save_toolbar['save']      = menu_info('ToolBar.Save')['rhs']->escape('|')
-  save_toolbar['saveall']   = menu_info('ToolBar.SaveAll')['rhs']->escape('|')
-  save_toolbar['replace']   = menu_info('ToolBar.Replace')['rhs']->escape('|')
-  save_toolbar['replace_v'] = menu_info('ToolBar.Replace', 'v')['rhs']->escape('|')
-  save_toolbar['cut_v']     = menu_info('ToolBar.Cut', 'v')['rhs']->escape('|')
-  save_toolbar['copy_v']    = menu_info('ToolBar.Copy', 'v')['rhs']->escape('|')
-  save_toolbar['paste_n']   = menu_info('ToolBar.Paste', 'n')['rhs']->escape('|')
-  save_toolbar['paste_c']   = menu_info('ToolBar.Paste', 'c')['rhs']->escape('|')
-  save_toolbar['paste_i']   = menu_info('ToolBar.Paste', 'i')['rhs']->escape('|')
-  save_toolbar['paste_v']   = menu_info('ToolBar.Paste', 'v')['rhs']->escape('|')
+    silent! unmenu ToolBar
+    silent! unmenu! ToolBar
 
-  silent! unmenu ToolBar
-  silent! unmenu! ToolBar
+    # Create the ToolBar:   {{{2
 
-  # For some reason, the tmenu commands must come before the other menu
-  # commands for that menu item, or GTK versions of gVim don't show the
-  # icons properly.
+    # For some reason, the tmenu commands must come before the other menu
+    # commands for that menu item, or GTK versions of gVim don't show the
+    # icons properly.
 
-  functions.Menu('tmenu',     '1.10',  ['ToolBar', 'Open'],      'Open File')
-  functions.Menu('anoremenu', '1.10',  ['ToolBar', 'Open'],      save_toolbar['open'])
-  functions.Menu('tmenu',     '1.20',  ['ToolBar', 'Save'],      'Save Current File')
-  functions.Menu('anoremenu', '1.20',  ['ToolBar', 'Save'],      save_toolbar['save'])
-  functions.Menu('tmenu',     '1.30',  ['ToolBar', 'SaveAll'],   'Save All Files')
-  functions.Menu('anoremenu', '1.30',  ['ToolBar', 'SaveAll'],   save_toolbar['saveall'])
+    functions.Menu('tmenu',     '1.10',  ['ToolBar', 'Open'],      'Open File')
+    functions.Menu('anoremenu', '1.10',  ['ToolBar', 'Open'],      save_toolbar['open'])
+    functions.Menu('tmenu',     '1.20',  ['ToolBar', 'Save'],      'Save Current File')
+    functions.Menu('anoremenu', '1.20',  ['ToolBar', 'Save'],      save_toolbar['save'])
+    functions.Menu('tmenu',     '1.30',  ['ToolBar', 'SaveAll'],   'Save All Files')
+    functions.Menu('anoremenu', '1.30',  ['ToolBar', 'SaveAll'],   save_toolbar['saveall'])
 
-  functions.Menu('menu',      '1.50',  ['ToolBar', '-sep1-'],    '<Nop>')
+    functions.Menu('menu',      '1.50',  ['ToolBar', '-sep1-'],    '<Nop>')
 
-  functions.Menu('tmenu',     '1.60',  ['ToolBar', 'Template'],  'Insert Template')
-  functions.LeadMenu('amenu', '1.60',  ['ToolBar', 'Template'],  'html')
+    functions.Menu('tmenu',     '1.60',  ['ToolBar', 'Template'],  'Insert Template')
+    functions.LeadMenu('amenu', '1.60',  ['ToolBar', 'Template'],  'html')
 
-  functions.Menu('menu',      '1.65',  ['ToolBar', '-sep2-'],    '<Nop>')
+    functions.Menu('menu',      '1.65',  ['ToolBar', '-sep2-'],    '<Nop>')
 
-  functions.Menu('tmenu',     '1.70',  ['ToolBar', 'Paragraph'], 'Create Paragraph')
-  functions.LeadMenu('imenu', '1.70',  ['ToolBar', 'Paragraph'], 'pp')
-  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Paragraph'], 'pp')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Paragraph'], 'pp', 'i')
-  functions.Menu('tmenu',     '1.80',  ['ToolBar', 'Break'],     'Line Break')
-  functions.LeadMenu('imenu', '1.80',  ['ToolBar', 'Break'],     'br')
-  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Break'],     'br')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Break'],     'br', 'i')
+    functions.Menu('tmenu',     '1.70',  ['ToolBar', 'Paragraph'], 'Create Paragraph')
+    functions.LeadMenu('imenu', '1.70',  ['ToolBar', 'Paragraph'], 'pp')
+    functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Paragraph'], 'pp')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Paragraph'], 'pp', 'i')
+    functions.Menu('tmenu',     '1.80',  ['ToolBar', 'Break'],     'Line Break')
+    functions.LeadMenu('imenu', '1.80',  ['ToolBar', 'Break'],     'br')
+    functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Break'],     'br')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Break'],     'br', 'i')
 
-  functions.Menu('menu',      '1.85',  ['ToolBar', '-sep3-'],    '<Nop>')
+    functions.Menu('menu',      '1.85',  ['ToolBar', '-sep3-'],    '<Nop>')
 
-  functions.Menu('tmenu',     '1.90',  ['ToolBar', 'Link'],      'Create Hyperlink')
-  functions.LeadMenu('imenu', '1.90',  ['ToolBar', 'Link'],      'ah')
-  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Link'],      'ah')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Link'],      'ah', 'i')
-  functions.Menu('tmenu',     '1.100', ['ToolBar', 'Image'],     'Insert Image')
-  functions.LeadMenu('imenu', '1.100', ['ToolBar', 'Image'],     'im')
-  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Image'],     'im')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Image'],     'im', 'i')
+    functions.Menu('tmenu',     '1.90',  ['ToolBar', 'Link'],      'Create Hyperlink')
+    functions.LeadMenu('imenu', '1.90',  ['ToolBar', 'Link'],      'ah')
+    functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Link'],      'ah')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Link'],      'ah', 'i')
+    functions.Menu('tmenu',     '1.100', ['ToolBar', 'Image'],     'Insert Image')
+    functions.LeadMenu('imenu', '1.100', ['ToolBar', 'Image'],     'im')
+    functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Image'],     'im')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Image'],     'im', 'i')
 
-  functions.Menu('menu',      '1.105', ['ToolBar', '-sep4-'],    '<Nop>')
+    functions.Menu('menu',      '1.105', ['ToolBar', '-sep4-'],    '<Nop>')
 
-  functions.Menu('tmenu',     '1.110', ['ToolBar', 'Hline'],     'Create Horizontal Rule')
-  functions.LeadMenu('imenu', '1.110', ['ToolBar', 'Hline'],     'hr')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Hline'],     'hr', 'i')
+    functions.Menu('tmenu',     '1.110', ['ToolBar', 'Hline'],     'Create Horizontal Rule')
+    functions.LeadMenu('imenu', '1.110', ['ToolBar', 'Hline'],     'hr')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Hline'],     'hr', 'i')
 
-  functions.Menu('menu',      '1.115', ['ToolBar', '-sep5-'],    '<Nop>')
+    functions.Menu('menu',      '1.115', ['ToolBar', '-sep5-'],    '<Nop>')
 
-  functions.Menu('tmenu',     '1.120', ['ToolBar', 'Table'],     'Create Table')
-  functions.LeadMenu('imenu', '1.120', ['ToolBar', 'Table'],     'tA <ESC>')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Table'],     'tA')
+    functions.Menu('tmenu',     '1.120', ['ToolBar', 'Table'],     'Create Table')
+    functions.LeadMenu('imenu', '1.120', ['ToolBar', 'Table'],     'tA <ESC>')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Table'],     'tA')
 
-  functions.Menu('menu',      '1.125', ['ToolBar', '-sep6-'],    '<Nop>')
+    functions.Menu('menu',      '1.125', ['ToolBar', '-sep6-'],    '<Nop>')
 
-  functions.Menu('tmenu',     '1.130', ['ToolBar', 'Blist'],     'Create Bullet List')
-  functions.Menu('imenu',     '1.130', ['ToolBar', 'Blist'],
-    g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
-  functions.Menu('vmenu',     '-',     ['ToolBar', 'Blist'], 
-    g:htmlplugin.map_leader .. 'uli' .. g:htmlplugin.map_leader .. 'li<ESC>')
-  functions.Menu('nmenu',     '-',     ['ToolBar', 'Blist'], 
-    'i' .. g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
-  functions.Menu('tmenu',     '1.140', ['ToolBar', 'Nlist'],     'Create Numbered List')
-  functions.Menu('imenu',     '1.140', ['ToolBar', 'Nlist'], 
-    g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
-  functions.Menu('vmenu',     '-',     ['ToolBar', 'Nlist'], 
-    g:htmlplugin.map_leader .. 'oli' .. g:htmlplugin.map_leader .. 'li<ESC>')
-  functions.Menu('nmenu',     '-',     ['ToolBar', 'Nlist'], 
-    'i' .. g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
-  functions.Menu('tmenu',     '1.150', ['ToolBar', 'Litem'],     'Add List Item')
-  functions.LeadMenu('imenu', '1.150', ['ToolBar', 'Litem'],     'li')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Litem'],     'li', 'i')
+    functions.Menu('tmenu',     '1.130', ['ToolBar', 'Blist'],     'Create Bullet List')
+    functions.Menu('imenu',     '1.130', ['ToolBar', 'Blist'],
+      g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
+    functions.Menu('vmenu',     '-',     ['ToolBar', 'Blist'], 
+      g:htmlplugin.map_leader .. 'uli' .. g:htmlplugin.map_leader .. 'li<ESC>')
+    functions.Menu('nmenu',     '-',     ['ToolBar', 'Blist'], 
+      'i' .. g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
+    functions.Menu('tmenu',     '1.140', ['ToolBar', 'Nlist'],     'Create Numbered List')
+    functions.Menu('imenu',     '1.140', ['ToolBar', 'Nlist'], 
+      g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
+    functions.Menu('vmenu',     '-',     ['ToolBar', 'Nlist'], 
+      g:htmlplugin.map_leader .. 'oli' .. g:htmlplugin.map_leader .. 'li<ESC>')
+    functions.Menu('nmenu',     '-',     ['ToolBar', 'Nlist'], 
+      'i' .. g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
+    functions.Menu('tmenu',     '1.150', ['ToolBar', 'Litem'],     'Add List Item')
+    functions.LeadMenu('imenu', '1.150', ['ToolBar', 'Litem'],     'li')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Litem'],     'li', 'i')
 
-  functions.Menu('menu',      '1.155', ['ToolBar', '-sep7-'],    '<Nop>')
+    functions.Menu('menu',      '1.155', ['ToolBar', '-sep7-'],    '<Nop>')
 
-  functions.Menu('tmenu',     '1.160', ['ToolBar', 'Bold'],      'Bold')
-  functions.LeadMenu('imenu', '1.160', ['ToolBar', 'Bold'],      'bo')
-  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Bold'],      'bo')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Bold'],      'bo', 'i')
-  functions.Menu('tmenu',     '1.170', ['ToolBar', 'Italic'],    'Italic')
-  functions.LeadMenu('imenu', '1.170', ['ToolBar', 'Italic'],    'it')
-  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Italic'],    'it')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Italic'],    'it', 'i')
-  functions.Menu('tmenu',     '1.180', ['ToolBar', 'Underline'], 'Underline')
-  functions.LeadMenu('imenu', '1.180', ['ToolBar', 'Underline'], 'un')
-  functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Underline'], 'un')
-  functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Underline'], 'un', 'i')
+    functions.Menu('tmenu',     '1.160', ['ToolBar', 'Bold'],      'Bold')
+    functions.LeadMenu('imenu', '1.160', ['ToolBar', 'Bold'],      'bo')
+    functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Bold'],      'bo')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Bold'],      'bo', 'i')
+    functions.Menu('tmenu',     '1.170', ['ToolBar', 'Italic'],    'Italic')
+    functions.LeadMenu('imenu', '1.170', ['ToolBar', 'Italic'],    'it')
+    functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Italic'],    'it')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Italic'],    'it', 'i')
+    functions.Menu('tmenu',     '1.180', ['ToolBar', 'Underline'], 'Underline')
+    functions.LeadMenu('imenu', '1.180', ['ToolBar', 'Underline'], 'un')
+    functions.LeadMenu('vmenu', '-',     ['ToolBar', 'Underline'], 'un')
+    functions.LeadMenu('nmenu', '-',     ['ToolBar', 'Underline'], 'un', 'i')
 
-  functions.Menu('menu',      '1.185', ['ToolBar', '-sep8-'],    '<Nop>')
+    functions.Menu('menu',      '1.185', ['ToolBar', '-sep8-'],    '<Nop>')
 
-  functions.Menu('tmenu',     '1.190', ['ToolBar', 'Undo'],      'Undo')
-  functions.Menu('anoremenu', '1.190', ['ToolBar', 'Undo'],      'u')
-  functions.Menu('tmenu',     '1.200', ['ToolBar', 'Redo'],      'Redo')
-  functions.Menu('anoremenu', '1.200', ['ToolBar', 'Redo'],      '<C-R>')
+    functions.Menu('tmenu',     '1.190', ['ToolBar', 'Undo'],      'Undo')
+    functions.Menu('anoremenu', '1.190', ['ToolBar', 'Undo'],      'u')
+    functions.Menu('tmenu',     '1.200', ['ToolBar', 'Redo'],      'Redo')
+    functions.Menu('anoremenu', '1.200', ['ToolBar', 'Redo'],      '<C-R>')
 
-  functions.Menu('menu',      '1.205', ['ToolBar', '-sep9-'],    '<Nop>')
+    functions.Menu('menu',      '1.205', ['ToolBar', '-sep9-'],    '<Nop>')
 
-  functions.Menu('tmenu',     '1.210', ['ToolBar', 'Cut'],       'Cut to Clipboard')
-  functions.Menu('vnoremenu', '1.210', ['ToolBar', 'Cut'],       save_toolbar['cut_v'])
-  functions.Menu('tmenu',     '1.220', ['ToolBar', 'Copy'],      'Copy to Clipboard')
-  functions.Menu('vnoremenu', '1.220', ['ToolBar', 'Copy'],      save_toolbar['copy_v'])
-  functions.Menu('tmenu',     '1.230', ['ToolBar', 'Paste'],     'Paste from Clipboard')
-  functions.Menu('nnoremenu', '1.230', ['ToolBar', 'Paste'],     save_toolbar['paste_n'])
-  functions.Menu('cnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_c'])
-  functions.Menu('inoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_i'])
-  functions.Menu('vnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_v'])
+    functions.Menu('tmenu',     '1.210', ['ToolBar', 'Cut'],       'Cut to Clipboard')
+    functions.Menu('vnoremenu', '1.210', ['ToolBar', 'Cut'],       save_toolbar['cut_v'])
+    functions.Menu('tmenu',     '1.220', ['ToolBar', 'Copy'],      'Copy to Clipboard')
+    functions.Menu('vnoremenu', '1.220', ['ToolBar', 'Copy'],      save_toolbar['copy_v'])
+    functions.Menu('tmenu',     '1.230', ['ToolBar', 'Paste'],     'Paste from Clipboard')
+    functions.Menu('nnoremenu', '1.230', ['ToolBar', 'Paste'],     save_toolbar['paste_n'])
+    functions.Menu('cnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_c'])
+    functions.Menu('inoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_i'])
+    functions.Menu('vnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_v'])
 
-  functions.Menu('menu',      '1.235', ['ToolBar', '-sep10-'],   '<Nop>')
+    functions.Menu('menu',      '1.235', ['ToolBar', '-sep10-'],   '<Nop>')
 
-  if !has('gui_athena')
-    functions.Menu('tmenu',       '1.240', ['ToolBar', 'Replace'],  'Find / Replace')
-    functions.Menu('anoremenu',   '1.240', ['ToolBar', 'Replace'],  save_toolbar['replace'])
-    vunmenu ToolBar.Replace
-    functions.Menu('vnoremenu',   '-',     ['ToolBar', 'Replace'],  save_toolbar['replace_v'])
-    functions.Menu('tmenu',       '1.250', ['ToolBar', 'FindNext'], 'Find Next')
-    functions.Menu('anoremenu',   '1.250', ['ToolBar', 'FindNext'], 'n')
-    functions.Menu('tmenu',       '1.260', ['ToolBar', 'FindPrev'], 'Find Previous')
-    functions.Menu('anoremenu',   '1.260', ['ToolBar', 'FindPrev'], 'N')
-  endif
+    if !has('gui_athena')
+      functions.Menu('tmenu',       '1.240', ['ToolBar', 'Replace'],  'Find / Replace')
+      functions.Menu('anoremenu',   '1.240', ['ToolBar', 'Replace'],  save_toolbar['replace'])
+      vunmenu ToolBar.Replace
+      functions.Menu('vnoremenu',   '-',     ['ToolBar', 'Replace'],  save_toolbar['replace_v'])
+      functions.Menu('tmenu',       '1.250', ['ToolBar', 'FindNext'], 'Find Next')
+      functions.Menu('anoremenu',   '1.250', ['ToolBar', 'FindNext'], 'n')
+      functions.Menu('tmenu',       '1.260', ['ToolBar', 'FindPrev'], 'Find Previous')
+      functions.Menu('anoremenu',   '1.260', ['ToolBar', 'FindPrev'], 'N')
+    endif
 
-  functions.Menu('menu', '1.500', ['ToolBar', '-sep50-'], '<Nop>')
+    functions.Menu('menu', '1.500', ['ToolBar', '-sep50-'], '<Nop>')
+
+    if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
+      functions.Menu('tmenu', '1.510', ['ToolBar', 'Browser'],
+        'Launch the Default Browser on the Current File')
+      functions.LeadMenu('amenu', '1.510', ['ToolBar', 'Browser'], 'db')
+    endif
+
+    if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
+      functions.Menu('tmenu', '1.520', ['ToolBar', 'Brave'],
+        'Launch Brave on the Current File')
+      functions.LeadMenu('amenu', '1.520', ['ToolBar', 'Brave'], 'bv')
+    endif
+
+    if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
+      functions.Menu('tmenu', '1.530', ['ToolBar', 'Chrome'],
+        'Launch Chrome on the Current File')
+      functions.LeadMenu('amenu', '1.530', ['ToolBar', 'Chrome'], 'gc')
+    endif
+
+    if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
+      functions.Menu('tmenu', '1.540', ['ToolBar', 'Edge'],
+        'Launch Edge on the Current File')
+      functions.LeadMenu('amenu', '1.540', ['ToolBar', 'Edge'], 'ed')
+    endif
+
+    if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
+      functions.Menu('tmenu', '1.550', ['ToolBar', 'Firefox'],
+        'Launch Firefox on the Current File')
+      functions.LeadMenu('amenu', '1.550', ['ToolBar', 'Firefox'], 'ff')
+    endif
+
+    if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
+      functions.Menu('tmenu', '1.560', ['ToolBar', 'Opera'],
+        'Launch Opera on the Current File')
+      functions.LeadMenu('amenu', '1.560', ['ToolBar', 'Opera'], 'oa')
+    endif
+
+    if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
+      functions.Menu('tmenu', '1.570', ['ToolBar', 'Safari'],
+        'Launch Safari on the Current File')
+      functions.LeadMenu('amenu', '1.570', ['ToolBar', 'Safari'], 'sf')
+    endif
+
+    if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
+      functions.Menu('tmenu', '1.580', ['ToolBar', 'w3m'],
+        'Launch w3m on the Current File')
+      functions.LeadMenu('amenu', '1.580', ['ToolBar', 'w3m'], 'w3')
+    endif
+
+    if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
+      functions.Menu('tmenu', '1.590', ['ToolBar', 'Lynx'],
+        'Launch Lynx on the Current File')
+      functions.LeadMenu('amenu', '1.590', ['ToolBar', 'Lynx'], 'ly')
+    endif
+
+    if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
+      functions.Menu('tmenu', '1.600', ['ToolBar', 'Links'],
+        'Launch Links on the Current File')
+      functions.LeadMenu('amenu', '1.600', ['ToolBar', 'Links'], 'ln')
+    endif
+
+    functions.Menu('menu',      '1.997', ['ToolBar', '-sep99-'], '<Nop>')
+    functions.Menu('tmenu',     '1.998', ['ToolBar', 'HTMLHelp'], 'HTML Plugin Help')
+    functions.Menu('anoremenu', '1.998', ['ToolBar', 'HTMLHelp'], ':help HTML.txt<CR>')
+
+    functions.Menu('tmenu',     '1.999', ['ToolBar', 'Help'], 'Help')
+    functions.Menu('anoremenu', '1.999', ['ToolBar', 'Help'], ':help<CR>')
+
+    # }}}2
+
+    g:htmlplugin.did_toolbar = true
+  endif  # !functions.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
+
+  # Add to the PopUp menu:   {{{2
+  functions.Menu('nnoremenu', '1.91', ['PopUp', 'Select Ta&g'],        'vat')
+  functions.Menu('onoremenu', '-',    ['PopUp', 'Select Ta&g'],        'at')
+  functions.Menu('vnoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-c>vat')
+  functions.Menu('inoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-O>vat')
+  functions.Menu('cnoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-c>vat')
+
+  functions.Menu('nnoremenu', '1.92', ['PopUp', 'Select &Inner Ta&g'], 'vit')
+  functions.Menu('onoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], 'it')
+  functions.Menu('vnoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-c>vit')
+  functions.Menu('inoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-O>vit')
+  functions.Menu('cnoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-c>vit')
+  # }}}2
+
+  augroup HTMLmenu
+    au!
+    autocmd BufEnter,WinEnter * {
+        functions.MenuControl()
+        functions.ToggleClipboard()
+      }
+  augroup END
+
+  # Create the "HTML" menu:   {{{2
+
+  # Very first non-ToolBar, non-PopUp menu gets "auto" for its priority to place
+  # the HTML menu according to user configuration:
+  functions.Menu('amenu', 'auto', ['&Disable Mappings<tab>:HTML disable'],
+    ':HTMLmappings disable<CR>')
+  functions.Menu('amenu', '-',    ['&Enable Mappings<tab>:HTML enable'],
+    ':HTMLmappings enable<CR>')
+
+  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+    .. '.Enable\ Mappings'
+
+  functions.Menu('menu',  '.9999', ['-sep999-'], '<Nop>')
+
+  functions.Menu('amenu', '.9999', ['Help', 'HTML Plugin Help<TAB>:help HTML.txt'],
+    ':help HTML.txt<CR>')
+  functions.Menu('amenu', '.9999', ['Help', 'About the HTML Plugin<TAB>:HTMLAbout'],
+    ':HTMLAbout<CR>')
 
   if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
-    functions.Menu('tmenu', '1.510', ['ToolBar', 'Browser'],
-      'Launch the Default Browser on the Current File')
-    functions.LeadMenu('amenu', '1.510', ['ToolBar', 'Browser'], 'db')
+    functions.LeadMenu('amenu', '-', ['&Preview', '&Default Browser'], 'db')
   endif
-
   if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
-    functions.Menu('tmenu', '1.520', ['ToolBar', 'Brave'],
-      'Launch Brave on the Current File')
-    functions.LeadMenu('amenu', '1.520', ['ToolBar', 'Brave'], 'bv')
+    functions.Menu('menu', '-', ['Preview', '-sep1-'], '<nop>')
+    functions.LeadMenu('amenu', '-', ['&Preview', '&Brave'], 'bv')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Window)'], 'nbv')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Tab)'], 'tbv')
   endif
-
   if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
-    functions.Menu('tmenu', '1.530', ['ToolBar', 'Chrome'],
-      'Launch Chrome on the Current File')
-    functions.LeadMenu('amenu', '1.530', ['ToolBar', 'Chrome'], 'gc')
+    functions.Menu('menu', '-', ['Preview', '-sep3-'], '<nop>')
+    functions.LeadMenu('amenu', '-', ['&Preview', '&Chrome'], 'gc')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Window)'], 'ngc')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Tab)'], 'tgc')
   endif
-
   if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
-    functions.Menu('tmenu', '1.540', ['ToolBar', 'Edge'],
-      'Launch Edge on the Current File')
-    functions.LeadMenu('amenu', '1.540', ['ToolBar', 'Edge'], 'ed')
+    functions.Menu('menu', '-', ['Preview', '-sep4-'], '<nop>')
+    functions.LeadMenu('amenu', '-', ['&Preview', '&Edge'], 'ed')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Window)'], 'ned')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Tab)'], 'ted')
   endif
-
   if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
-    functions.Menu('tmenu', '1.550', ['ToolBar', 'Firefox'],
-      'Launch Firefox on the Current File')
-    functions.LeadMenu('amenu', '1.550', ['ToolBar', 'Firefox'], 'ff')
+    functions.Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
+    functions.LeadMenu('amenu', '-', ['&Preview', '&Firefox'], 'ff')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Window)'], 'nff')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Tab)'], 'tff')
   endif
-
   if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
-    functions.Menu('tmenu', '1.560', ['ToolBar', 'Opera'],
-      'Launch Opera on the Current File')
-    functions.LeadMenu('amenu', '1.560', ['ToolBar', 'Opera'], 'oa')
+    functions.Menu('menu', '-', ['Preview', '-sep5-'], '<nop>')
+    functions.LeadMenu('amenu', '-', ['&Preview', '&Opera'], 'oa')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Opera (New Window)'], 'noa')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Opera (New Tab)'], 'toa')
   endif
-
   if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
-    functions.Menu('tmenu', '1.570', ['ToolBar', 'Safari'],
-      'Launch Safari on the Current File')
-    functions.LeadMenu('amenu', '1.570', ['ToolBar', 'Safari'], 'sf')
+    functions.Menu('menu', '-', ['Preview', '-sep6-'], '<nop>')
+    functions.LeadMenu('amenu', '-', ['&Preview', '&Safari'], 'sf')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Safari (New Window)'], 'nsf')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Safari (New Tab)'], 'tsf')
   endif
-
-  if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
-    functions.Menu('tmenu', '1.580', ['ToolBar', 'w3m'],
-      'Launch w3m on the Current File')
-    functions.LeadMenu('amenu', '1.580', ['ToolBar', 'w3m'], 'w3')
-  endif
-
   if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
-    functions.Menu('tmenu', '1.590', ['ToolBar', 'Lynx'],
-      'Launch Lynx on the Current File')
-    functions.LeadMenu('amenu', '1.590', ['ToolBar', 'Lynx'], 'ly')
+    functions.Menu('menu', '-', ['Preview', '-sep7-'], '<nop>')
+    functions.LeadMenu('amenu', '-', ['&Preview', '&Lynx'], 'ly')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Lynx (New Window)'], 'nly')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Lynx (:terminal)'], 'tly')
   endif
-
+  if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
+    functions.Menu('menu', '-', ['Preview', '-sep8-'], '<nop>')
+    functions.LeadMenu('amenu', '-', ['&Preview', '&w3m'], 'w3')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'w3m (New Window)'], 'nw3')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'w3m (:terminal)'], 'tw3')
+  endif
   if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
-    functions.Menu('tmenu', '1.600', ['ToolBar', 'Links'],
-      'Launch Links on the Current File')
-    functions.LeadMenu('amenu', '1.600', ['ToolBar', 'Links'], 'ln')
+    functions.Menu('menu', '-', ['Preview', '-sep9-'], '<nop>')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Li&nks'], 'ln')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Links (New Window)'], 'nln')
+    functions.LeadMenu('amenu', '-', ['&Preview', 'Links (:terminal)'], 'tln')
   endif
 
-  functions.Menu('menu',      '1.997', ['ToolBar', '-sep99-'], '<Nop>')
-  functions.Menu('tmenu',     '1.998', ['ToolBar', 'HTMLHelp'], 'HTML Plugin Help')
-  functions.Menu('anoremenu', '1.998', ['ToolBar', 'HTMLHelp'], ':help HTML.txt<CR>')
+  # Bring in the tags and entities menus and mappings at the same time. (If we
+  # got here they weren't brought in above.):
+  functions.ReadTags(true, true)
+  functions.ReadEntities(true, true)
 
-  functions.Menu('tmenu',     '1.999', ['ToolBar', 'Help'], 'Help')
-  functions.Menu('anoremenu', '1.999', ['ToolBar', 'Help'], ':help<CR>')
+  # Create the rest of the colors menu:
+  HTMLvariables.COLOR_LIST->mapnew((_, value) => functions.ColorsMenu(value[0], value[1], value[2], value[3]))
 
-  g:htmlplugin.did_toolbar = true
-endif  # !functions.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
-# ----------------------------------------------------------------------------
+  # }}}2
 
-# ---- Menu Items: ------------------------------------------------------ {{{1
+  g:htmlplugin.did_menus = true
 
-# Add to the PopUp menu:   {{{2
-functions.Menu('nnoremenu', '1.91', ['PopUp', 'Select Ta&g'],        'vat')
-functions.Menu('onoremenu', '-',    ['PopUp', 'Select Ta&g'],        'at')
-functions.Menu('vnoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-c>vat')
-functions.Menu('inoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-O>vat')
-functions.Menu('cnoremenu', '-',    ['PopUp', 'Select Ta&g'],        '<C-c>vat')
-
-functions.Menu('nnoremenu', '1.92', ['PopUp', 'Select &Inner Ta&g'], 'vit')
-functions.Menu('onoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], 'it')
-functions.Menu('vnoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-c>vit')
-functions.Menu('inoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-O>vit')
-functions.Menu('cnoremenu', '-',    ['PopUp', 'Select &Inner Ta&g'], '<C-c>vit')
-# }}}2
-
-augroup HTMLmenu
-  au!
-  autocmd BufEnter,WinEnter * {
-      functions.MenuControl()
-      functions.ToggleClipboard()
-    }
-augroup END
-
-# Very first non-ToolBar, non-PopUp menu gets "auto" for its priority to place
-# the HTML menu according to user configuration:
-functions.Menu('amenu', 'auto', ['&Disable Mappings<tab>:HTML disable'],
-  ':HTMLmappings disable<CR>')
-functions.Menu('amenu', '-',    ['&Enable Mappings<tab>:HTML enable'],
-  ':HTMLmappings enable<CR>')
-
-execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-  .. '.Enable\ Mappings'
-
-functions.Menu('menu',  '.9999', ['-sep999-'], '<Nop>')
-
-functions.Menu('amenu', '.9999', ['Help', 'HTML Plugin Help<TAB>:help HTML.txt'],
-  ':help HTML.txt<CR>')
-functions.Menu('amenu', '.9999', ['Help', 'About the HTML Plugin<TAB>:HTMLAbout'],
-  ':HTMLAbout<CR>')
-
-if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
-  functions.LeadMenu('amenu', '-', ['&Preview', '&Default Browser'], 'db')
-endif
-if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep1-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', '&Brave'], 'bv')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Window)'], 'nbv')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Tab)'], 'tbv')
-endif
-if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep3-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', '&Chrome'], 'gc')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Window)'], 'ngc')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Tab)'], 'tgc')
-endif
-if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep4-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', '&Edge'], 'ed')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Window)'], 'ned')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Tab)'], 'ted')
-endif
-if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', '&Firefox'], 'ff')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Window)'], 'nff')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Tab)'], 'tff')
-endif
-if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep5-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', '&Opera'], 'oa')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Opera (New Window)'], 'noa')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Opera (New Tab)'], 'toa')
-endif
-if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep6-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', '&Safari'], 'sf')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Safari (New Window)'], 'nsf')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Safari (New Tab)'], 'tsf')
-endif
-if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep7-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', '&Lynx'], 'ly')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Lynx (New Window)'], 'nly')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Lynx (:terminal)'], 'tly')
-endif
-if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep8-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', '&w3m'], 'w3')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'w3m (New Window)'], 'nw3')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'w3m (:terminal)'], 'tw3')
-endif
-if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
-  functions.Menu('menu', '-', ['Preview', '-sep9-'], '<nop>')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Li&nks'], 'ln')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Links (New Window)'], 'nln')
-  functions.LeadMenu('amenu', '-', ['&Preview', 'Links (:terminal)'], 'tln')
-endif
-
-# Bring in the tags and entities menus and mappings at the same time:
-functions.ReadTags(true, true)
-functions.ReadEntities(true, true)
-
-# Create the rest of the colors menu:
-HTMLvariables.COLOR_LIST->mapnew((_, value) => functions.ColorsMenu(value[0], value[1], value[2], value[3]))
-
-g:htmlplugin.did_menus = true
 endif
 # ---------------------------------------------------------------------------
 

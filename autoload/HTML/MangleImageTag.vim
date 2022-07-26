@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: June 28, 2022
+# Last Change: July 24, 2022
 #
 # Requirements:
 #   Vim 9 or later
@@ -33,7 +33,19 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-const E_NOIMG = 'The cursor is not on an IMG tag.'
+const E_NOIMG       = 'The cursor is not on an IMG tag.'
+const E_NOSRC       = 'Image SRC not specified in the tag.'
+const E_BLANK       = 'No image specified in SRC.'
+const E_NOFILE      = 'Can not find image file (or it is not readable): '
+const E_UNSUPPORTED = 'Image type not supported: '
+const E_NOREAD      = 'Can not read file: '
+const E_GIF         = 'Malformed GIF file.'
+const E_JPG         = 'Malformed JPEG file.'
+const E_PNG         = 'Malformed PNG file.'
+const E_TIFFENDIAN  = 'Malformed TIFF file, endian identifier not found.'
+const E_TIFFID      = 'Malformed TIFF file, identifier not found.'
+const E_TIF         = 'Malformed TIFF file.'
+const E_WEBP        = 'Malformed WEBP file.'
 
 def Error(error_message: string, quiet: bool = false): void  # {{{1
   if quiet
@@ -97,18 +109,18 @@ export def Update(quiet: bool = false): bool  # {{{1
       case = true
     endif
   else
-    Error('Image SRC not specified in the tag.', quiet)
+    Error(E_NOSRC, quiet)
     return false
   endif
 
   if src == ''
-    Error('No image specified in SRC.', quiet)
+    Error(E_BLANK, quiet)
     return false
   elseif !src->filereadable()
     if filereadable(expand('%:p:h') .. '/' .. src)
       src = expand('%:p:h') .. '/' .. src
     else
-      Error('Can not find image file (or it is not readable): ' .. src, quiet)
+      Error(E_NOFILE .. src, quiet)
       return false
     endif
   endif
@@ -152,12 +164,12 @@ def ImageSize(image: string, quiet: bool = false): list<number>  # {{{1
 
   if ext !~? '^png$\|^gif$\|^jpe\?g\|^tiff\?$\|^webp$'
     if !quiet
-      Error('Image type not supported: ' .. tolower(ext))
+      Error(E_UNSUPPORTED .. tolower(ext))
     endif
     return []
   elseif !image->filereadable()
     if !quiet
-      Error('Can not read file: ' .. image)
+      Error(E_NOREAD .. image)
     endif
     return []
   endif
@@ -195,7 +207,7 @@ def SizeGif(buf: list<number>): list<number>  # {{{1
     ++i
   endwhile
 
-  Error('Malformed GIF file.')
+  Error(E_GIF)
 
   return []
 enddef
@@ -215,7 +227,7 @@ def SizeJpeg(buf: list<number>): list<number>  # {{{1
     ++i
   endwhile
 
-  Error('Malformed JPEG file.')
+  Error(E_JPG)
 
   return []
 enddef
@@ -235,7 +247,7 @@ def SizePng(buf: list<number>): list<number>  # {{{1
     ++i
   endwhile
 
-  Error('Malformed PNG file.')
+  Error(E_PNG)
 
   return []
 enddef
@@ -256,12 +268,12 @@ def SizeTiff(buf: list<number>): list<number>  # {{{1
     #echomsg "TIFF is Big Endian"
     bigendian = true
   else
-    Error('Malformed TIFF file, Endian identifier not found.')
+    Error(E_TIFFENDIAN)
     return []
   endif
 
   if (bigendian ? buf[2 : 3]->Vec() : buf[2 : 3]->reverse()->Vec()) != 42
-    Error('Malformed TIFF file, identifier not found.')
+    Error(E_TIFFID)
     return []
   endif
 
@@ -293,7 +305,7 @@ def SizeTiff(buf: list<number>): list<number>  # {{{1
     endif
   endwhile
 
-  Error('Malformed TIFF file.')
+  Error(E_TIF)
 
   return []
 enddef
@@ -303,7 +315,7 @@ def SizeWebP(buf: list<number>): list<number>  # {{{1
   var len = buf->len()
 
   if buf[0 : 11]->join(' ') !~ '^82 73 70 70\%( \d\+\)\{4} 87 69 66 80'
-    Error('Malformed WEBP file.')
+    Error(E_WEBP)
     return []
   endif
 
@@ -321,7 +333,7 @@ def SizeWebP(buf: list<number>): list<number>  # {{{1
     ++i
   endwhile
 
-  Error('Malformed WEBP file.')
+  Error(E_WEBP)
 
   return []
 enddef

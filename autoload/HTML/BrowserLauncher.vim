@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: June 28, 2022
+# Last Change: July 24, 2022
 #
 # Currently supported browsers:
 # Unix:
@@ -82,8 +82,15 @@ endif
 
 import autoload 'HTML/functions.vim'
 
-const E_NOFILE = 'No file is associated with the current buffer and no URL was specified.'
+const E_NOFILE  = 'No file is associated with the current buffer and no URL was specified.'
 const W_UNSAVED = 'Warning: The current buffer has unsaved modifications.'
+const E_UNKNOWN = 'Unknown browser ID: '
+const E_DISPLAY = '$DISPLAY is not set and no textmode browsers were found, no browser launched.'
+const E_XTERM   = "XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch "
+const E_TERM    = ":terminal is not compiled into this version of GVim. Can't launch "
+const E_LAUNCH  = 'Unable to launch '
+const E_COMMAND = 'Command failed: '
+const E_FINAL   = 'Something went wrong, we should never get here...'
 
 var Browsers: dict<list<any>>
 var TextmodeBrowsers = ['lynx', 'w3m', 'links']
@@ -452,7 +459,7 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
   var file: string
 
   if !UnixWinExists(which)
-    functions.Error('Unknown browser ID: ' .. which)
+    functions.Error(E_UNKNOWN .. which)
     return false
   endif
 
@@ -482,7 +489,7 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
       && TextmodeBrowsers->match('^\c\V' .. which .. '\$') < 0
       && has('win32unix') == 0
     if TextmodeBrowsers == []
-      functions.Error('$DISPLAY is not set and no textmode browsers were found, no browser launched.')
+      functions.Error(E_DISPLAY)
       return false
     else
       which = TextmodeBrowsers[0]
@@ -507,11 +514,9 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
         return true
       else
         if donew == 1
-          functions.Error("XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch "
-            ..  Browsers[which][0] .. '.')
+          functions.Error(E_XTERM .. Browsers[which][0] .. '.')
         else
-          functions.Error(":terminal is not compiled into this version of GVim. Can't launch "
-            ..  Browsers[which][0] .. '.')
+          functions.Error(E_TERM .. Browsers[which][0] .. '.')
         endif
 
         return false
@@ -521,7 +526,7 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
       execute '!' .. Browsers[which][1] .. ' ' .. file->shellescape()
 
       if v:shell_error
-        functions.Error('Unable to launch ' .. Browsers[which][0] .. '.')
+        functions.Error(E_LAUNCH .. Browsers[which][0] .. '.')
         return false
       endif
 
@@ -582,7 +587,7 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
     output = system(command)
 
     if v:shell_error
-      functions.Error('Command failed: ' .. command)
+      functions.Error(E_COMMAND .. command)
       functions.Error(output)
       return false
     endif
@@ -590,7 +595,7 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
     return true
   endif
 
-  functions.Error('Something went wrong, we should never get here...')
+  functions.Error(E_FINAL)
   return false
 enddef
 

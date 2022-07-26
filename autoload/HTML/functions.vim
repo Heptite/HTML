@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: July 17, 2022
+# Last Change: July 26, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -36,11 +36,32 @@ import autoload 'HTML/MangleImageTag.vim'
 # Used in a few places so some functions don't have to be globally exposed:
 const self_sid = expand('<SID>')
 
-const E_NOMAPLEAD  = ' g:htmlplugin.map_leader is not set! No mapping defined.'
-const E_NOEMAPLEAD = ' g:htmlplugin.entity_map_leader is not set! No mapping defined.'
-const E_EMPTYLHS   = ' must have a non-empty lhs. No mapping defined.'
-const E_EMPTYRHS   = ' must have a non-empty rhs. No mapping defined.'
-const E_NOMODE     = ' must have one of the modes explicitly stated. No mapping defined.'
+# Error and warning messages:  {{{1
+const E_NOMAP       = ' No mapping defined.'
+const E_NOMAPLEAD   = ' g:htmlplugin.map_leader is not set!' .. E_NOMAP
+const E_NOEMAPLEAD  = ' g:htmlplugin.entity_map_leader is not set!' .. E_NOMAP
+const E_EMPTYLHS    = ' must have a non-empty lhs.' .. E_NOMAP
+const E_EMPTYRHS    = ' must have a non-empty rhs.' .. E_NOMAP
+const E_NOMODE      = ' must have one of the modes explicitly stated.' .. E_NOMAP
+const E_NOLOCALVAR  = 'Cannot set a local variable with '
+const E_NARGS       = 'E119: Not enough arguments for '
+const E_NOSRC       = 'The HTML macros plugin was not sourced for this buffer.'
+const E_NOGLOBAL    = 'Somehow the HTML plugin reference global variable did not get set.'
+const E_DISABLED    = 'The HTML mappings are already disabled.'
+const E_ENABLED     = 'The HTML mappings are already enabled.'
+const E_INVALIDARG  = ' Invalid argument: '
+const E_JSON        = 'Potentially malformed json in '
+const E_NOTFOUND    = ' is not found in the runtimepath.'
+const E_NOREAD      = ' is not readable.'
+const E_NOTAG       = ' No tag mappings or menus have been defined.'
+const E_NOENTITY    = ' No entity mappings or menus have been defined.'
+const E_ONECHAR     = ' First argument must be one character.'
+const E_BOOLTYPE    = ' Unknown type for Bool(): '
+const E_NOCLIPBOARD = ' Somehow the htmlplugin.save_clipboard global variable did not get set.'
+const E_NOSMART     = ' Unknown smart tag: '
+
+const W_TOOMANYRTP  = ' is found too many times in the runtimepath. Using the first.'
+# }}}1
 
 export def Warn(message: string): void  # {{{1
   echohl WarningMsg
@@ -100,14 +121,14 @@ export def SetIfUnset(variable: string, ...args: list<any>): number
   var newvariable = variable
 
   if variable =~# '^l:'
-    Error(' Cannot set a local variable with ' .. expand('<stack>'))
+    Error(E_NOLOCALVAR .. F())
     return -1
   elseif variable !~# '^[bgstvw]:'
     newvariable = 'g:' .. variable
   endif
 
   if args->len() == 0
-    Error('E119: Not enough arguments for ' .. expand('<stack>'))
+    Error(E_NARGS .. F())
     return -1
   elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict
       || type(args[0]) == v:t_number
@@ -121,12 +142,8 @@ export def SetIfUnset(variable: string, ...args: list<any>): number
   endif
 
   if type(val) == v:t_string
-    if val == '""' || val == "''"
-      execute newvariable .. ' = ""'
-    elseif val == '[]'
-      execute newvariable .. ' = []'
-    elseif val == '{}'
-      execute newvariable .. ' = {}'
+    if val == '""' || val == "''" || val == '[]' || val == '{}'
+      execute newvariable .. ' = ' .. val
     elseif val =~ '^-\?[[:digit:]]\+$'
       execute newvariable .. ' = ' val->str2nr()
     elseif val =~ '^-\?[[:digit:].]\+$'
@@ -167,8 +184,7 @@ def Bool(value: any): bool
     return value != {}
   endif
 
-  Error(expand('<stack>') .. ' Unknown type for Bool(): '
-    .. value->typename())
+  Error(F() .. E_BOOLTYPE .. value->typename())
   return false
 enddef
 
@@ -198,7 +214,7 @@ export def BoolVar(variable: string): bool
   endif
 enddef
 
-# IsSet() {{{1
+# IsSet()  {{{1
 #
 # Purpose:
 #  Given a string, test to see if a variable by that string name exists.
@@ -275,8 +291,8 @@ export def TranscodeString(str: string, code: string = ''): string
   def CharToEntity(char: string): string
     var newchar: string
 
-    if char->strchars(1) > 1
-      Error(expand('<stack>') .. ' Argument must be one character.')
+    if char->strchars(1) != 1
+      Error(F() .. E_ONECHAR)
       return char
     endif
 
@@ -358,46 +374,6 @@ export def TranscodeString(str: string, code: string = ''): string
   return out
 enddef
 
-# DM()  {{{1
-#
-# Purpose:
-#  Execute or return the "right hand side" of a mapping, without an error
-#  causing it to abort.
-# Arguments:
-#  1 - String: The mode, either 'v' or 'i'
-#  2 - String: The mapping name (lhs) of the mapping to call, stored in
-#              b:htmlplugin.maps
-# Return Value:
-#  String: Either an empty string (for visual mappings) or the key sequence to
-#  run (for insert mode mappings).
-def DM(mode: string, map: string): string
-  var evalstr: string
-  var rhs: string
-
-  try
-    rhs = b:htmlplugin.maps[mode][map][0]
-    echomsg rhs
-    rhs = rhs->substitute('\c\\<[a-z0-9_-]\+>',
-      '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
-
-    if b:htmlplugin.maps[mode][map][1]
-      evalstr = eval(rhs)
-    else
-      evalstr = rhs
-    endif
-
-    if mode == 'i'
-      return evalstr
-    else
-      execute 'normal! ' .. evalstr
-    endif
-  catch
-    Error(v:exception .. ' while executing mapping: ' .. map)
-  endtry
-
-  return ''
-enddef
-
 # HTML#functions#Map()  {{{1
 #
 # Purpose:
@@ -418,30 +394,29 @@ enddef
 #                 re-indents (applies only when filetype indenting is on)
 # Return Value:
 #  Boolean: Whether a mapping was defined
-
 export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, internal: bool = false): bool
   if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-    Error(expand('<stack>') .. E_NOMAPLEAD)
+    Error(F() .. E_NOMAPLEAD)
     return false
   endif
 
   if !g:htmlplugin->has_key('entity_map_leader') && map =~? '^<elead>'
-    Error(expand('<stack>') .. E_NOEMAPLEAD)
+    Error(F() .. E_NOEMAPLEAD)
     return false
   endif
 
-  if map == '' || map ==? "<lead>" || map ==? "<elead>"
-    Error(expand('<stack>') .. E_EMPTYLHS)
+  if map == '' || map ==? '<lead>' || map ==? '<elead>'
+    Error(F() .. E_EMPTYLHS)
     return false
   endif
 
   if arg == ''
-    Error(expand('<stack>') .. E_EMPTYRHS)
+    Error(F() .. E_EMPTYRHS)
     return false
   endif
 
   if cmd =~# '^no' || cmd =~# '^map$'
-    Error(expand('<stack>') .. E_NOMODE)
+    Error(F() .. E_NOMODE)
     return false
   endif
 
@@ -470,41 +445,48 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
     newarg = newarg->substitute('`>a\C', '`>i\\<C-R>='
-      .. self_sid .. 'VI()\\<CR>', 'g')
+      .. self_sid .. 'VisualInsertPos()\\<CR>', 'g')
 
-    b:htmlplugin.maps['v'][newmap] = [newarg, (opts->has_key('expr') && opts.expr ? true : false)]
+    if !opts->has_key('extra') || opts.extra
+      b:htmlplugin.maps['v'][newmap] = [newarg, {}]
+
+      if opts->has_key('expr')
+        b:htmlplugin.maps['v'][newmap][1]['expr'] = opts.expr
+      endif
+    endif
 
     if opts->has_key('extra') && ! opts.extra
       execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
     elseif opts->has_key('insert') && opts.insert && opts->has_key('reindent')
-      # TODO: find a way to properly restore the cursor position after
-      #       ReIndent() is called
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <ScriptCmd>TO(false)<CR><ScriptCmd>DM("v", "' .. newmap_escaped .. '")<CR>'
-        .. "<ScriptCmd>TO(true)<CR><C-O>m`<ScriptCmd>"
-        .. "ReIndent(line('v'), line('.'), "
-        .. opts.reindent .. ')<CR><C-O>``'
+        .. ' <ScriptCmd>DoMap("v", "' .. newmap_escaped .. '")<CR>'
+
+      b:htmlplugin.maps['v'][newmap][1]['reindent'] = opts.reindent
+      b:htmlplugin.maps['v'][newmap][1]['insert'] = opts.insert
     elseif opts->has_key('insert') && opts.insert
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <ScriptCmd>TO(false)<CR><ScriptCmd>DM("v", "' .. newmap_escaped .. '")<CR>'
-        .. '<ScriptCmd>TO(true)<CR>'
+        .. ' <ScriptCmd>DoMap("v", "' .. newmap_escaped .. '")<CR>'
+
+      b:htmlplugin.maps['v'][newmap][1]['insert'] = opts.insert
     elseif opts->has_key('reindent')
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <ScriptCmd>TO(false)<CR><ScriptCmd>DM("v", "' .. newmap_escaped .. '")<CR>'
-        .. "<ScriptCmd>TO(true)<CR>m'<ScriptCmd>"
-        .. "ReIndent(line('v'), line('.'), "
-        .. opts.reindent .. ')<CR>``'
+        .. ' <ScriptCmd>DoMap("v", "' .. newmap_escaped .. '")<CR>'
+
+      b:htmlplugin.maps['v'][newmap][1]['reindent'] = opts.reindent
     else
       execute cmd .. ' <buffer> <silent> ' .. newmap
-        .. ' <ScriptCmd>TO(false)<CR><ScriptCmd>DM("v", "' .. newmap_escaped .. '")<CR>'
-        .. '<ScriptCmd>TO(true)<CR>'
+        .. ' <ScriptCmd>DoMap("v", "' .. newmap_escaped .. '")<CR>'
     endif
   elseif mode == 'i'
     if opts->has_key('extra') && ! opts.extra
       execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
     else
-      b:htmlplugin.maps['i'][newmap] = [newarg, (opts->has_key('expr') && opts.expr ? true : false)]
-      execute cmd .. ' <buffer> <silent> <expr> ' .. newmap .. ' DM("i", "' .. newmap_escaped .. '")'
+      b:htmlplugin.maps['i'][newmap] = [newarg, {}]
+      if opts->has_key('expr')
+        b:htmlplugin.maps['i'][newmap][1]['expr'] = opts.expr
+      endif
+      execute cmd .. ' <buffer> <silent> <expr> ' .. newmap
+        .. ' DoMap("i", "' .. newmap_escaped .. '")'
     endif
   else
     execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
@@ -531,16 +513,18 @@ enddef
 #  1 - String: The mapping.
 #  2 - Boolean: Optional, Whether to enter insert mode after the mapping has
 #                          executed. Default false.
+#  3 - Boolean: Optional, Whether the map is internal to the plugin.  Default
+#                          false.
 # Return Value:
 #  Boolean: Whether a mapping was defined
 export def Mapo(map: string, insert: bool = false, internal: bool = false): bool
   if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-    Error(expand('<stack>') .. E_NOMAPLEAD)
+    Error(F() .. E_NOMAPLEAD)
     return false
   endif
 
   if map == '' || map ==? "<lead>"
-    Error(expand('<stack>') .. E_EMPTYLHS)
+    Error(F() .. E_EMPTYLHS)
     return false
   endif
 
@@ -554,7 +538,7 @@ export def Mapo(map: string, insert: bool = false, internal: bool = false): bool
   execute 'nnoremap <buffer> <silent> ' .. newmap
     .. " <ScriptCmd>b:htmlplugin.tagaction = '" .. newmap .. "'<CR>"
     .. '<ScriptCmd>b:htmlplugin.taginsert = ' .. insert .. "<CR>"
-    .. '<ScriptCmd>&operatorfunc = "' .. self_sid .. 'WR"<CR>g@'
+    .. '<ScriptCmd>&operatorfunc = "' .. self_sid .. 'HTMLopWrap"<CR>g@'
 
   add(b:htmlplugin.clear_mappings, ':nunmap <buffer> ' .. newmap)
   newmap->maparg('n', false, true)->MappingsListAdd('n', internal)
@@ -562,7 +546,69 @@ export def Mapo(map: string, insert: bool = false, internal: bool = false): bool
   return true
 enddef
 
-# DoMappings()  {{{1
+# DoMap()  {{{1
+#
+# Purpose:
+#  Execute or return the "right hand side" of a mapping, while preventing an
+#  error to cause it to abort.
+# Arguments:
+#  1 - String: The mode, either 'v' or 'i'
+#  2 - String: The mapping name (lhs) of the mapping to call, stored in
+#              b:htmlplugin.maps
+# Return Value:
+#  String: Either an empty string (for visual mappings) or the key sequence to
+#  run (for insert mode mappings).
+def DoMap(mode: string, map: string): string
+  var evalstr: string
+  var rhs: string
+  var opts: dict<any>
+
+  try
+    rhs = b:htmlplugin.maps[mode][map][0]
+    rhs = rhs->substitute('\c\\<[a-z0-9_-]\+>',
+      '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
+
+    opts = b:htmlplugin.maps[mode][map][1]
+
+    if opts->has_key('expr') && opts.expr
+      evalstr = eval(rhs)
+    else
+      evalstr = rhs
+    endif
+
+    if mode->strlen() != 1
+      Error(F() .. E_ONECHAR)
+      return ''
+    endif
+
+    if mode == 'i'
+      return evalstr
+    elseif mode == 'v'
+      ToggleOptions(false)
+      execute 'normal! ' .. evalstr
+      ToggleOptions(true)
+
+      if opts->has_key('reindent') && opts.reindent >= 0
+        normal m'
+        ReIndent(line('v'), line('.'), opts.reindent)
+        normal ``
+      endif
+
+      if opts->has_key('insert') && opts.insert
+        exe "normal! \<c-\>\<c-n>l"
+        startinsert
+      endif
+    else
+      Error('Should not get here, something went wrong.')
+    endif
+  catch
+    Error(v:exception .. ' while executing mapping: ' .. map)
+  endtry
+
+  return ''
+enddef
+
+# CreateExtraMappings()  {{{1
 #
 # Purpose:
 #  Define mappings that are stored in a list
@@ -570,7 +616,7 @@ enddef
 #  1 - List of mappings: The mappings to define
 # Return Value:
 #  Boolean: Whether there were mappings to define
-def DoMappings(mappings: list<list<any>>): bool
+def CreateExtraMappings(mappings: list<list<any>>): bool
   if len(mappings) == 0
     return false
   endif
@@ -613,7 +659,7 @@ def MapCheck(map: string, mode: string, internal: bool = false): number
   return 0
 enddef
 
-# WR()  {{{1
+# HTMLopWrap()  {{{1
 #
 # Function set in 'operatorfunc' for mappings that take an operator:
 #
@@ -624,7 +670,7 @@ enddef
 #  1 - String: The type of movement (visual mode) to be used
 # Return value:
 #  None
-def WR(type: string)
+def HTMLopWrap(type: string)
   HTMLvariables.saveopts['selection'] = &selection
   &selection = 'inclusive'
 
@@ -644,7 +690,7 @@ def WR(type: string)
 
   if b:htmlplugin.taginsert
     exe "normal! \<c-\>\<c-n>l"
-    silent startinsert
+    startinsert
   endif
 enddef
 
@@ -666,7 +712,7 @@ def MappingsListAdd(arg: dict<any>, mode: string, internal: bool = false): bool
   return false
 enddef
 
-# TO()  {{{1
+# ToggleOptions()  {{{1
 #
 # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
 # are off temporarily to prevent the visual mappings from causing a
@@ -675,7 +721,7 @@ enddef
 # Arguments:
 #  1 - Boolean: false - Turn options off.
 #               true  - Turn options back on, if they were on before.
-def TO(which: bool)
+def ToggleOptions(which: bool)
   try
     if which
       if HTMLvariables.saveopts->has_key('formatoptions')
@@ -709,11 +755,11 @@ def TO(which: bool)
       endif
     endif
   catch
-    Error(v:exception)
+    Error(v:exception .. ' while toggling options.')
   endtry
 enddef
 
-# TC()  {{{1
+# ToggleComments()  {{{1
 #
 # Used to make sure the 'comments' option is off temporarily to prevent
 # certain mappings from inserting unwanted comment leaders.
@@ -721,7 +767,7 @@ enddef
 # Arguments:
 #  1 - Boolean: false - Clear option
 #               true  - Restore option
-#def TC(s: bool)
+#def ToggleComments(s: bool)
 #  if s
 #    if HTMLvariables.saveopts->has_key('comments') && HTMLvariables.saveopts['comments'] != ''
 #      &l:comments = HTMLvariables.saveopts['comments']
@@ -761,8 +807,7 @@ export def ToggleClipboard(dowhat: number = 2): bool
     if g:htmlplugin->has_key('save_clipboard')
       &clipboard = g:htmlplugin.save_clipboard
     else
-      Error(expand('<stack>')
-        .. ' Somehow the htmlplugin.save_clipboard global variable did not get set.')
+      Error(F() .. E_NOCLIPBOARD)
       return false
     endif
   else
@@ -775,7 +820,7 @@ export def ToggleClipboard(dowhat: number = 2): bool
   return true
 enddef
 
-# VI()  {{{1
+# VisualInsertPos()  {{{1
 #
 # Purpose:
 #  Used by HTML#functions#Map() to enter insert mode in Visual mappings in the right
@@ -784,7 +829,7 @@ enddef
 #   None
 # Return Value:
 #   The proper movement command based on the value of 'selection'.
-def VI(): string
+def VisualInsertPos(): string
   if &selection == 'inclusive'
     return "\<right>"
   else
@@ -828,7 +873,7 @@ export def ConvertCase(str: any, case: string = 'config'): any
   elseif newcase =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
     newnewstr = newstr->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g'))
   else
-    Warn(expand('<stack>') .. ' Specified case is invalid: "'
+    Warn(F() .. ' Specified case is invalid: "'
       .. newcase .. '". Overriding to "lowercase".')
     newstr = newstr->ConvertCase('lowercase')
   endif
@@ -858,7 +903,7 @@ enddef
 def ReIndent(first: number, last: number, extralines: number = 0, prelines: number = 0): bool
 
   def GetFiletypeInfo(): dict<string>  # {{{2
-    var filetypeoutput: dict<string>
+    var ftout: dict<string>
     execute('filetype')
       ->trim()
       ->strpart(9)
@@ -866,32 +911,27 @@ def ReIndent(first: number, last: number, extralines: number = 0, prelines: numb
       ->mapnew(
         (_, val) => {
           var newval = val->split(':')
-          filetypeoutput[newval[0]] = newval[1]
+          ftout[newval[0]] = newval[1]
         }
       )
-    return filetypeoutput
+    return ftout
   enddef  # }}}2
 
   var firstline: number
   var lastline: number
-  var offset: number
 
   if !GetFiletypeInfo()['indent']->Bool() && &indentexpr == ''
     return false
   endif
 
-  # Make sure the range is in the proper order:
+  # Make sure the range is in the proper order before adding
+  # prelines/extralines:
   if last >= first
     firstline = first
     lastline = last
   else
     firstline = last
     lastline = first
-  endif
-
-  # Behavior of visual mappings can be unpredictable without this:
-  if firstline == lastline
-    ++lastline
   endif
 
   firstline -= prelines
@@ -904,13 +944,14 @@ def ReIndent(first: number, last: number, extralines: number = 0, prelines: numb
     lastline = line('$')
   endif
 
-  offset = line('.')->line2byte() + col('.') - 1
-
   try
-    execute ':' .. firstline .. ',' .. lastline .. 'normal! =='
+    var range = firstline == lastline ? firstline : firstline .. ',' .. lastline
+    var offset = (line('.')->line2byte()) + (col('.') - 1)
+
+    execute ':' .. range .. 'normal! =='
     execute 'go ' .. offset
   catch
-    Error(v:exception)
+    Error(v:exception .. ' while reindenting.')
   endtry
 
   return true
@@ -989,7 +1030,7 @@ def SmartTag(tag: string, mode: string): string
   var column: number
 
   if ! b:htmlplugin.smarttags->has_key(newtag)
-    Error(expand('<stack>') .. ' Unknown smart tag: ' .. newtag)
+    Error(F() .. E_NOSMART .. newtag)
     return ''
   endif
 
@@ -1008,13 +1049,14 @@ def SmartTag(tag: string, mode: string): string
   if newmode == 'v'
     # If 'selection' is "exclusive" all the visual mode mappings need to
     # behave slightly differently:
-    ret = ret->substitute('`>a\C', '`>i' .. VI(), 'g')
+    ret = ret->substitute('`>a\C', '`>i' .. VisualInsertPos(), 'g')
 
-    if b:htmlplugin.smarttags[newtag][newmode]->has_key('insert')
-        && b:htmlplugin.smarttags[newtag][newmode]['insert']
-      ret ..= "\<right>"
-      silent startinsert
-    endif
+    # Now handled by DoMap():
+    #if b:htmlplugin.smarttags[newtag][newmode]->has_key('insert')
+    #    && b:htmlplugin.smarttags[newtag][newmode]['insert']
+    #  ret ..= "\<right>"
+    #  silent startinsert
+    #endif
   endif
 
   return ret
@@ -1173,16 +1215,13 @@ enddef
 #  1 - String: Whether to disable or enable the mappings:
 #               d/disable/off:   Clear the mappings
 #               e/enable/on:     Redefine the mappings
-#               r/reload/reinit: Completely reload the script
-#               h/html:          Reload the mapppings in HTML mode
-#               x/xhtml:         Reload the mapppings in XHTML mode
 # Return Value:
 #  Boolean: False for an error, true otherwise
 # Known Limitations:
 #  This expects g:htmlplugin.file to be set by the HTML plugin.
 export def PluginControl(dowhat: string): bool
 
-  # ClearMappings() {{{2
+  # ClearMappings()  {{{2
   #
   # Purpose:
   #  Iterate over all the commands to clear the mappings.  (This used to be
@@ -1204,12 +1243,12 @@ export def PluginControl(dowhat: string): bool
   enddef  # }}}2
 
   if !BoolVar('b:htmlplugin.did_mappings_init')
-    Error('The HTML macros plugin was not sourced for this buffer.')
+    Error(E_NOSRC)
     return false
   endif
 
   if !g:htmlplugin->has_key('file')
-    Error('Somehow the HTML plugin reference global variable did not get set.')
+    Error(E_NOGLOBAL)
     return false
   endif
 
@@ -1220,23 +1259,23 @@ export def PluginControl(dowhat: string): bool
         MenuControl('disable')
       endif
     else
-      Error('The HTML mappings are already disabled.')
+      Error(E_DISABLED)
       return false
     endif
   elseif dowhat =~? '^\%(e\%(nable\)\?\|on\|true\|1\)$'
     if BoolVar('b:htmlplugin.did_mappings')
-      Error('The HTML mappings are already enabled.')
+      Error(E_ENABLED)
     else
       ReadEntities(false, true)
       ReadTags(false, true)
       if b:htmlplugin->has_key('mappings')
-        DoMappings(b:htmlplugin.mappings)
+        CreateExtraMappings(b:htmlplugin.mappings)
       endif
       b:htmlplugin.did_mappings = true
       MenuControl('enable')
     endif
   else
-    Error(expand('<stack>') .. ' Invalid argument: ' .. dowhat)
+    Error(F() .. E_INVALIDARG .. dowhat)
     return false
   endif
 
@@ -1256,7 +1295,7 @@ enddef
 #  Boolean: False if an error occurred, true otherwise
 export def MenuControl(which: string = 'detect'): bool
   if which !~? '^disable$\|^enable$\|^detect$'
-    Error(expand('<stack>') .. ' Invalid argument: ' .. which)
+    Error(F() .. E_INVALIDARG .. which)
     return false
   endif
 
@@ -1313,7 +1352,7 @@ enddef
 #  String: The converted color
 def ToRGB(color: string, percent: bool = false): string
   if color !~ '^#\x\{6}$'
-    Error(expand('<stack>') ..
+    Error(F() ..
       ' Color must be a six-digit hexadecimal value prefixed by a #')
     return ''
   endif
@@ -1338,7 +1377,7 @@ enddef
 #  None
 export def ColorChooser(how: string = 'i'): void
   if !BoolVar('b:htmlplugin.did_mappings_init')
-    Error('Not in an HTML buffer.')
+    Error(E_NOSRC)
     return
   endif
 
@@ -1392,7 +1431,7 @@ export def ColorChooser(how: string = 'i'): void
       doname = true
       newkey = "\<cr>"
     elseif key ==? 'q'
-      call popup_close(id, -2)
+      popup_close(id, -2)
       return true
     elseif key == "\<2-leftmouse>" || key == "\<s-2-leftmouse>" || key == "\<c-2-leftmouse>"
       var mousepos = getmousepos()
@@ -1413,7 +1452,7 @@ export def ColorChooser(how: string = 'i'): void
           doname = true
         endif
 
-        call popup_close(id, popup_getpos(id)['firstline']
+        popup_close(id, popup_getpos(id)['firstline']
           + mousepos['winrow'] - 2)
         return true
       endif
@@ -1883,17 +1922,14 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
   var rval = true
 
   if jsonfiles->len() > 1
-    Warn(expand('<stack>') .. ' ' .. file
-      .. ' is found too many times in the runtimepath. Using the first.')
+    Warn(F() .. ' ' .. file .. W_TOOMANYRTP)
   endif
 
   if jsonfiles->len() == 0
-    Error(expand('<stack>') .. ' ' .. file
-      .. ' is not found in the runtimepath. No tag mappings or menus have been defined.')
+    Error(F() .. ' ' .. file .. E_NOTFOUND .. E_NOTAG)
     return false
   elseif ! jsonfiles[0]->filereadable()
-    Error(expand('<stack>') .. ' ' .. jsonfiles[0]
-      .. ' is not readable. No tag mappings or menus have been defined.')
+    Error(F() .. ' ' .. jsonfiles[0] .. E_NOREAD .. E_NOTAG)
     return false
   endif
 
@@ -2032,8 +2068,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
       endif
     catch
       Error(v:exception)
-      Error('Potentially malformed json in ' .. file
-        .. ', section: ' .. json->string())
+      Error(E_JSON .. file .. ', section: ' .. json->string())
       rval = false
     endtry
   endfor
@@ -2057,23 +2092,20 @@ export def ReadEntities(domenu: bool = true, internal: bool = false, file: strin
   var rval = true
 
   if jsonfiles->len() > 1
-    Warn(expand('<stack>') .. ' ' .. file
-      .. ' is found too many times in the runtimepath. Using the first.')
+    Warn(F() .. ' ' .. file .. W_TOOMANYRTP)
   endif
 
   if jsonfiles->len() == 0
-    Error(expand('<stack>') .. ' ' .. file
-      .. ' is not found in the runtimepath. No entity mappings or menus have been defined.')
+    Error(F() .. ' ' .. file .. E_NOTFOUND .. E_NOENTITY)
     return false
   elseif ! jsonfiles[0]->filereadable()
-    Error(expand('<stack>') .. ' ' .. jsonfiles[0]
-      .. ' is not readable. No entity mappings or menus have been defined.')
+    Error(F() .. ' ' .. jsonfiles[0] .. E_NOREAD .. E_NOENTITY)
     return false
   endif
 
   for json in jsonfiles[0]->readfile()->join(' ')->json_decode()
     if json->len() != 4 || json[2]->type() != v:t_list
-      Error(expand('<stack>') .. ' Malformed json in ' .. file .. ', section: '
+      Error(F() .. ' ' .. E_JSON .. file .. ', section: '
         .. json->string())
       rval = false
       continue
@@ -2095,6 +2127,19 @@ export def ReadEntities(domenu: bool = true, internal: bool = false, file: strin
   endfor
 
   return rval
+enddef
+
+
+# F()  {{{1
+#
+#  Purpose:
+#   Show the function name from the stack in the context of the caller of F().
+#  Arguments:
+#   None
+#  Return Value:
+#   String: The function name
+def F(): string
+  return split(expand('<stack>'), '\.\.')[-2]->substitute('\[\d\+\]$', '', '')
 enddef
 
 #defcompile

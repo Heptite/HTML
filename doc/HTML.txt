@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2022 Jul 06
+*HTML.txt*	For Vim version 9.0	Last change: 2022 Jul 26
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -18,8 +18,8 @@ terms of the GNU |GPL| version 3 or later.
 1. Introduction				|html-intro|
 2. Customization Variables		|html-variables|
 3. Commands				|html-commands|
-4. Mappings for Normal <> Tags		|html-tags|
-5. Mappings for &...; entity codes	|character-entities|
+4. Mappings for Normal <...> Tags	|html-tags|
+5. Mappings for &...; Entity Codes	|character-entities|
 6. How to Use Browser Mappings		|browser-control|
 7. Miscellaneous Extras			|html-misc|
 
@@ -428,8 +428,7 @@ The following commands are only defined in HTML buffers.
 
 	This command fails if you are not in an HTML buffer.
 
-							*n_;cc* *i_;cc* *v_;cc*
-;cc	A shortcut mapping to call |:ColorChooser|.
+	(See: |;cc|)
 
 
 ==============================================================================
@@ -474,6 +473,8 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 	<!DOCTYPE html>
 <	at the top of the file, for HTML 5. (Note there is no transitional or
 	strict version of this.)
+							*n_;cc* *i_;cc* *v_;cc*
+;cc	A shortcut mapping to call |:ColorChooser|.
 							*html-content-type*
 							*i_;ct*
 ;ct	Inserts >
@@ -1278,8 +1279,13 @@ characters into the HTML buffer. These are known as characters entities.
 	This can be very slow if you translate a long string and syntax
 	highlighting is enabled.
 
-	(Note that the "&" in this mapping is not translated to whatever
-	|g:htmlplugin.entity_map_leader| is set to.)
+	Notes:
+	- Spaces are translated to the &nbsp; entity which stands for
+	  nonbreaking space, which is slightly different from a space; this
+	  is considered a useful compromise.
+	- The "&" in this mapping is not translated to whatever
+	  |g:htmlplugin.entity_map_leader| is set to, while the ";" is
+	  translated to whatever |g:htmlplugin.entity_map_leader| is set to.
 							*n_;star* *v_;star*
 ;*	Similar to |n_;&| / |v_;&| but encodes to purely hexadecimal codes
 	instead.
@@ -1500,6 +1506,7 @@ Dagger (footnote)	†		&dagger;	&dt		*i_&dt*
 Double Dagger		‡		&Dagger;	&dd		*i_&dd*
 Care Of (c/o)		℅		&incare;	&co		*i_&co*
 Backspace		⌫		&#x232B;	&bs		*i_&bs*
+Delete			⌦		&#x2326;	&dl		*i_&dl*
 
 
 The Greek Alphabet:

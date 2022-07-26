@@ -4,7 +4,7 @@
    ["&",       "&amp;",      ["Ampersand"],                                 "&"],
    [">",       "&gt;",       ["Greaterthan"],                               ">"],
    ["<",       "&lt;",       ["Lessthan"],                                  "<"],
-   ["<space>", "&nbsp;",     ["Space"],                                     "nonbreaking"],
+   ["<space>", "&nbsp;",     ["Nonbreaking Space"],                         "\" \""],
 
    ["",        "",           ["-sep1-"],                                    "<nop>"],
 
@@ -285,6 +285,7 @@
    ["rx",      "&rx;",       ["&Symbols", "Rx"],                            "\\u211E"],
    ["no",      "&#x1F6C7;",  ["&Symbols", "Forbidden Sign"],                "\\U1F6C7"],
    ["bs",      "&#x232B;",   ["&Symbols", "Backspace"],                     "\\u232B"],
+	["dl",      "&#x2326;",   ["&Symbols", "Delete"],                        "\\u2326"],
 
    ["A~",      "&Atilde;",   ["&Tildes", "A-tilde"],                        "\\xC3"],
    ["N~",      "&Ntilde;",   ["&Tildes", "N-tilde"],                        "\\xD1"],
