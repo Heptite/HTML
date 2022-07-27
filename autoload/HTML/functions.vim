@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: July 26, 2022
+# Last Change: July 27, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -559,51 +559,173 @@ enddef
 #  String: Either an empty string (for visual mappings) or the key sequence to
 #  run (for insert mode mappings).
 def DoMap(mode: string, map: string): string
+
+  # ToggleOptions()  {{{2
+  #
+  # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
+  # are off temporarily to prevent the visual mappings from causing a
+  # (visual)bell or inserting improperly.
+  #
+  # Arguments:
+  #  1 - Boolean: false - Turn options off.
+  #               true  - Turn options back on, if they were on before.
+  def ToggleOptions(which: bool)
+    try
+      if which
+        if HTMLvariables.saveopts->has_key('formatoptions')
+            && HTMLvariables.saveopts['formatoptions'] != ''
+          &l:showmatch = HTMLvariables.saveopts['showmatch']
+          &l:indentexpr = HTMLvariables.saveopts['indentexpr']
+          &l:formatoptions = HTMLvariables.saveopts['formatoptions']
+        endif
+
+        # Restore the last visual mode if it was changed:
+        if HTMLvariables.saveopts->has_key('visualmode') && HTMLvariables.saveopts['visualmode'] != ''
+          execute 'normal! gv' .. HTMLvariables.saveopts['visualmode']
+          HTMLvariables.saveopts->remove('visualmode')
+        endif
+      else
+        if &l:formatoptions != ''
+          HTMLvariables.saveopts['showmatch'] = &l:showmatch
+          HTMLvariables.saveopts['indentexpr'] = &l:indentexpr
+          HTMLvariables.saveopts['formatoptions'] = &l:formatoptions
+        endif
+        &l:showmatch = false
+        &l:indentexpr = ''
+        &l:formatoptions = ''
+
+        # A trick to make leading indent on the first line of visual-line
+        # selections is handled properly (turn it into a character-wise
+        # selection and exclude the leading indent):
+        if visualmode() ==# 'V'
+          HTMLvariables.saveopts['visualmode'] = visualmode()
+          execute "normal! \<c-\>\<c-n>`<^v`>"
+        endif
+      endif
+    catch
+      Error(v:exception .. ' while toggling options.')
+    endtry
+  enddef
+
+  # ReIndent()  {{{2
+  #
+  # Purpose:
+  #  Re-indent a region.  (Usually called by HTML#functions#Map.)
+  #  Nothing happens if filetype indenting isn't enabled and 'indentexpr' is
+  #  unset.
+  # Arguments:
+  #  1 - Integer: Start of region.
+  #  2 - Integer: End of region.
+  #  3 - Integer: Optional, Add N extra lines below the region to re-indent.
+  #  4 - Integer: Optional, Add N extra lines above the region to re-indent.
+  #               (Two extra options because the start/end can be reversed so
+  #               adding to those in the function call can have wrong results.)
+  # Return Value:
+  #  Boolean - True if lines were reindented, false otherwise.
+  def ReIndent(first: number, last: number, extralines: number = 0, prelines: number = 0): bool
+
+    def GetFiletypeInfo(): dict<string>  # {{{3
+      var ftout: dict<string>
+      execute('filetype')
+        ->trim()
+        ->strpart(9)
+        ->split('  ')
+        ->mapnew(
+          (_, val) => {
+            var newval = val->split(':')
+            ftout[newval[0]] = newval[1]
+          }
+        )
+      return ftout
+    enddef  # }}}3
+
+    var firstline: number
+    var lastline: number
+
+    if !GetFiletypeInfo()['indent']->Bool() && &indentexpr == ''
+      return false
+    endif
+
+    # Make sure the range is in the proper order before adding
+    # prelines/extralines:
+    if last >= first
+      firstline = first
+      lastline = last
+    else
+      firstline = last
+      lastline = first
+    endif
+
+    firstline -= prelines
+    lastline += extralines
+
+    if firstline < 1
+      firstline = 1
+    endif
+    if lastline > line('$')
+      lastline = line('$')
+    endif
+
+    var range = firstline == lastline ? firstline : firstline .. ',' .. lastline
+    var position = [line('.'), col('.')]
+
+    try
+      execute ':' .. range .. 'normal! =='
+    catch
+      Error(v:exception .. ' while reindenting.')
+    finally
+      cursor(position)
+    endtry
+
+    return true
+  enddef  # }}}2
+
   var evalstr: string
   var rhs: string
   var opts: dict<any>
 
-  try
-    rhs = b:htmlplugin.maps[mode][map][0]
-    rhs = rhs->substitute('\c\\<[a-z0-9_-]\+>',
-      '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
+  rhs = b:htmlplugin.maps[mode][map][0]
+  rhs = rhs->substitute('\c\\<[a-z0-9_-]\+>',
+    '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
 
-    opts = b:htmlplugin.maps[mode][map][1]
+  opts = b:htmlplugin.maps[mode][map][1]
 
-    if opts->has_key('expr') && opts.expr
-      evalstr = eval(rhs)
-    else
-      evalstr = rhs
-    endif
+  if opts->has_key('expr') && opts.expr
+    evalstr = eval(rhs)
+  else
+    evalstr = rhs
+  endif
 
-    if mode->strlen() != 1
-      Error(F() .. E_ONECHAR)
-      return ''
-    endif
+  if mode->strlen() != 1
+    Error(F() .. E_ONECHAR)
+    return ''
+  endif
 
-    if mode == 'i'
-      return evalstr
-    elseif mode == 'v'
-      ToggleOptions(false)
+  if mode == 'i'
+    return evalstr
+  elseif mode == 'v'
+    ToggleOptions(false)
+    try
       execute 'normal! ' .. evalstr
-      ToggleOptions(true)
+    catch
+      Error(v:exception .. ' while executing mapping: ' .. map)
+    endtry
+    ToggleOptions(true)
 
-      if opts->has_key('reindent') && opts.reindent >= 0
-        normal m'
-        ReIndent(line('v'), line('.'), opts.reindent)
-        normal ``
-      endif
-
-      if opts->has_key('insert') && opts.insert
-        exe "normal! \<c-\>\<c-n>l"
-        startinsert
-      endif
-    else
-      Error('Should not get here, something went wrong.')
+    if opts->has_key('reindent') && opts.reindent >= 0
+      normal m'
+      #ReIndent(line('v'), line('.'), opts.reindent)
+      ReIndent(line("'<"), line("'>"), opts.reindent)
+      normal ``
     endif
-  catch
-    Error(v:exception .. ' while executing mapping: ' .. map)
-  endtry
+
+    if opts->has_key('insert') && opts.insert
+      exe "normal! \<c-\>\<c-n>l"
+      startinsert
+    endif
+  else
+    Error('Should not get here, something went wrong.')
+  endif
 
   return ''
 enddef
@@ -710,53 +832,6 @@ def MappingsListAdd(arg: dict<any>, mode: string, internal: bool = false): bool
     return true
   endif
   return false
-enddef
-
-# ToggleOptions()  {{{1
-#
-# Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
-# are off temporarily to prevent the visual mappings from causing a
-# (visual)bell or inserting improperly.
-#
-# Arguments:
-#  1 - Boolean: false - Turn options off.
-#               true  - Turn options back on, if they were on before.
-def ToggleOptions(which: bool)
-  try
-    if which
-      if HTMLvariables.saveopts->has_key('formatoptions')
-          && HTMLvariables.saveopts['formatoptions'] != ''
-        &l:showmatch = HTMLvariables.saveopts['showmatch']
-        &l:indentexpr = HTMLvariables.saveopts['indentexpr']
-        &l:formatoptions = HTMLvariables.saveopts['formatoptions']
-      endif
-
-      # Restore the last visual mode if it was changed:
-      if HTMLvariables.saveopts->has_key('visualmode') && HTMLvariables.saveopts['visualmode'] != ''
-        execute 'normal! gv' .. HTMLvariables.saveopts['visualmode']
-        HTMLvariables.saveopts->remove('visualmode')
-      endif
-    else
-      if &l:formatoptions != ''
-        HTMLvariables.saveopts['showmatch'] = &l:showmatch
-        HTMLvariables.saveopts['indentexpr'] = &l:indentexpr
-        HTMLvariables.saveopts['formatoptions'] = &l:formatoptions
-      endif
-      &l:showmatch = false
-      &l:indentexpr = ''
-      &l:formatoptions = ''
-
-      # A trick to make leading indent on the first line of visual-line
-      # selections is handled properly (turn it into a character-wise
-      # selection and exclude the leading indent):
-      if visualmode() ==# 'V'
-        HTMLvariables.saveopts['visualmode'] = visualmode()
-        execute "normal! \<c-\>\<c-n>`<^v`>"
-      endif
-    endif
-  catch
-    Error(v:exception .. ' while toggling options.')
-  endtry
 enddef
 
 # ToggleComments()  {{{1
@@ -883,78 +958,6 @@ export def ConvertCase(str: any, case: string = 'config'): any
   else
     return newnewstr[0]
   endif
-enddef
-
-# ReIndent()  {{{1
-#
-# Purpose:
-#  Re-indent a region.  (Usually called by HTML#functions#Map.)
-#  Nothing happens if filetype indenting isn't enabled and 'indentexpr' is
-#  unset.
-# Arguments:
-#  1 - Integer: Start of region.
-#  2 - Integer: End of region.
-#  3 - Integer: Optional, Add N extra lines below the region to re-indent.
-#  4 - Integer: Optional, Add N extra lines above the region to re-indent.
-#               (Two extra options because the start/end can be reversed so
-#               adding to those in the function call can have wrong results.)
-# Return Value:
-#  Boolean - True if lines were reindented, false otherwise.
-def ReIndent(first: number, last: number, extralines: number = 0, prelines: number = 0): bool
-
-  def GetFiletypeInfo(): dict<string>  # {{{2
-    var ftout: dict<string>
-    execute('filetype')
-      ->trim()
-      ->strpart(9)
-      ->split('  ')
-      ->mapnew(
-        (_, val) => {
-          var newval = val->split(':')
-          ftout[newval[0]] = newval[1]
-        }
-      )
-    return ftout
-  enddef  # }}}2
-
-  var firstline: number
-  var lastline: number
-
-  if !GetFiletypeInfo()['indent']->Bool() && &indentexpr == ''
-    return false
-  endif
-
-  # Make sure the range is in the proper order before adding
-  # prelines/extralines:
-  if last >= first
-    firstline = first
-    lastline = last
-  else
-    firstline = last
-    lastline = first
-  endif
-
-  firstline -= prelines
-  lastline += extralines
-
-  if firstline < 1
-    firstline = 1
-  endif
-  if lastline > line('$')
-    lastline = line('$')
-  endif
-
-  try
-    var range = firstline == lastline ? firstline : firstline .. ',' .. lastline
-    var offset = (line('.')->line2byte()) + (col('.') - 1)
-
-    execute ':' .. range .. 'normal! =='
-    execute 'go ' .. offset
-  catch
-    Error(v:exception .. ' while reindenting.')
-  endtry
-
-  return true
 enddef
 
 # HTML#functions#NextInsertPoint()  {{{1
@@ -1950,7 +1953,6 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
   endif
 
   for json in jsonfiles[0]->readfile()->join(' ')->json_decode()
-    try
       if json->has_key('menu') && json.menu[2]->has_key('n')
           && json.menu[2].n[0] ==? '<nop>' && domenu
         Menu('menu', json.menu[0], json.menu[1], '<nop>')
@@ -2028,17 +2030,24 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
         # If it was indicated that mappings would be defined but none were
         # actually defined, don't set the menu items for this mapping either:
         if did_mappings == 0
+          if maplhs != ''
+            Warn('No mapping(s) were defined for "' .. b:htmlplugin.map_leader .. maplhs .. '".'
+              .. (json->has_key('menu') ? '' : ' Skipping menu item.'))
+          endif
           continue
         endif
       endif
 
       if domenu && json->has_key('menu')
+        var did_menus = 0
+
         if json.menu[2]->has_key('i')
           LeadMenu('imenu',
             json.menu[0],
             json.menu[1],
             (menulhs == '' ? json.menu[2].i[0] : menulhs),
             json.menu[2].i[1])
+          ++did_menus
         endif
 
         if json.menu[2]->has_key('v')
@@ -2047,6 +2056,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
             json.menu[1],
             (menulhs == '' ? json.menu[2].v[0] : menulhs),
             json.menu[2].v[1])
+          ++did_menus
         endif
 
         if json.menu[2]->has_key('n')
@@ -2055,6 +2065,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
             json.menu[1],
             (menulhs == '' ? json.menu[2].n[0] : menulhs),
             json.menu[2].n[1])
+          ++did_menus
         endif
 
         if json.menu[2]->has_key('a')
@@ -2064,13 +2075,13 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
             json.menu[1],
             (menulhs == '' ? json.menu[2].a[0] : menulhs),
             json.menu[2].a[1])
+          ++did_menus
+        endif
+
+        if did_menus == 0
+            Warn('No menu item was defined for "' .. json.menu[1][-1] .. '".')
         endif
       endif
-    catch
-      Error(v:exception)
-      Error(E_JSON .. file .. ', section: ' .. json->string())
-      rval = false
-    endtry
   endfor
 
   return rval

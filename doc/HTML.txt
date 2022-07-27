@@ -1,4 +1,4 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2022 Jul 26
+*HTML.txt*	For Vim version 9.0	Last change: 2022 Jul 27
 
 
 		HTML/XHTML MACROS	by Christian J. Robinson
@@ -1802,17 +1802,14 @@ g:HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
 	{"expr": true} ~
 	Run the {rhs} of the mapping as an expression and "type" the result.
 
-	For visual mappings only:
-
 	{"extra": false} ~
 	Do not add extra magic to the visual mapping. This suppresses the
 	other options.
 
+	For visual mappings only:
+
 	{"insert": true} ~
-	The visual mapping enters insert mode. (Note this doesn't put the
-	mapping into insert mode itself, but only tells g:HTML#functions#Map
-	that the visual mapping ends in insert mode so it behaves somewhat
-	differently.)
+	The visual mapping enters insert mode. 
 
 	{"reindent": N} ~
 	Re-indent the visually selected lines, plus N lines below. This value
