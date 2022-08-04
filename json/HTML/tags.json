@@ -1141,7 +1141,7 @@
 		"maps": {
 			"n": ["", "<ScriptCmd>MangleImageTag.Update()<CR>"],
 			"i": ["", "<ScriptCmd>MangleImageTag.Update()<CR>", {"extra": false}],
-			"v": ["", "<C-c><ScriptCmd>MangleImageTag.Update()<CR>gv", {"extra": false}]
+			"v": ["", "<ScriptCmd>MangleImageTag.Update()<CR>", {"extra": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "Update Image Size Attributes"], {
