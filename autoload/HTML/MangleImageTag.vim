@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: July 24, 2022
+# Last Change: August 04, 2022
 #
 # Requirements:
 #   Vim 9 or later
@@ -57,7 +57,6 @@ def Error(error_message: string, quiet: bool = false): void  # {{{1
   echohl None
 enddef
 
-# TODO: remove this when the bug is fixed
 export def Update(quiet: bool = false): bool  # {{{1
   var start_linenr: number
   var end_linenr: number
@@ -158,13 +157,13 @@ export def Update(quiet: bool = false): bool  # {{{1
 enddef
 
 def ImageSize(image: string, quiet: bool = false): list<number>  # {{{1
-  var ext = image->fnamemodify(':e')
+  var ext = image->fnamemodify(':e')->tolower()
   var size: list<number>
   var buf: list<number>
 
-  if ext !~? '^png$\|^gif$\|^jpe\?g\|^tiff\?$\|^webp$'
+  if ['png', 'gif', 'jpg', 'jpeg', 'tif', 'tiff', 'webp']->match(ext) < 0
     if !quiet
-      Error(E_UNSUPPORTED .. tolower(ext))
+      Error(E_UNSUPPORTED .. ext)
     endif
     return []
   elseif !image->filereadable()
@@ -177,15 +176,15 @@ def ImageSize(image: string, quiet: bool = false): list<number>  # {{{1
   # Read the image and convert it to a list of numbers:
   buf = image->readblob()->blob2list()
 
-  if ext ==? 'png'
+  if ext == 'png'
     size = buf->SizePng()
-  elseif ext ==? 'gif'
+  elseif ext == 'gif'
     size = buf->SizeGif()
-  elseif ext ==? 'jpg' || ext ==? 'jpeg'
+  elseif ext == 'jpg' || ext == 'jpeg'
     size = buf->SizeJpeg()
-  elseif ext ==? 'tif' || ext ==? 'tiff'
+  elseif ext == 'tif' || ext == 'tiff'
     size = buf->SizeTiff()
-  elseif ext ==? 'webp'
+  elseif ext == 'webp'
     size = buf->SizeWebP()
   endif
 
