@@ -1,3 +1,6 @@
+Fri, 23 Sep 2022 21:51:08 -0600 Christian J. Robinson
+ * Cleaner error and warning message handling
+
 Thu, 4 Aug 2022 17:14:18 -0600 Christian J. Robinson
  * Slight tweak
 

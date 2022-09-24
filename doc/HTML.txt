@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2022 Aug 13
+		Last change: 2022 Sep 24
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -925,16 +925,19 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 <	(Note <SMALL> is not HTML 5 compatible, so we use CSS instead.) (|n_;|)
 							*html-span*
 							*i_;sn* *v_;sn* *n_;sn*
-;sn	Span: >
+;sn	Span with class attribute: >
 	<SPAN CLASS=""></SPAN>
 <	Visual mode puts the selected text <SPAN CLASS="">here</SPAN>.
-	(|n_;|) (See the note on |i_;ss|)
+	(|n_;|)
 							*i_;ss* *v_;ss* *n_;ss*
-;ss	Span: >
+;ss	Span with style attribute: >
 	<SPAN STYLE=""></SPAN>
 <	Visual mode puts the selected text <SPAN STYLE="">here</SPAN>. (|n_;|)
-	(Note that it is assumed that a SPAN tag will require a CLASS or a
-	STYLE to be useful, so there is no mapping for just <SPAN></SPAN>.)
+							*i_;sN* *v_;sN* *n_;sN*
+;sN	Span: >
+	<SPAN></SPAN>
+<	Visual mode puts the selected text <SPAN>here</SPAN>.
+	(|n_;|)
 							*html-strong*
 							*i_;st* *v_;st* *n_;st*
 ;st	Strong text: >
