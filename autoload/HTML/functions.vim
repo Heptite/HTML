@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: July 27, 2022
+# Last Change: September 22, 2022
 #
 # Requirements:
 #       Vim 9 or later
@@ -37,41 +37,60 @@ import autoload 'HTML/MangleImageTag.vim'
 const self_sid = expand('<SID>')
 
 # Error and warning messages:  {{{1
-const E_NOMAP       = ' No mapping defined.'
-const E_NOMAPLEAD   = ' g:htmlplugin.map_leader is not set!' .. E_NOMAP
-const E_NOEMAPLEAD  = ' g:htmlplugin.entity_map_leader is not set!' .. E_NOMAP
-const E_EMPTYLHS    = ' must have a non-empty lhs.' .. E_NOMAP
-const E_EMPTYRHS    = ' must have a non-empty rhs.' .. E_NOMAP
-const E_NOMODE      = ' must have one of the modes explicitly stated.' .. E_NOMAP
-const E_NOLOCALVAR  = 'Cannot set a local variable with '
-const E_NARGS       = 'E119: Not enough arguments for '
-const E_NOSRC       = 'The HTML macros plugin was not sourced for this buffer.'
-const E_NOGLOBAL    = 'Somehow the HTML plugin reference global variable did not get set.'
-const E_DISABLED    = 'The HTML mappings are already disabled.'
-const E_ENABLED     = 'The HTML mappings are already enabled.'
-const E_INVALIDARG  = ' Invalid argument: '
-const E_JSON        = 'Potentially malformed json in '
-const E_NOTFOUND    = ' is not found in the runtimepath.'
-const E_NOREAD      = ' is not readable.'
-const E_NOTAG       = ' No tag mappings or menus have been defined.'
-const E_NOENTITY    = ' No entity mappings or menus have been defined.'
-const E_ONECHAR     = ' First argument must be one character.'
-const E_BOOLTYPE    = ' Unknown type for Bool(): '
-const E_NOCLIPBOARD = ' Somehow the htmlplugin.save_clipboard global variable did not get set.'
-const E_NOSMART     = ' Unknown smart tag: '
+const E_NOMAP        = ' No mapping defined.'
+const E_NOMAPLEAD    = '%s g:htmlplugin.map_leader is not set!' .. E_NOMAP
+const E_NOEMAPLEAD   = '%s g:htmlplugin.entity_map_leader is not set!' .. E_NOMAP
+const E_EMPTYLHS     = '%s must have a non-empty lhs.' .. E_NOMAP
+const E_EMPTYRHS     = '%s must have a non-empty rhs.' .. E_NOMAP
+const E_NOMODE       = '%s must have one of the modes explicitly stated.' .. E_NOMAP
+const E_NOLOCALVAR   = 'Cannot set a local variable with %s'
+const E_NARGS        = 'E119: Not enough arguments for %s'
+const E_NOSRC        = 'The HTML macros plugin was not sourced for this buffer.'
+const E_NOGLOBAL     = 'Somehow the HTML plugin reference global variable did not get set.'
+const E_DISABLED     = 'The HTML mappings are already disabled.'
+const E_ENABLED      = 'The HTML mappings are already enabled.'
+const E_INVALIDARG   = '%s Invalid argument: %s'
+const E_JSON         = '%s Potentially malformed json in %s, section: %s'
+const E_NOTFOUND     = '%s %s is not found in the runtimepath. %s'
+const E_NOREAD       = '%s %s is not readable. %s'
+const E_NOTAG        = 'No tag mappings or menus have been defined.'
+const E_NOENTITY     = 'No entity mappings or menus have been defined.'
+const E_ONECHAR      = '%s First argument must be one character.'
+const E_BOOLTYPE     = '%s Unknown type for Bool(): %s'
+const E_NOCLIPBOARD  = '%s Somehow the htmlplugin.save_clipboard global variable did not get set.'
+const E_NOSMART      = '%s Unknown smart tag: %s'
+const E_OPTEXCEPTION = '%s while toggling options.'
+const E_INDENTEXCEPT = '%s while reindenting.'
+const E_MAPEXCEPT    = '%s while executing mapping: %s'
+const E_NOTPOSSIBLE  = 'Should not get here, something went wrong.'
+const E_ZEROROWSCOLS = 'Rows and columns must be positive, non-zero integers.'
+const E_COLOR        = '%s Color "%s" is invalid. Colors must be a six-digit hexadecimal value prefixed by a "#".'
+const E_TEMPLATE     = 'Unable to insert template file: %s Either it doesn''t exist or it isn''t readable.'
 
-const W_TOOMANYRTP  = ' is found too many times in the runtimepath. Using the first.'
+const W_TOOMANYRTP   = '%s %s is found too many times in the runtimepath. Using the first.'
+const W_MAPOVERRIDE  = 'WARNING: A mapping of %s for %s mode has been overriden for buffer: %s'
+const W_CAUGHTERR    = 'Caught error "%s", continuing.'
+const W_INVALIDCASE  = '%s Specified case is invalid: %s. Overriding to "lowercase".'
+const W_NOMENU       = 'No menu item was defined for "%s".'
 # }}}1
 
 export def Warn(message: string): void  # {{{1
   echohl WarningMsg
-  echomsg message
+  if exists(':echowindow') == 2
+    echowindow message
+  else
+    echo message
+  endif
   echohl None
 enddef
 
 export def Message(message: string): void  # {{{1
   echohl Todo
-  echo message
+  if exists(':echowindow') == 2
+    echowindow message
+  else
+    echo message
+  endif
   echohl None
 enddef
 
@@ -121,14 +140,14 @@ export def SetIfUnset(variable: string, ...args: list<any>): number
   var newvariable = variable
 
   if variable =~# '^l:'
-    Error(E_NOLOCALVAR .. F())
+    printf(E_NOLOCALVAR, F())->Error()
     return -1
   elseif variable !~# '^[bgstvw]:'
     newvariable = 'g:' .. variable
   endif
 
   if args->len() == 0
-    Error(E_NARGS .. F())
+    printf(E_NARGS, F())->Error()
     return -1
   elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict
       || type(args[0]) == v:t_number
@@ -184,7 +203,7 @@ def Bool(value: any): bool
     return value != {}
   endif
 
-  Error(F() .. E_BOOLTYPE .. value->typename())
+  printf(E_BOOLTYPE, F(), value->typename())->Error()
   return false
 enddef
 
@@ -292,7 +311,7 @@ export def TranscodeString(str: string, code: string = ''): string
     var newchar: string
 
     if char->strchars(1) != 1
-      Error(F() .. E_ONECHAR)
+      printf(E_ONECHAR, F())->Error()
       return char
     endif
 
@@ -396,27 +415,27 @@ enddef
 #  Boolean: Whether a mapping was defined
 export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, internal: bool = false): bool
   if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-    Error(F() .. E_NOMAPLEAD)
+    printf(E_NOMAPLEAD, F())->Error()
     return false
   endif
 
   if !g:htmlplugin->has_key('entity_map_leader') && map =~? '^<elead>'
-    Error(F() .. E_NOEMAPLEAD)
+    printf(E_NOEMAPLEAD, F())->Error()
     return false
   endif
 
   if map == '' || map ==? '<lead>' || map ==? '<elead>'
-    Error(F() .. E_EMPTYLHS)
+    printf(E_EMPTYLHS, F())->Error()
     return false
   endif
 
   if arg == ''
-    Error(F() .. E_EMPTYRHS)
+    printf(E_EMPTYRHS, F())->Error()
     return false
   endif
 
   if cmd =~# '^no' || cmd =~# '^map$'
-    Error(F() .. E_NOMODE)
+    printf(E_EMPTYRHS, F())->Error()
     return false
   endif
 
@@ -519,12 +538,12 @@ enddef
 #  Boolean: Whether a mapping was defined
 export def Mapo(map: string, insert: bool = false, internal: bool = false): bool
   if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-    Error(F() .. E_NOMAPLEAD)
+    printf(E_NOMAPLEAD, F())->Error()
     return false
   endif
 
   if map == '' || map ==? "<lead>"
-    Error(F() .. E_EMPTYLHS)
+    printf(E_EMPTYLHS, F())->Error()
     return false
   endif
 
@@ -603,7 +622,7 @@ def DoMap(mode: string, map: string): string
         endif
       endif
     catch
-      Error(v:exception .. ' while toggling options.')
+      printf(E_OPTEXCEPTION, v:exception)->Error()
     endtry
   enddef
 
@@ -672,7 +691,7 @@ def DoMap(mode: string, map: string): string
     try
       execute ':' .. range .. 'normal! =='
     catch
-      Error(v:exception .. ' while reindenting.')
+      printf(E_INDENTEXCEPT, v:exception)->Error()
     finally
       cursor(position)
     endtry
@@ -697,7 +716,7 @@ def DoMap(mode: string, map: string): string
   endif
 
   if mode->strlen() != 1
-    Error(F() .. E_ONECHAR)
+    printf(E_ONECHAR, F())->Error()
     return ''
   endif
 
@@ -708,7 +727,7 @@ def DoMap(mode: string, map: string): string
     try
       execute 'normal! ' .. evalstr
     catch
-      Error(v:exception .. ' while executing mapping: ' .. map)
+      printf(E_MAPEXCEPT, v:exception, map)->Error()
     endtry
     ToggleOptions(true)
 
@@ -724,7 +743,7 @@ def DoMap(mode: string, map: string): string
       startinsert
     endif
   else
-    Error('Should not get here, something went wrong.')
+    Error(E_NOTPOSSIBLE)
   endif
 
   return ''
@@ -771,9 +790,7 @@ def MapCheck(map: string, mode: string, internal: bool = false): number
     if BoolVar('g:htmlplugin.no_map_override') && internal
       return 2
     else
-      Warn('WARNING: A mapping of "' .. map .. '" for '
-        .. HTMLvariables.MODES[mode] .. ' mode has been overridden for buffer: '
-        .. expand('%'))
+      printf(W_MAPOVERRIDE, map, HTMLvariables.MODES[mode], expand('%'))->Warn()
       return 1
     endif
   endif
@@ -805,7 +822,7 @@ def HTMLopWrap(type: string)
       execute 'normal `[v`]' .. b:htmlplugin.tagaction
     endif
   catch
-    Warn('Caught an error: ' .. v:exception)
+    printf(W_CAUGHTERR, v:exception)->Warn()
   finally
     &selection = HTMLvariables.saveopts['selection']
   endtry
@@ -882,7 +899,7 @@ export def ToggleClipboard(dowhat: number = 2): bool
     if g:htmlplugin->has_key('save_clipboard')
       &clipboard = g:htmlplugin.save_clipboard
     else
-      Error(F() .. E_NOCLIPBOARD)
+      printf(E_NOCLIPBOARD, F())->Error()
       return false
     endif
   else
@@ -948,8 +965,7 @@ export def ConvertCase(str: any, case: string = 'config'): any
   elseif newcase =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
     newnewstr = newstr->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g'))
   else
-    Warn(F() .. ' Specified case is invalid: "'
-      .. newcase .. '". Overriding to "lowercase".')
+    printf(W_INVALIDCASE, F(), newcase)->Warn()
     newstr = newstr->ConvertCase('lowercase')
   endif
 
@@ -1033,7 +1049,7 @@ def SmartTag(tag: string, mode: string): string
   var column: number
 
   if ! b:htmlplugin.smarttags->has_key(newtag)
-    Error(F() .. E_NOSMART .. newtag)
+    printf(E_NOSMART, F(), newtag)->Error()
     return ''
   endif
 
@@ -1118,7 +1134,7 @@ export def GenerateTable(rows: number = -1, columns: number = -1, border: number
   endif
 
   if newrows < 1 || newcolumns < 1
-    Error('Rows and columns must be positive, non-zero integers.')
+    Error(E_ZEROROWSCOLS)
     return false
   endif
 
@@ -1278,7 +1294,7 @@ export def PluginControl(dowhat: string): bool
       MenuControl('enable')
     endif
   else
-    Error(F() .. E_INVALIDARG .. dowhat)
+    printf(E_INVALIDARG, F(), dowhat)->Error()
     return false
   endif
 
@@ -1298,7 +1314,7 @@ enddef
 #  Boolean: False if an error occurred, true otherwise
 export def MenuControl(which: string = 'detect'): bool
   if which !~? '^disable$\|^enable$\|^detect$'
-    Error(F() .. E_INVALIDARG .. which)
+    printf(E_INVALIDARG, F(), which)->Error()
     return false
   endif
 
@@ -1355,8 +1371,7 @@ enddef
 #  String: The converted color
 def ToRGB(color: string, percent: bool = false): string
   if color !~ '^#\x\{6}$'
-    Error(F() ..
-      ' Color must be a six-digit hexadecimal value prefixed by a #')
+    printf(E_COLOR, F(), color)->Error()
     return ''
   endif
 
@@ -1563,8 +1578,7 @@ export def Template(): bool
       if template->expand()->filereadable()
         template->readfile()->TokenReplace()->append(0)
       else
-        Error('Unable to insert template file: ' .. template)
-        Error("Either it doesn't exist or it isn't readable.")
+        printf(E_TEMPLATE, template)->Error()
         return false
       endif
     else
@@ -1915,7 +1929,8 @@ enddef
 #   the same time, unless otherwise specified.
 #  Arguments:
 #   1 - Boolean: Optional, whether to define the menus
-#   2 - String:  Optional, what json file to read
+#   2 - Boolean: Optional, whether tags being read are internal to the plugin
+#   3 - String:  Optional, what json file to read
 #  Return Value:
 #   Boolean - Whether the json file was successfully read in without error
 export def ReadTags(domenu: bool = true, internal: bool = false, file: string = HTMLvariables.TAGS_FILE): bool
@@ -1925,14 +1940,14 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
   var rval = true
 
   if jsonfiles->len() > 1
-    Warn(F() .. ' ' .. file .. W_TOOMANYRTP)
+    printf(W_TOOMANYRTP, F(), file)->Warn()
   endif
 
   if jsonfiles->len() == 0
-    Error(F() .. ' ' .. file .. E_NOTFOUND .. E_NOTAG)
+    printf(E_NOTFOUND, F(), file, E_NOTAG)->Error()
     return false
   elseif ! jsonfiles[0]->filereadable()
-    Error(F() .. ' ' .. jsonfiles[0] .. E_NOREAD .. E_NOTAG)
+    printf(E_NOREAD, F(), jsonfiles[0], E_NOTAG)->Error()
     return false
   endif
 
@@ -2079,7 +2094,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
         endif
 
         if did_menus == 0
-            Warn('No menu item was defined for "' .. json.menu[1][-1] .. '".')
+            printf(W_NOMENU, json.menu[1][-1])->Warn()
         endif
       endif
   endfor
@@ -2094,7 +2109,7 @@ enddef
 #   at the same time, unless otherwise specified.
 #  Arguments:
 #   1 - Boolean: Optional, whether to define the menus
-#   2 - Boolean: Optional, whether we're doing "internal" mappings
+#   2 - Boolean: Optional, whether entities being read are internal to the plugin
 #   3 - String:  Optional, what json file to read
 #  Return Value:
 #   Boolean - Whether the json file was successfully read in without error
@@ -2103,21 +2118,20 @@ export def ReadEntities(domenu: bool = true, internal: bool = false, file: strin
   var rval = true
 
   if jsonfiles->len() > 1
-    Warn(F() .. ' ' .. file .. W_TOOMANYRTP)
+    printf(W_TOOMANYRTP, F(), file)->Warn()
   endif
 
   if jsonfiles->len() == 0
-    Error(F() .. ' ' .. file .. E_NOTFOUND .. E_NOENTITY)
+    printf(E_NOTFOUND, F(), file, E_NOENTITY)->Error()
     return false
   elseif ! jsonfiles[0]->filereadable()
-    Error(F() .. ' ' .. jsonfiles[0] .. E_NOREAD .. E_NOENTITY)
+    printf(E_NOREAD, F(), jsonfiles[0], E_NOENTITY)->Error()
     return false
   endif
 
   for json in jsonfiles[0]->readfile()->join(' ')->json_decode()
     if json->len() != 4 || json[2]->type() != v:t_list
-      Error(F() .. ' ' .. E_JSON .. file .. ', section: '
-        .. json->string())
+      printf(E_JSON, F(), file, json->string())->Error()
       rval = false
       continue
     endif

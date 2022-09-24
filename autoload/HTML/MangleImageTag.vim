@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: August 04, 2022
+# Last Change: September 23, 2022
 #
 # Requirements:
 #   Vim 9 or later
@@ -36,15 +36,15 @@ endif
 const E_NOIMG       = 'The cursor is not on an IMG tag.'
 const E_NOSRC       = 'Image SRC not specified in the tag.'
 const E_BLANK       = 'No image specified in SRC.'
-const E_NOFILE      = 'Can not find image file (or it is not readable): '
-const E_UNSUPPORTED = 'Image type not supported: '
-const E_NOREAD      = 'Can not read file: '
+const E_NOFILE      = 'Can not find image file (or it is not readable): %s'
+const E_UNSUPPORTED = 'Image type not supported: %s'
+const E_NOREAD      = 'Can not read file: %s'
 const E_GIF         = 'Malformed GIF file.'
 const E_JPG         = 'Malformed JPEG file.'
 const E_PNG         = 'Malformed PNG file.'
-const E_TIFFENDIAN  = 'Malformed TIFF file, endian identifier not found.'
-const E_TIFFID      = 'Malformed TIFF file, identifier not found.'
-const E_TIF         = 'Malformed TIFF file.'
+const E_TIFF        = 'Malformed TIFF file.'
+const E_TIFFENDIAN  = E_TIFF .. ' Endian identifier not found.'
+const E_TIFFID      = E_TIFF .. ' Identifier not found.'
 const E_WEBP        = 'Malformed WEBP file.'
 
 def Error(error_message: string, quiet: bool = false): void  # {{{1
@@ -119,7 +119,7 @@ export def Update(quiet: bool = false): bool  # {{{1
     if filereadable(expand('%:p:h') .. '/' .. src)
       src = expand('%:p:h') .. '/' .. src
     else
-      Error(E_NOFILE .. src, quiet)
+      printf(E_NOFILE, src)->Error(quiet)
       return false
     endif
   endif
@@ -163,12 +163,12 @@ def ImageSize(image: string, quiet: bool = false): list<number>  # {{{1
 
   if ['png', 'gif', 'jpg', 'jpeg', 'tif', 'tiff', 'webp']->match(ext) < 0
     if !quiet
-      Error(E_UNSUPPORTED .. ext)
+      printf(E_UNSUPPORTED, ext)->Error()
     endif
     return []
   elseif !image->filereadable()
     if !quiet
-      Error(E_NOREAD .. image)
+      printf(E_NOREAD, image)->Error()
     endif
     return []
   endif
@@ -304,7 +304,7 @@ def SizeTiff(buf: list<number>): list<number>  # {{{1
     endif
   endwhile
 
-  Error(E_TIF)
+  Error(E_TIFF)
 
   return []
 enddef

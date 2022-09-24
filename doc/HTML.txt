@@ -1,7 +1,8 @@
-*HTML.txt*	For Vim version 9.0	Last change: 2022 Jul 27
+*HTML.txt*	HTML/XHTML Editing Macros
 
+		by Christian J. Robinson
 
-		HTML/XHTML MACROS	by Christian J. Robinson
+		Last change: 2022 Aug 13
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*

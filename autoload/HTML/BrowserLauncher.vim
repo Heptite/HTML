@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 24, 2022
+# Last Change: September 22, 2022
 #
 # Currently supported browsers:
 # Unix:
@@ -83,13 +83,14 @@ endif
 import autoload 'HTML/functions.vim'
 
 const E_NOFILE  = 'No file is associated with the current buffer and no URL was specified.'
+const E_NOAPP   = '%s not found.'
 const W_UNSAVED = 'Warning: The current buffer has unsaved modifications.'
-const E_UNKNOWN = 'Unknown browser ID: '
+const E_UNKNOWN = 'Unknown browser ID: %s'
 const E_DISPLAY = '$DISPLAY is not set and no textmode browsers were found, no browser launched.'
-const E_XTERM   = "XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch "
-const E_TERM    = ":terminal is not compiled into this version of GVim. Can't launch "
-const E_LAUNCH  = 'Unable to launch '
-const E_COMMAND = 'Command failed: '
+const E_XTERM   = "XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch %s."
+const E_TERM    = ":terminal is not compiled into this version of GVim. Can't launch %s."
+const E_LAUNCH  = 'Unable to launch %s.'
+const E_COMMAND = 'Command failed: %s'
 const E_FINAL   = 'Something went wrong, we should never get here...'
 
 var Browsers: dict<list<any>>
@@ -176,7 +177,7 @@ if has('mac') == 1 || has('macunix') == 1  # {{{1
     var as_msg: string
 
     if (!MacExists(app) && app !=? 'default')
-      functions.Error(app .. ' not found')
+      printf(E_NOAPP, app)->functions.Error()
       return false
     endif
 
@@ -459,7 +460,7 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
   var file: string
 
   if !UnixWinExists(which)
-    functions.Error(E_UNKNOWN .. which)
+    printf(E_UNKNOWN, which)->functions.Error()
     return false
   endif
 
@@ -514,9 +515,9 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
         return true
       else
         if donew == 1
-          functions.Error(E_XTERM .. Browsers[which][0] .. '.')
+          printf(E_XTERM, Browsers[which][0])->functions.Error()
         else
-          functions.Error(E_TERM .. Browsers[which][0] .. '.')
+          printf(E_TERM, Browsers[which][0])->functions.Error()
         endif
 
         return false
@@ -526,7 +527,7 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
       execute '!' .. Browsers[which][1] .. ' ' .. file->shellescape()
 
       if v:shell_error
-        functions.Error(E_LAUNCH .. Browsers[which][0] .. '.')
+        printf(E_LAUNCH, Browsers[which][0])->functions.Error()
         return false
       endif
 
@@ -587,7 +588,7 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
     output = system(command)
 
     if v:shell_error
-      functions.Error(E_COMMAND .. command)
+      printf(E_COMMAND, command)->functions.Error()
       functions.Error(output)
       return false
     endif
