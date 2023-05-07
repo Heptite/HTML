@@ -7,14 +7,14 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: September 23, 2022
+# Last Change: January 21, 2023
 #
 # Requirements:
 #   Vim 9 or later
 # Assumptions:
 #   The filename extension is correct for the image type
 #
-# Copyright © 1998-2022 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2023 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # Based on "mangleImageTag" by Devin Weaver <ktohg(at)tritarget(dot)com>
 #
@@ -162,14 +162,10 @@ def ImageSize(image: string, quiet: bool = false): list<number>  # {{{1
   var buf: list<number>
 
   if ['png', 'gif', 'jpg', 'jpeg', 'tif', 'tiff', 'webp']->match(ext) < 0
-    if !quiet
-      printf(E_UNSUPPORTED, ext)->Error()
-    endif
+    printf(E_UNSUPPORTED, ext)->Error(quiet)
     return []
   elseif !image->filereadable()
-    if !quiet
-      printf(E_NOREAD, image)->Error()
-    endif
+    printf(E_NOREAD, image)->Error(quiet)
     return []
   endif
 

@@ -7,12 +7,12 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: July 17, 2022
+# Last Change: January 21, 2023
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 1998-2022 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2023 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -29,9 +29,10 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-if b:htmlplugin->has_key('did_commands') && b:htmlplugin.did_commands == true
+if get(b:htmlplugin, 'did_commands', false) == true
   finish
 endif
+
 
 import autoload 'HTML/functions.vim'
 
@@ -54,7 +55,7 @@ command! -buffer -bar HTMLtemplate HTMLTemplate
 b:htmlplugin.did_commands = true
 
 
-if g:htmlplugin->has_key('did_commands') && g:htmlplugin.did_commands == true
+if get(g:htmlplugin, 'did_commands', false) == true
   finish
 endif
 

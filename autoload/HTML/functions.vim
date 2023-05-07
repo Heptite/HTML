@@ -7,12 +7,12 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: September 22, 2022
+# Last Change: January 21, 2023
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 1998-2022 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2023 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -315,11 +315,7 @@ export def TranscodeString(str: string, code: string = ''): string
       return char
     endif
 
-    if HTMLvariables.DictCharToEntities->has_key(char)
-      newchar = HTMLvariables.DictCharToEntities[char]
-    else
-      newchar = printf('&#x%X;', char->char2nr())
-    endif
+    newchar = HTMLvariables.DictEntitiesToChar->get(char, printf('&#x%X;', char->char2nr()))
 
     return newchar
   enddef  # }}}2
@@ -476,13 +472,13 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
 
     if opts->has_key('extra') && ! opts.extra
       execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
-    elseif opts->has_key('insert') && opts.insert && opts->has_key('reindent')
+    elseif opts->get('insert', false) && opts->has_key('reindent')
       execute cmd .. ' <buffer> <silent> ' .. newmap
         .. ' <ScriptCmd>DoMap("v", "' .. newmap_escaped .. '")<CR>'
 
       b:htmlplugin.maps['v'][newmap][1]['reindent'] = opts.reindent
       b:htmlplugin.maps['v'][newmap][1]['insert'] = opts.insert
-    elseif opts->has_key('insert') && opts.insert
+    elseif opts->get('insert', false)
       execute cmd .. ' <buffer> <silent> ' .. newmap
         .. ' <ScriptCmd>DoMap("v", "' .. newmap_escaped .. '")<CR>'
 
@@ -515,6 +511,7 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
     add(b:htmlplugin.clear_mappings, ':' .. mode .. 'unmap <buffer> ' .. newmap)
   else
     add(b:htmlplugin.clear_mappings, ':unmap <buffer> ' .. newmap)
+    add(b:htmlplugin.clear_mappings, ':unmap! <buffer> ' .. newmap)
   endif
 
   # Save extra (nonplugin) mappings so they can be restored if we need to later:
@@ -599,7 +596,7 @@ def DoMap(mode: string, map: string): string
         endif
 
         # Restore the last visual mode if it was changed:
-        if HTMLvariables.saveopts->has_key('visualmode') && HTMLvariables.saveopts['visualmode'] != ''
+        if HTMLvariables.saveopts->get('visualmode', '') != ''
           execute 'normal! gv' .. HTMLvariables.saveopts['visualmode']
           HTMLvariables.saveopts->remove('visualmode')
         endif
@@ -709,7 +706,7 @@ def DoMap(mode: string, map: string): string
 
   opts = b:htmlplugin.maps[mode][map][1]
 
-  if opts->has_key('expr') && opts.expr
+  if opts->get('expr', false)
     evalstr = eval(rhs)
   else
     evalstr = rhs
@@ -738,7 +735,7 @@ def DoMap(mode: string, map: string): string
       normal ``
     endif
 
-    if opts->has_key('insert') && opts.insert
+    if opts->get('insert', false)
       exe "normal! \<c-\>\<c-n>l"
       startinsert
     endif
@@ -1259,6 +1256,7 @@ export def PluginControl(dowhat: string): bool
     )
     b:htmlplugin.clear_mappings = []
     unlet b:htmlplugin.did_mappings
+    unlet b:htmlplugin.did_json
   enddef  # }}}2
 
   if !BoolVar('b:htmlplugin.did_mappings_init')
@@ -1568,9 +1566,9 @@ export def Template(): bool
 
     var template: string
 
-    if get(b:htmlplugin, 'template', '') != ''
+    if b:htmlplugin->get('template', '') != ''
       template = b:htmlplugin.template
-    elseif get(g:htmlplugin, 'template', '') != ''
+    elseif g:htmlplugin->get('template', '') != ''
       template = g:htmlplugin.template
     endif
 
@@ -2046,7 +2044,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
         # actually defined, don't set the menu items for this mapping either:
         if did_mappings == 0
           if maplhs != ''
-            Warn('No mapping(s) were defined for "' .. b:htmlplugin.map_leader .. maplhs .. '".'
+            Warn('No mapping(s) were defined for "' .. maplhs .. '".'
               .. (json->has_key('menu') ? '' : ' Skipping menu item.'))
           endif
           continue

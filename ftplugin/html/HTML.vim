@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      July 26, 2022
+# Last Change:      January 21, 2023
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -504,15 +504,21 @@ endif # !functions.BoolVar('b:htmlplugin.did_mappings')
 # ---- ToolBar Buttons and Menu Items: ---------------------------------- {{{1
 
 if functions.BoolVar('g:htmlplugin.did_menus')
-  # Already did the menus but the tags and entities mappings need to be
-  # defined for this new buffer:
   functions.MenuControl()
-  functions.ReadTags(false, true)
-  functions.ReadEntities(false, true)
+  if !functions.BoolVar('b:htmlplugin.did_json')
+    # Already did the menus but the tags and entities mappings need to be
+    # defined for this new buffer:
+    b:htmlplugin.did_json = true
+    functions.ReadTags(false, true)
+    functions.ReadEntities(false, true)
+  endif
 elseif functions.BoolVar('g:htmlplugin.no_menu')
   # No menus were requested, so just define the tags and entities mappings:
-  functions.ReadTags(false, true)
-  functions.ReadEntities(false, true)
+  if !functions.BoolVar('b:htmlplugin.did_json')
+    b:htmlplugin.did_json = true
+    functions.ReadTags(false, true)
+    functions.ReadEntities(false, true)
+  endif
 else
 
   # Solve a race condition:
@@ -845,8 +851,11 @@ else
 
   # Bring in the tags and entities menus and mappings at the same time. (If we
   # got here they weren't brought in above.):
-  functions.ReadTags(true, true)
-  functions.ReadEntities(true, true)
+  if !functions.BoolVar('b:htmlplugin.did_json')
+    b:htmlplugin.did_json = true
+    functions.ReadTags(true, true)
+    functions.ReadEntities(true, true)
+  endif
 
   # Create the rest of the colors menu:
   HTMLvariables.COLOR_LIST->mapnew((_, value) => functions.ColorsMenu(value[0], value[1], value[2], value[3]))

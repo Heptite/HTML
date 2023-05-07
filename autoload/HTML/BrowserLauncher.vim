@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: September 22, 2022
+# Last Change: January 21, 2023
 #
 # Currently supported browsers:
 # Unix:
@@ -63,7 +63,7 @@ endif
 # Requirements:
 #  * Vim 9 or later
 #
-# Copyright © 1998-2022 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2023 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -101,7 +101,7 @@ export def Exists(browser: string = ''): any  # {{{1
   if has('mac') == 1 || has('macunix') == 1
     return MacExists(browser)
   else
-    return UnixWinExists(browser)
+    return UnixWindowsExists(browser)
   endif
 enddef
 
@@ -109,7 +109,7 @@ export def Launch(browser: string = 'default', new: number = 0, url: string = ''
   if has('mac') == 1 || has('macunix') == 1
     return MacLaunch(browser, new, url)
   else
-    return UnixWinLaunch(browser, new, url)
+    return UnixWindowsLaunch(browser, new, url)
   endif
 enddef  # }}}1
 
@@ -405,14 +405,14 @@ else # OS not recognized, can't do any browser control: {{{1
 
 endif # }}}1
 
-# UnixWinExists() {{{1
+# UnixWindowsExists() {{{1
 #
 # Usage:
-#  UnixWinExists([browser])
+#  UnixWindowsExists([browser])
 # Return value:
 #  With an argument: True or False - Whether the browser was found (exists)
 #  Without an argument: list - The names of the browsers that were found
-def UnixWinExists(browser: string = ''): any
+def UnixWindowsExists(browser: string = ''): any
   if browser == ''
     return Browsers->keys()->sort()
   else
@@ -420,10 +420,10 @@ def UnixWinExists(browser: string = ''): any
   endif
 enddef
 
-# UnixWinLaunch() {{{1
+# UnixWindowsLaunch() {{{1
 #
 # Usage:
-#  UnixWinLaunch({...}, [{0/1/2}], [url])
+#  UnixWindowsLaunch({...}, [{0/1/2}], [url])
 #    The first argument is which browser to launch, by name (not executable).
 #    Use BrowserLauncher#Exists() to see which ones are available.
 #
@@ -439,7 +439,7 @@ enddef
 # Return value:
 #  false - Failure (No browser was launched/controlled.)
 #  true  - Success (A browser was launched/controlled.)
-def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''): bool
+def UnixWindowsLaunch(browser: string = 'default', new: number = 0, url: string = ''): bool
 
   # Cap() {{{2
   #
@@ -459,7 +459,7 @@ def UnixWinLaunch(browser: string = 'default', new: number = 0, url: string = ''
   var output: string
   var file: string
 
-  if !UnixWinExists(which)
+  if !UnixWindowsExists(which)
     printf(E_UNKNOWN, which)->functions.Error()
     return false
   endif
