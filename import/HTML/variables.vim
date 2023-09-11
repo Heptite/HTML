@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: January 21, 2023
+# Last Change: September 10, 2023
 #
 # Requirements:
 #       Vim 9 or later
@@ -34,7 +34,7 @@ export const EMAIL     = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
 export const HOMEPAGE  = 'https://christianrobinson.name/HTML/'
 export const COPYRIGHT = 'Copyright © 1998-2023 under the terms of the GPL3'
 
-export const VERSION   = '1.3.5'
+export const VERSION   = '1.3.6'
 
 # Used by some of the functions to save then restore some options:
 export var saveopts: dict<any>
