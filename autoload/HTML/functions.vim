@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: January 21, 2023
+# Last Change: September 10, 2023
 #
 # Requirements:
 #       Vim 9 or later
@@ -431,7 +431,7 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
   endif
 
   if cmd =~# '^no' || cmd =~# '^map$'
-    printf(E_EMPTYRHS, F())->Error()
+    printf(E_NOMODE, F())->Error()
     return false
   endif
 

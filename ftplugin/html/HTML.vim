@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      January 21, 2023
+# Last Change:      June 12, 2023
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -89,30 +89,29 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
   # Configuration variables:  {{{2
   # (These should be set in the user's vimrc or a filetype plugin, rather than
   # changed here.)
-  SetIfUnset g:htmlplugin.bgcolor                #FFFFFF
-  SetIfUnset g:htmlplugin.textcolor              #000000
-  SetIfUnset g:htmlplugin.linkcolor              #0000EE
-  SetIfUnset g:htmlplugin.alinkcolor             #FF0000
-  SetIfUnset g:htmlplugin.vlinkcolor             #990066
-  SetIfUnset g:htmlplugin.tag_case               lowercase
-  SetIfUnset g:htmlplugin.map_leader             ;
-  SetIfUnset g:htmlplugin.entity_map_leader      &
-  SetIfUnset g:htmlplugin.default_charset        UTF-8
-  # No way to know sensible defaults here so just make sure the
-  # variables are set:
-  SetIfUnset g:htmlplugin.authorname             ''
-  SetIfUnset g:htmlplugin.authoremail            ''
-  # Empty list means the HTML menu is its own toplevel:
-  SetIfUnset g:htmlplugin.toplevel_menu          []
-  # -1 means let Vim put the menu wherever it wants to by default:
-  SetIfUnset g:htmlplugin.toplevel_menu_priority -1
+  g:htmlplugin->extend({
+    bgcolor:                '#FFFFFF',
+    textcolor:              '#000000',
+    linkcolor:              '#0000EE',
+    alinkcolor:             '#FF0000',
+    vlinkcolor:             '#990066',
+    tag_case:               'lowercase',
+    map_leader:             ';',
+    entity_map_leader:      '&',
+    default_charset:        'UTF-8',
+    # No way to know sensible defaults here so just make sure the
+    # variables are set:
+    authorname:             '',
+    authoremail:            '',
+    # Empty list means the HTML menu is its own toplevel:
+    toplevel_menu:          [],
+    # -1 means let Vim put the menu wherever it wants to by default:
+    toplevel_menu_priority: -1,
+    save_clipboard:         &clipboard,
+  }, 'keep')
   # END configurable variables
 
   # Intitialize some necessary variables:  {{{2
-
-  # Need to interpolate the value, which the command form of SetIfUnset doesn't
-  # do:
-  functions.SetIfUnset('g:htmlplugin.save_clipboard', &clipboard)
 
   # Always set this, even if it was already set:
   if g:htmlplugin->has_key('file')
