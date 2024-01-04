@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      June 12, 2023
+# Last Change:      January 04, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -111,6 +111,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
   }, 'keep')
   # END configurable variables
 
+
   # Intitialize some necessary variables:  {{{2
 
   # Always set this, even if it was already set:
@@ -143,6 +144,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
     g:htmlplugin.map_leader = ';'
     g:htmlplugin.entity_map_leader = '&'
   endif
+
 
   # Detect whether to force uppper or lower case:  {{{2
   if &filetype ==? 'xhtml'

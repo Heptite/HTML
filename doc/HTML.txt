@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2023 Jan 20
+		Last change: 2024 Jan 04
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -10,7 +10,7 @@
 This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim 9 or
 later to make editing HTML files easier. The original Copyright goes to Doug
 Renze, although his efforts have been heavily modified and extended in this
-implementation.  All the changes are Copyright © 1998 - 2023 Christian J.
+implementation.  All the changes are Copyright © 1998 - 2024 Christian J.
 Robinson. These macros and the supporting scripts are distributable under the
 terms of the GNU |GPL| version 3 or later.
 
@@ -1727,10 +1727,6 @@ drive).
 
 ==============================================================================
 7. Miscellaneous Extras					*html-misc*
-
-
-:SetIfUnset {variable} {value}				*:SetIfUnset*
-	This command calls |g:HTML#functions#SetIfUnset()|.
 
 
 Some of the functions used by the HTML mappings:	*html-functions*

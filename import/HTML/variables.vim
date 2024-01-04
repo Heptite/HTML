@@ -7,12 +7,12 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: September 10, 2023
+# Last Change: January 04, 2024
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 1998-2023 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2024 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -32,9 +32,9 @@ endif
 export const AUTHOR    = 'Christian J. Robinson'
 export const EMAIL     = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
 export const HOMEPAGE  = 'https://christianrobinson.name/HTML/'
-export const COPYRIGHT = 'Copyright © 1998-2023 under the terms of the GPL3'
+export const COPYRIGHT = 'Copyright © 1998-2024 under the terms of the GPL3'
 
-export const VERSION   = '1.3.6'
+export const VERSION   = '1.3.7'
 
 # Used by some of the functions to save then restore some options:
 export var saveopts: dict<any>

@@ -7,12 +7,12 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: January 21, 2023
+# Last Change: January 04, 2024
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 1998-2023 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2024 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -62,7 +62,9 @@ endif
 command! -bar HTMLAbout functions.About()
 command! -bar HTMLabout functions.About()
 
-command! -nargs=+ SetIfUnset functions.SetIfUnset(<f-args>)
+# No longer used in command form:
+#command! -nargs=+ SetIfUnset functions.SetIfUnset(<f-args>)
+
 
 g:htmlplugin.did_commands = true
 

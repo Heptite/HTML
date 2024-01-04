@@ -7,12 +7,12 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: September 10, 2023
+# Last Change: January 03, 2024
 #
 # Requirements:
 #       Vim 9 or later
 #
-# Copyright © 1998-2023 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2024 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -68,7 +68,7 @@ const E_COLOR        = '%s Color "%s" is invalid. Colors must be a six-digit hex
 const E_TEMPLATE     = 'Unable to insert template file: %s Either it doesn''t exist or it isn''t readable.'
 
 const W_TOOMANYRTP   = '%s %s is found too many times in the runtimepath. Using the first.'
-const W_MAPOVERRIDE  = 'WARNING: A mapping of %s for %s mode has been overriden for buffer: %s'
+const W_MAPOVERRIDE  = 'WARNING: A mapping of %s for %s mode has been overriden for buffer number %d: %s'
 const W_CAUGHTERR    = 'Caught error "%s", continuing.'
 const W_INVALIDCASE  = '%s Specified case is invalid: %s. Overriding to "lowercase".'
 const W_NOMENU       = 'No menu item was defined for "%s".'
@@ -368,25 +368,19 @@ export def TranscodeString(str: string, code: string = ''): string
     return char
   enddef  # }}}2
 
-  var out = str
-
   if code == ''
-    out = out->split('\zs')
-        ->mapnew((_, char) => char->CharToEntity())
-        ->join('')
+    return str->mapnew((_, char) => char->CharToEntity())
   elseif code == 'x'
-    out = out->split('\zs')
-        ->mapnew((_, char) => printf("&#x%x;", char->char2nr()))
-        ->join('')
+    return str->mapnew((_, char) => printf("&#x%x;", char->char2nr()))
   elseif code == '%'
-    out = out->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
+    return str->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
   elseif code =~? '^d\%(ecode\)\=$'
-    out = out->split('\(&[A-Za-z0-9]\+;\|&#x\x\+;\|&#\d\+;\|%\x\x\)\zs')
+    return str->split('\(&[A-Za-z0-9]\+;\|&#x\x\+;\|&#\d\+;\|%\x\x\)\zs')
         ->mapnew((_, s) => s->DecodeSymbol())
         ->join('')
   endif
 
-  return out
+  return ''
 enddef
 
 # HTML#functions#Map()  {{{1
@@ -787,7 +781,7 @@ def MapCheck(map: string, mode: string, internal: bool = false): number
     if BoolVar('g:htmlplugin.no_map_override') && internal
       return 2
     else
-      printf(W_MAPOVERRIDE, map, HTMLvariables.MODES[mode], expand('%'))->Warn()
+      printf(W_MAPOVERRIDE, map, HTMLvariables.MODES[mode], bufnr('%'), expand('%'))->Warn()
       return 1
     endif
   endif

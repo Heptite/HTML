@@ -7,14 +7,14 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: January 21, 2023
+# Last Change: January 04, 2024
 #
 # Requirements:
 #   Vim 9 or later
 # Assumptions:
 #   The filename extension is correct for the image type
 #
-# Copyright © 1998-2023 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2024 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # Based on "mangleImageTag" by Devin Weaver <ktohg(at)tritarget(dot)com>
 #
