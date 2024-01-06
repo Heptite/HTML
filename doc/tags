@@ -8,7 +8,6 @@
 :ColorChooser	HTML.txt	/*:ColorChooser*
 :HTMLabout	HTML.txt	/*:HTMLabout*
 :HTMLplugin	HTML.txt	/*:HTMLplugin*
-:SetIfUnset	HTML.txt	/*:SetIfUnset*
 GPL	gpl-3.0.txt	/*GPL*
 GPL3	gpl-3.0.txt	/*GPL3*
 HTML-macros	HTML.txt	/*HTML-macros*

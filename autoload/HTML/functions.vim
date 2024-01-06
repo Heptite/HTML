@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: January 03, 2024
+# Last Change: January 05, 2024
 #
 # Requirements:
 #       Vim 9 or later
@@ -1535,8 +1535,8 @@ export def Template(): bool
     def TokenReplace(text: list<string>): list<string>
       return text->mapnew(
         (_, str) =>
-            str->substitute('\C%authorname%', '\=g:htmlplugin.authorname', 'g')
-                ->substitute('\C%authoremail%', '\=g:htmlplugin.authoremail_encoded', 'g')
+            str->substitute('\C%authorname%', '\=g:htmlplugin.author_name', 'g')
+                ->substitute('\C%authoremail%', '\=g:htmlplugin.author_email_encoded', 'g')
                 ->substitute('\C%bgcolor%', '\=g:htmlplugin.bgcolor', 'g')
                 ->substitute('\C%textcolor%', '\=g:htmlplugin.textcolor', 'g')
                 ->substitute('\C%linkcolor%', '\=g:htmlplugin.linkcolor', 'g')
@@ -1552,10 +1552,10 @@ export def Template(): bool
         )
     enddef  # }}}3
 
-    if g:htmlplugin.authoremail != ''
-      g:htmlplugin.authoremail_encoded = g:htmlplugin.authoremail->TranscodeString()
+    if g:htmlplugin.author_email != ''
+      g:htmlplugin.author_email_encoded = g:htmlplugin.author_email->TranscodeString()
     else
-      g:htmlplugin.authoremail_encoded = ''
+      g:htmlplugin.author_email_encoded = ''
     endif
 
     var template: string

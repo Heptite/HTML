@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Jan 04
+		Last change: 2024 Jan 05
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -36,9 +36,9 @@ toolbar are active only for buffers the script was sourced from.
 
 This help file follows the Vim help file standards. To see what modes a
 mapping works in see the tags above and to the right. The notation is X_TT,
-where "X" means the mode, and "TT" means the mapping. For example, the |n_;;|
-mapping below works in normal, insert mode and visual mode. This plugin does
-not define any mappings for :-command mode.
+where "X" means the mode, and "TT" means the mapping. For example, the |;;|
+mapping below works in normal mode (|n_;;|), insert mode (|i_;;|), and visual
+mode (|v_;;|).  This plugin does not define any mappings for :-command mode.
 
 I have tried to keep the tags in mostly alphabetical order, but related tags
 are grouped in various ways, which interferes with that ordering.
@@ -120,11 +120,11 @@ behavior of the plugin. It is recommended you set this variable in your
 |vimrc|, as some of the keys are only effective if they are set before the
 plugin loads.
 
-Note that you may have to do ":let g:htmlplugin = {}" first or you will get an
+Note that you need to do ":let g:htmlplugin = {}" first or you will get an
 error, or you can just set everything at once in your |vimrc|, e.g.: >
 	let g:htmlplugin = {
-		\	'authorname': 'John Smith',
-		\	'authoremail': 'jsmith@example.com',
+		\	'author_name': 'John Smith',
+		\	'author_email': 'jsmith@example.com',
 		\	'do_xhtml_mappings': v:false,
 		\	'tag_case': 'uppercase'
 		\}
@@ -250,24 +250,24 @@ used.
 
 See |html-template-tokens| for special tokens you can use within the template.
 
-*g:htmlplugin.authorname* *g:htmlplugin.authoremail*
-Within the internal template, |g:htmlplugin.authorname| is inserted inside >
+*g:htmlplugin.author_name* *g:htmlplugin.author_email*
+Within the internal template, |g:htmlplugin.author_name| is inserted inside >
 	<META NAME="Author" CONTENT="...">
-<|g:htmlplugin.authoremail| is converted to |g:htmlplugin.authoremail_encoded|
+<|g:htmlplugin.author_email| is converted to |g:htmlplugin.authoremail_encoded|
 and inserted inside >
 	<LINK REL="made" HREF="mailto:...">
 <	e.g.: >
-	:let g:htmlplugin.authorname  = 'John Smith'
-	:let g:htmlplugin.authoremail = 'jsmith@example.com'
+	:let g:htmlplugin.author_name  = 'John Smith'
+	:let g:htmlplugin.author_email = 'jsmith@example.com'
 
 These two variables are also used for the <ADDRESS></ADDRESS> section of the
 internal template.
 
 The default for these variables are empty strings.
 
-*g:htmlplugin.authoremail_encoded*
+*g:htmlplugin.author_email_encoded*
 This variable will be set using |g:HTML#functions#TranscodeString()| if your
-|g:htmlplugin.authoremail| variable is set. (Do not set this variable
+|g:htmlplugin.author_email| variable is set. (Do not set this variable
 yourself, it will be overwritten when the template macro is used.)
 
 *g:htmlplugin.bgcolor* *g:htmlplugin.textcolor* *g:htmlplugin.linkcolor*
@@ -298,8 +298,8 @@ When you define a template file with the |g:htmlplugin.template| or
 automatically replaced with their corresponding variable value:
 
 Token:			Variable: 			Description: ~
-%authorname%		|g:htmlplugin.authorname|	Author's name
-%authoremail%		|g:htmlplugin.authoremail_encoded|
+%authorname%		|g:htmlplugin.author_name|	Author's name
+%authoremail%		|g:htmlplugin.author_email_encoded|
 							Author's email address,
 							encoded to prevent spam
 %bgcolor%		|g:htmlplugin.bgcolor|		Main background color
@@ -323,7 +323,7 @@ with backslashes. e.g.: >
 Would produce something like: >
 	(%05:59:34 PM!)
 See http://strftime.net/ for a list of tokens that may work on your system,
-but remember to use "!" in place of "%".
+but remember to use "!" characters in place of "%" characters.
 
 %time% or %time12%				*%time%* *%time12%*
 This is replaced with the output of strftime("%r %Z") (e.g.: 05:59:34 PM MST)

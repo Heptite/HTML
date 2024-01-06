@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      January 04, 2024
+# Last Change:      January 05, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -101,8 +101,8 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
     default_charset:        'UTF-8',
     # No way to know sensible defaults here so just make sure the
     # variables are set:
-    authorname:             '',
-    authoremail:            '',
+    author_name:             '',
+    author_email:            '',
     # Empty list means the HTML menu is its own toplevel:
     toplevel_menu:          [],
     # -1 means let Vim put the menu wherever it wants to by default:
