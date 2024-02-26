@@ -66,7 +66,7 @@ This includes extra documentation, alternate install methods, an FAQ, etc.
 
 ## License
 
-Copyright © 1998 - 2022 Christian J. Robinson
+Copyright © 1998 - 2024 Christian J. Robinson
 
 Distributable under the terms of the GNU General Public License, version 3 or
 later:  <https://www.gnu.org/licenses/licenses.html#GPL>
