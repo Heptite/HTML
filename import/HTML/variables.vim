@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: January 05, 2024
+# Last Change: February 26, 2024
 #
 # Requirements:
 #       Vim 9 or later
@@ -34,7 +34,7 @@ export const EMAIL     = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
 export const HOMEPAGE  = 'https://christianrobinson.name/HTML/'
 export const COPYRIGHT = 'Copyright © 1998-2024 under the terms of the GPL3'
 
-export const VERSION   = '1.3.8'
+export const VERSION   = '1.3.9'
 
 # Used by some of the functions to save then restore some options:
 export var saveopts: dict<any>
@@ -45,47 +45,47 @@ export const TAGS_FILE = 'json/HTML/tags.json'
 export const ENTITIES_FILE = 'json/HTML/entities.json'
 
 export const INTERNAL_TEMPLATE = [  # {{{
-    # Don't insert the start of the <html> tag here, since logic in the main
-    # plugin file adds it depending on the filetype.
-    ' <[{HEAD}]>',
-    '',
-    '  <[{TITLE></TITLE}]>',
-    '',
-    '  <[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=%charset%" />',
-    '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% (Vi IMproved editor; http://www.vim.org/)" />',
-    '  <[{META NAME}]="Author" [{CONTENT}]="%authorname%" />',
-    '  <[{META NAME}]="Copyright" [{CONTENT}]="Copyright (C) %date% %authorname%" />',
-    '  <[{LINK REL}]="made" [{HREF}]="mailto:%authoremail%" />',
-    '',
-    '  <[{STYLE TYPE}]="text/css">',
-    '   <!--',
-    '   [{BODY}] {background: %bgcolor%; color: %textcolor%;}',
-    '   [{A}]:link {color: %linkcolor%;}',
-    '   [{A}]:visited {color: %vlinkcolor%;}',
-    '   [{A}]:hover, [{A}]:active, [{A}]:focus {color: %alinkcolor%;}',
-    '   -->',
-    '  </[{STYLE}]>',
-    '',
-    ' </[{HEAD}]>',
-    ' <[{BODY}]>',
-    '',
-    '  <[{H1 STYLE}]="text-align: center;"></[{H1}]>',
-    '',
-    '  <[{P}]>',
-    '  </[{P}]>',
-    '',
-    '  <[{HR STYLE}]="width: 75%;" />',
-    '',
-    '  <[{P}]>',
-    '  Last Modified: <[{I}]>%date%</[{I}]>',
-    '  </[{P}]>',
-    '',
-    '  <[{ADDRESS}]>',
-    '   <[{A HREF}]="mailto:%authoremail%">%authorname% &lt;%authoremail%&gt;</[{A}]>',
-    '  </[{ADDRESS}]>',
-    ' </[{BODY}]>',
-    '</[{HTML}]>'
-    ]  # }}}
+  # Don't insert the start of the <html> tag here, since logic in the main
+  # plugin file adds it depending on the filetype.
+  ' <[{HEAD}]>',
+  '',
+  '  <[{TITLE></TITLE}]>',
+  '',
+  '  <[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=%charset%" />',
+  '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% (Vi IMproved editor; http://www.vim.org/)" />',
+  '  <[{META NAME}]="Author" [{CONTENT}]="%authorname%" />',
+  '  <[{META NAME}]="Copyright" [{CONTENT}]="Copyright (C) %date% %authorname%" />',
+  '  <[{LINK REL}]="made" [{HREF}]="mailto:%authoremail%" />',
+  '',
+  '  <[{STYLE TYPE}]="text/css">',
+  '   <!--',
+  '   [{BODY}] {background: %bgcolor%; color: %textcolor%;}',
+  '   [{A}]:link {color: %linkcolor%;}',
+  '   [{A}]:visited {color: %vlinkcolor%;}',
+  '   [{A}]:hover, [{A}]:active, [{A}]:focus {color: %alinkcolor%;}',
+  '   -->',
+  '  </[{STYLE}]>',
+  '',
+  ' </[{HEAD}]>',
+  ' <[{BODY}]>',
+  '',
+  '  <[{H1 STYLE}]="text-align: center;"></[{H1}]>',
+  '',
+  '  <[{P}]>',
+  '  </[{P}]>',
+  '',
+  '  <[{HR STYLE}]="width: 75%;" />',
+  '',
+  '  <[{P}]>',
+  '  Last Modified: <[{I}]>%date%</[{I}]>',
+  '  </[{P}]>',
+  '',
+  '  <[{ADDRESS}]>',
+  '   <[{A HREF}]="mailto:%authoremail%">%authorname% &lt;%authoremail%&gt;</[{A}]>',
+  '  </[{ADDRESS}]>',
+  ' </[{BODY}]>',
+  '</[{HTML}]>'
+]  # }}}
 
 # https://dev.w3.org/html5/html-author/charref
 export const DictEntitiesToChar = {  # {{{

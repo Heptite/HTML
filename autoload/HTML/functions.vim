@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: January 05, 2024
+# Last Change: February 03, 2024
 #
 # Requirements:
 #       Vim 9 or later
@@ -51,8 +51,8 @@ const E_DISABLED     = 'The HTML mappings are already disabled.'
 const E_ENABLED      = 'The HTML mappings are already enabled.'
 const E_INVALIDARG   = '%s Invalid argument: %s'
 const E_JSON         = '%s Potentially malformed json in %s, section: %s'
-const E_NOTFOUND     = '%s %s is not found in the runtimepath. %s'
-const E_NOREAD       = '%s %s is not readable. %s'
+const E_NOTFOUND     = '%s %s is not found in the runtimepath.'
+const E_NOREAD       = '%s %s is not readable.'
 const E_NOTAG        = 'No tag mappings or menus have been defined.'
 const E_NOENTITY     = 'No entity mappings or menus have been defined.'
 const E_ONECHAR      = '%s First argument must be one character.'
@@ -67,8 +67,7 @@ const E_ZEROROWSCOLS = 'Rows and columns must be positive, non-zero integers.'
 const E_COLOR        = '%s Color "%s" is invalid. Colors must be a six-digit hexadecimal value prefixed by a "#".'
 const E_TEMPLATE     = 'Unable to insert template file: %s Either it doesn''t exist or it isn''t readable.'
 
-const W_TOOMANYRTP   = '%s %s is found too many times in the runtimepath. Using the first.'
-const W_MAPOVERRIDE  = 'WARNING: A mapping of %s for %s mode has been overriden for buffer number %d: %s'
+const W_MAPOVERRIDE  = 'WARNING: A mapping of %s for %s mode has been overridden for buffer number %d: %s'
 const W_CAUGHTERR    = 'Caught error "%s", continuing.'
 const W_INVALIDCASE  = '%s Specified case is invalid: %s. Overriding to "lowercase".'
 const W_NOMENU       = 'No menu item was defined for "%s".'
@@ -1358,7 +1357,7 @@ enddef
 #  Convert a #NNNNNN hex color to rgb() format
 # Arguments:
 #  1 - String: The #NNNNNN hex color code to convert
-#  2 - Boolean: Whether to conver to percentage or not
+#  2 - Boolean: Whether to convert to percentage or not
 # Return Value:
 #  String: The converted color
 def ToRGB(color: string, percent: bool = false): string
@@ -1914,6 +1913,34 @@ export def ColorsMenu(name: string, color: string, namens: string = '', rgb: str
   endif
 enddef
 
+# ReadJsonFile()  {{{1
+#
+#  Purpose:
+#   Find JSON files in the runtimepath and return them as a Vim array
+#  Arguments:
+#   1 - String: The filename to find and read
+#  Return Value:
+#   List - The JSON data as a Vim array, empty if there was a problem
+def ReadJsonFile(file: string): list<any>
+  var json_files: list<string> = file->findfile(&runtimepath, -1)
+  var json_data: list<any> = []
+
+  if json_files->len() == 0
+    printf(E_NOTFOUND, F(), file)->Error()
+    return []
+  endif
+
+  for f in json_files
+    if f->filereadable()
+      json_data->extend(f->readfile()->join("\n")->json_decode())
+    else
+      printf(E_NOREAD, F(), f)->Error()
+    endif
+  endfor
+
+  return json_data
+enddef
+
 # HTML#functions#ReadTags()  {{{1
 #
 #  Purpose:
@@ -1928,18 +1955,11 @@ enddef
 export def ReadTags(domenu: bool = true, internal: bool = false, file: string = HTMLvariables.TAGS_FILE): bool
   var maplhs: string
   var menulhs: string
-  var jsonfiles = file->findfile(&runtimepath, -1)
   var rval = true
+  var json_data = ReadJsonFile(file)
 
-  if jsonfiles->len() > 1
-    printf(W_TOOMANYRTP, F(), file)->Warn()
-  endif
-
-  if jsonfiles->len() == 0
-    printf(E_NOTFOUND, F(), file, E_NOTAG)->Error()
-    return false
-  elseif ! jsonfiles[0]->filereadable()
-    printf(E_NOREAD, F(), jsonfiles[0], E_NOTAG)->Error()
+  if json_data == []
+    printf(E_NOTAG)
     return false
   endif
 
@@ -1959,7 +1979,7 @@ export def ReadTags(domenu: bool = true, internal: bool = false, file: string = 
     b:htmlplugin.smarttags = {}
   endif
 
-  for json in jsonfiles[0]->readfile()->join(' ')->json_decode()
+  for json in json_data
       if json->has_key('menu') && json.menu[2]->has_key('n')
           && json.menu[2].n[0] ==? '<nop>' && domenu
         Menu('menu', json.menu[0], json.menu[1], '<nop>')
@@ -2106,22 +2126,15 @@ enddef
 #  Return Value:
 #   Boolean - Whether the json file was successfully read in without error
 export def ReadEntities(domenu: bool = true, internal: bool = false, file: string = HTMLvariables.ENTITIES_FILE): bool
-  var jsonfiles = file->findfile(&runtimepath, -1)
   var rval = true
+  var json_data = ReadJsonFile(file)
 
-  if jsonfiles->len() > 1
-    printf(W_TOOMANYRTP, F(), file)->Warn()
-  endif
-
-  if jsonfiles->len() == 0
-    printf(E_NOTFOUND, F(), file, E_NOENTITY)->Error()
-    return false
-  elseif ! jsonfiles[0]->filereadable()
-    printf(E_NOREAD, F(), jsonfiles[0], E_NOENTITY)->Error()
+  if json_data == []
+    printf(E_NOENTITY)
     return false
   endif
 
-  for json in jsonfiles[0]->readfile()->join(' ')->json_decode()
+  for json in json_data
     if json->len() != 4 || json[2]->type() != v:t_list
       printf(E_JSON, F(), file, json->string())->Error()
       rval = false
@@ -2150,7 +2163,7 @@ enddef
 # F()  {{{1
 #
 #  Purpose:
-#   Show the function name from the stack in the context of the caller of F().
+#   Get the function name from the stack in the context of the caller of F().
 #  Arguments:
 #   None
 #  Return Value:

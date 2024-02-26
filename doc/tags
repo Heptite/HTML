@@ -43,9 +43,9 @@ g:HTML#functions#Template()	HTML.txt	/*g:HTML#functions#Template()*
 g:HTML#functions#TranscodeString()	HTML.txt	/*g:HTML#functions#TranscodeString()*
 g:htmlplugin	HTML.txt	/*g:htmlplugin*
 g:htmlplugin.alinkcolor	HTML.txt	/*g:htmlplugin.alinkcolor*
-g:htmlplugin.authoremail	HTML.txt	/*g:htmlplugin.authoremail*
-g:htmlplugin.authoremail_encoded	HTML.txt	/*g:htmlplugin.authoremail_encoded*
-g:htmlplugin.authorname	HTML.txt	/*g:htmlplugin.authorname*
+g:htmlplugin.author_email	HTML.txt	/*g:htmlplugin.author_email*
+g:htmlplugin.author_email_encoded	HTML.txt	/*g:htmlplugin.author_email_encoded*
+g:htmlplugin.author_name	HTML.txt	/*g:htmlplugin.author_name*
 g:htmlplugin.bgcolor	HTML.txt	/*g:htmlplugin.bgcolor*
 g:htmlplugin.charset	HTML.txt	/*g:htmlplugin.charset*
 g:htmlplugin.default_charset	HTML.txt	/*g:htmlplugin.default_charset*

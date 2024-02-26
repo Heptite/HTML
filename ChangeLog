@@ -1,3 +1,6 @@
+Fri, 5 Jan 2024 17:30:59 -0700 Christian J. Robinson
+ * Change 'authorname' and 'authoremail' to 'author_name' and 'author_email'
+
 Thu, 4 Jan 2024 09:42:43 -0700 Christian J. Robinson
  * Minor tweaks and improvements. Dates updated.
 
