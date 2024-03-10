@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      January 05, 2024
+# Last Change:      March 07, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -79,7 +79,7 @@ endif
 
 runtime commands/HTML/commands.vim
 
-import '../../import/HTML/variables.vim' as HTMLvariables
+import '../../import/HTML/variables.vim' as HTMLVariables
 import autoload 'HTML/functions.vim'
 import autoload 'HTML/BrowserLauncher.vim'
 
@@ -118,7 +118,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
   if g:htmlplugin->has_key('file')
     unlockvar g:htmlplugin.file
   endif
-  g:htmlplugin.file = expand('<sfile>:p')
+  g:htmlplugin.file = expand('<script>:p')
   lockvar g:htmlplugin.file
 
   if type(g:htmlplugin.toplevel_menu) != v:t_list
@@ -129,7 +129,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
 
   if !g:htmlplugin->has_key('toplevel_menu_escaped')
     g:htmlplugin.toplevel_menu_escaped =
-      g:htmlplugin.toplevel_menu->add(HTMLvariables.MENU_NAME)->functions.MenuJoin()
+      g:htmlplugin.toplevel_menu->add(HTMLVariables.MENU_NAME)->functions.MenuJoin()
     lockvar g:htmlplugin.toplevel_menu
     lockvar g:htmlplugin.toplevel_menu_escaped
   endif
@@ -183,7 +183,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
   # Template Creation: {{{2
 
   if functions.BoolVar('b:htmlplugin.do_xhtml_mappings')
-    b:htmlplugin.internal_template = HTMLvariables.INTERNAL_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = HTMLVariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
         ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
         '<html xmlns="http://www.w3.org/1999/xhtml">'
@@ -192,7 +192,7 @@ if !functions.BoolVar('b:htmlplugin.did_mappings_init')
     b:htmlplugin.internal_template =
       b:htmlplugin.internal_template->functions.ConvertCase()
   else
-    b:htmlplugin.internal_template = HTMLvariables.INTERNAL_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = HTMLVariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html>',
         '<[{HTML}]>'
       ], 0)
@@ -859,7 +859,7 @@ else
   endif
 
   # Create the rest of the colors menu:
-  HTMLvariables.COLOR_LIST->mapnew((_, value) => functions.ColorsMenu(value[0], value[1], value[2], value[3]))
+  HTMLVariables.COLOR_LIST->mapnew((_, value) => functions.ColorsMenu(value[0], value[1], value[2], value[3]))
 
   # }}}2
 

@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: January 04, 2024
+# Last Change: March 07, 2024
 #
 # Requirements:
 #   Vim 9 or later

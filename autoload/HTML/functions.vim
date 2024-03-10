@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: February 03, 2024
+# Last Change: March 07, 2024
 #
 # Requirements:
 #       Vim 9 or later
@@ -29,7 +29,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import '../../import/HTML/variables.vim' as HTMLvariables
+import '../../import/HTML/variables.vim' as HTMLVariables
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/MangleImageTag.vim'
 
@@ -109,16 +109,16 @@ enddef
 #  None
 export def About(): void
   var message = "HTML/XHTML Editing Macros and Menus Plugin\n"
-    .. "Version: " .. (HTMLvariables.VERSION) .. "\n" .. "Written by: "
-    .. (HTMLvariables.AUTHOR) .. ' <' .. (HTMLvariables.EMAIL) .. ">\n"
+    .. "Version: " .. (HTMLVariables.VERSION) .. "\n" .. "Written by: "
+    .. (HTMLVariables.AUTHOR) .. ' <' .. (HTMLVariables.EMAIL) .. ">\n"
     .. "With thanks to Doug Renze for the original concept,\n"
     .. "Devin Weaver for the original mangleImageTag,\n"
     .. "Israel Chauca Fuentes for the MacOS version of the browser\n"
     .. "launcher code, and several others for their contributions.\n"
-    .. (HTMLvariables.COPYRIGHT) .. "\n" .. "URL: " .. (HTMLvariables.HOMEPAGE)
+    .. (HTMLVariables.COPYRIGHT) .. "\n" .. "URL: " .. (HTMLVariables.HOMEPAGE)
 
   if message->confirm("&Visit Homepage\n&Dismiss", 2, 'Info') == 1
-    BrowserLauncher.Launch('default', 0, HTMLvariables.HOMEPAGE)
+    BrowserLauncher.Launch('default', 0, HTMLVariables.HOMEPAGE)
   endif
 enddef
 
@@ -314,7 +314,7 @@ export def TranscodeString(str: string, code: string = ''): string
       return char
     endif
 
-    newchar = HTMLvariables.DictEntitiesToChar->get(char, printf('&#x%X;', char->char2nr()))
+    newchar = HTMLVariables.DictEntitiesToChar->get(char, printf('&#x%X;', char->char2nr()))
 
     return newchar
   enddef  # }}}2
@@ -341,8 +341,8 @@ export def TranscodeString(str: string, code: string = ''): string
     def EntityToChar(entity: string): string
       var char: string
 
-      if HTMLvariables.DictEntitiesToChar->has_key(entity)
-        char = HTMLvariables.DictEntitiesToChar[entity]
+      if HTMLVariables.DictEntitiesToChar->has_key(entity)
+        char = HTMLVariables.DictEntitiesToChar[entity]
       elseif entity =~ '^&#\%(x\x\+\);$'
         char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
       elseif entity =~ '^&#\%(\d\+\);$'
@@ -438,7 +438,7 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
     ->substitute('^<elead>\c', g:htmlplugin.entity_map_leader->escape('&~\'), '')
   var newmap_escaped = newmap->substitute('<', '<lt>', 'g')
 
-  if HTMLvariables.MODES->has_key(mode) && newmap->MapCheck(mode, internal) >= 2
+  if HTMLVariables.MODES->has_key(mode) && newmap->MapCheck(mode, internal) >= 2
     # MapCheck() will echo the necessary message, so just return here
     return false
   endif
@@ -500,11 +500,11 @@ export def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, inte
     execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
   endif
 
-  if HTMLvariables.MODES->has_key(mode)
-    add(b:htmlplugin.clear_mappings, ':' .. mode .. 'unmap <buffer> ' .. newmap)
+  if HTMLVariables.MODES->has_key(mode)
+    b:htmlplugin.clear_mappings->add(':' .. mode .. 'unmap <buffer> ' .. newmap)
   else
-    add(b:htmlplugin.clear_mappings, ':unmap <buffer> ' .. newmap)
-    add(b:htmlplugin.clear_mappings, ':unmap! <buffer> ' .. newmap)
+    b:htmlplugin.clear_mappings->add(':unmap <buffer> ' .. newmap)
+    b:htmlplugin.clear_mappings->add(':unmap! <buffer> ' .. newmap)
   endif
 
   # Save extra (nonplugin) mappings so they can be restored if we need to later:
@@ -547,9 +547,9 @@ export def Mapo(map: string, insert: bool = false, internal: bool = false): bool
   execute 'nnoremap <buffer> <silent> ' .. newmap
     .. " <ScriptCmd>b:htmlplugin.tagaction = '" .. newmap .. "'<CR>"
     .. '<ScriptCmd>b:htmlplugin.taginsert = ' .. insert .. "<CR>"
-    .. '<ScriptCmd>&operatorfunc = "' .. self_sid .. 'HTMLopWrap"<CR>g@'
+    .. '<ScriptCmd>&operatorfunc = "' .. self_sid .. 'HTMLOpWrap"<CR>g@'
 
-  add(b:htmlplugin.clear_mappings, ':nunmap <buffer> ' .. newmap)
+  b:htmlplugin.clear_mappings->add(':nunmap <buffer> ' .. newmap)
   newmap->maparg('n', false, true)->MappingsListAdd('n', internal)
 
   return true
@@ -581,23 +581,23 @@ def DoMap(mode: string, map: string): string
   def ToggleOptions(which: bool)
     try
       if which
-        if HTMLvariables.saveopts->has_key('formatoptions')
-            && HTMLvariables.saveopts['formatoptions'] != ''
-          &l:showmatch = HTMLvariables.saveopts['showmatch']
-          &l:indentexpr = HTMLvariables.saveopts['indentexpr']
-          &l:formatoptions = HTMLvariables.saveopts['formatoptions']
+        if HTMLVariables.saveopts->has_key('formatoptions')
+            && HTMLVariables.saveopts['formatoptions'] != ''
+          &l:showmatch = HTMLVariables.saveopts['showmatch']
+          &l:indentexpr = HTMLVariables.saveopts['indentexpr']
+          &l:formatoptions = HTMLVariables.saveopts['formatoptions']
         endif
 
         # Restore the last visual mode if it was changed:
-        if HTMLvariables.saveopts->get('visualmode', '') != ''
-          execute 'normal! gv' .. HTMLvariables.saveopts['visualmode']
-          HTMLvariables.saveopts->remove('visualmode')
+        if HTMLVariables.saveopts->get('visualmode', '') != ''
+          execute 'normal! gv' .. HTMLVariables.saveopts['visualmode']
+          HTMLVariables.saveopts->remove('visualmode')
         endif
       else
         if &l:formatoptions != ''
-          HTMLvariables.saveopts['showmatch'] = &l:showmatch
-          HTMLvariables.saveopts['indentexpr'] = &l:indentexpr
-          HTMLvariables.saveopts['formatoptions'] = &l:formatoptions
+          HTMLVariables.saveopts['showmatch'] = &l:showmatch
+          HTMLVariables.saveopts['indentexpr'] = &l:indentexpr
+          HTMLVariables.saveopts['formatoptions'] = &l:formatoptions
         endif
         &l:showmatch = false
         &l:indentexpr = ''
@@ -607,7 +607,7 @@ def DoMap(mode: string, map: string): string
         # selections is handled properly (turn it into a character-wise
         # selection and exclude the leading indent):
         if visualmode() ==# 'V'
-          HTMLvariables.saveopts['visualmode'] = visualmode()
+          HTMLVariables.saveopts['visualmode'] = visualmode()
           execute "normal! \<c-\>\<c-n>`<^v`>"
         endif
       endif
@@ -776,11 +776,11 @@ def MapCheck(map: string, mode: string, internal: bool = false): number
           (b:htmlplugin->has_key('no_maps')
             && b:htmlplugin.no_maps->match('^\C\V' .. map .. '\$') >= 0) )
     return 3
-  elseif HTMLvariables.MODES->has_key(mode) && map->maparg(mode) != ''
+  elseif HTMLVariables.MODES->has_key(mode) && map->maparg(mode) != ''
     if BoolVar('g:htmlplugin.no_map_override') && internal
       return 2
     else
-      printf(W_MAPOVERRIDE, map, HTMLvariables.MODES[mode], bufnr('%'), expand('%'))->Warn()
+      printf(W_MAPOVERRIDE, map, HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->Warn()
       return 1
     endif
   endif
@@ -788,7 +788,7 @@ def MapCheck(map: string, mode: string, internal: bool = false): number
   return 0
 enddef
 
-# HTMLopWrap()  {{{1
+# HTMLOpWrap()  {{{1
 #
 # Function set in 'operatorfunc' for mappings that take an operator:
 #
@@ -799,8 +799,8 @@ enddef
 #  1 - String: The type of movement (visual mode) to be used
 # Return value:
 #  None
-def HTMLopWrap(type: string)
-  HTMLvariables.saveopts['selection'] = &selection
+def HTMLOpWrap(type: string)
+  HTMLVariables.saveopts['selection'] = &selection
   &selection = 'inclusive'
 
   try
@@ -814,7 +814,7 @@ def HTMLopWrap(type: string)
   catch
     printf(W_CAUGHTERR, v:exception)->Warn()
   finally
-    &selection = HTMLvariables.saveopts['selection']
+    &selection = HTMLVariables.saveopts['selection']
   endtry
 
   if b:htmlplugin.taginsert
@@ -851,12 +851,12 @@ enddef
 #               true  - Restore option
 #def ToggleComments(s: bool)
 #  if s
-#    if HTMLvariables.saveopts->has_key('comments') && HTMLvariables.saveopts['comments'] != ''
-#      &l:comments = HTMLvariables.saveopts['comments']
+#    if HTMLVariables.saveopts->has_key('comments') && HTMLVariables.saveopts['comments'] != ''
+#      &l:comments = HTMLVariables.saveopts['comments']
 #    endif
 #  else
 #    if &l:comments != ''
-#      HTMLvariables.saveopts['comments'] = &l:comments
+#      HTMLVariables.saveopts['comments'] = &l:comments
 #      &l:comments = ''
 #    endif
 #  endif
@@ -1401,7 +1401,7 @@ export def ColorChooser(how: string = 'i'): void
       return
     endif
 
-    var color = HTMLvariables.COLOR_LIST[result - 1]
+    var color = HTMLVariables.COLOR_LIST[result - 1]
 
     if doname
       execute 'normal! ' .. how .. color[2]
@@ -1470,7 +1470,7 @@ export def ColorChooser(how: string = 'i'): void
 	  return popup_filter_menu(id, newkey)
   enddef  # }}}2
 
-  HTMLvariables.COLOR_LIST->mapnew(
+  HTMLVariables.COLOR_LIST->mapnew(
     (_, value) => {
       if (value[0]->strlen()) > maxw
         maxw = value[0]->strlen()
@@ -1479,7 +1479,7 @@ export def ColorChooser(how: string = 'i'): void
     }
   )
 
-  var colorwin = HTMLvariables.COLOR_LIST->mapnew(
+  var colorwin = HTMLVariables.COLOR_LIST->mapnew(
       (_, value) => printf('%' .. maxw .. 's = %s', value[0], value[1])
     )->popup_menu({
       callback: CCSelect, filter: CCKeyFilter,
@@ -1488,7 +1488,7 @@ export def ColorChooser(how: string = 'i'): void
       close: 'button',
     })
 
-  HTMLvariables.COLOR_LIST->mapnew(
+  HTMLVariables.COLOR_LIST->mapnew(
       (_, value) => {
         var csplit = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
         var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ?
@@ -1594,8 +1594,8 @@ export def Template(): bool
   enddef  # }}}2
 
   var ret = false
-  HTMLvariables.saveopts['ruler'] = &ruler
-  HTMLvariables.saveopts['showcmd'] = &showcmd
+  HTMLVariables.saveopts['ruler'] = &ruler
+  HTMLVariables.saveopts['showcmd'] = &showcmd
   set noruler noshowcmd
 
   if line('$') == 1 && getline(1) == ''
@@ -1610,8 +1610,8 @@ export def Template(): bool
     endif
   endif
 
-  &ruler = HTMLvariables.saveopts['ruler']
-  &showcmd = HTMLvariables.saveopts['showcmd']
+  &ruler = HTMLVariables.saveopts['ruler']
+  &showcmd = HTMLVariables.saveopts['showcmd']
 
   return ret
 enddef
@@ -1651,8 +1651,8 @@ def DetectCharset(charset: string = ''): string
 
   enc = enc->substitute('\W', '_', 'g')
 
-  if HTMLvariables.CHARSETS[enc] != ''
-    return HTMLvariables.CHARSETS[enc]
+  if HTMLVariables.CHARSETS[enc] != ''
+    return HTMLVariables.CHARSETS[enc]
   endif
 
   return g:htmlplugin.default_charset
@@ -1831,8 +1831,8 @@ export def ColorsMenu(name: string, color: string, namens: string = '', rgb: str
   var newrgb: string
   var newrgbpercent: string
 
-  if HTMLvariables.COLORS_SORT->has_key(c)
-    newname = [name]->extendnew(['&Colors', '&' .. HTMLvariables.COLORS_SORT[c]], 0)
+  if HTMLVariables.COLORS_SORT->has_key(c)
+    newname = [name]->extendnew(['&Colors', '&' .. HTMLVariables.COLORS_SORT[c]], 0)
   else
     newname = [name]->extendnew(['&Colors', 'Web Safe Palette'], 0)
   endif
@@ -1952,7 +1952,7 @@ enddef
 #   3 - String:  Optional, what json file to read
 #  Return Value:
 #   Boolean - Whether the json file was successfully read in without error
-export def ReadTags(domenu: bool = true, internal: bool = false, file: string = HTMLvariables.TAGS_FILE): bool
+export def ReadTags(domenu: bool = true, internal: bool = false, file: string = HTMLVariables.TAGS_FILE): bool
   var maplhs: string
   var menulhs: string
   var rval = true
@@ -2125,7 +2125,7 @@ enddef
 #   3 - String:  Optional, what json file to read
 #  Return Value:
 #   Boolean - Whether the json file was successfully read in without error
-export def ReadEntities(domenu: bool = true, internal: bool = false, file: string = HTMLvariables.ENTITIES_FILE): bool
+export def ReadEntities(domenu: bool = true, internal: bool = false, file: string = HTMLVariables.ENTITIES_FILE): bool
   var rval = true
   var json_data = ReadJsonFile(file)
 
