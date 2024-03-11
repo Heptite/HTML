@@ -5,7 +5,7 @@
 		"lhs": "&",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=HTML#functions#TranscodeString(@\")<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLFunctionsObject.TranscodeString(@\")<CR><Esc>", {"extra": false}],
 			"o": ["", false]
 		},
 
@@ -18,7 +18,7 @@
 		"lhs": "*",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=HTML#functions#TranscodeString(@\",'x')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLFunctionsObject.TranscodeString(@\",'x')<CR><Esc>", {"extra": false}],
 			"o": ["", false]
 		},
 
@@ -31,7 +31,7 @@
 		"lhs": "%",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=HTML#functions#TranscodeString(@\",'%')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLFunctionsObject.TranscodeString(@\",'%')<CR><Esc>", {"extra": false}],
 			"o": ["", false]
 		},
 
@@ -44,7 +44,7 @@
 		"lhs": "^",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=HTML#functions#TranscodeString(@\",'d')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLFunctionsObject.TranscodeString(@\",'d')<CR><Esc>", {"extra": false}],
 			"o": ["", false]
 		},
 
@@ -57,9 +57,9 @@
 		"lhs": "cc",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>ColorChooser()<CR>"],
-			"i": ["", "<ScriptCmd>ColorChooser()<CR>", {"extra": false}],
-			"v": ["", "s<ScriptCmd>ColorChooser()<CR>", {"extra": false}]
+			"n": ["", "<ScriptCmd>b:htmlplugin.HTMLFunctionsObject.ColorChooser()<CR>"],
+			"i": ["", "<ScriptCmd>b:htmlplugin.HTMLFunctionsObject.ColorChooser()<CR>", {"extra": false}],
+			"v": ["", "s<ScriptCmd>b:htmlplugin.HTMLFunctionsObject.ColorChooser()<CR>", {"extra": false}]
 		},
 
 		"menu": ["-", ["&Colors", "Display All && Select"], {
@@ -75,8 +75,8 @@
 		"lhs": "bo",
 
 		"maps": {
-			"i": ["", "SmartTag('b', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('b', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('b', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('b', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -103,8 +103,8 @@
 		"lhs": "st",
 
 		"maps": {
-			"i": ["", "SmartTag('strong', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('strong', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('strong', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('strong', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -131,8 +131,8 @@
 		"lhs": "it",
 
 		"maps": {
-			"i": ["", "SmartTag('i', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('i', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('i', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('i', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -159,8 +159,8 @@
 		"lhs": "em",
 
 		"maps": {
-			"i": ["", "SmartTag('em', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('em', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('em', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('em', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -187,8 +187,8 @@
 		"lhs": "un",
 
 		"maps": {
-			"i": ["", "SmartTag('u', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('u', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('u', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('u', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -275,8 +275,8 @@
 		"lhs": "ci",
 
 		"maps": {
-			"i": ["", "SmartTag('cite', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('cite', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('cite', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('cite', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -303,8 +303,8 @@
 		"lhs": "co",
 
 		"maps": {
-			"i": ["", "SmartTag('code', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('code', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('code', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('code', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -331,8 +331,8 @@
 		"lhs": "in",
 
 		"maps": {
-			"i": ["", "SmartTag('ins', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('ins', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('ins', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('ins', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -359,8 +359,8 @@
 		"lhs": "de",
 
 		"maps": {
-			"i": ["", "SmartTag('del', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('del', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('del', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('del', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -387,8 +387,8 @@
 		"lhs": "kb",
 
 		"maps": {
-			"i": ["", "SmartTag('kbd', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('kbd', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('kbd', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('kbd', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -415,8 +415,8 @@
 		"lhs": "sa",
 
 		"maps": {
-			"i": ["", "SmartTag('samp', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('samp', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('samp', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('samp', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -443,8 +443,8 @@
 		"lhs": "sb",
 
 		"maps": {
-			"i": ["", "SmartTag('sub', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('sub', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('sub', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('sub', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -471,8 +471,8 @@
 		"lhs": "sp",
 
 		"maps": {
-			"i": ["", "SmartTag('sup', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('sup', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('sup', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('sup', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -513,8 +513,8 @@
 		"lhs": "va",
 
 		"maps": {
-			"i": ["", "SmartTag('var', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('var', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('var', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('var', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -541,8 +541,8 @@
 		"lhs": "fm",
 
 		"maps": {
-			"i": ["", "SmartTag('form', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('form', 'v')", {"expr": true, "reindent": 1}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('form', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('form', 'v')", {"expr": true, "reindent": 1}],
 			"o": ["", true]
 		},
 
@@ -709,8 +709,8 @@
 		"lhs": "op",
 
 		"maps": {
-			"i": ["", "SmartTag('option', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('option', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('option', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('option', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1023,8 +1023,8 @@
 		"lhs": "ah",
 
 		"maps": {
-			"i": ["", "SmartTag('a1', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('a1', 'v')", {"expr": true, "insert": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('a1', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('a1', 'v')", {"expr": true, "insert": true}],
 			"o": ["", true]
 		},
 
@@ -1049,8 +1049,8 @@
 
 	{
 		"maps": {
-			"i": ["aH", "SmartTag('a2', 'i')", {"expr": true}],
-			"v": ["aH", "SmartTag('a2', 'v')", {"expr": true, "insert": true}],
+			"i": ["aH", "b:htmlplugin.HTMLFunctionsObject.SmartTag('a2', 'i')", {"expr": true}],
+			"v": ["aH", "b:htmlplugin.HTMLFunctionsObject.SmartTag('a2', 'v')", {"expr": true, "insert": true}],
 			"o": ["aH", true]
 		},
 
@@ -1071,8 +1071,8 @@
 
 	{
 		"maps": {
-			"i": ["at", "SmartTag('a3', 'i')", {"expr": true}],
-			"v": ["at", "SmartTag('a3', 'v')", {"expr": true, "insert": true}],
+			"i": ["at", "b:htmlplugin.HTMLFunctionsObject.SmartTag('a3', 'i')", {"expr": true}],
+			"v": ["at", "b:htmlplugin.HTMLFunctionsObject.SmartTag('a3', 'v')", {"expr": true, "insert": true}],
 			"o": ["at", true]
 		},
 
@@ -1093,8 +1093,8 @@
 
 	{
 		"maps": {
-			"i": ["aT", "SmartTag('a4', 'i')", {"expr": true}],
-			"v": ["aT", "SmartTag('a4', 'v')", {"expr": true, "insert": true}],
+			"i": ["aT", "b:htmlplugin.HTMLFunctionsObject.SmartTag('a4', 'i')", {"expr": true}],
+			"v": ["aT", "b:htmlplugin.HTMLFunctionsObject.SmartTag('a4', 'v')", {"expr": true, "insert": true}],
 			"o": ["aT", true]
 		},
 
@@ -1165,8 +1165,8 @@
 		"lhs": "pp",
 
 		"maps": {
-			"i": ["", "SmartTag('p', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('p', 'v')", {"expr": true, "reindent": 1}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('p', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('p', 'v')", {"expr": true, "reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1199,8 +1199,8 @@
 		"lhs": "pr",
 
 		"maps": {
-			"i": ["", "SmartTag('pre', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('pre', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('pre', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('pre', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1485,8 +1485,8 @@
 		"lhs": "fg",
 
 		"maps": {
-			"i": ["", "SmartTag('figure', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('figure', 'v')", {"expr": true, "reindent": 1}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('figure', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('figure', 'v')", {"expr": true, "reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1513,8 +1513,8 @@
 		"lhs": "fp",
 
 		"maps": {
-			"i": ["", "SmartTag('figcaption', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('figcaption', 'v')", {"expr": true, "reindent": 1}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('figcaption', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('figcaption', 'v')", {"expr": true, "reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1583,8 +1583,8 @@
 		"lhs": "mk",
 
 		"maps": {
-			"i": ["", "SmartTag('mark', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('mark', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('mark', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('mark', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1843,8 +1843,8 @@
 		"lhs": "bl",
 
 		"maps": {
-			"i": ["", "SmartTag('blockquote', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('blockquote', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('blockquote', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('blockquote', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1871,8 +1871,8 @@
 		"lhs": "cm",
 
 		"maps": {
-			"i": ["", "SmartTag('comment', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('comment', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('comment', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('comment', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1899,8 +1899,8 @@
 		"lhs": "df",
 
 		"maps": {
-			"i": ["", "SmartTag('dfn', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('dfn', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('dfn', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('dfn', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1955,8 +1955,8 @@
 		"lhs": "js",
 
 		"maps": {
-			"i": ["", "SmartTag('script1', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('script1', 'v')", {"expr": true, "reindent": 3}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('script1', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('script1', 'v')", {"expr": true, "reindent": 3}],
 			"o": ["", false]
 		},
 
@@ -1983,8 +1983,8 @@
 		"lhs": "jm",
 
 		"maps": {
-			"i": ["", "SmartTag('script2', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('script2', 'v')", {"expr": true, "reindent": 3}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('script2', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('script2', 'v')", {"expr": true, "reindent": 3}],
 			"o": ["", false]
 		},
 
@@ -2131,8 +2131,8 @@
 		"lhs": "qu",
 
 		"maps": {
-			"i": ["", "SmartTag('q', 'i')", {"expr": true}],
-			"v": ["", "SmartTag('q', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('q', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLFunctionsObject.SmartTag('q', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -2355,7 +2355,7 @@
 		"lhs": "tA",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>GenerateTable()<CR>"]
+			"n": ["", "<ScriptCmd>b:htmlplugin.HTMLFunctionsObject.GenerateTable()<CR>"]
 		},
 
 		"menu": ["-", ["&Tables", "Interactive Table"], {
@@ -2481,7 +2481,7 @@
 		"lhs": "html",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>if Template() \\| startinsert \\| endif<CR>"]
+			"n": ["", "<ScriptCmd>if b:htmlplugin.HTMLFunctionsObject.Template() \\| startinsert \\| endif<CR>"]
 		},
 
 		"menu": ["-", ["Template"], {
@@ -2499,7 +2499,7 @@
 		"lhs": "ct",
 
 		"maps": {
-			"i": ["", "'<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=' .. DetectCharset() .. '\" />'", {"expr": true}]
+			"i": ["", "'<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=' .. b:htmlplugin.HTMLFunctionsObject.DetectCharset() .. '\" />'", {"expr": true}]
 		},
 
 		"menu": ["-", ["Content-Type"], {
