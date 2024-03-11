@@ -10,7 +10,7 @@ endif
 # Last Change: March 11, 2024
 #
 # Requirements:
-#       Vim 9 or later
+#       Vim 9.1 or later
 #
 # Copyright © 1998-2024 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
@@ -1983,8 +1983,7 @@ export class HTMLFunctions
         endif
 
         if json->has_key('smarttag')
-          # Translate <SID> and \<...> strings to their corresponding actual
-          # value:
+          # Translate \<...> strings to their corresponding actual value:
           var smarttag = json.smarttag->string()->substitute('\c\\<[a-z0-9_-]\+>',
               '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
 

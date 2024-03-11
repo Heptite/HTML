@@ -185,8 +185,6 @@ if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
     b:htmlplugin.tag_case = 'lowercase'
   endif
 
-  # Need to interpolate the value, which the command form of SetIfUnset doesn't
-  # do:
   HTMLFunctionsObject.SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
 
   # Template Creation: {{{2

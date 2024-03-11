@@ -61,7 +61,7 @@ endif
 #    checked.
 #
 # Requirements:
-#  * Vim 9 or later
+#  * Vim 9.1 or later
 #
 # Copyright © 1998-2024 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
