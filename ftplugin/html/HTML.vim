@@ -84,7 +84,7 @@ import autoload 'HTML/functions.vim'
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/MangleImageTag.vim'
 
-# Create the object ...
+# Create functions object ...
 var HTMLFunctionsObject = functions.HTMLFunctions.new()
 # ...and save it where it can be used by the mappings:
 b:htmlplugin.HTMLFunctionsObject = HTMLFunctionsObject
@@ -131,7 +131,7 @@ if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
   # Intitialize some necessary variables:  {{{2
 
   if type(g:htmlplugin.toplevel_menu) != v:t_list
-    functions.HTMLFunctions.Error('g:htmlplugin.toplevel_menu must be a list! Overriding.')
+    functions.HTMLFunctions.Error('g:htmlplugin.toplevel_menu must be a list! Overriding to default.')
     sleep 3
     g:htmlplugin.toplevel_menu = []
   endif

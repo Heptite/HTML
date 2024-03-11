@@ -185,7 +185,7 @@ must be set before HTML.vim is sourced. e.g.: >
 	:let g:htmlplugin.no_map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |OBJECT.Map()| function elsewhere you will still get a warning
+call the |HTMLFunctionsObject.Map()| function elsewhere you will still get a warning
 message when there is an already existing mapping and the mapping will still
 be overridden.
 
@@ -201,7 +201,7 @@ centered headings tags: >
 		\ ';H4', ';H5', ';H6']
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |OBJECT.Map()| function elsewhere the mapping will be defined
+call the |HTMLFunctionsObject.Map()| function elsewhere the mapping will be defined
 even if it matches this list; this is useful if you wish to define custom
 variants of some of the plugin's mappings without getting warning messages.
 
@@ -265,8 +265,11 @@ internal template.
 
 The default for these variables are empty strings.
 
+*g:htmlplugin.author_url*
+The author's homepage. Replaces the |authorurl| token in the template.
+
 *g:htmlplugin.author_email_encoded*
-This variable will be set using |OBJECT.TranscodeString()| if your
+This variable will be set using |HTMLFunctionsObject.TranscodeString()| if your
 |g:htmlplugin.author_email| variable is set. (Do not set this variable
 yourself, it will be overwritten when the template macro is used.)
 
@@ -302,6 +305,7 @@ Token:			Variable: 			Description: ~
 %authoremail%		|g:htmlplugin.author_email_encoded|
 							Author's email address,
 							encoded to prevent spam
+%authorurl%		|g:htmlplugin.author_url|	Author's homepage
 %bgcolor%		|g:htmlplugin.bgcolor|		Main background color
 %textcolor%		|g:htmlplugin.textcolor|	Main text color
 %linkcolor%		|g:htmlplugin.linkcolor|	Unvisited link color
@@ -406,8 +410,8 @@ The following commands are only defined in HTML buffers.
 	would want to be able to type literal ";", "&" and tab characters
 	without interference. (Also see |i_;;|, |i_;&| and |i_;<Tab>|)
 
-	Note that all of the mappings defined by calling |OBJECT.Map()|
-	or |OBJECT.Mapo()|--including all of the mappings defined by
+	Note that all of the mappings defined by calling |HTMLFunctionsObject.Map()|
+	or |HTMLFunctionsObject.Mapo()|--including all of the mappings defined by
 	this script--are disabled/enabled when this command is used,
 	regardless of what |g:htmlplugin.map_leader| is set to.
 
@@ -666,12 +670,12 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 							*html-object*
 							*i_;ob* *v_;ob* *n_;ob*
 ;ob	Generic embedded object: >
-	<OBJECT DATA="" WIDTH="" HEIGHT="">
-	</OBJECT>
+	<HTMLFunctionsObject DATA="" WIDTH="" HEIGHT="">
+	</HTMLFunctionsObject>
 <	Visual mode puts the selected text >
-	<OBJECT DATA="" WIDTH="" HEIGHT="">
+	<HTMLFunctionsObject DATA="" WIDTH="" HEIGHT="">
 <	here >
-	</OBJECT>.
+	</HTMLFunctionsObject>.
 <	(|n_;|)
 							*html-object-parameter*
 							*i_;pm* *v_;pm* *n_;pm*
@@ -1301,7 +1305,7 @@ characters into the HTML buffer. These are known as characters entities.
 	(|n_;|)
 
 	(Note that this will not touch Unicode characters. See
-	|OBJECT.TranscodeString()|)
+	|HTMLFunctionsObject.TranscodeString()|)
 							*n_;^* *v_;^*
 ;^	This mapping will decode the &..., &#...; and %XX elements of the
 	motion or visually selected characters to their actual characters.
@@ -1733,10 +1737,20 @@ Some of the functions used by the HTML mappings:	*html-functions*
 ------------------------------------------------
 
 These functions are now wrapped into a class called HTMLFunctions, and must be
-imported and a new object created to be used, herafter referred to as OBJECT.
+imported and a new object created to be used, herafter referred to as
+HTMLFunctionsObject.
 
-					*OBJECT.TranscodeString()*
-OBJECT.TranscodeString({string} [, {...}])
+To create the object, first include the file in your |vim9script|: >
+	
+	import autoload 'HTML/functions.vim'
+
+<Then create the object: >
+
+	var HTMLFunctionsObject = functions.HTMLFunctions.new()
+<
+
+					*HTMLFunctionsObject.TranscodeString()*
+HTMLFunctionsObject.TranscodeString({string} [, {...}])
 	Returns {string} encoded into HTML entities, or decode HTML encoded
 	strings.
 
@@ -1761,8 +1775,8 @@ OBJECT.TranscodeString({string} [, {...}])
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 
-					*OBJECT.GenerateTable()*
-OBJECT.GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
+					*HTMLFunctionsObject.GenerateTable()*
+HTMLFunctionsObject.GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 	This is normally called by the |n_;tA|, mapping but it can be called
 	with argumetns to non-interactively generate a table:
 
@@ -1780,8 +1794,8 @@ OBJECT.GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 
 	This function returns true if a table was generated, false otherwise.
 
-						*OBJECT.Map()*
-OBJECT.Map({maptype}, {lhs}, {rhs} [, {options}])
+						*HTMLFunctionsObject.Map()*
+HTMLFunctionsObject.Map({maptype}, {lhs}, {rhs} [, {options}])
 	This function defines a mapping, local to the buffer and silent.
 	{maptype} is any map command. {lhs} and {rhs} are equivalent to `:map`
 	arguments, see |map.txt|. This is useful for autocommands and HTML
@@ -1820,15 +1834,15 @@ OBJECT.Map({maptype}, {lhs}, {rhs} [, {options}])
 
 	This function returns true if a map was defined, false otherwise.
 
-OBJECT.Mapo({map} [, {insert}])		*OBJECT.Mapo()*
+HTMLFunctionsObject.Mapo({map} [, {insert}])	*HTMLFunctionsObject.Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
 	visual mapping by the same name. {insert} is a |Boolean| value that
 	indicates whether to end in insert mode, default false.
 
 	This function returns true if a map was defined, false otherwise.
 
-					*OBJECT.NextInsertPoint()*
-OBJECT.NextInsertPoint([{mode}, {direction}])
+					*HTMLFunctionsObject.NextInsertPoint()*
+HTMLFunctionsObject.NextInsertPoint([{mode}, {direction}])
 	This is normally called by the |i_;<Tab>| mapping, but it works the
 	same if called any other way. The {mode} argument is either 'i' or 'n'
 	(default) which means |Insert| or |Normal|. In insert mode, if the
@@ -1839,15 +1853,15 @@ OBJECT.NextInsertPoint([{mode}, {direction}])
 
 	This function returns true if the cursor was moved, false otherwise.
 
-OBJECT.Template()			*OBJECT.Template()*
+HTMLFunctionsObject.Template()			*HTMLFunctionsObject.Template()*
 	This is normally called by the |n_;html| mapping, but it works
 	the same if called any other way.
 
 	This function returns true if the cursor is on an insert point, false
 	otherwise.
 
-						*OBJECT.SetIfUnset()*
-OBJECT.SetIfUnset({variable}, {value})
+						*HTMLFunctionsObject.SetIfUnset()*
+HTMLFunctionsObject.SetIfUnset({variable}, {value})
 	This function sets {variable} to {value} if the variable is not
 	already set. A {value} of "" makes sure the variable is set with an
 	empty string, a {value} of [] initializes to an empty list, and a
