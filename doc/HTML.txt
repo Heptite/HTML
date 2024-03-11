@@ -2,12 +2,12 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Jan 05
+		Last change: 2024 Mar 11
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
 
-This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim 9 or
+This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim 9.1 or
 later to make editing HTML files easier. The original Copyright goes to Doug
 Renze, although his efforts have been heavily modified and extended in this
 implementation.  All the changes are Copyright © 1998 - 2024 Christian J.
@@ -185,7 +185,7 @@ must be set before HTML.vim is sourced. e.g.: >
 	:let g:htmlplugin.no_map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |g:HTML#functions#Map()| function elsewhere you will still get a warning
+call the |OBJECT.Map()| function elsewhere you will still get a warning
 message when there is an already existing mapping and the mapping will still
 be overridden.
 
@@ -201,7 +201,7 @@ centered headings tags: >
 		\ ';H4', ';H5', ';H6']
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |g:HTML#functions#Map()| function elsewhere the mapping will be defined
+call the |OBJECT.Map()| function elsewhere the mapping will be defined
 even if it matches this list; this is useful if you wish to define custom
 variants of some of the plugin's mappings without getting warning messages.
 
@@ -266,7 +266,7 @@ internal template.
 The default for these variables are empty strings.
 
 *g:htmlplugin.author_email_encoded*
-This variable will be set using |g:HTML#functions#TranscodeString()| if your
+This variable will be set using |OBJECT.TranscodeString()| if your
 |g:htmlplugin.author_email| variable is set. (Do not set this variable
 yourself, it will be overwritten when the template macro is used.)
 
@@ -406,8 +406,8 @@ The following commands are only defined in HTML buffers.
 	would want to be able to type literal ";", "&" and tab characters
 	without interference. (Also see |i_;;|, |i_;&| and |i_;<Tab>|)
 
-	Note that all of the mappings defined by calling |g:HTML#functions#Map()|
-	or |g:HTML#functions#Mapo()|--including all of the mappings defined by
+	Note that all of the mappings defined by calling |OBJECT.Map()|
+	or |OBJECT.Mapo()|--including all of the mappings defined by
 	this script--are disabled/enabled when this command is used,
 	regardless of what |g:htmlplugin.map_leader| is set to.
 
@@ -1301,7 +1301,7 @@ characters into the HTML buffer. These are known as characters entities.
 	(|n_;|)
 
 	(Note that this will not touch Unicode characters. See
-	|g:HTML#functions#TranscodeString()|)
+	|OBJECT.TranscodeString()|)
 							*n_;^* *v_;^*
 ;^	This mapping will decode the &..., &#...; and %XX elements of the
 	motion or visually selected characters to their actual characters.
@@ -1732,8 +1732,11 @@ drive).
 Some of the functions used by the HTML mappings:	*html-functions*
 ------------------------------------------------
 
-					*g:HTML#functions#TranscodeString()*
-g:HTML#functions#TranscodeString({string} [, {...}])
+These functions are now wrapped into a class called HTMLFunctions, and must be
+imported and a new object created to be used, herafter referred to as OBJECT.
+
+					*OBJECT.TranscodeString()*
+OBJECT.TranscodeString({string} [, {...}])
 	Returns {string} encoded into HTML entities, or decode HTML encoded
 	strings.
 
@@ -1758,8 +1761,8 @@ g:HTML#functions#TranscodeString({string} [, {...}])
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 
-					*g:HTML#functions#GenerateTable()*
-g:HTML#functions#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
+					*OBJECT.GenerateTable()*
+OBJECT.GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 	This is normally called by the |n_;tA|, mapping but it can be called
 	with argumetns to non-interactively generate a table:
 
@@ -1777,8 +1780,8 @@ g:HTML#functions#GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfo
 
 	This function returns true if a table was generated, false otherwise.
 
-						*g:HTML#functions#Map()*
-g:HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
+						*OBJECT.Map()*
+OBJECT.Map({maptype}, {lhs}, {rhs} [, {options}])
 	This function defines a mapping, local to the buffer and silent.
 	{maptype} is any map command. {lhs} and {rhs} are equivalent to `:map`
 	arguments, see |map.txt|. This is useful for autocommands and HTML
@@ -1817,15 +1820,15 @@ g:HTML#functions#Map({maptype}, {lhs}, {rhs} [, {options}])
 
 	This function returns true if a map was defined, false otherwise.
 
-g:HTML#functions#Mapo({map} [, {insert}])		*g:HTML#functions#Mapo()*
+OBJECT.Mapo({map} [, {insert}])		*OBJECT.Mapo()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
 	visual mapping by the same name. {insert} is a |Boolean| value that
 	indicates whether to end in insert mode, default false.
 
 	This function returns true if a map was defined, false otherwise.
 
-					*g:HTML#functions#NextInsertPoint()*
-g:HTML#functions#NextInsertPoint([{mode}, {direction}])
+					*OBJECT.NextInsertPoint()*
+OBJECT.NextInsertPoint([{mode}, {direction}])
 	This is normally called by the |i_;<Tab>| mapping, but it works the
 	same if called any other way. The {mode} argument is either 'i' or 'n'
 	(default) which means |Insert| or |Normal|. In insert mode, if the
@@ -1836,15 +1839,15 @@ g:HTML#functions#NextInsertPoint([{mode}, {direction}])
 
 	This function returns true if the cursor was moved, false otherwise.
 
-g:HTML#functions#Template()			*g:HTML#functions#Template()*
+OBJECT.Template()			*OBJECT.Template()*
 	This is normally called by the |n_;html| mapping, but it works
 	the same if called any other way.
 
 	This function returns true if the cursor is on an insert point, false
 	otherwise.
 
-						*g:HTML#functions#SetIfUnset()*
-g:HTML#functions#SetIfUnset({variable}, {value})
+						*OBJECT.SetIfUnset()*
+OBJECT.SetIfUnset({variable}, {value})
 	This function sets {variable} to {value} if the variable is not
 	already set. A {value} of "" makes sure the variable is set with an
 	empty string, a {value} of [] initializes to an empty list, and a

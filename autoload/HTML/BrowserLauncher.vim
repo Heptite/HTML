@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 900
+if v:version < 901
   finish
 endif
 
@@ -86,7 +86,6 @@ export class BrowserLauncher extends functions.HTMLFunctions
 
   static const E_NOFILE  = 'No file is associated with the current buffer and no URL was specified.'
   static const E_NOAPP   = '%s not found.'
-  static const W_UNSAVED = 'Warning: The current buffer has unsaved modifications.'
   static const E_UNKNOWN = 'Unknown browser ID: %s'
   static const E_DISPLAY = '$DISPLAY is not set and no textmode browsers were found, no browser launched.'
   static const E_XTERM   = "XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch %s."
@@ -94,6 +93,8 @@ export class BrowserLauncher extends functions.HTMLFunctions
   static const E_LAUNCH  = 'Unable to launch %s.'
   static const E_COMMAND = 'Command failed: %s'
   static const E_FINAL   = 'Something went wrong, we should never get here...'
+
+  static const W_UNSAVED = 'Warning: The current buffer has unsaved modifications.'
 
   var Browsers: dict<list<any>>
   var TextmodeBrowsers = ['lynx', 'w3m', 'links']
@@ -189,7 +190,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
   enddef
 
   def Launch(browser: string = 'default', new: number = 0, url: string = ''): bool  # {{{1
-    if has('mac') == 1 || has('macunix') == 1
+    if (has('mac') == 1) || (has('macunix') == 1)
       return this.MacLaunch(browser, new, url)
     else
       return this.UnixWindowsLaunch(browser, new, url)
@@ -234,7 +235,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
       return this.MacBrowsersExist
     endif
 
-    if this.MacBrowsersExist->match('^\c\V' .. app .. '\$')
+    if match(this.MacBrowsersExist, '^\c\V' .. app .. '\$')
       return true
     else
       system("/usr/bin/osascript -e 'get id of application \"" .. app->escape("\"'\\") .. "\"'")
@@ -477,7 +478,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
       # path to a Windows native path for later use, otherwise just add the
       # file:// prefix:
       file = 'file://'
-        .. ((has('win32unix') == 1) && this.TextmodeBrowsers->match('^\c\V' .. which .. '\$') < 0 ?
+        .. ((has('win32unix') == 1) && match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') < 0 ?
           system('cygpath -w ' .. expand('%:p')->shellescape())->trim() : expand('%:p'))
     else
       functions.HTMLFunctions.Error(E_NOFILE)
@@ -485,7 +486,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
     endif
 
     if has('unix') == 1 && $DISPLAY == ''
-        && this.TextmodeBrowsers->match('^\c\V' .. which .. '\$') < 0
+        && match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') < 0
         && has('win32unix') == 0
       if this.TextmodeBrowsers == []
         functions.HTMLFunctions.Error(E_DISPLAY)
@@ -496,7 +497,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
     endif
 
     # Have to handle the textmode browsers different than the GUI browsers:
-    if TextmodeBrowsers->match('^\c\V' .. which .. '\$') >= 0 
+    if match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') >= 0 
       functions.HTMLFunctions.Message('Launching ' .. this.Browsers[which][0] .. '...')
 
       var xterm = system('which xterm')->trim()

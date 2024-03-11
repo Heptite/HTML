@@ -1139,9 +1139,9 @@
 		"lhs": "mi",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>MangleImageTag.Update()<CR>"],
-			"i": ["", "<ScriptCmd>MangleImageTag.Update()<CR>", {"extra": false}],
-			"v": ["", "<ScriptCmd>MangleImageTag.Update()<CR>", {"extra": false}]
+			"n": ["", "<ScriptCmd>b:htmlplugin.MangleImageTagObject.Update()<CR>"],
+			"i": ["", "<ScriptCmd>b:htmlplugin.MangleImageTagObject.Update()<CR>", {"extra": false}],
+			"v": ["", "<ScriptCmd>b:htmlplugin.MangleImageTagObject.Update()<CR>", {"extra": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "Update Image Size Attributes"], {

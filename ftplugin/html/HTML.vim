@@ -1,8 +1,8 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 900
-  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 9.0'
+if v:version < 901
+  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 9.1'
   sleep 3
   finish
 endif
@@ -82,6 +82,7 @@ runtime commands/HTML/commands.vim
 import '../../import/HTML/variables.vim' as HTMLVariables
 import autoload 'HTML/functions.vim'
 import autoload 'HTML/BrowserLauncher.vim'
+import autoload 'HTML/MangleImageTag.vim'
 
 # Create the object ...
 var HTMLFunctionsObject = functions.HTMLFunctions.new()
@@ -89,7 +90,14 @@ var HTMLFunctionsObject = functions.HTMLFunctions.new()
 b:htmlplugin.HTMLFunctionsObject = HTMLFunctionsObject
 # ...
 var BrowserLauncherObject = BrowserLauncher.BrowserLauncher.new()
+# ...
 b:htmlplugin.BrowserLauncherObject = BrowserLauncherObject
+# ...
+var MangleImageTagObject = MangleImageTag.MangleImageTag.new()
+# ...
+b:htmlplugin.MangleImageTagObject = MangleImageTagObject
+# ...
+var HTMLVariablesObject = HTMLVariables.HTMLVariables.new()
 
 if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
   b:htmlplugin.did_mappings_init = true
@@ -122,13 +130,6 @@ if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
 
   # Intitialize some necessary variables:  {{{2
 
-  # Always set this, even if it was already set:
-  if g:htmlplugin->has_key('file')
-    unlockvar g:htmlplugin.file
-  endif
-  g:htmlplugin.file = expand('<script>:p')
-  lockvar g:htmlplugin.file
-
   if type(g:htmlplugin.toplevel_menu) != v:t_list
     functions.HTMLFunctions.Error('g:htmlplugin.toplevel_menu must be a list! Overriding.')
     sleep 3
@@ -137,7 +138,7 @@ if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
 
   if !g:htmlplugin->has_key('toplevel_menu_escaped')
     g:htmlplugin.toplevel_menu_escaped =
-      HTMLFunctionsObject.MenuJoin(g:htmlplugin.toplevel_menu->add(HTMLVariables.MENU_NAME))
+      HTMLFunctionsObject.MenuJoin(g:htmlplugin.toplevel_menu->add(HTMLVariables.HTMLVariables.MENU_NAME))
     lockvar g:htmlplugin.toplevel_menu
     lockvar g:htmlplugin.toplevel_menu_escaped
   endif
@@ -191,7 +192,7 @@ if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
   # Template Creation: {{{2
 
   if HTMLFunctionsObject.BoolVar('b:htmlplugin.do_xhtml_mappings')
-    b:htmlplugin.internal_template = HTMLVariables.INTERNAL_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = HTMLVariables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
         ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
         '<html xmlns="http://www.w3.org/1999/xhtml">'
@@ -200,7 +201,7 @@ if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
     b:htmlplugin.internal_template =
       HTMLFunctionsObject.ConvertCase(b:htmlplugin.internal_template)
   else
-    b:htmlplugin.internal_template = HTMLVariables.INTERNAL_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = HTMLVariables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html>',
         '<[{HTML}]>'
       ], 0)
@@ -867,7 +868,7 @@ else
   endif
 
   # Create the rest of the colors menu:
-  HTMLVariables.COLOR_LIST->mapnew((_, value) => HTMLFunctionsObject.ColorsMenu(value[0], value[1], value[2], value[3]))
+  HTMLVariables.HTMLVariables.COLOR_LIST->mapnew((_, value) => HTMLFunctionsObject.ColorsMenu(value[0], value[1], value[2], value[3]))
 
   # }}}2
 
