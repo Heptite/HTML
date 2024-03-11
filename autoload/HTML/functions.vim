@@ -1524,6 +1524,7 @@ export class HTMLFunctions
           (_, str) =>
               str->substitute('\C%authorname%', '\=g:htmlplugin.author_name', 'g')
                   ->substitute('\C%authoremail%', '\=g:htmlplugin.author_email_encoded', 'g')
+                  ->substitute('\C%authorurl%', '\=g:htmlplugin.author_url', 'g')
                   ->substitute('\C%bgcolor%', '\=g:htmlplugin.bgcolor', 'g')
                   ->substitute('\C%textcolor%', '\=g:htmlplugin.textcolor', 'g')
                   ->substitute('\C%linkcolor%', '\=g:htmlplugin.linkcolor', 'g')
