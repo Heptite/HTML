@@ -46,6 +46,17 @@ export class HTMLVariables
   static const TAGS_FILE = 'json/HTML/tags.json'
   static const ENTITIES_FILE = 'json/HTML/entities.json'
 
+  static const TEMPLATE_TOKENS = {
+    authorname:  'author_name',
+    authoremail: 'author_email_encoded',
+    authorurl:   'author_url',
+    bgcolor:     'bgcolor',
+    textcolor:   'textcolor',
+    linkcolor:   'linkcolor',
+    alinkcolor:  'alinkcolor',
+    vlinkcolor:  'vlinkcolor',
+  }
+
   static const INTERNAL_TEMPLATE = [  # {{{
     # Don't insert the start of the <html> tag here, since logic in the main
     # plugin file adds it depending on the filetype.
@@ -54,7 +65,8 @@ export class HTMLVariables
     '  <[{TITLE></TITLE}]>',
     '',
     '  <[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=%charset%" />',
-    '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% (Vi IMproved editor; http://www.vim.org/)" />',
+    '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% (Vi IMproved editor; http://www.vim.org/) with HTML Editing Macros '
+      .. HTMLVariables.VERSION .. ' (' .. HTMLVariables.HOMEPAGE .. ')" />',
     '  <[{META NAME}]="Author" [{CONTENT}]="%authorname%" />',
     '  <[{META NAME}]="Copyright" [{CONTENT}]="Copyright (C) %date% %authorname%" />',
     '  <[{LINK REL}]="made" [{HREF}]="mailto:%authoremail%" />',

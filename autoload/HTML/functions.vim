@@ -1522,14 +1522,8 @@ export class HTMLFunctions
       def TokenReplace(text: list<string>): list<string>
         return text->mapnew(
           (_, str) =>
-              str->substitute('\C%authorname%', '\=g:htmlplugin.author_name', 'g')
-                  ->substitute('\C%authoremail%', '\=g:htmlplugin.author_email_encoded', 'g')
-                  ->substitute('\C%authorurl%', '\=g:htmlplugin.author_url', 'g')
-                  ->substitute('\C%bgcolor%', '\=g:htmlplugin.bgcolor', 'g')
-                  ->substitute('\C%textcolor%', '\=g:htmlplugin.textcolor', 'g')
-                  ->substitute('\C%linkcolor%', '\=g:htmlplugin.linkcolor', 'g')
-                  ->substitute('\C%alinkcolor%', '\=g:htmlplugin.alinkcolor', 'g')
-                  ->substitute('\C%vlinkcolor%', '\=g:htmlplugin.vlinkcolor', 'g')
+              str->substitute('\C%\(' .. join(keys(HTMLVariables.HTMLVariables.TEMPLATE_TOKENS), '\|')
+                    .. '\)%', '\=get(b:htmlplugin, HTMLVariables.HTMLVariables.TEMPLATE_TOKENS[submatch(1)], "")', 'g')
                   ->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
                   ->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%', '\=submatch(1)->substitute(''\\%'', "%%", "g")->substitute(''\\\@<!!'', "%", "g")->strftime()', 'g')
                   ->substitute('\C%time%', '\=strftime("%r %Z")', 'g')
@@ -1542,8 +1536,10 @@ export class HTMLFunctions
 
       if g:htmlplugin.author_email != ''
         g:htmlplugin.author_email_encoded = g:htmlplugin.author_email->this.TranscodeString()
+        b:htmlplugin.author_email_encoded = b:htmlplugin.author_email->this.TranscodeString()
       else
         g:htmlplugin.author_email_encoded = ''
+        b:htmlplugin.author_email_encoded = ''
       endif
 
       var template: string

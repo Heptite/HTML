@@ -119,11 +119,24 @@ if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
     # variables are set:
     author_name:             '',
     author_email:            '',
+    author_url:              '',
     # Empty list means the HTML menu is its own toplevel:
     toplevel_menu:          [],
     # -1 means let Vim put the menu wherever it wants to by default:
     toplevel_menu_priority: -1,
     save_clipboard:         &clipboard,
+  }, 'keep')
+
+  # Buffer-local versions of some config variables (others are set below):
+  b:htmlplugin->extend({
+    author_name:  g:htmlplugin.author_name,
+    author_email: g:htmlplugin.author_email,
+    author_url:   g:htmlplugin.author_url,
+    bgcolor:      g:htmlplugin.bgcolor,
+    textcolor:    g:htmlplugin.textcolor,
+    linkcolor:    g:htmlplugin.linkcolor,
+    alinkcolor:   g:htmlplugin.alinkcolor,
+    vlinkcolor:   g:htmlplugin.vlinkcolor
   }, 'keep')
   # END configurable variables
 

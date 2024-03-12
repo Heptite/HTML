@@ -250,10 +250,11 @@ used.
 
 See |html-template-tokens| for special tokens you can use within the template.
 
-*g:htmlplugin.author_name* *g:htmlplugin.author_email*
-Within the internal template, |g:htmlplugin.author_name| is inserted inside >
+*g:htmlplugin.author_name* *b:htmlplugin.author_name*
+*g:htmlplugin.author_email* *b:htmlplugin.author_email*
+Within the internal template, |b:htmlplugin.author_name| is inserted inside >
 	<META NAME="Author" CONTENT="...">
-<|g:htmlplugin.author_email| is converted to |g:htmlplugin.authoremail_encoded|
+<|b:htmlplugin.author_email| is converted to |b:htmlplugin.authoremail_encoded|
 and inserted inside >
 	<LINK REL="made" HREF="mailto:...">
 <	e.g.: >
@@ -265,16 +266,18 @@ internal template.
 
 The default for these variables are empty strings.
 
-*g:htmlplugin.author_url*
-The author's homepage. Replaces the |authorurl| token in the template.
-
-*g:htmlplugin.author_email_encoded*
+*g:htmlplugin.author_email_encoded* *b:htmlplugin.author_email_encoded*
 This variable will be set using |HTMLFunctionsObject.TranscodeString()| if your
 |g:htmlplugin.author_email| variable is set. (Do not set this variable
 yourself, it will be overwritten when the template macro is used.)
 
+*g:htmlplugin.author_url* *b:htmlplugin.author_url*
+The author's homepage. Replaces the |authorurl| token in the template.
+
 *g:htmlplugin.bgcolor* *g:htmlplugin.textcolor* *g:htmlplugin.linkcolor*
 *g:htmlplugin.alinkcolor* *g:htmlplugin.vlinkcolor*
+*b:htmlplugin.bgcolor* *b:htmlplugin.textcolor* *b:htmlplugin.linkcolor*
+*b:htmlplugin.alinkcolor* *b:htmlplugin.vlinkcolor*
 These control the CSS in the internal template and can also be used as
 |html-tokens| in the user defined template. They default to: >
 	:let g:htmlplugin.bgcolor     = '#FFFFFF'
@@ -301,16 +304,16 @@ When you define a template file with the |g:htmlplugin.template| or
 automatically replaced with their corresponding variable value:
 
 Token:			Variable: 			Description: ~
-%authorname%		|g:htmlplugin.author_name|	Author's name
-%authoremail%		|g:htmlplugin.author_email_encoded|
+%authorname%		|b:htmlplugin.author_name|	Author's name
+%authoremail%		|b:htmlplugin.author_email_encoded|
 							Author's email address,
 							encoded to prevent spam
-%authorurl%		|g:htmlplugin.author_url|	Author's homepage
-%bgcolor%		|g:htmlplugin.bgcolor|		Main background color
-%textcolor%		|g:htmlplugin.textcolor|	Main text color
-%linkcolor%		|g:htmlplugin.linkcolor|	Unvisited link color
-%alinkcolor%		|g:htmlplugin.alinkcolor|	Mouse hover link color
-%vlinkcolor%		|g:htmlplugin.vlinkcolor|	Visited link color
+%authorurl%		|b:htmlplugin.author_url|	Author's homepage
+%bgcolor%		|b:htmlplugin.bgcolor|		Main background color
+%textcolor%		|b:htmlplugin.textcolor|	Main text color
+%linkcolor%		|b:htmlplugin.linkcolor|	Unvisited link color
+%alinkcolor%		|b:htmlplugin.alinkcolor|	Mouse hover link color
+%vlinkcolor%		|b:htmlplugin.vlinkcolor|	Visited link color
 
 Special tokens: ~
 %date%						*%date%*
