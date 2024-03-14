@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: March 11, 2024
+# Last Change: March 12, 2024
 #
 # Requirements:
 #   Vim 9.1 or later
@@ -33,9 +33,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import autoload 'HTML/functions.vim'
-
-export class MangleImageTag extends functions.HTMLFunctions
+export class MangleImageTag
 
   static const E_NOIMG       = 'The cursor is not on an IMG tag.'
   static const E_NOSRC       = 'Image SRC not specified in the tag.'
@@ -346,6 +344,8 @@ export class MangleImageTag extends functions.HTMLFunctions
     )
     return n
   enddef
+
+  # }}}1
 
 endclass
 

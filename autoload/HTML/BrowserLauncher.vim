@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: March 11, 2024
+# Last Change: March 12, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -598,6 +598,8 @@ export class BrowserLauncher extends functions.HTMLFunctions
     functions.HTMLFunctions.Error(E_FINAL)
     return false
   enddef
+
+  # }}}1
 
 endclass
 

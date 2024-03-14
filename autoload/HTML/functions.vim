@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 11, 2024
+# Last Change: March 14, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -49,7 +49,8 @@ export class HTMLFunctions
   static const E_ENABLED      = 'The HTML mappings are already enabled.'
   static const E_INVALIDARG   = '%s Invalid argument: %s'
   static const E_JSON         = '%s Potentially malformed json in %s, section: %s'
-  static const E_NOTFOUND     = '%s %s is not found in the runtimepath.'
+  static const E_NOTFOUNDRTP  = '%s %s is not found in the runtimepath.'
+  static const E_NOTFOUND     = 'File "%s" was not found.'
   static const E_NOREAD       = '%s %s is not readable.'
   static const E_NOTAG        = 'No tag mappings or menus have been defined.'
   static const E_NOENTITY     = 'No entity mappings or menus have been defined.'
@@ -1491,6 +1492,54 @@ export class HTMLFunctions
       )
   enddef
 
+  # TokenReplace()  {{{1
+  #
+  # Purpose:
+  #  Replace user tokens with appropriate text, based on configuration
+  # Arguments:
+  #  1 - String or List of strings: The text to do token replacement on
+  # Return Value:
+  #  String or List: The new text
+  def TokenReplace(text: list<string>, directory: string = ''): list<string>
+    return text->mapnew(
+      (_, str) =>
+          str->substitute('\C%\(' .. join(keys(HTMLVariables.HTMLVariables.TEMPLATE_TOKENS), '\|') .. '\)%',
+                '\=get(b:htmlplugin, HTMLVariables.HTMLVariables.TEMPLATE_TOKENS[submatch(1)], "")', 'g')
+              ->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
+              ->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%',
+                '\=submatch(1)->substitute(''\\%'', "%%", "g")->substitute(''\\\@<!!'', "%", "g")->strftime()', 'g')
+              ->substitute('\C%time%', '\=strftime("%r %Z")', 'g')
+              ->substitute('\C%time12%', '\=strftime("%r %Z")', 'g')
+              ->substitute('\C%time24%', '\=strftime("%T")', 'g')
+              ->substitute('\C%charset%', '\=this.DetectCharset()', 'g')
+              ->substitute('\C%vimversion%', '\=(v:version / 100) .. "." .. (v:version % 100) .. "." .. (v:versionlong % 10000)', 'g')
+              ->substitute('\C%htmlversion%', HTMLVariables.HTMLVariables.VERSION, 'g')
+              ->substitute('\C%include\s\+\(.\{-1,}\)%',
+                '\=this.FindAndRead(submatch(1), expand("%:p:h") .. (directory != "" ? "," .. directory : ""))->join("%newline%")', 'g')
+      )
+  enddef
+
+  # FindAndRead() {{{1
+  #
+  # Purpose:
+  #  Find an include file and return it.
+  # Arguments:
+  #  1 - String: File to find
+  #  2 - String: Directories to search, comma separated, last one is
+  #              passed on in recursive calls
+  # Return Value:
+  #  String: The file's contents
+  def FindAndRead(inc: string, path: string): list<string>
+    var found: list<string> = findfile(inc, path, -1)
+
+    if len(found) <= 0
+      printf(HTMLFunctions.E_NOTFOUND, inc)->HTMLFunctions.Warn()
+      return []
+    endif
+           
+    return readfile(found[0])->this.TokenReplace(split(path, ':')[-1])
+  enddef
+
   # Template()  {{{1
   #
   # Purpose:
@@ -1499,7 +1548,7 @@ export class HTMLFunctions
   #  None
   # Return Value:
   #  Boolean - Whether the cursor is not on an insert point.
-  def Template(): bool
+  def Template(file: string = ''): bool
 
     # InsertTemplate()  {{{2
     #
@@ -1509,30 +1558,7 @@ export class HTMLFunctions
     #  None
     # Return Value:
     #  Boolean - Whether the cursor is not on an insert point.
-    def InsertTemplate(): bool
-
-      # TokenReplace()  {{{3
-      #
-      # Purpose:
-      #  Replace user tokens with appropriate text, based on configuration
-      # Arguments:
-      #  1 - String or List of strings: The text to do token replacement on
-      # Return Value:
-      #  String or List: The new text
-      def TokenReplace(text: list<string>): list<string>
-        return text->mapnew(
-          (_, str) =>
-              str->substitute('\C%\(' .. join(keys(HTMLVariables.HTMLVariables.TEMPLATE_TOKENS), '\|')
-                    .. '\)%', '\=get(b:htmlplugin, HTMLVariables.HTMLVariables.TEMPLATE_TOKENS[submatch(1)], "")', 'g')
-                  ->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
-                  ->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%', '\=submatch(1)->substitute(''\\%'', "%%", "g")->substitute(''\\\@<!!'', "%", "g")->strftime()', 'g')
-                  ->substitute('\C%time%', '\=strftime("%r %Z")', 'g')
-                  ->substitute('\C%time12%', '\=strftime("%r %Z")', 'g')
-                  ->substitute('\C%time24%', '\=strftime("%T")', 'g')
-                  ->substitute('\C%charset%', '\=this.DetectCharset()', 'g')
-                  ->substitute('\C%vimversion%', '\=(v:version / 100) .. "." .. (v:version % 100) .. "." .. (v:versionlong % 10000)', 'g')
-          )
-      enddef  # }}}3
+    def InsertTemplate(f: string = ''): bool
 
       if g:htmlplugin.author_email != ''
         g:htmlplugin.author_email_encoded = g:htmlplugin.author_email->this.TranscodeString()
@@ -1544,7 +1570,9 @@ export class HTMLFunctions
 
       var template: string
 
-      if b:htmlplugin->get('template', '') != ''
+      if f != ''
+        template = f
+      elseif b:htmlplugin->get('template', '') != ''
         template = b:htmlplugin.template
       elseif g:htmlplugin->get('template', '') != ''
         template = g:htmlplugin.template
@@ -1552,14 +1580,17 @@ export class HTMLFunctions
 
       if template != ''
         if template->expand()->filereadable()
-          template->readfile()->TokenReplace()->append(0)
+          template->readfile()->this.TokenReplace(fnamemodify(template, ':p:h'))->append(0)
         else
           printf(HTMLFunctions.E_TEMPLATE, template)->HTMLFunctions.Error()
           return false
         endif
       else
-        b:htmlplugin.internal_template->TokenReplace()->append(0)
+        b:htmlplugin.internal_template->this.TokenReplace()->append(0)
       endif
+
+      # Special case, can't be done in TokenReplace():
+      execute(':%s/%newline%/\r/g', 'silent!')
 
       if getline('$') =~ '^\s*$'
         :$delete
@@ -1584,14 +1615,14 @@ export class HTMLFunctions
     set noruler noshowcmd
 
     if line('$') == 1 && getline(1) == ''
-      ret = InsertTemplate()
+      ret = InsertTemplate(file)
     else
       var YesNoOverwrite = confirm("Non-empty file.\nInsert template anyway?", "&Yes\n&No\n&Overwrite", 2, 'Question')
       if YesNoOverwrite == 1
-        ret = InsertTemplate()
+        ret = InsertTemplate(file)
       elseif YesNoOverwrite == 3
         execute ':%delete'
-        ret = InsertTemplate()
+        ret = InsertTemplate(file)
       endif
     endif
 
@@ -1911,7 +1942,7 @@ export class HTMLFunctions
     var json_data: list<any> = []
 
     if json_files->len() == 0
-      printf(E_NOTFOUND, F(), file)->Error()
+      printf(E_NOTFOUNDRTP, F(), file)->Error()
       return []
     endif
 
@@ -2154,6 +2185,8 @@ export class HTMLFunctions
   static def F(): string
     return split(expand('<stack>'), '\.\.')[-2]->substitute('\[\d\+\]$', '', '')
   enddef
+
+  # }}}1
 
 endclass
 

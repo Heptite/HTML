@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Mar 11
+		Last change: 2024 Mar 14
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -304,16 +304,16 @@ When you define a template file with the |g:htmlplugin.template| or
 automatically replaced with their corresponding variable value:
 
 Token:			Variable: 			Description: ~
-%authorname%		|b:htmlplugin.author_name|	Author's name
-%authoremail%		|b:htmlplugin.author_email_encoded|
+*%authorname%*		|b:htmlplugin.author_name|	Author's name
+*%authoremail%*		|b:htmlplugin.author_email_encoded|
 							Author's email address,
 							encoded to prevent spam
-%authorurl%		|b:htmlplugin.author_url|	Author's homepage
-%bgcolor%		|b:htmlplugin.bgcolor|		Main background color
-%textcolor%		|b:htmlplugin.textcolor|	Main text color
-%linkcolor%		|b:htmlplugin.linkcolor|	Unvisited link color
-%alinkcolor%		|b:htmlplugin.alinkcolor|	Mouse hover link color
-%vlinkcolor%		|b:htmlplugin.vlinkcolor|	Visited link color
+*%authorurl%*		|b:htmlplugin.author_url|	Author's homepage
+*%bgcolor%*		|b:htmlplugin.bgcolor|		Main background color
+*%textcolor%*		|b:htmlplugin.textcolor|	Main text color
+*%linkcolor%*		|b:htmlplugin.linkcolor|	Unvisited link color
+*%alinkcolor%*		|b:htmlplugin.alinkcolor|	Mouse hover link color
+*%vlinkcolor%*		|b:htmlplugin.vlinkcolor|	Visited link color
 
 Special tokens: ~
 %date%						*%date%*
@@ -348,6 +348,12 @@ This is replaced by a string that is automatically detected based on the
 The current version of Vim, based on |v:version| and |v:versionlong|. For
 example, if v:version was "901" and v:versionlong was "9010220" the
 %vimversion% token would be replaced by "9.1.220".
+
+%include {file}%					*%include%*
+This will include {file} into the current template at the location it appears.
+{File} is searched for relative to the template and the directory of the
+current buffer.
+
 
 For example, if you had the template: >
  <!DOCTYPE html>
