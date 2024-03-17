@@ -454,7 +454,7 @@ export class HTMLFunctions
       # If 'selection' is "exclusive" all the visual mode mappings need to
       # behave slightly differently:
       newarg = newarg->substitute('`>a\C', '`>i\\<C-R>='
-        .. 'this.VisualInsertPos()\\<CR>', 'g')
+        .. 'b:htmlplugin.HTMLFunctionsObject.VisualInsertPos()\\<CR>', 'g')
 
       if !opts->has_key('extra') || opts.extra
         b:htmlplugin.maps['v'][newmap] = [newarg, {}]
@@ -1453,19 +1453,15 @@ export class HTMLFunctions
             + mousepos['winrow'] - 2)
           return true
         endif
+      else
+        newkey = key
       endif
 
       return popup_filter_menu(id, newkey)
     enddef  # }}}2
 
-    HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
-      (_, value) => {
-        if (value[0]->strlen()) > maxw
-          maxw = value[0]->strlen()
-        endif
-        return
-      }
-    )
+    maxw = HTMLVariables.HTMLVariables.COLOR_LIST->mapnew((_, value) => value[0]->strlen())
+      ->sort('f')[-1]
 
     var colorwin = HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
         (_, value) => printf('%' .. maxw .. 's = %s', (value[0] == '' ? value[1] : value[0]), value[1])
@@ -1477,19 +1473,18 @@ export class HTMLFunctions
       })
 
     HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
-        (_, value) => {
-          var csplit = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
-          var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ?
-            0x000000 : 0xFFFFFF)
-          var namens = (value[0] == '' ? value[1] : value[0]->substitute('\s', '', 'g'))
-          win_execute(colorwin, 'syntax match hc_' .. namens .. ' /'
-            .. value[1] .. '/')
-          win_execute(colorwin, 'highlight hc_' .. namens .. ' guibg='
-            .. value[1] .. ' guifg=#' .. printf('%06X', contrast))
+      (_, value) => {
+        var csplit = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
+        var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ?
+          0x000000 : 0xFFFFFF)
+        var namens = (value[0] == '' ? value[1] : value[0]->substitute('\s', '', 'g'))
+        win_execute(colorwin, 'syntax match hc_' .. namens .. ' /'
+          .. value[1] .. '$/')
+        win_execute(colorwin, 'highlight hc_' .. namens .. ' guibg='
+          .. value[1] .. ' guifg=#' .. printf('%06X', contrast))
 
-          return
-        }
-      )
+        return
+      })
   enddef
 
   # TokenReplace()  {{{1
