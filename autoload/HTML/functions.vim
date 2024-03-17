@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 14, 2024
+# Last Change: March 17, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -31,7 +31,6 @@ endif
 
 import '../../import/HTML/variables.vim' as HTMLVariables
 import autoload 'HTML/BrowserLauncher.vim'
-import autoload 'HTML/MangleImageTag.vim'
 
 export class HTMLFunctions
 
@@ -1395,7 +1394,7 @@ export class HTMLFunctions
       if doname
         execute 'normal! ' .. how .. color[2]
       elseif dorgb
-        execute 'normal! ' .. how .. color[3]
+        execute 'normal! ' .. how .. color[1]->this.ToRGB()
       elseif dorgbpercent
         execute 'normal! ' .. how .. color[1]->this.ToRGB(true)
       else
@@ -1469,7 +1468,7 @@ export class HTMLFunctions
     )
 
     var colorwin = HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
-        (_, value) => printf('%' .. maxw .. 's = %s', value[0], value[1])
+        (_, value) => printf('%' .. maxw .. 's = %s', (value[0] == '' ? value[1] : value[0]), value[1])
       )->popup_menu({
         callback: CCSelect, filter: CCKeyFilter,
         pos: 'topleft',     col: 'cursor',
@@ -1482,9 +1481,10 @@ export class HTMLFunctions
           var csplit = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
           var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ?
             0x000000 : 0xFFFFFF)
-          win_execute(colorwin, 'syntax match hc_' .. value[2] .. ' /'
+          var namens = (value[0] == '' ? value[1] : value[0]->substitute('\s', '', 'g'))
+          win_execute(colorwin, 'syntax match hc_' .. namens .. ' /'
             .. value[1] .. '/')
-          win_execute(colorwin, 'highlight hc_' .. value[2] .. ' guibg='
+          win_execute(colorwin, 'highlight hc_' .. namens .. ' guibg='
             .. value[1] .. ' guifg=#' .. printf('%06X', contrast))
 
           return
@@ -1834,23 +1834,24 @@ export class HTMLFunctions
   # Arguments:
   #  1 - String: The color name
   #  2 - String: The color hex code
-  #  3 - String: Optional, the color name without spaces
-  #  4 - String: Optional, The rgb() code of the color
-  #  5 - String: Optional, The rgb() code in percentages
   # Return Value:
   #  None
-  def ColorsMenu(name: string, color: string, namens: string = '', rgb: string = '', rgbpercent: string = ''): void
+  def ColorsMenu(name: string, color: string): void
     var c = name->strpart(0, 1)->toupper()
     var newname: list<string>
-    var newnamens: string
+    var namens: string
     var nameescaped: string
-    var newrgb: string
-    var newrgbpercent: string
+    var rgb: string
+    var rgbpercent: string
 
     if HTMLVariables.HTMLVariables.COLORS_SORT->has_key(c)
       newname = [name]->extendnew(['&Colors', '&' .. HTMLVariables.HTMLVariables.COLORS_SORT[c]], 0)
     else
-      newname = [name]->extendnew(['&Colors', 'Web Safe Palette'], 0)
+      if name == ''
+        newname = [color]->extendnew(['&Colors', 'Web Safe Palette'], 0)
+      else
+        newname = [name]->extendnew(['&Colors', 'Web Safe Palette'], 0)
+      endif
     endif
 
     if g:htmlplugin.toplevel_menu != []
@@ -1859,25 +1860,11 @@ export class HTMLFunctions
 
     nameescaped = newname->this.MenuJoin()
 
-    if namens == ''
-      newnamens = namens->substitute('\s', '', 'g')
-    else
-      newnamens = namens
-    endif
+    namens = (name == '' ? color : name->substitute('\s', '', 'g'))
+    rgb = color->this.ToRGB()
+    rgbpercent = color->this.ToRGB(true)
 
-    if rgb == ''
-      newrgb = color->this.ToRGB()
-    else
-      newrgb = rgb
-    endif
-
-    if rgbpercent == ''
-      newrgbpercent = color->this.ToRGB(true)
-    else
-      newrgbpercent = rgbpercent
-    endif
-
-    if newnamens == color
+    if namens == color
       execute 'inoremenu ' .. nameescaped
         .. '.Insert\ &Hexadecimal ' .. color
       execute 'nnoremenu ' .. nameescaped
@@ -1886,25 +1873,25 @@ export class HTMLFunctions
         .. '.Insert\ &Hexadecimal s' .. color .. '<esc>'
 
       execute 'inoremenu ' .. nameescaped
-        .. '.Insert\ &RGB ' .. newrgb
+        .. '.Insert\ &RGB ' .. rgb
       execute 'nnoremenu ' .. nameescaped
-        .. '.Insert\ &RGB i' .. newrgb .. '<esc>'
+        .. '.Insert\ &RGB i' .. rgb .. '<esc>'
       execute 'vnoremenu ' .. nameescaped
-        .. '.Insert\ &RGB s' .. newrgb .. '<esc>'
+        .. '.Insert\ &RGB s' .. rgb .. '<esc>'
 
       execute 'inoremenu ' .. nameescaped
-        .. '.Insert\ RGB\ &Percent ' .. newrgbpercent
+        .. '.Insert\ RGB\ &Percent ' .. rgbpercent
       execute 'nnoremenu ' .. nameescaped
-        .. '.Insert\ RGB\ &Percent i' .. newrgbpercent .. '<esc>'
+        .. '.Insert\ RGB\ &Percent i' .. rgbpercent .. '<esc>'
       execute 'vnoremenu ' .. nameescaped
-        .. '.Insert\ RGB\ &Percent s' .. newrgbpercent .. '<esc>'
+        .. '.Insert\ RGB\ &Percent s' .. rgbpercent .. '<esc>'
     else
       execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Name ' .. newnamens
+        .. ').Insert\ &Name ' .. namens
       execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Name i' .. newnamens .. '<esc>'
+        .. ').Insert\ &Name i' .. namens .. '<esc>'
       execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Name s' .. newnamens .. '<esc>'
+        .. ').Insert\ &Name s' .. namens .. '<esc>'
 
       execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
         .. ').Insert\ &Hexadecimal ' .. color
@@ -1914,18 +1901,18 @@ export class HTMLFunctions
         .. ').Insert\ &Hexadecimal s' .. color .. '<esc>'
 
       execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &RGB ' .. newrgb
+        .. ').Insert\ &RGB ' .. rgb
       execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &RGB i' .. newrgb .. '<esc>'
+        .. ').Insert\ &RGB i' .. rgb .. '<esc>'
       execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &RGB s' .. newrgb .. '<esc>'
+        .. ').Insert\ &RGB s' .. rgb .. '<esc>'
 
       execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ RGB\ &Percent ' .. newrgbpercent
+        .. ').Insert\ RGB\ &Percent ' .. rgbpercent
       execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ RGB\ &Percent i' .. newrgbpercent .. '<esc>'
+        .. ').Insert\ RGB\ &Percent i' .. rgbpercent .. '<esc>'
       execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ RGB\ &Percent s' .. newrgbpercent .. '<esc>'
+        .. ').Insert\ RGB\ &Percent s' .. rgbpercent .. '<esc>'
     endif
   enddef
 

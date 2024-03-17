@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      March 11, 2024
+# Last Change:      March 17, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -879,7 +879,7 @@ else
   endif
 
   # Create the rest of the colors menu:
-  HTMLVariables.HTMLVariables.COLOR_LIST->mapnew((_, value) => HTMLFunctionsObject.ColorsMenu(value[0], value[1], value[2], value[3]))
+  HTMLVariables.HTMLVariables.COLOR_LIST->mapnew((_, value) => HTMLFunctionsObject.ColorsMenu(value[0], value[1]))
 
   # }}}2
 
