@@ -1392,9 +1392,9 @@ export class HTMLFunctions
       var color = HTMLVariables.HTMLVariables.COLOR_LIST[result - 1]
 
       if doname
-        execute 'normal! ' .. how .. color[2]
+        execute 'normal! ' .. how .. color[0]->substitute('\s', '', 'g')
       elseif dorgb
-        execute 'normal! ' .. how .. color[1]->this.ToRGB()
+        execute 'normal! ' .. how .. color[1]->this.ToRGB(false)
       elseif dorgbpercent
         execute 'normal! ' .. how .. color[1]->this.ToRGB(true)
       else
@@ -1477,10 +1477,10 @@ export class HTMLFunctions
         var csplit = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
         var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ?
           0x000000 : 0xFFFFFF)
-        var namens = (value[0] == '' ? value[1] : value[0]->substitute('\s', '', 'g'))
-        win_execute(colorwin, 'syntax match hc_' .. namens .. ' /'
+        var namenospace = (value[0] == '' ? value[1] : value[0]->substitute('\s', '', 'g'))
+        win_execute(colorwin, 'syntax match hc_' .. namenospace .. ' /'
           .. value[1] .. '$/')
-        win_execute(colorwin, 'highlight hc_' .. namens .. ' guibg='
+        win_execute(colorwin, 'highlight hc_' .. namenospace .. ' guibg='
           .. value[1] .. ' guifg=#' .. printf('%06X', contrast))
 
         return
@@ -1834,7 +1834,7 @@ export class HTMLFunctions
   def ColorsMenu(name: string, color: string): void
     var c = name->strpart(0, 1)->toupper()
     var newname: list<string>
-    var namens: string
+    var namenospace: string
     var nameescaped: string
     var rgb: string
     var rgbpercent: string
@@ -1855,11 +1855,11 @@ export class HTMLFunctions
 
     nameescaped = newname->this.MenuJoin()
 
-    namens = (name == '' ? color : name->substitute('\s', '', 'g'))
+    namenospace = (name == '' ? color : name->substitute('\s', '', 'g'))
     rgb = color->this.ToRGB()
     rgbpercent = color->this.ToRGB(true)
 
-    if namens == color
+    if namenospace == color
       execute 'inoremenu ' .. nameescaped
         .. '.Insert\ &Hexadecimal ' .. color
       execute 'nnoremenu ' .. nameescaped
@@ -1882,11 +1882,11 @@ export class HTMLFunctions
         .. '.Insert\ RGB\ &Percent s' .. rgbpercent .. '<esc>'
     else
       execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Name ' .. namens
+        .. ').Insert\ &Name ' .. namenospace
       execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Name i' .. namens .. '<esc>'
+        .. ').Insert\ &Name i' .. namenospace .. '<esc>'
       execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Name s' .. namens .. '<esc>'
+        .. ').Insert\ &Name s' .. namenospace .. '<esc>'
 
       execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
         .. ').Insert\ &Hexadecimal ' .. color
