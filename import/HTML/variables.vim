@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: March 17, 2024
+# Last Change: March 18, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -39,7 +39,7 @@ export class HTMLVariables
   static const VERSION   = '1.4.0'
 
   # Used by some of the functions to save then restore some options:
-  static var saveopts: dict<any> = {}
+  var saveopts: dict<any> = {}
 
   static const MENU_NAME = 'HTM&L'
 
