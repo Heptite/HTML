@@ -1856,7 +1856,7 @@ export class HTMLFunctions
     nameescaped = newname->this.MenuJoin()
 
     namenospace = (name == '' ? color : name->substitute('\s', '', 'g'))
-    rgb = color->this.ToRGB()
+    rgb = color->this.ToRGB(false)
     rgbpercent = color->this.ToRGB(true)
 
     if namenospace == color
