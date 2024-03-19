@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 17, 2024
+# Last Change: March 18, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -652,7 +652,6 @@ export class HTMLFunctions
       var firstline: number
       var lastline: number
 
-      #if !GetFiletypeInfo()['indent']->this.Bool() && &indentexpr == ''
       if !(GetFiletypeInfo()['indent'] ==? 'ON') && &indentexpr == ''
         return false
       endif
@@ -678,10 +677,11 @@ export class HTMLFunctions
       endif
 
       var range = firstline == lastline ? firstline : firstline .. ',' .. lastline
-      var position = [line('.'), col('.')]
+      # cursor() doesn't accept a buffer number, so exclude it:
+      var position = getcharpos('.')[1 : -1]
 
       try
-        execute ':' .. range .. 'normal! =='
+        execute 'keepjumps :' .. range .. 'normal! =='
       catch
         printf(HTMLFunctions.E_INDENTEXCEPT, v:exception)->HTMLFunctions.Error()
       finally
@@ -717,7 +717,7 @@ export class HTMLFunctions
     elseif mode == 'v'
       ToggleOptions(false)
       try
-        execute 'normal! ' .. evalstr
+        execute 'silent normal! ' .. evalstr
       catch
         printf(HTMLFunctions.E_MAPEXCEPT, v:exception, map)->HTMLFunctions.Error()
       endtry
