@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 17, 2024
+# Last Change: March 18, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -33,6 +33,12 @@ import '../../import/HTML/variables.vim' as HTMLVariables
 import autoload 'HTML/BrowserLauncher.vim'
 
 export class HTMLFunctions
+
+  var HTMLVariablesObject: HTMLVariables.HTMLVariables
+
+  def new()
+    this.HTMLVariablesObject = HTMLVariables.HTMLVariables.new()
+  enddef
 
   # Error and warning messages:  {{{1
   static const E_NOMAP        = ' No mapping defined.'
@@ -60,7 +66,6 @@ export class HTMLFunctions
   static const E_OPTEXCEPTION = '%s while toggling options.'
   static const E_INDENTEXCEPT = '%s while reindenting.'
   static const E_MAPEXCEPT    = '%s while executing mapping: %s'
-  static const E_NOTPOSSIBLE  = 'Should not get here, something went wrong.'
   static const E_ZEROROWSCOLS = 'Rows and columns must be positive, non-zero integers.'
   static const E_COLOR        = '%s Color "%s" is invalid. Colors must be a six-digit hexadecimal value prefixed by a "#".'
   static const E_TEMPLATE     = 'Unable to insert template file: %s Either it doesn''t exist or it isn''t readable.'
@@ -261,8 +266,7 @@ export class HTMLFunctions
   #  List: Matching files
   static def FilesWithMatch(files: list<string>, pat: string, max: number = -1): list<string>
     var inc: number
-    var matched: list<string>
-    matched = []
+    var matched: list<string> = []
 
     for file in files
       inc = 0
@@ -556,6 +560,53 @@ export class HTMLFunctions
     return true
   enddef
 
+  # ToggleOptions()  {{{1
+  #
+  # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
+  # are off temporarily to prevent the visual mappings from causing a
+  # (visual)bell or inserting improperly.
+  #
+  # Arguments:
+  #  1 - Boolean: false - Turn options off.
+  #               true  - Turn options back on, if they were on before.
+  def ToggleOptions(which: bool)
+    try
+      if which
+        if this.HTMLVariablesObject.saveopts->has_key('formatoptions')
+            && this.HTMLVariablesObject.saveopts.formatoptions != ''
+          &l:showmatch = this.HTMLVariablesObject.saveopts.showmatch
+          &l:indentexpr = this.HTMLVariablesObject.saveopts.indentexpr
+          &l:formatoptions = this.HTMLVariablesObject.saveopts.formatoptions
+        endif
+
+        # Restore the last visual mode if it was changed:
+        if this.HTMLVariablesObject.saveopts->get('visualmode', '') != ''
+          execute 'normal! gv' .. this.HTMLVariablesObject.saveopts.visualmode
+          this.HTMLVariablesObject.saveopts->remove('visualmode')
+        endif
+      else
+        if &l:formatoptions != ''
+          this.HTMLVariablesObject.saveopts.showmatch = &l:showmatch
+          this.HTMLVariablesObject.saveopts.indentexpr = &l:indentexpr
+          this.HTMLVariablesObject.saveopts.formatoptions = &l:formatoptions
+        endif
+        &l:showmatch = false
+        &l:indentexpr = ''
+        &l:formatoptions = ''
+
+        # A trick to make leading indent on the first line of visual-line
+        # selections is handled properly (turn it into a character-wise
+        # selection and exclude the leading indent):
+        if visualmode() ==# 'V'
+          this.HTMLVariablesObject.saveopts.visualmode = visualmode()
+          execute "normal! \<c-\>\<c-n>`<^v`>"
+        endif
+      endif
+    catch
+      printf(HTMLFunctions.E_OPTEXCEPTION, v:exception)->HTMLFunctions.Error()
+    endtry
+  enddef
+
   # DoMap()  {{{1
   #
   # Purpose:
@@ -569,53 +620,6 @@ export class HTMLFunctions
   #  String: Either an empty string (for visual mappings) or the key sequence to
   #  run (for insert mode mappings).
   def DoMap(mode: string, map: string): string
-
-    # ToggleOptions()  {{{2
-    #
-    # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
-    # are off temporarily to prevent the visual mappings from causing a
-    # (visual)bell or inserting improperly.
-    #
-    # Arguments:
-    #  1 - Boolean: false - Turn options off.
-    #               true  - Turn options back on, if they were on before.
-    def ToggleOptions(which: bool)
-      try
-        if which
-          if HTMLVariables.HTMLVariables.saveopts->has_key('formatoptions')
-              && HTMLVariables.HTMLVariables.saveopts['formatoptions'] != ''
-            &l:showmatch = HTMLVariables.HTMLVariables.saveopts['showmatch']
-            &l:indentexpr = HTMLVariables.HTMLVariables.saveopts['indentexpr']
-            &l:formatoptions = HTMLVariables.HTMLVariables.saveopts['formatoptions']
-          endif
-
-          # Restore the last visual mode if it was changed:
-          if HTMLVariables.HTMLVariables.saveopts->get('visualmode', '') != ''
-            execute 'normal! gv' .. HTMLVariables.HTMLVariables.saveopts['visualmode']
-            HTMLVariables.HTMLVariables.saveopts->remove('visualmode')
-          endif
-        else
-          if &l:formatoptions != ''
-            HTMLVariables.HTMLVariables.saveopts['showmatch'] = &l:showmatch
-            HTMLVariables.HTMLVariables.saveopts['indentexpr'] = &l:indentexpr
-            HTMLVariables.HTMLVariables.saveopts['formatoptions'] = &l:formatoptions
-          endif
-          &l:showmatch = false
-          &l:indentexpr = ''
-          &l:formatoptions = ''
-
-          # A trick to make leading indent on the first line of visual-line
-          # selections is handled properly (turn it into a character-wise
-          # selection and exclude the leading indent):
-          if visualmode() ==# 'V'
-            HTMLVariables.HTMLVariables.saveopts['visualmode'] = visualmode()
-            execute "normal! \<c-\>\<c-n>`<^v`>"
-          endif
-        endif
-      catch
-        printf(HTMLFunctions.E_OPTEXCEPTION, v:exception)->HTMLFunctions.Error()
-      endtry
-    enddef
 
     # ReIndent()  {{{2
     #
@@ -652,7 +656,6 @@ export class HTMLFunctions
       var firstline: number
       var lastline: number
 
-      #if !GetFiletypeInfo()['indent']->this.Bool() && &indentexpr == ''
       if !(GetFiletypeInfo()['indent'] ==? 'ON') && &indentexpr == ''
         return false
       endif
@@ -678,10 +681,11 @@ export class HTMLFunctions
       endif
 
       var range = firstline == lastline ? firstline : firstline .. ',' .. lastline
-      var position = [line('.'), col('.')]
+      # cursor() doesn't accept a buffer number, so exclude it:
+      var position = getcharpos('.')[1 : -1]
 
       try
-        execute ':' .. range .. 'normal! =='
+        execute 'keepjumps :' .. range .. 'normal! =='
       catch
         printf(HTMLFunctions.E_INDENTEXCEPT, v:exception)->HTMLFunctions.Error()
       finally
@@ -715,19 +719,23 @@ export class HTMLFunctions
     if mode == 'i'
       return evalstr
     elseif mode == 'v'
-      ToggleOptions(false)
+      this.ToggleOptions(false)
+
       try
-        execute 'normal! ' .. evalstr
+        execute 'silent normal! ' .. evalstr
       catch
         printf(HTMLFunctions.E_MAPEXCEPT, v:exception, map)->HTMLFunctions.Error()
       endtry
-      ToggleOptions(true)
+
+      this.ToggleOptions(true)
 
       if opts->has_key('reindent') && opts.reindent >= 0
-        normal m'
-        #ReIndent(line('v'), line('.'), opts.reindent)
-        ReIndent(line("'<"), line("'>"), opts.reindent)
-        normal ``
+        #normal m'
+        #var curpos = getcharpos('.')[1 : -1]
+        #keepjumps ReIndent(line('v'), line('.'), opts.reindent)
+        keepjumps ReIndent(line("'<"), line("'>"), opts.reindent)
+        #normal ``
+        #cursor(curpos)
       endif
 
       if opts->get('insert', false)
@@ -735,7 +743,7 @@ export class HTMLFunctions
         startinsert
       endif
     else
-      HTMLFunctions.Error(HTMLFunctions.E_NOTPOSSIBLE)
+      printf(E_INVALIDARG, F(), mode)->Error()
     endif
 
     return ''
@@ -802,7 +810,7 @@ export class HTMLFunctions
   # Return value:
   #  None
   def HTMLOpWrap(type: string)
-    HTMLVariables.HTMLVariables.saveopts['selection'] = &selection
+    this.HTMLVariablesObject.saveopts.selection = &selection
     &selection = 'inclusive'
 
     try
@@ -816,7 +824,7 @@ export class HTMLFunctions
     catch
       printf(W_CAUGHTERR, v:exception)->Warn()
     finally
-      &selection = HTMLVariables.HTMLVariables.saveopts['selection']
+      &selection = this.HTMLVariablesObject.saveopts.selection
     endtry
 
     if b:htmlplugin.taginsert
@@ -842,27 +850,6 @@ export class HTMLFunctions
     endif
     return false
   enddef
-
-  # ToggleComments()  {{{1
-  #
-  # Used to make sure the 'comments' option is off temporarily to prevent
-  # certain mappings from inserting unwanted comment leaders.
-  #
-  # Arguments:
-  #  1 - Boolean: false - Clear option
-  #               true  - Restore option
-  #def ToggleComments(s: bool)
-  #  if s
-  #    if HTMLVariables.HTMLVariables.saveopts->has_key('comments') && HTMLVariables.HTMLVariables.saveopts['comments'] != ''
-  #      &l:comments = HTMLVariables.HTMLVariables.saveopts['comments']
-  #    endif
-  #  else
-  #    if &l:comments != ''
-  #      HTMLVariables.HTMLVariables.saveopts['comments'] = &l:comments
-  #      &l:comments = ''
-  #    endif
-  #  endif
-  #enddef
 
   # ToggleClipboard()  {{{1
   #
@@ -1605,8 +1592,8 @@ export class HTMLFunctions
     enddef  # }}}2
 
     var ret = false
-    HTMLVariables.HTMLVariables.saveopts['ruler'] = &ruler
-    HTMLVariables.HTMLVariables.saveopts['showcmd'] = &showcmd
+    this.HTMLVariablesObject.saveopts.ruler = &ruler
+    this.HTMLVariablesObject.saveopts.showcmd = &showcmd
     set noruler noshowcmd
 
     if line('$') == 1 && getline(1) == ''
@@ -1621,8 +1608,8 @@ export class HTMLFunctions
       endif
     endif
 
-    &ruler = HTMLVariables.HTMLVariables.saveopts['ruler']
-    &showcmd = HTMLVariables.HTMLVariables.saveopts['showcmd']
+    &ruler = this.HTMLVariablesObject.saveopts.ruler
+    &showcmd = this.HTMLVariablesObject.saveopts.showcmd
 
     return ret
   enddef
