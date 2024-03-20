@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 18, 2024
+# Last Change: March 19, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -387,6 +387,53 @@ export class HTMLFunctions
     return ''
   enddef
 
+  # ToggleOptions()  {{{1
+  #
+  # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
+  # are off temporarily to prevent the visual mappings from causing a
+  # (visual)bell or inserting improperly.
+  #
+  # Arguments:
+  #  1 - Boolean: false - Turn options off.
+  #               true  - Turn options back on, if they were on before.
+  def ToggleOptions(which: bool)
+    try
+      if which
+        if this.HTMLVariablesObject.saveopts->has_key('formatoptions')
+            && this.HTMLVariablesObject.saveopts.formatoptions != ''
+          &l:showmatch = this.HTMLVariablesObject.saveopts.showmatch
+          &l:indentexpr = this.HTMLVariablesObject.saveopts.indentexpr
+          &l:formatoptions = this.HTMLVariablesObject.saveopts.formatoptions
+        endif
+
+        # Restore the last visual mode if it was changed:
+        if this.HTMLVariablesObject.saveopts->get('visualmode', '') != ''
+          execute 'normal! gv' .. this.HTMLVariablesObject.saveopts.visualmode
+          this.HTMLVariablesObject.saveopts->remove('visualmode')
+        endif
+      else
+        if &l:formatoptions != ''
+          this.HTMLVariablesObject.saveopts.showmatch = &l:showmatch
+          this.HTMLVariablesObject.saveopts.indentexpr = &l:indentexpr
+          this.HTMLVariablesObject.saveopts.formatoptions = &l:formatoptions
+        endif
+        &l:showmatch = false
+        &l:indentexpr = ''
+        &l:formatoptions = ''
+
+        # A trick to make leading indent on the first line of visual-line
+        # selections is handled properly (turn it into a character-wise
+        # selection and exclude the leading indent):
+        if visualmode() ==# 'V'
+          this.HTMLVariablesObject.saveopts.visualmode = visualmode()
+          execute "normal! \<c-\>\<c-n>`<^v`>"
+        endif
+      endif
+    catch
+      printf(HTMLFunctions.E_OPTEXCEPTION, v:exception)->HTMLFunctions.Error()
+    endtry
+  enddef
+
   # Map()  {{{1
   #
   # Purpose:
@@ -560,53 +607,6 @@ export class HTMLFunctions
     return true
   enddef
 
-  # ToggleOptions()  {{{1
-  #
-  # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
-  # are off temporarily to prevent the visual mappings from causing a
-  # (visual)bell or inserting improperly.
-  #
-  # Arguments:
-  #  1 - Boolean: false - Turn options off.
-  #               true  - Turn options back on, if they were on before.
-  def ToggleOptions(which: bool)
-    try
-      if which
-        if this.HTMLVariablesObject.saveopts->has_key('formatoptions')
-            && this.HTMLVariablesObject.saveopts.formatoptions != ''
-          &l:showmatch = this.HTMLVariablesObject.saveopts.showmatch
-          &l:indentexpr = this.HTMLVariablesObject.saveopts.indentexpr
-          &l:formatoptions = this.HTMLVariablesObject.saveopts.formatoptions
-        endif
-
-        # Restore the last visual mode if it was changed:
-        if this.HTMLVariablesObject.saveopts->get('visualmode', '') != ''
-          execute 'normal! gv' .. this.HTMLVariablesObject.saveopts.visualmode
-          this.HTMLVariablesObject.saveopts->remove('visualmode')
-        endif
-      else
-        if &l:formatoptions != ''
-          this.HTMLVariablesObject.saveopts.showmatch = &l:showmatch
-          this.HTMLVariablesObject.saveopts.indentexpr = &l:indentexpr
-          this.HTMLVariablesObject.saveopts.formatoptions = &l:formatoptions
-        endif
-        &l:showmatch = false
-        &l:indentexpr = ''
-        &l:formatoptions = ''
-
-        # A trick to make leading indent on the first line of visual-line
-        # selections is handled properly (turn it into a character-wise
-        # selection and exclude the leading indent):
-        if visualmode() ==# 'V'
-          this.HTMLVariablesObject.saveopts.visualmode = visualmode()
-          execute "normal! \<c-\>\<c-n>`<^v`>"
-        endif
-      endif
-    catch
-      printf(HTMLFunctions.E_OPTEXCEPTION, v:exception)->HTMLFunctions.Error()
-    endtry
-  enddef
-
   # DoMap()  {{{1
   #
   # Purpose:
@@ -739,7 +739,7 @@ export class HTMLFunctions
       endif
 
       if opts->get('insert', false)
-        exe "normal! \<c-\>\<c-n>l"
+        execute "normal! \<c-\>\<c-n>l"
         startinsert
       endif
     else
@@ -752,9 +752,10 @@ export class HTMLFunctions
   # CreateExtraMappings()  {{{1
   #
   # Purpose:
-  #  Define mappings that are stored in a list
+  #  Define mappings that are stored in a list, as opposed to stored in a JSON
+  #  file
   # Arguments:
-  #  1 - List of mappings: The mappings to define
+  #  1 - List of strings: The mappings to define
   # Return Value:
   #  Boolean: Whether there were mappings to define
   def CreateExtraMappings(mappings: list<list<any>>): bool
@@ -768,8 +769,9 @@ export class HTMLFunctions
   # MapCheck()  {{{1
   #
   # Purpose:
-  #  Check to see if a mapping for a mode already exists.  If there is, and
-  #  overriding hasn't been suppressed, print an error.
+  #  Check to see if a mapping for a mode already exists, or if a specific
+  #  mapping has been suppressed.  Errors and warnings are issued depending on
+  #  whether overriding is enabled or not.
   # Arguments:
   #  1 - String:    The map sequence (LHS).
   #  2 - Character: The mode for the mapping.
@@ -778,7 +780,8 @@ export class HTMLFunctions
   #  0 - No mapping was found.
   #  1 - A mapping was found, but overriding has /not/ been suppressed.
   #  2 - A mapping was found and overriding has been suppressed.
-  #  3 - The mapping to be defined was suppressed by g:htmlplugin.no_maps.
+  #  3 - The mapping to be defined was suppressed by g:htmlplugin.no_maps or
+  #      b:htmlplugin.no_maps.
   def MapCheck(map: string, mode: string, internal: bool = false): number
     if internal &&
           ( (g:htmlplugin->has_key('no_maps')
@@ -828,7 +831,7 @@ export class HTMLFunctions
     endtry
 
     if b:htmlplugin.taginsert
-      exe "normal! \<c-\>\<c-n>l"
+      execute "normal! \<c-\>\<c-n>l"
       startinsert
     endif
   enddef
@@ -1522,6 +1525,69 @@ export class HTMLFunctions
     return readfile(found[0])->this.TokenReplace(split(path, ':')[-1])
   enddef
 
+  # InsertTemplate()  {{{1
+  #
+  # Purpose:
+  #  Actually insert the HTML template.
+  # Arguments:
+  #  None
+  # Return Value:
+  #  Boolean - Whether the cursor is not on an insert point.
+  def InsertTemplate(f: string = ''): bool
+
+    if g:htmlplugin.author_email != ''
+      g:htmlplugin.author_email_encoded = g:htmlplugin.author_email->this.TranscodeString()
+    else
+      b:htmlplugin.author_email_encoded = ''
+    endif
+    if b:htmlplugin.author_email != ''
+      b:htmlplugin.author_email_encoded = b:htmlplugin.author_email->this.TranscodeString()
+    else
+      g:htmlplugin.author_email_encoded = ''
+    endif
+
+    var template: string
+
+    if f != ''
+      template = f
+    elseif b:htmlplugin->get('template', '') != ''
+      template = b:htmlplugin.template
+    elseif g:htmlplugin->get('template', '') != ''
+      template = g:htmlplugin.template
+    endif
+
+    if template != ''
+      if template->expand()->filereadable()
+        template->readfile()->this.TokenReplace(fnamemodify(template, ':p:h'))->append(0)
+      else
+        printf(E_TEMPLATE, template)->Error()
+        return false
+      endif
+    else
+      b:htmlplugin.internal_template->this.TokenReplace()->append(0)
+    endif
+
+    # Special case, can't be done in TokenReplace():
+    silent! execute ':%s/%newline%/\r/g'
+
+    if getline('$') =~ '^\s*$'
+      :$delete
+    endif
+
+    cursor(1, 1)
+
+    redraw
+
+    this.NextInsertPoint('n')
+
+    if getline('.')[col('.') - 2 : col('.') - 1] == '><'
+        || (getline('.') =~ '^\s*$' && line('.') != 1)
+      return true
+    else
+      return false
+    endif
+  enddef
+
   # Template()  {{{1
   #
   # Purpose:
@@ -1531,80 +1597,20 @@ export class HTMLFunctions
   # Return Value:
   #  Boolean - Whether the cursor is not on an insert point.
   def Template(file: string = ''): bool
-
-    # InsertTemplate()  {{{2
-    #
-    # Purpose:
-    #  Actually insert the HTML template.
-    # Arguments:
-    #  None
-    # Return Value:
-    #  Boolean - Whether the cursor is not on an insert point.
-    def InsertTemplate(f: string = ''): bool
-
-      if g:htmlplugin.author_email != ''
-        g:htmlplugin.author_email_encoded = g:htmlplugin.author_email->this.TranscodeString()
-        b:htmlplugin.author_email_encoded = b:htmlplugin.author_email->this.TranscodeString()
-      else
-        g:htmlplugin.author_email_encoded = ''
-        b:htmlplugin.author_email_encoded = ''
-      endif
-
-      var template: string
-
-      if f != ''
-        template = f
-      elseif b:htmlplugin->get('template', '') != ''
-        template = b:htmlplugin.template
-      elseif g:htmlplugin->get('template', '') != ''
-        template = g:htmlplugin.template
-      endif
-
-      if template != ''
-        if template->expand()->filereadable()
-          template->readfile()->this.TokenReplace(fnamemodify(template, ':p:h'))->append(0)
-        else
-          printf(HTMLFunctions.E_TEMPLATE, template)->HTMLFunctions.Error()
-          return false
-        endif
-      else
-        b:htmlplugin.internal_template->this.TokenReplace()->append(0)
-      endif
-
-      # Special case, can't be done in TokenReplace():
-      execute(':%s/%newline%/\r/g', 'silent!')
-
-      if getline('$') =~ '^\s*$'
-        :$delete
-      endif
-
-      cursor(1, 1)
-
-      redraw
-
-      this.NextInsertPoint('n')
-      if getline('.')[col('.') - 2 : col('.') - 1] == '><'
-          || (getline('.') =~ '^\s*$' && line('.') != 1)
-        return true
-      else
-        return false
-      endif
-    enddef  # }}}2
-
     var ret = false
     this.HTMLVariablesObject.saveopts.ruler = &ruler
     this.HTMLVariablesObject.saveopts.showcmd = &showcmd
     set noruler noshowcmd
 
     if line('$') == 1 && getline(1) == ''
-      ret = InsertTemplate(file)
+      ret = this.InsertTemplate(file)
     else
       var YesNoOverwrite = confirm("Non-empty file.\nInsert template anyway?", "&Yes\n&No\n&Overwrite", 2, 'Question')
       if YesNoOverwrite == 1
-        ret = InsertTemplate(file)
+        ret = this.InsertTemplate(file)
       elseif YesNoOverwrite == 3
         execute ':%delete'
-        ret = InsertTemplate(file)
+        ret = this.InsertTemplate(file)
       endif
     endif
 

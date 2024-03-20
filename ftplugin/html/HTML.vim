@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      March 17, 2024
+# Last Change:      March 19, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -52,6 +52,14 @@ endif
 #        my primary source.
 #
 #        Doug Renze
+#
+# ---- Assumptions: ----------------------------------------------------- {{{1
+#
+# This plugin makes a number of assumptions under the umbrella of assuming the
+# user's Vim binary was compiled with a standard level of features, sometimes
+# called the "Normal" version. However, this has not been fully tested by the
+# author because he operates with the "Huge" version that includes nearly all
+# compile-time features available to Vim.
 #
 # ---- TODO: ------------------------------------------------------------ {{{1
 #
