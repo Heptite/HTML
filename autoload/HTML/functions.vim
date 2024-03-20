@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 19, 2024
+# Last Change: March 20, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -36,9 +36,9 @@ export class HTMLFunctions
 
   var HTMLVariablesObject: HTMLVariables.HTMLVariables
 
-  def new()
+  def new() # {{{
     this.HTMLVariablesObject = HTMLVariables.HTMLVariables.new()
-  enddef
+  enddef # }}}
 
   # Error and warning messages:  {{{1
   static const E_NOMAP        = ' No mapping defined.'
@@ -76,31 +76,42 @@ export class HTMLFunctions
   static const W_NOMENU       = 'No menu item was defined for "%s".'
   # }}}1
 
-  static def Warn(message: string): void  # {{{1
+  static def Warn(message: any): void  # {{{1
     echohl WarningMsg
-    if exists(':echowindow') == 2
-      echowindow message
-    else
-      echo message
-    endif
+    DoEcho(message, 'w')
     echohl None
   enddef
 
-  static def Message(message: string): void  # {{{1
+  static def Message(message: any): void  # {{{1
     echohl Todo
-    if exists(':echowindow') == 2
-      echowindow message
-    else
-      echo message
-    endif
+    DoEcho(message, 'm')
     echohl None
   enddef
 
   static def Error(message: string): void  # {{{1
     echohl ErrorMsg
-    echomsg message
+    DoEcho(message, 'e')
     echohl None
   enddef
+
+  static def DoEcho(message: any, type: string): void # {{{1
+    var m: list<string>
+    if type(message) == v:t_string
+      m = [message]
+    elseif type(message) == v:t_list
+      m = message
+    else
+      echoerr "Invalid type: " .. type(message)
+    endif
+
+    for s in m
+      if exists(':echowindow') == 2 && type !~? '^e'
+        echowindow s
+      else
+        echomsg s
+      endif
+    endfor
+  enddef # }}}1
 
   # About()  {{{1
   #
