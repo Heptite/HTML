@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Mar 14
+		Last change: 2024 Mar 19
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -17,12 +17,13 @@ terms of the GNU |GPL| version 3 or later.
 ------------------------------------------------------------------------------
 
 1. Introduction				|html-intro|
-2. Customization Variables		|html-variables|
-3. Commands				|html-commands|
-4. Mappings for Normal <...> Tags	|html-tags|
-5. Mappings for &...; Entity Codes	|character-entities|
-6. How to Use Browser Mappings		|browser-control|
-7. Miscellaneous Extras			|html-misc|
+2. Author's notes			|html-author-notes|
+3. Customization Variables		|html-variables|
+4. Commands				|html-commands|
+5. Mappings for Normal <...> Tags	|html-tags|
+6. Mappings for &...; Entity Codes	|character-entities|
+7. How to Use Browser Mappings		|browser-control|
+8. Miscellaneous Extras			|html-misc|
 
 ==============================================================================
 1. Introduction						*html-intro*
@@ -111,8 +112,30 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 	See |g:htmlplugin.template| for information on how to customize the
 	template.
 
+
 ==============================================================================
-2. Customization Variables		*html-variables* *html-configuration*
+2. Author's notes:					*html-author-notes*
+
+This plugin makes a number of assumptions under the umbrella of assuming the
+user's Vim binary was compiled with a standard level of features, sometimes
+called the "Normal" version. However, this has not been fully tested by the
+author because he operates with the "Huge" version that includes nearly all
+compile-time features available to Vim.
+
+The Content-Type charset automatic detection value based on the 'fileencoding'
+/ 'encoding' option has a very incomplete translation table from the possible
+values that Vim uses. I could use help with this.
+
+I need someone to help me update the BrowserLauncher code for MacOS, namely to
+test to make sure it still works, and add support for Google Chrome.
+
+I will never include mappings for certain tags, such as <BLINK></BLINK> and
+<MARQUEE></MARQUEE> (which were always nonstandard). As far as I am concerned
+these tags should never have existed.
+
+
+==============================================================================
+3. Customization Variables		*html-variables* *html-configuration*
 					*html-customization* *g:htmlplugin*
 
 You can set the g:htmlplugin global |Dictionary| variable to control the
@@ -402,7 +425,7 @@ You would get something like: >
  </HTML>
 <
 ==============================================================================
-3. Commands						*html-commands*
+4. Commands						*html-commands*
 
 The following commands are only defined in HTML buffers.
 
@@ -446,7 +469,7 @@ The following commands are only defined in HTML buffers.
 
 
 ==============================================================================
-4. Mappings for Normal <> Tags				*html-tags*
+5. Mappings for Normal <> Tags				*html-tags*
 
 Most of these mappings are insert or visual mappings. In insert mode the tag
 is inserted and the cursor placed where you would likely want to insert text.
@@ -1280,7 +1303,7 @@ highlighted text is inserted between the ""'s for visual mode, except the
 <	(|n_;|)
 
 ==============================================================================
-5. Mappings for &...; Codes		*character-codes* *character-entities*
+6. Mappings for &...; Codes		*character-codes* *character-entities*
 
 A number of mappings have been defined to allow insertion of special
 characters into the HTML buffer. These are known as characters entities.
@@ -1628,7 +1651,7 @@ Name:			Symbol:		HTML:		Macro: ~
 
 
 ==============================================================================
-6. How to Use Browser Mappings				*browser-control*
+7. How to Use Browser Mappings				*browser-control*
 
 You can use a browser to preview your current HTML document.
 
@@ -1739,7 +1762,7 @@ drive).
 	on Unix and Cygwin.)
 
 ==============================================================================
-7. Miscellaneous Extras					*html-misc*
+8. Miscellaneous Extras					*html-misc*
 
 
 Some of the functions used by the HTML mappings:	*html-functions*
@@ -1862,6 +1885,12 @@ HTMLFunctionsObject.NextInsertPoint([{mode}, {direction}])
 
 	This function returns true if the cursor was moved, false otherwise.
 
+					*HTMLFunctionsObject.PluginControl()*
+HTMLFunctionsObject.PluginControl({what})
+	This is normally called by the |:HTMLplugin| command.  It can either
+	disable or enable the mappings by specifying "on" or "true" as {what},
+	or "off" or "false" to disable.
+
 HTMLFunctionsObject.Template()			*HTMLFunctionsObject.Template()*
 	This is normally called by the |n_;html| mapping, but it works
 	the same if called any other way.
@@ -1881,18 +1910,5 @@ HTMLFunctionsObject.SetIfUnset({variable}, {value})
 	This function returns 1 if the variable was set, 0 if it already
 	existed, and -1 for an error.
 
-
-Author's notes:						*html-author-notes*
----------------
-The Content-Type charset automatic detection value based on the 'fileencoding'
-/ 'encoding' option has a very incomplete translation table from the possible
-values that Vim uses. I could use help with this.
-
-I need someone to help me update the BrowserLauncher code for MacOS, namely to
-test to make sure it still works, and add support for Google Chrome.
-
-I will never include mappings for certain tags, such as <BLINK></BLINK> and
-<MARQUEE></MARQUEE> (which were always nonstandard). As far as I am concerned
-these tags should never have existed.
 
  vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:

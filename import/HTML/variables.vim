@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: March 18, 2024
+# Last Change: March 19, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -30,6 +30,15 @@ endif
 # https://www.gnu.org/licenses/licenses.html#GPL
 
 export class HTMLVariables
+
+  def new() # {{{
+    DictEntitiesToChar->mapnew(
+      (key, value) => {
+        HTMLVariables.DictCharToEntities[value] = key
+        return
+      }
+    )
+  enddef # }}}
 
   static const AUTHOR    = 'Christian J. Robinson'
   static const EMAIL     = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
@@ -588,15 +597,6 @@ export class HTMLVariables
     '&yopf;':                 "\U1D56A", '&zopf;':                 "\U1D56B"
   }  # }}}
   static var DictCharToEntities: dict<string> = {}
-
-  def new() # {{{
-    DictEntitiesToChar->mapnew(
-      (key, value) => {
-        HTMLVariables.DictCharToEntities[value] = key
-        return
-      }
-    )
-  enddef # }}}
 
   static const MODES = {  # {{{
     n: 'normal',

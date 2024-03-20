@@ -28,6 +28,7 @@ HTMLFunctionsObject.GenerateTable()	HTML.txt	/*HTMLFunctionsObject.GenerateTable
 HTMLFunctionsObject.Map()	HTML.txt	/*HTMLFunctionsObject.Map()*
 HTMLFunctionsObject.Mapo()	HTML.txt	/*HTMLFunctionsObject.Mapo()*
 HTMLFunctionsObject.NextInsertPoint()	HTML.txt	/*HTMLFunctionsObject.NextInsertPoint()*
+HTMLFunctionsObject.PluginControl()	HTML.txt	/*HTMLFunctionsObject.PluginControl()*
 HTMLFunctionsObject.SetIfUnset()	HTML.txt	/*HTMLFunctionsObject.SetIfUnset()*
 HTMLFunctionsObject.Template()	HTML.txt	/*HTMLFunctionsObject.Template()*
 HTMLFunctionsObject.TranscodeString()	HTML.txt	/*HTMLFunctionsObject.TranscodeString()*
