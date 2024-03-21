@@ -88,7 +88,7 @@ export class HTMLFunctions
     echohl None
   enddef
 
-  static def Error(message: string): void  # {{{1
+  static def Error(message: any): void  # {{{1
     echohl ErrorMsg
     DoEcho(message, 'e')
     echohl None
@@ -98,10 +98,11 @@ export class HTMLFunctions
     var m: list<string>
     if type(message) == v:t_string
       m = [message]
-    elseif type(message) == v:t_list
+    elseif typename(message) == 'list<string>'
       m = message
     else
-      echoerr "Invalid type: " .. type(message)
+      echoerr "Invalid argument type: " .. typename(message)
+      return
     endif
 
     for s in m
@@ -116,7 +117,7 @@ export class HTMLFunctions
   # About()  {{{1
   #
   # Purpose:
-  #  Self-explanatory
+  #  Pop up an about window for the plugin.
   # Arguments:
   #  None
   # Return Value:
