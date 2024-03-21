@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      March 19, 2024
+# Last Change:      March 21, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -328,7 +328,7 @@ HTMLFunctionsObject.Mapo('<lead>ht')
 
 # ---- Browser Remote Controls: ----------------------------------------- {{{1
 
-if BrowserLauncherObject.Exists('default')
+if BrowserLauncherObject.Exists('default') # {{{2
   # Run the default browser:
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -337,7 +337,7 @@ if BrowserLauncherObject.Exists('default')
   )
 endif
 
-if BrowserLauncherObject.Exists('brave')
+if BrowserLauncherObject.Exists('brave') # {{{2
   # Chrome: View current file, starting Chrome if it's not running:
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -358,7 +358,7 @@ if BrowserLauncherObject.Exists('brave')
   )
 endif
 
-if BrowserLauncherObject.Exists('chrome')
+if BrowserLauncherObject.Exists('chrome') # {{{2
   # Chrome: View current file, starting Chrome if it's not running:
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -379,7 +379,7 @@ if BrowserLauncherObject.Exists('chrome')
   )
 endif
 
-if BrowserLauncherObject.Exists('edge')
+if BrowserLauncherObject.Exists('edge') # {{{2
   # Edge: View current file, starting Microsoft Edge if it's not running:
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -400,7 +400,7 @@ if BrowserLauncherObject.Exists('edge')
   )
 endif
 
-if BrowserLauncherObject.Exists('firefox')
+if BrowserLauncherObject.Exists('firefox') # {{{2
   # Firefox: View current file, starting Firefox if it's not running:
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -421,7 +421,7 @@ if BrowserLauncherObject.Exists('firefox')
   )
 endif
 
-if BrowserLauncherObject.Exists('opera')
+if BrowserLauncherObject.Exists('opera') # {{{2
   # Opera: View current file, starting Opera if it's not running:
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -442,7 +442,7 @@ if BrowserLauncherObject.Exists('opera')
   )
 endif
 
-if BrowserLauncherObject.Exists('safari')
+if BrowserLauncherObject.Exists('safari') # {{{2
   # Safari: View current file, starting Safari if it's not running:
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -463,7 +463,7 @@ if BrowserLauncherObject.Exists('safari')
   )
 endif
 
-if BrowserLauncherObject.Exists('lynx')
+if BrowserLauncherObject.Exists('lynx') # {{{2
   # Lynx:  (This may happen anyway if there's no GUI available.)
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -484,7 +484,7 @@ if BrowserLauncherObject.Exists('lynx')
   )
 endif
 
-if BrowserLauncherObject.Exists('w3m')
+if BrowserLauncherObject.Exists('w3m') # {{{2
   # w3m:  (This may happen anyway if there's no GUI available.)
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -505,7 +505,7 @@ if BrowserLauncherObject.Exists('w3m')
   )
 endif
 
-if BrowserLauncherObject.Exists('links')
+if BrowserLauncherObject.Exists('links') # {{{2
   # Links:  (This may happen anyway if there's no GUI available.)
   HTMLFunctionsObject.Map(
     'nnoremap',
@@ -524,7 +524,7 @@ if BrowserLauncherObject.Exists('links')
     '<lead>tln',
     "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('links', 2)<CR>"
   )
-endif
+endif # }}}2
 
 # ----------------------------------------------------------------------------
 

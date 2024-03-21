@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Mar 19
+		Last change: 2024 Mar 21
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -1781,6 +1781,24 @@ To create the object, first include the file in your |vim9script|: >
 	var HTMLFunctionsObject = functions.HTMLFunctions.new()
 <
 
+					*HTMLFunctionsObject.BoolVar()*
+HTMLFunctionsObject.BoolVar('{variable}')
+	Tests to see if the contents of the named variable in the string
+	argument (don't forget the quotes!) are "truty" in a very broad sense
+	of the word. >
+	True: 1/true/yes/y/on
+	False: 0/false/no/n/off/none/null
+<	This function cannot work on function-local variable names; only
+	prefixable variables such as |b:|, |g:|, |s:|, |t:|, |v:|, and |w:| variables
+	are valid for testing, and the default, if unspecified, is to check
+	for a g: (global) variable.
+					*HTMLFunctionsObject.Bool()*
+HTMLFunctionsObject.Bool('{variable}')
+	This is the helper function called by |HTMLFunctionsObject.BoolVar()|
+	and does the actual test, so it can be used more directly if desired.
+					*HTMLFunctionsObject.IsSet()*
+HTMLFunctionsObject.IsSet('{variable}')
+	Tests to see if the named variable is set. (Don't forget the quotes!)
 					*HTMLFunctionsObject.TranscodeString()*
 HTMLFunctionsObject.TranscodeString({string} [, {...}])
 	Returns {string} encoded into HTML entities, or decode HTML encoded

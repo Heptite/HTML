@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: March 12, 2024
+# Last Change: March 21, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -200,7 +200,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
   # FindTextmodeBrowsers() {{{1
   #
   # Remove browsers from TextmodeBrowsers that aren't found, and add to
-  # Browsers{} textmode browsers that are found.
+  # Browsers dictionary of textmode browsers that are found.
   #
   # It's a little hacky to use global variables, but it's not really any cleaner
   # to try to do it any other way.

@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 20, 2024
+# Last Change: March 21, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -135,8 +135,7 @@ export class HTMLFunctions
       .. (HTMLVariables.HTMLVariables.HOMEPAGE)
 
     if message->confirm("&Visit Homepage\n&Dismiss", 2, 'Info') == 1
-      var BrowserLauncherObject = BrowserLauncher.BrowserLauncher.new()
-      BrowserLauncherObject.Launch('default', 0, HTMLVariables.HTMLVariables.HOMEPAGE)
+      BrowserLauncher.BrowserLauncher.new().Launch('default', 0, HTMLVariables.HTMLVariables.HOMEPAGE)
     endif
   enddef
 
@@ -668,7 +667,7 @@ export class HTMLFunctions
       var firstline: number
       var lastline: number
 
-      if !(GetFiletypeInfo()['indent'] ==? 'ON') && &indentexpr == ''
+      if !(this.Bool(GetFiletypeInfo()['indent'])) && &indentexpr == ''
         return false
       endif
 
