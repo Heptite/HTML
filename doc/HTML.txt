@@ -1811,6 +1811,7 @@ HTMLFunctionsObject.FilesWithMatch([{filelist}], '{pattern}', [max])
 HTMLFunctionsObject.ToRGB({string} [, {bool}])
 	Convert a #XXXXXX Hexadecimal color {string} to rgb() format. {bool}
 	determines whether to convert to percentages (|v:true|) or 0-255 format.
+	A blank string is returned on error.
 					*HTMLFunctionsObject.TranscodeString()*
 HTMLFunctionsObject.TranscodeString({string} [, {...}])
 	Returns {string} encoded into HTML entities, or decode HTML encoded
