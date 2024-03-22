@@ -1787,11 +1787,15 @@ HTMLFunctionsObject.BoolVar('{variable}')
 	argument (don't forget the quotes!) are "truty" in a very broad sense
 	of the word. >
 	True: 1/true/yes/y/on
-	False: 0/false/no/n/off/none/null
+	False: 0/false/no/n/off/none/null/(blank value)
 <	This function cannot work on function-local variable names; only
 	prefixable variables such as |b:|, |g:|, |s:|, |t:|, |v:|, and |w:| variables
 	are valid for testing, and the default, if unspecified, is to check
 	for a g: (global) variable.
+					*HTMLFunctionsObject.ColorChooser()*
+HTMLFunctionsObject.ColorChooser({how})
+	Create the Color Chooser popup. {how} determines if it is inserted
+	('i') or appended ('a') at the cursor position.
 					*HTMLFunctionsObject.Bool()*
 HTMLFunctionsObject.Bool('{variable}')
 	This is the helper function called by |HTMLFunctionsObject.BoolVar()|
@@ -1799,6 +1803,14 @@ HTMLFunctionsObject.Bool('{variable}')
 					*HTMLFunctionsObject.IsSet()*
 HTMLFunctionsObject.IsSet('{variable}')
 	Tests to see if the named variable is set. (Don't forget the quotes!)
+					*HTMLFunctionsObject.FilesWithMatch()*
+HTMLFunctionsObject.FilesWithMatch([{filelist}], '{pattern}', [max])
+	Search {filelist} for {pattern}, scanning at most {max} lines per file
+	for the match. A list of files that matched is returned.
+					*HTMLFunctionsObject.ToRGB()*
+HTMLFunctionsObject.ToRGB({string} [, {bool}])
+	Convert a #XXXXXX Hexadecimal color {string} to rgb() format. {bool}
+	determines whether to convert to percentages (|v:true|) or 0-255 format.
 					*HTMLFunctionsObject.TranscodeString()*
 HTMLFunctionsObject.TranscodeString({string} [, {...}])
 	Returns {string} encoded into HTML entities, or decode HTML encoded
