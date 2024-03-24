@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: March 21, 2024
+# Last Change: March 24, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -105,15 +105,15 @@ export class BrowserLauncher extends functions.HTMLFunctions
       return
     elseif (has('unix') == 1) && (has('win32unix') == 0)
 
-      this.Browsers['firefox'] = [['firefox', 'iceweasel'], 
+      this.Browsers.firefox = [['firefox', 'iceweasel'], 
         '', '', '--new-tab', '--new-window']
-      this.Browsers['brave']   = [['brave-browser', 'brave'],
+      this.Browsers.brave   = [['brave-browser', 'brave'],
         '', '', '',          '--new-window']
-      this.Browsers['chrome']  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
+      this.Browsers.chrome  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
         '', '', '',          '--new-window']
-      this.Browsers['opera']   = ['opera',
+      this.Browsers.opera   = ['opera',
         '', '', '',          '--new-window']
-      this.Browsers['default'] = ['xdg-open',
+      this.Browsers.default = ['xdg-open',
         '', '', '',          '']
 
       var temppath: string
@@ -142,33 +142,33 @@ export class BrowserLauncher extends functions.HTMLFunctions
       # location:
       if filereadable('C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe')
           || filereadable('C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe')
-        this.Browsers['brave'] = ['brave', '', '', '', '--new-window']
+        this.Browsers.brave = ['brave', '', '', '', '--new-window']
       endif
       if filereadable('C:\Program Files\Mozilla Firefox\firefox.exe')
           || filereadable('C:\Program Files (x86)\Mozilla Firefox\firefox.exe')
-        this.Browsers['firefox'] = ['firefox', '', '', '--new-tab', '--new-window']
+        this.Browsers.firefox = ['firefox', '', '', '--new-tab', '--new-window']
       endif
       if filereadable('C:\Program Files\Google\Chrome\Application\chrome.exe')
           || filereadable('C:\Program Files (x86)\Google\Chrome\Application\chrome.exe')
-        this.Browsers['chrome'] = ['chrome', '', '', '', '--new-window']
+        this.Browsers.chrome = ['chrome', '', '', '', '--new-window']
       endif
       if filereadable('C:\Program Files\Opera\launcher.exe')
           || filereadable('C:\Program Files (x86)\Opera\launcher.exe')
-        this.Browsers['opera'] = ['opera', '', '', '', '--new-window']
+        this.Browsers.opera = ['opera', '', '', '', '--new-window']
       endif
       if filereadable('C:\Program Files\Microsoft\Edge\Application\msedge.exe')
           || filereadable('C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe')
-        this.Browsers['edge'] = ['msedge', '', '', '', '--new-window']
+        this.Browsers.edge = ['msedge', '', '', '', '--new-window']
       endif
 
       # Odd quoting needed for "start":
-      this.Browsers['default'] = ['"RunDll32.exe shell32.dll,ShellExec_RunDLL"', '', '', '', '']
+      this.Browsers.default = ['"RunDll32.exe shell32.dll,ShellExec_RunDLL"', '', '', '', '']
 
       if has('win32unix') == 1
         this.FindTextmodeBrowsers()
 
         # Different quoting required for "cygstart":
-        this.Browsers['default'] = ['RunDll32.exe shell32.dll,ShellExec_RunDLL', '', '', '', '']
+        this.Browsers.default = ['RunDll32.exe shell32.dll,ShellExec_RunDLL', '', '', '', '']
       endif
 
     else

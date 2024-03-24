@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      March 21, 2024
+# Last Change:      March 24, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -571,17 +571,17 @@ else
     # Save some menu stuff from the global menu.vim so we can reuse them
     # later--this makes sure updates from menu.vim make it into this codebase:
     var save_toolbar: dict<string>
-    save_toolbar['open']      = menu_info('ToolBar.Open')['rhs']->escape('|')
-    save_toolbar['save']      = menu_info('ToolBar.Save')['rhs']->escape('|')
-    save_toolbar['saveall']   = menu_info('ToolBar.SaveAll')['rhs']->escape('|')
-    save_toolbar['replace']   = menu_info('ToolBar.Replace')['rhs']->escape('|')
-    save_toolbar['replace_v'] = menu_info('ToolBar.Replace', 'v')['rhs']->escape('|')
-    save_toolbar['cut_v']     = menu_info('ToolBar.Cut', 'v')['rhs']->escape('|')
-    save_toolbar['copy_v']    = menu_info('ToolBar.Copy', 'v')['rhs']->escape('|')
-    save_toolbar['paste_n']   = menu_info('ToolBar.Paste', 'n')['rhs']->escape('|')
-    save_toolbar['paste_c']   = menu_info('ToolBar.Paste', 'c')['rhs']->escape('|')
-    save_toolbar['paste_i']   = menu_info('ToolBar.Paste', 'i')['rhs']->escape('|')
-    save_toolbar['paste_v']   = menu_info('ToolBar.Paste', 'v')['rhs']->escape('|')
+    save_toolbar.open      = menu_info('ToolBar.Open')['rhs']->escape('|')
+    save_toolbar.save      = menu_info('ToolBar.Save')['rhs']->escape('|')
+    save_toolbar.saveall   = menu_info('ToolBar.SaveAll')['rhs']->escape('|')
+    save_toolbar.replace   = menu_info('ToolBar.Replace')['rhs']->escape('|')
+    save_toolbar.replace_v = menu_info('ToolBar.Replace', 'v')['rhs']->escape('|')
+    save_toolbar.cut_v     = menu_info('ToolBar.Cut', 'v')['rhs']->escape('|')
+    save_toolbar.copy_v    = menu_info('ToolBar.Copy', 'v')['rhs']->escape('|')
+    save_toolbar.paste_n   = menu_info('ToolBar.Paste', 'n')['rhs']->escape('|')
+    save_toolbar.paste_c   = menu_info('ToolBar.Paste', 'c')['rhs']->escape('|')
+    save_toolbar.paste_i   = menu_info('ToolBar.Paste', 'i')['rhs']->escape('|')
+    save_toolbar.paste_v   = menu_info('ToolBar.Paste', 'v')['rhs']->escape('|')
 
     silent! unmenu ToolBar
     silent! unmenu! ToolBar
@@ -593,11 +593,11 @@ else
     # icons properly.
 
     HTMLFunctionsObject.Menu('tmenu',     '1.10',  ['ToolBar', 'Open'],      'Open File')
-    HTMLFunctionsObject.Menu('anoremenu', '1.10',  ['ToolBar', 'Open'],      save_toolbar['open'])
+    HTMLFunctionsObject.Menu('anoremenu', '1.10',  ['ToolBar', 'Open'],      save_toolbar.open)
     HTMLFunctionsObject.Menu('tmenu',     '1.20',  ['ToolBar', 'Save'],      'Save Current File')
-    HTMLFunctionsObject.Menu('anoremenu', '1.20',  ['ToolBar', 'Save'],      save_toolbar['save'])
+    HTMLFunctionsObject.Menu('anoremenu', '1.20',  ['ToolBar', 'Save'],      save_toolbar.save)
     HTMLFunctionsObject.Menu('tmenu',     '1.30',  ['ToolBar', 'SaveAll'],   'Save All Files')
-    HTMLFunctionsObject.Menu('anoremenu', '1.30',  ['ToolBar', 'SaveAll'],   save_toolbar['saveall'])
+    HTMLFunctionsObject.Menu('anoremenu', '1.30',  ['ToolBar', 'SaveAll'],   save_toolbar.saveall)
 
     HTMLFunctionsObject.Menu('menu',      '1.50',  ['ToolBar', '-sep1-'],    '<Nop>')
 
@@ -683,22 +683,22 @@ else
     HTMLFunctionsObject.Menu('menu',      '1.205', ['ToolBar', '-sep9-'],    '<Nop>')
 
     HTMLFunctionsObject.Menu('tmenu',     '1.210', ['ToolBar', 'Cut'],       'Cut to Clipboard')
-    HTMLFunctionsObject.Menu('vnoremenu', '1.210', ['ToolBar', 'Cut'],       save_toolbar['cut_v'])
+    HTMLFunctionsObject.Menu('vnoremenu', '1.210', ['ToolBar', 'Cut'],       save_toolbar.cut_v)
     HTMLFunctionsObject.Menu('tmenu',     '1.220', ['ToolBar', 'Copy'],      'Copy to Clipboard')
-    HTMLFunctionsObject.Menu('vnoremenu', '1.220', ['ToolBar', 'Copy'],      save_toolbar['copy_v'])
+    HTMLFunctionsObject.Menu('vnoremenu', '1.220', ['ToolBar', 'Copy'],      save_toolbar.copy_v)
     HTMLFunctionsObject.Menu('tmenu',     '1.230', ['ToolBar', 'Paste'],     'Paste from Clipboard')
-    HTMLFunctionsObject.Menu('nnoremenu', '1.230', ['ToolBar', 'Paste'],     save_toolbar['paste_n'])
-    HTMLFunctionsObject.Menu('cnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_c'])
-    HTMLFunctionsObject.Menu('inoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_i'])
-    HTMLFunctionsObject.Menu('vnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar['paste_v'])
+    HTMLFunctionsObject.Menu('nnoremenu', '1.230', ['ToolBar', 'Paste'],     save_toolbar.paste_n)
+    HTMLFunctionsObject.Menu('cnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar.paste_c)
+    HTMLFunctionsObject.Menu('inoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar.paste_i)
+    HTMLFunctionsObject.Menu('vnoremenu', '-',     ['ToolBar', 'Paste'],     save_toolbar.paste_v)
 
     HTMLFunctionsObject.Menu('menu',      '1.235', ['ToolBar', '-sep10-'],   '<Nop>')
 
     if !has('gui_athena')
       HTMLFunctionsObject.Menu('tmenu',       '1.240', ['ToolBar', 'Replace'],  'Find / Replace')
-      HTMLFunctionsObject.Menu('anoremenu',   '1.240', ['ToolBar', 'Replace'],  save_toolbar['replace'])
+      HTMLFunctionsObject.Menu('anoremenu',   '1.240', ['ToolBar', 'Replace'],  save_toolbar.replace)
       vunmenu ToolBar.Replace
-      HTMLFunctionsObject.Menu('vnoremenu',   '-',     ['ToolBar', 'Replace'],  save_toolbar['replace_v'])
+      HTMLFunctionsObject.Menu('vnoremenu',   '-',     ['ToolBar', 'Replace'],  save_toolbar.replace_v)
       HTMLFunctionsObject.Menu('tmenu',       '1.250', ['ToolBar', 'FindNext'], 'Find Next')
       HTMLFunctionsObject.Menu('anoremenu',   '1.250', ['ToolBar', 'FindNext'], 'n')
       HTMLFunctionsObject.Menu('tmenu',       '1.260', ['ToolBar', 'FindPrev'], 'Find Previous')

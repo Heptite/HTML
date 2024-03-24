@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 22, 2024
+# Last Change: March 24, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -519,10 +519,10 @@ export class HTMLFunctions
         .. 'b:htmlplugin.HTMLFunctionsObject.VisualInsertPos()\\<CR>', 'g')
 
       if !opts->has_key('extra') || opts.extra
-        b:htmlplugin.maps['v'][newmap] = [newarg, {}]
+        b:htmlplugin.maps.v[newmap] = [newarg, {}]
 
         if opts->has_key('expr')
-          b:htmlplugin.maps['v'][newmap][1]['expr'] = opts.expr
+          b:htmlplugin.maps.v[newmap][1]['expr'] = opts.expr
         endif
       endif
 
@@ -532,18 +532,18 @@ export class HTMLFunctions
         execute cmd .. ' <buffer> <silent> ' .. newmap
           .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsObject.DoMap("v", "' .. newmap_escaped .. '")<CR>'
 
-        b:htmlplugin.maps['v'][newmap][1]['reindent'] = opts.reindent
-        b:htmlplugin.maps['v'][newmap][1]['insert'] = opts.insert
+        b:htmlplugin.maps.v[newmap][1]['reindent'] = opts.reindent
+        b:htmlplugin.maps.v[newmap][1]['insert'] = opts.insert
       elseif opts->get('insert', false)
         execute cmd .. ' <buffer> <silent> ' .. newmap
           .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsObject.DoMap("v", "' .. newmap_escaped .. '")<CR>'
 
-        b:htmlplugin.maps['v'][newmap][1]['insert'] = opts.insert
+        b:htmlplugin.maps.v[newmap][1]['insert'] = opts.insert
       elseif opts->has_key('reindent')
         execute cmd .. ' <buffer> <silent> ' .. newmap
           .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsObject.DoMap("v", "' .. newmap_escaped .. '")<CR>'
 
-        b:htmlplugin.maps['v'][newmap][1]['reindent'] = opts.reindent
+        b:htmlplugin.maps.v[newmap][1]['reindent'] = opts.reindent
       else
         execute cmd .. ' <buffer> <silent> ' .. newmap
           .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsObject.DoMap("v", "' .. newmap_escaped .. '")<CR>'
@@ -552,9 +552,9 @@ export class HTMLFunctions
       if opts->has_key('extra') && ! opts.extra
         execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
       else
-        b:htmlplugin.maps['i'][newmap] = [newarg, {}]
+        b:htmlplugin.maps.i[newmap] = [newarg, {}]
         if opts->has_key('expr')
-          b:htmlplugin.maps['i'][newmap][1]['expr'] = opts.expr
+          b:htmlplugin.maps.i[newmap][1]['expr'] = opts.expr
         endif
         execute cmd .. ' <buffer> <silent> <expr> ' .. newmap
           .. ' b:htmlplugin.HTMLFunctionsObject.DoMap("i", "' .. newmap_escaped .. '")'
@@ -1433,11 +1433,11 @@ export class HTMLFunctions
         return true
       elseif key == "\<2-leftmouse>" || key == "\<s-2-leftmouse>" || key == "\<c-2-leftmouse>"
         var mousepos = getmousepos()
-        if mousepos['screencol'] < (popup_getpos(id)['core_col'] - 1) ||
-            mousepos['screenrow'] < (popup_getpos(id)['core_line']) ||
-            mousepos['screencol'] > (popup_getpos(id)['core_col']
+        if mousepos.screencol < (popup_getpos(id)['core_col'] - 1) ||
+            mousepos.screenrow < (popup_getpos(id)['core_line']) ||
+            mousepos.screencol > (popup_getpos(id)['core_col']
               + popup_getpos(id)['core_width'] - 1) ||
-            mousepos['screenrow'] > (popup_getpos(id)['core_line']
+            mousepos.screenrow > (popup_getpos(id)['core_line']
               + popup_getpos(id)['core_height'] - 1)
           newkey = key
         else
@@ -1445,13 +1445,13 @@ export class HTMLFunctions
             dorgb = true
           elseif key == "\<c-2-leftmouse>"
             dorgbpercent = true
-          elseif mousepos['screencol'] < (popup_getpos(id)['core_col']
+          elseif mousepos.screencol < (popup_getpos(id)['core_col']
               + popup_getpos(id)['core_width'] - 9)
             doname = true
           endif
 
           popup_close(id, popup_getpos(id)['firstline']
-            + mousepos['winrow'] - 2)
+            + mousepos.winrow - 2)
           return true
         endif
       else
