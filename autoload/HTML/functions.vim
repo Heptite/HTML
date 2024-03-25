@@ -53,6 +53,7 @@ export class HTMLFunctions
   static const E_DISABLED     = 'The HTML mappings are already disabled.'
   static const E_ENABLED      = 'The HTML mappings are already enabled.'
   static const E_INVALIDARG   = '%s Invalid argument: %s'
+  static const E_INVALIDTYPE  = 'Invalid argument type: %s'
   static const E_JSON         = '%s Potentially malformed json in %s, section: %s'
   static const E_NOTFOUNDRTP  = '%s %s is not found in the runtimepath.'
   static const E_NOTFOUND     = 'File "%s" was not found.'
@@ -101,7 +102,7 @@ export class HTMLFunctions
     elseif typename(message) == 'list<string>'
       m = message
     else
-      echoerr "Invalid argument type: " .. typename(message)
+      echoerr printf(E_INVALIDTYPE, typename(message))
       return
     endif
 
@@ -151,15 +152,15 @@ export class HTMLFunctions
   #  0  - The variable already existed
   #  1  - The variable didn't exist and was successfully set
   #  -1 - An error occurred
-  def SetIfUnset(variable: string, ...args: list<any>): number
+  def SetIfUnset(v: string, ...args: list<any>): number
     var val: any
-    var newvariable = variable
+    var variable = v
 
     if variable =~# '^l:'
       printf(E_NOLOCALVAR, F())->Error()
       return -1
     elseif variable !~# '^[bgstvw]:'
-      newvariable = 'g:' .. variable
+      variable = 'g:' .. variable
     endif
 
     if args->len() == 0
@@ -172,24 +173,24 @@ export class HTMLFunctions
       val = args->join(' ')
     endif
 
-    if newvariable->this.IsSet()
+    if variable->this.IsSet()
       return 0
     endif
 
     if type(val) == v:t_string
       if val == '""' || val == "''" || val == '[]' || val == '{}'
-        execute newvariable .. ' = ' .. val
+        execute variable .. ' = ' .. val
       elseif val =~ '^-\?[[:digit:]]\+$'
-        execute newvariable .. ' = ' val->str2nr()
+        execute variable .. ' = ' val->str2nr()
       elseif val =~ '^-\?[[:digit:].]\+$'
-        execute newvariable .. ' = ' val->str2float()
+        execute variable .. ' = ' val->str2float()
       else
-        execute newvariable .. " = '" .. val->escape("'\\") .. "'"
+        execute variable .. " = '" .. val->escape("'\\") .. "'"
       endif
     elseif type(val) == v:t_number || type(val) == v:t_float
-      execute newvariable .. ' = ' .. val
+      execute variable .. ' = ' .. val
     else
-      execute newvariable .. ' = ' .. string(val)
+      execute variable .. ' = ' .. string(val)
     endif
 
     return 1
@@ -235,15 +236,15 @@ export class HTMLFunctions
   #  Boolean - The value of the variable in boolean format
   # Limitations:
   #  This /will not/ work on function-local variable names.
-  def BoolVar(variable: string): bool
-    var newvariable = variable
+  def BoolVar(v: string): bool
+    var variable = v
 
     if variable !~ '^[bgstvw]:'
-      newvariable = 'g:' .. variable
+      variable = 'g:' .. variable
     endif
 
-    if newvariable->this.IsSet()
-      return newvariable->eval()->this.Bool()
+    if variable->this.IsSet()
+      return variable->eval()->this.Bool()
     else
       return false
     endif
@@ -322,17 +323,17 @@ export class HTMLFunctions
     #  1 - Character: The character to encode
     # Return Value:
     #  String: The entity representing the character
-    def CharToEntity(char: string): string
-      var newchar: string
+    def CharToEntity(c: string): string
+      var char: string
 
-      if char->strchars(1) != 1
+      if c->strchars(1) != 1
         printf(HTMLFunctions.E_ONECHAR, HTMLFunctions.F())->HTMLFunctions.Error()
-        return char
+        return c
       endif
 
-      newchar = HTMLVariables.HTMLVariables.DictCharToEntities->get(char, printf('&#x%X;', char->char2nr()))
+      char = HTMLVariables.HTMLVariables.DictCharToEntities->get(c, printf('&#x%X;', c->char2nr()))
 
-      return newchar
+      return char
     enddef  # }}}2
 
     # DecodeSymbol()  {{{2
@@ -580,7 +581,8 @@ export class HTMLFunctions
   #
   # Purpose:
   #  Define a normal mode map that takes an operator and assign it to its
-  #  corresponding visual mode mapping.
+  #  corresponding visual mode mapping. (i.e. operator map linked to a visual
+  #  mapping)
   # Arguments:
   #  1 - String: The mapping.
   #  2 - Boolean: Optional, Whether to enter insert mode after the mapping has
@@ -692,15 +694,14 @@ export class HTMLFunctions
       endif
 
       var range = firstline == lastline ? firstline : firstline .. ',' .. lastline
-      # cursor() doesn't accept a buffer number, so exclude it:
-      var position = getcharpos('.')[1 : -1]
+      var charpos = getcharpos('.')
 
       try
         execute 'keepjumps :' .. range .. 'normal! =='
       catch
         printf(HTMLFunctions.E_INDENTEXCEPT, v:exception)->HTMLFunctions.Error()
       finally
-        cursor(position)
+        setcharpos('.', charpos)
       endtry
 
       return true
@@ -742,11 +743,11 @@ export class HTMLFunctions
 
       if opts->has_key('reindent') && opts.reindent >= 0
         #normal m'
-        #var curpos = getcharpos('.')[1 : -1]
+        var curpos = getcharpos('.')[1 : -1]
         #keepjumps ReIndent(line('v'), line('.'), opts.reindent)
         keepjumps ReIndent(line("'<"), line("'>"), opts.reindent)
         #normal ``
-        #cursor(curpos)
+        setcharpos('.', curpos)
       endif
 
       if opts->get('insert', false)
@@ -764,11 +765,11 @@ export class HTMLFunctions
   #
   # Purpose:
   #  Define mappings that are stored in a list, as opposed to stored in a JSON
-  #  file
+  #  file.
   # Arguments:
-  #  1 - List of strings: The mappings to define
+  #  1 - List of strings: The mappings to define.
   # Return Value:
-  #  Boolean: Whether there were mappings to define
+  #  Boolean: Whether there were mappings to define.
   def CreateExtraMappings(mappings: list<list<any>>): bool
     if len(mappings) == 0
       return false
@@ -928,44 +929,46 @@ export class HTMLFunctions
   #  Convert special regions in a string to the appropriate case determined by
   #  b:htmlplugin.tag_case.
   # Arguments:
-  #  1 - String or List<String>: The string(s) with the regions to convert
+  #  1 - String or list<string>: The string(s) with the regions to convert
   #      surrounded by [{...}].
   #  2 - Optional: The case to convert to, either "uppercase" or "lowercase".
   #      The default is to follow the configuration variable.
   # Return Value:
-  #  The converted string(s).
-  def ConvertCase(str: any, case: string = 'config'): any
+  #  The converted string(s), or 0 on error.
+  def ConvertCase(s: any, c: string = 'config'): any
+    var str: list<string>
     var newstr: list<string>
-    var newnewstr: list<string>
-    var newcase: string
+    var case: string
 
-    if type(str) == v:t_list
-      newstr = str
+    if typename(s) == 'list<string>'
+      str = s
+    elseif type(s) == v:t_string
+      str = [s]
     else
-      newstr = [str]
+      printf(E_INVALIDTYPE, typename(str))->Error()
+      return 0
     endif
 
-    if case == 'config'
-      newcase = b:htmlplugin.tag_case
+    if c == 'config'
+      this.SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
+      case = b:htmlplugin.tag_case
     else
-      newcase = case
+      case = case
     endif
 
-    this.SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
-
-    if newcase =~? '^u\%(p\%(per\%(case\)\?\)\?\)\?'
-      newnewstr = newstr->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\U\1', 'g'))
-    elseif newcase =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
-      newnewstr = newstr->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g'))
+    if case =~? '^u\%(p\%(per\%(case\)\?\)\?\)\?'
+      newstr = str->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\U\1', 'g'))
+    elseif case =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
+      newstr = str->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g'))
     else
-      printf(W_INVALIDCASE, F(), newcase)->Warn()
-      newstr = newstr->this.ConvertCase('lowercase')
+      printf(W_INVALIDCASE, F(), case)->Warn()
+      newstr = str->this.ConvertCase('lowercase')
     endif
 
-    if type(str) == v:t_list
-      return newnewstr
+    if type(s) == v:t_string
+      return newstr[0]
     else
-      return newnewstr[0]
+      return newstr
     endif
   enddef
 
@@ -1023,8 +1026,7 @@ export class HTMLFunctions
   #
   # Purpose:
   #  Causes certain tags (such as bold, italic, underline) to be closed then
-  #  opened rather than opened then closed where appropriate, if syntax
-  #  highlighting is on.
+  #  opened rather than opened then closed where appropriate.
   # Arguments:
   #  1 - String: The tag name.
   #  2 - Character: The mode:
