@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: March 24, 2024
+# Last Change: March 25, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -80,27 +80,18 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import autoload 'HTML/functions.vim'
+import autoload 'HTML/Functions.vim'
+import autoload 'HTML/Messages.vim'
 
-export class BrowserLauncher extends functions.HTMLFunctions
-
-  static const E_NOFILE  = 'No file is associated with the current buffer and no URL was specified.'
-  static const E_NOAPP   = '%s not found.'
-  static const E_UNKNOWN = 'Unknown browser ID: %s'
-  static const E_DISPLAY = '$DISPLAY is not set and no textmode browsers were found, no browser launched.'
-  static const E_XTERM   = "XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch %s."
-  static const E_TERM    = ":terminal is not compiled into this version of GVim. Can't launch %s."
-  static const E_LAUNCH  = 'Unable to launch %s.'
-  static const E_COMMAND = 'Command failed: %s'
-  static const E_FINAL   = 'Something went wrong, we should never get here...'
-
-  static const W_UNSAVED = 'Warning: The current buffer has unsaved modifications.'
+export class BrowserLauncher extends Functions.HTMLFunctions
 
   var Browsers: dict<list<any>>
   var TextmodeBrowsers = ['lynx', 'w3m', 'links']
   var MacBrowsersExist = ['default']
 
   def new() # {{{
+    this.HTMLMessagesObject = Messages.HTMLMessages.new()
+
     if (has('mac') == 1) || (has('macunix') == 1)
       return
     elseif (has('unix') == 1) && (has('win32unix') == 0)
@@ -173,7 +164,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
 
     else
 
-      functions.HTMLFunctions.Warn('Your OS is not recognized, browser controls will not work.')
+      this.HTMLMessagesObject.Warn('Your OS is not recognized, browser controls will not work.')
 
       this.Browsers = {}
       this.TextmodeBrowsers = []
@@ -257,18 +248,18 @@ export class BrowserLauncher extends functions.HTMLFunctions
     var as_msg: string
 
     if (!this.MacExists(app) && app !=? 'default')
-      printf(E_NOAPP, app)->functions.HTMLFunctions.Error()
+      printf(this.HTMLMessagesObject.E_NOAPP, app)->this.HTMLMessagesObject.Error()
       return false
     endif
 
     if url != ''
       file = url
     elseif expand('%') == ''
-      functions.HTMLFunctions.Error(E_NOFILE)
+      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOFILE)
       return false
     else
       if &modified
-        functions.HTMLFunctions.Warn(W_UNSAVED)
+        this.HTMLMessagesObject.Warn(this.HTMLMessagesObject.W_UNSAVED)
       endif
       file = expand('%:p')
     endif
@@ -288,10 +279,10 @@ export class BrowserLauncher extends functions.HTMLFunctions
       if new != 0 && use_AS
         if new == 2
           torn = 't'
-          functions.HTMLFunctions.Message('Opening file in new Safari tab...')
+          this.HTMLMessagesObject.Message('Opening file in new Safari tab...')
         else
           torn = 'n'
-          functions.HTMLFunctions.Message('Opening file in new Safari window...')
+          this.HTMLMessagesObject.Message('Opening file in new Safari window...')
         endif
         script = '-e "tell application \"safari\"" '
           .. '-e "activate" '
@@ -314,7 +305,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
           as_msg->confirm('&Dismiss', 1, 'Error')
         endif
 
-        functions.HTMLFunctions.Message('Opening file in Safari...')
+        this.HTMLMessagesObject.Message('Opening file in Safari...')
         command = '/usr/bin/open -a safari ' .. file->shellescape()
       endif
     endif "}}}
@@ -324,11 +315,11 @@ export class BrowserLauncher extends functions.HTMLFunctions
         if new == 2
 
           torn = 't'
-          functions.HTMLFunctions.Message('Opening file in new Firefox tab...')
+          this.HTMLMessagesObject.Message('Opening file in new Firefox tab...')
         else
 
           torn = 'n'
-          functions.HTMLFunctions.Message('Opening file in new Firefox window...')
+          this.HTMLMessagesObject.Message('Opening file in new Firefox window...')
         endif
         script = '-e "tell application \"firefox\"" '
           .. '-e "activate" '
@@ -351,7 +342,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
           as_msg->confirm('&Dismiss', 1, 'Error')
 
         endif
-        functions.HTMLFunctions.Message('Opening file in Firefox...')
+        this.HTMLMessagesObject.Message('Opening file in Firefox...')
         command = '/usr/bin/open -a firefox ' .. file->shellescape()
       endif
     endif # }}}
@@ -361,11 +352,11 @@ export class BrowserLauncher extends functions.HTMLFunctions
         if new == 2
 
           torn = 't'
-          functions.HTMLFunctions.Message('Opening file in new Opera tab...')
+          this.HTMLMessagesObject.Message('Opening file in new Opera tab...')
         else
 
           torn = 'n'
-          functions.HTMLFunctions.Message('Opening file in new Opera window...')
+          this.HTMLMessagesObject.Message('Opening file in new Opera window...')
         endif
         script = '-e "tell application \"Opera\"" '
           .. '-e "activate" '
@@ -386,18 +377,18 @@ export class BrowserLauncher extends functions.HTMLFunctions
           as_msg->confirm('&Dismiss', 1, 'Error')
 
         endif
-        functions.HTMLFunctions.Message('Opening file in Opera...')
+        this.HTMLMessagesObject.Message('Opening file in Opera...')
         command = '/usr/bin/open -a opera ' .. file->shellescape()
       endif
     endif # }}}
 
     if (app ==? 'default')
-      functions.HTMLFunctions.Message('Opening file in default browser...')
+      this.HTMLMessagesObject.Message('Opening file in default browser...')
       command = '/usr/bin/open ' .. file->shellescape()
     endif
 
     if (command == '')
-      functions.HTMLFunctions.Message('Opening ' .. app->substitute('^.', '\U&', '') .. '...')
+      this.HTMLMessagesObject.Message('Opening ' .. app->substitute('^.', '\U&', '') .. '...')
       command = '/usr/bin/open -a ' .. app .. ' ' .. file->shellescape()
     endif
 
@@ -459,7 +450,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
     var file: string
 
     if !this.UnixWindowsExists(which)
-      printf(E_UNKNOWN, which)->functions.HTMLFunctions.Error()
+      printf(this.HTMLMessagesObject.E_UNKNOWN, which)->this.HTMLMessagesObject.Error()
       return false
     endif
 
@@ -471,7 +462,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
       file = url
     elseif expand('%') != ''
       if &modified
-        functions.HTMLFunctions.Warn(W_UNSAVED)
+        this.HTMLMessagesObject.Warn(this.HTMLMessagesObject.W_UNSAVED)
       endif
 
       # If we're on Cygwin and not using a text mode browser, translate the file
@@ -481,7 +472,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
         .. ((has('win32unix') == 1) && match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') < 0 ?
           system('cygpath -w ' .. expand('%:p')->shellescape())->trim() : expand('%:p'))
     else
-      functions.HTMLFunctions.Error(E_NOFILE)
+      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOFILE)
       return false
     endif
 
@@ -489,7 +480,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
         && match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') < 0
         && has('win32unix') == 0
       if this.TextmodeBrowsers == []
-        functions.HTMLFunctions.Error(E_DISPLAY)
+        this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_DISPLAY)
         return false
       else
         which = this.TextmodeBrowsers[0]
@@ -498,7 +489,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
 
     # Have to handle the textmode browsers different than the GUI browsers:
     if match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') >= 0 
-      functions.HTMLFunctions.Message('Launching ' .. this.Browsers[which][0] .. '...')
+      this.HTMLMessagesObject.Message('Launching ' .. this.Browsers[which][0] .. '...')
 
       var xterm = system('which xterm')->trim()
       if v:shell_error != 0
@@ -514,9 +505,9 @@ export class BrowserLauncher extends functions.HTMLFunctions
           return true
         else
           if donew == 1
-            printf(E_XTERM, this.Browsers[which][0])->functions.HTMLFunctions.Error()
+            this.HTMLMessagesObject.Error(printf(this.HTMLMessagesObject.E_XTERM, this.Browsers[which][0]))
           else
-            printf(E_TERM, this.Browsers[which][0])->functions.HTMLFunctions.Error()
+            this.HTMLMessagesObject.Error(printf(this.HTMLMessagesObject.E_TERM, this.Browsers[which][0]))
           endif
 
           return false
@@ -526,7 +517,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
         execute '!' .. this.Browsers[which][1] .. ' ' .. file->shellescape()
 
         if v:shell_error
-          printf(E_LAUNCH, this.Browsers[which][0])->functions.HTMLFunctions.Error()
+          printf(this.HTMLMessagesObject.E_LAUNCH, this.Browsers[which][0])->this.HTMLMessagesObject.Error()
           return false
         endif
 
@@ -539,7 +530,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
     if command == ''
       
       if donew == 2
-        functions.HTMLFunctions.Message('Opening new ' .. this.Browsers[which][0]->Cap()
+        this.HTMLMessagesObject.Message('Opening new ' .. this.Browsers[which][0]->Cap()
           .. ' tab...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
@@ -549,7 +540,7 @@ export class BrowserLauncher extends functions.HTMLFunctions
             .. file->shellescape() .. ' ' .. this.Browsers[which][3]  .. ' &"'
         endif
       elseif donew > 0
-        functions.HTMLFunctions.Message('Opening new ' .. this.Browsers[which][0]->Cap()
+        this.HTMLMessagesObject.Message('Opening new ' .. this.Browsers[which][0]->Cap()
           .. ' window...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
@@ -560,9 +551,9 @@ export class BrowserLauncher extends functions.HTMLFunctions
         endif
       else
         if which == 'default'
-          functions.HTMLFunctions.Message('Invoking system default browser...')
+          this.HTMLMessagesObject.Message('Invoking system default browser...')
         else
-          functions.HTMLFunctions.Message('Invoking ' .. this.Browsers[which][0]->Cap() .. '...')
+          this.HTMLMessagesObject.Message('Invoking ' .. this.Browsers[which][0]->Cap() .. '...')
         endif
 
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
@@ -587,15 +578,15 @@ export class BrowserLauncher extends functions.HTMLFunctions
       output = system(command)
 
       if v:shell_error
-        printf(E_COMMAND, command)->functions.HTMLFunctions.Error()
-        functions.HTMLFunctions.Error(output)
+        printf(this.HTMLMessagesObject.E_COMMAND, command)->this.HTMLMessagesObject.Error()
+        this.HTMLMessagesObject.Error(output)
         return false
       endif
 
       return true
     endif
 
-    functions.HTMLFunctions.Error(E_FINAL)
+    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_FINAL)
     return false
   enddef
 

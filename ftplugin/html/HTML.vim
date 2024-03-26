@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      March 24, 2024
+# Last Change:      March 25, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -88,12 +88,12 @@ endif
 runtime commands/HTML/commands.vim
 
 import '../../import/HTML/variables.vim' as HTMLVariables
-import autoload 'HTML/functions.vim'
+import autoload 'HTML/Functions.vim'
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/MangleImageTag.vim'
 
 # Create functions object ...
-var HTMLFunctionsObject = functions.HTMLFunctions.new()
+var HTMLFunctionsObject = Functions.HTMLFunctions.new()
 # ...and save it where it can be used by the mappings:
 b:htmlplugin.HTMLFunctionsObject = HTMLFunctionsObject
 # ...
@@ -152,7 +152,7 @@ if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
   # Intitialize some necessary variables:  {{{2
 
   if type(g:htmlplugin.toplevel_menu) != v:t_list
-    functions.HTMLFunctions.Error('g:htmlplugin.toplevel_menu must be a list! Overriding to default.')
+    Functions.HTMLFunctions.Error('g:htmlplugin.toplevel_menu must be a list! Overriding to default.')
     sleep 3
     g:htmlplugin.toplevel_menu = []
   endif
@@ -168,8 +168,8 @@ if !HTMLFunctionsObject.BoolVar('b:htmlplugin.did_mappings_init')
   setlocal matchpairs+=<:>
 
   if g:htmlplugin.entity_map_leader ==# g:htmlplugin.map_leader
-    functions.HTMLFunctions.Error('"g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!')
-    functions.HTMLFunctions.Error('Resetting both to their defaults (";" and "&" respectively).')
+    Functions.HTMLFunctions.Error('"g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!')
+    Functions.HTMLFunctions.Error('Resetting both to their defaults (";" and "&" respectively).')
     sleep 3
     g:htmlplugin.map_leader = ';'
     g:htmlplugin.entity_map_leader = '&'
@@ -923,7 +923,7 @@ if !HTMLFunctionsObject.BoolVar('g:htmlplugin.did_plugin_warning_check')
   g:htmlplugin.did_plugin_warning_check = true
   var files = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
   if files->len() > 1
-    var filesmatched = files->functions.HTMLFunctions.FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)
+    var filesmatched = files->Functions.HTMLFunctions.FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)
     if filesmatched->len() > 1
       var message = "Multiple versions of the HTML plugin are installed.\n"
         .. "Locations:\n   " .. filesmatched->map((_, value) => value->fnamemodify(':~'))->join("\n   ")

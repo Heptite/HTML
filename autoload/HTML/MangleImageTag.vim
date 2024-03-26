@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: March 12, 2024
+# Last Change: March 25, 2024
 #
 # Requirements:
 #   Vim 9.1 or later
@@ -33,33 +33,17 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
+import autoload 'HTML/Messages.vim'
+
 export class MangleImageTag
 
-  static const E_NOIMG       = 'The cursor is not on an IMG tag.'
-  static const E_NOSRC       = 'Image SRC not specified in the tag.'
-  static const E_BLANK       = 'No image specified in SRC.'
-  static const E_NOFILE      = 'Can not find image file (or it is not readable): %s'
-  static const E_UNSUPPORTED = 'Image type not supported: %s'
-  static const E_NOREAD      = 'Can not read file: %s'
-  static const E_GIF         = 'Malformed GIF file.'
-  static const E_JPG         = 'Malformed JPEG file.'
-  static const E_PNG         = 'Malformed PNG file.'
-  static const E_TIFF        = 'Malformed TIFF file.'
-  static const E_TIFFENDIAN  = MangleImageTag.E_TIFF .. ' Endian identifier not found.'
-  static const E_TIFFID      = MangleImageTag.E_TIFF .. ' Identifier not found.'
-  static const E_WEBP        = 'Malformed WEBP file.'
+  var HTMLMessagesObject: Messages.HTMLMessages
 
-  static def Error(error_message: string, quiet: bool = false): void  # {{{1
-    if quiet
-      return
-    endif
-
-    echohl ErrorMsg
-    echomsg error_message
-    echohl None
+  def new()
+    this.HTMLMessagesObject = Messages.HTMLMessages.new()
   enddef
 
-  def Update(quiet: bool = false): bool  # {{{1
+  def Update(): bool  # {{{1
     var start_linenr: number
     var end_linenr: number
     var col: number
@@ -71,7 +55,7 @@ export class MangleImageTag
     line = getline(start_linenr)
 
     if line !~? '<img'
-      Error(E_NOIMG, quiet) 
+      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOIMG) 
       return false
     endif
 
@@ -96,7 +80,7 @@ export class MangleImageTag
     tag = tag->strpart(0, tagend)
 
     if tag[0] != '<' || col > strlen(savestart .. tag) - 1
-      Error(E_NOIMG, quiet)
+      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOIMG)
       return false
     endif
 
@@ -110,23 +94,23 @@ export class MangleImageTag
         case = true
       endif
     else
-      Error(E_NOSRC, quiet)
+      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOSRC)
       return false
     endif
 
     if src == ''
-      Error(E_BLANK, quiet)
+      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_BLANK)
       return false
     elseif !src->filereadable()
       if filereadable(expand('%:p:h') .. '/' .. src)
         src = expand('%:p:h') .. '/' .. src
       else
-        printf(E_NOFILE, src)->Error(quiet)
+        printf(this.HTMLMessagesObject.E_NOIMAGE, src)->this.HTMLMessagesObject.Error()
         return false
       endif
     endif
 
-    var size = this.ImageSize(src, quiet)
+    var size = this.ImageSize(src)
     if size->len() != 2
       return false
     endif
@@ -158,16 +142,16 @@ export class MangleImageTag
     return true
   enddef
 
-  def ImageSize(image: string, quiet: bool = false): list<number>  # {{{1
+  def ImageSize(image: string): list<number>  # {{{1
     var ext = image->fnamemodify(':e')->tolower()
     var size: list<number>
     var buf: list<number>
 
     if ['png', 'gif', 'jpg', 'jpeg', 'tif', 'tiff', 'webp']->match(ext) < 0
-      printf(E_UNSUPPORTED, ext)->Error(quiet)
+      printf(this.HTMLMessagesObject.E_UNSUPPORTED, ext)->this.HTMLMessagesObject.Error()
       return []
     elseif !image->filereadable()
-      printf(E_NOREAD, image)->Error(quiet)
+      printf(this.HTMLMessagesObject.E_NOIMGREAD, image)->this.HTMLMessagesObject.Error()
       return []
     endif
 
@@ -204,7 +188,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    Error(E_GIF)
+    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_GIF)
 
     return []
   enddef
@@ -224,7 +208,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    Error(E_JPG)
+    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_JPG)
 
     return []
   enddef
@@ -244,7 +228,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    Error(E_PNG)
+    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_PNG)
 
     return []
   enddef
@@ -265,12 +249,12 @@ export class MangleImageTag
       #echomsg "TIFF is Big Endian"
       bigendian = true
     else
-      Error(E_TIFFENDIAN)
+      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_TIFFENDIAN)
       return []
     endif
 
     if (bigendian ? buf[2 : 3]->this.Vec() : buf[2 : 3]->reverse()->this.Vec()) != 42
-      Error(E_TIFFID)
+      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_TIFFID)
       return []
     endif
 
@@ -302,7 +286,7 @@ export class MangleImageTag
       endif
     endwhile
 
-    Error(E_TIFF)
+    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_TIFF)
 
     return []
   enddef
@@ -312,7 +296,7 @@ export class MangleImageTag
     var len = buf->len()
 
     if buf[0 : 11]->join(' ') !~ '^82 73 70 70\%( \d\+\)\{4} 87 69 66 80'
-      Error(E_WEBP)
+      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_WEBP)
       return []
     endif
 
@@ -330,7 +314,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    Error(E_WEBP)
+    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_WEBP)
 
     return []
   enddef
