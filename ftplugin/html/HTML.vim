@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      March 25, 2024
+# Last Change:      March 27, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -87,7 +87,7 @@ endif
 
 runtime commands/HTML/commands.vim
 
-import '../../import/HTML/variables.vim' as HTMLVariables
+import '../../import/HTML/Variables.vim' as HTMLVariables
 import autoload 'HTML/Functions.vim'
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/MangleImageTag.vim'
