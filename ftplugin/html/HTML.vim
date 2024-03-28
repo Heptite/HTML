@@ -1,8 +1,8 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901
-  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 9.1'
+if v:version < 901 || v:versionlong < 9010219
+  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 9.1.219'
   sleep 3
   finish
 endif
@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      March 27, 2024
+# Last Change:      March 28, 2024
 # Original Concept: Doug Renze
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
@@ -85,7 +85,7 @@ if !exists('b:htmlplugin')
   b:htmlplugin = {}
 endif
 
-runtime commands/HTML/commands.vim
+runtime commands/HTML/Commands.vim
 
 import '../../import/HTML/Variables.vim' as HTMLVariables
 import autoload 'HTML/Functions.vim'
@@ -342,19 +342,19 @@ if BrowserLauncherObject.Exists('brave') # {{{2
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>bv',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('brave', 0)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('brave', BrowserLauncher.Behavior.default)<CR>"
   )
   # Chrome: Open a new window, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>nbv',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('brave', 1)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('brave', BrowserLauncher.Behavior.newwindow)<CR>"
   )
   # Chrome: Open a new tab, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>tbv',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('brave', 2)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('brave', BrowserLauncher.Behavior.newtab)<CR>"
   )
 endif
 
@@ -363,19 +363,19 @@ if BrowserLauncherObject.Exists('chrome') # {{{2
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>gc',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('chrome', 0)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('chrome', BrowserLauncher.Behavior.default)<CR>"
   )
   # Chrome: Open a new window, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>ngc',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('chrome', 1)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('chrome', BrowserLauncher.Behavior.newwindow)<CR>"
   )
   # Chrome: Open a new tab, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>tgc',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('chrome', 2)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('chrome', BrowserLauncher.Behavior.newtab)<CR>"
   )
 endif
 
@@ -384,19 +384,19 @@ if BrowserLauncherObject.Exists('edge') # {{{2
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>ed',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('edge', 0)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('edge', BrowserLauncher.Behavior.default)<CR>"
   )
   # Edge: Open a new window, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>ned',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('edge', 1)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('edge', BrowserLauncher.Behavior.newwindow)<CR>"
   )
   # Edge: Open a new tab, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>ted',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('edge', 2)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('edge', BrowserLauncher.Behavior.newtab)<CR>"
   )
 endif
 
@@ -405,19 +405,19 @@ if BrowserLauncherObject.Exists('firefox') # {{{2
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>ff',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('firefox', 0)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('firefox', BrowserLauncher.Behavior.default)<CR>"
   )
   # Firefox: Open a new window, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>nff',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('firefox', 1)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('firefox', BrowserLauncher.Behavior.newwindow)<CR>"
   )
   # Firefox: Open a new tab, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>tff',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('firefox', 2)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('firefox', BrowserLauncher.Behavior.newtab)<CR>"
   )
 endif
 
@@ -426,19 +426,19 @@ if BrowserLauncherObject.Exists('opera') # {{{2
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>oa',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('opera', 0)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('opera', BrowserLauncher.Behavior.default)<CR>"
   )
   # Opera: Open a new window, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>noa',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('opera', 1)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('opera', BrowserLauncher.Behavior.newwindow)<CR>"
   )
   # Opera: Open a new tab, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>toa',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('opera', 2)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('opera', BrowserLauncher.Behavior.newtab)<CR>"
   )
 endif
 
@@ -447,19 +447,19 @@ if BrowserLauncherObject.Exists('safari') # {{{2
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>sf',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('safari', 0)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('safari', BrowserLauncher.Behavior.default)<CR>"
   )
   # Safari: Open a new window, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>nsf',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('safari', 1)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('safari', BrowserLauncher.Behavior.newwindow)<CR>"
     )
   # Safari: Open a new tab, and view the current file:
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>tsf',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('safari', 2)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('safari', BrowserLauncher.Behavior.newtab)<CR>"
   )
 endif
 
@@ -468,19 +468,19 @@ if BrowserLauncherObject.Exists('lynx') # {{{2
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>ly',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('lynx', 0)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('lynx', BrowserLauncher.Behavior.default)<CR>"
   )
   # Lynx in an xterm:  (This always happens in the Vim GUI.)
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>nly',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('lynx', 1)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('lynx', BrowserLauncher.Behavior.newwindow)<CR>"
   )
   # Lynx in a new Vim window, using ":terminal":
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>tly',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('lynx', 2)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('lynx', BrowserLauncher.Behavior.newtab)<CR>"
   )
 endif
 
@@ -489,19 +489,19 @@ if BrowserLauncherObject.Exists('w3m') # {{{2
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>w3',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('w3m', 0)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('w3m', BrowserLauncher.Behavior.default)<CR>"
   )
   # w3m in an xterm:  (This always happens in the Vim GUI.)
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>nw3',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('w3m', 1)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('w3m', BrowserLauncher.Behavior.newwindow)<CR>"
   )
   # w3m in a new Vim window, using ":terminal":
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>tw3',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('w3m', 2)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('w3m', BrowserLauncher.Behavior.newtab)<CR>"
   )
 endif
 
@@ -510,19 +510,19 @@ if BrowserLauncherObject.Exists('links') # {{{2
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>ln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('links', 0)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('links', BrowserLauncher.Behavior.default)<CR>"
   )
   # Lynx in an xterm:  (This always happens in the Vim GUI.)
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>nln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('links', 1)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('links', BrowserLauncher.Behavior.newwindow)<CR>"
   )
   # Lynx in a new Vim window, using ":terminal":
   HTMLFunctionsObject.Map(
     'nnoremap',
     '<lead>tln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('links', 2)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherObject.Launch('links', BrowserLauncher.Behavior.newtab)<CR>"
   )
 endif # }}}2
 

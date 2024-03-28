@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901
+if v:version < 901 || v:versionlong < 9010219
   finish
 endif
 
@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: March 25, 2024
+# Last Change: March 28, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -82,6 +82,12 @@ endif
 
 import autoload 'HTML/Functions.vim'
 import autoload 'HTML/Messages.vim'
+
+export enum Behavior
+  default,
+  newwindow,
+  newtab
+endenum
 
 export class BrowserLauncher extends Functions.HTMLFunctions
 
@@ -180,7 +186,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
     endif
   enddef
 
-  def Launch(browser: string = 'default', new: number = 0, url: string = ''): bool  # {{{1
+  def Launch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool  # {{{1
     if (has('mac') == 1) || (has('macunix') == 1)
       return this.MacLaunch(browser, new, url)
     else
@@ -239,7 +245,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
     endif
   enddef # }}}
 
-  def MacLaunch(app: string = 'default', new: number = 0, url: string = ''): bool # {{{
+  def MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool # {{{
     var file: string
     var torn: string
     var script: string
@@ -276,8 +282,8 @@ export class BrowserLauncher extends Functions.HTMLFunctions
       .. "preference pane."
 
     if (app ==? 'safari') # {{{
-      if new != 0 && use_AS
-        if new == 2
+      if new != Behavior.default && use_AS
+        if new == Behavior.newtab
           torn = 't'
           this.HTMLMessagesObject.Message('Opening file in new Safari tab...')
         else
@@ -300,7 +306,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         command = '/usr/bin/osascript ' .. script
 
       else
-        if new != 0
+        if new != Behavior.default
           # Let the user know what's going on:
           as_msg->confirm('&Dismiss', 1, 'Error')
         endif
@@ -311,8 +317,8 @@ export class BrowserLauncher extends Functions.HTMLFunctions
     endif "}}}
 
     if (app ==? 'firefox') # {{{
-      if new != 0 && use_AS
-        if new == 2
+      if new != Behavior.default && use_AS
+        if new == Behavior.newtab
 
           torn = 't'
           this.HTMLMessagesObject.Message('Opening file in new Firefox tab...')
@@ -337,7 +343,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         command = '/usr/bin/osascript ' .. script
 
       else
-        if new != 0
+        if new != Behavior.default
           # Let the user know wath's going on:
           as_msg->confirm('&Dismiss', 1, 'Error')
 
@@ -348,8 +354,8 @@ export class BrowserLauncher extends Functions.HTMLFunctions
     endif # }}}
 
     if (app ==? 'opera') # {{{
-      if new != 0 && use_AS
-        if new == 2
+      if new != Behavior.default && use_AS
+        if new == Behavior.newtab
 
           torn = 't'
           this.HTMLMessagesObject.Message('Opening file in new Opera tab...')
@@ -372,7 +378,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         command = '/usr/bin/osascript ' .. script
 
       else
-        if new != 0
+        if new != Behavior.default
           # Let the user know what's going on:
           as_msg->confirm('&Dismiss', 1, 'Error')
 
@@ -429,7 +435,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
   # Return value:
   #  false - Failure (No browser was launched/controlled.)
   #  true  - Success (A browser was launched/controlled.)
-  def UnixWindowsLaunch(browser: string = 'default', new: number = 0, url: string = ''): bool
+  def UnixWindowsLaunch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool
 
     # Cap() {{{2
     #
@@ -455,7 +461,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
     endif
 
     if which == 'default'
-      donew = 0
+      donew = Behavior.default
     endif
 
     if url != ''
@@ -496,15 +502,15 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         xterm = ''
       endif
 
-      if has('gui_running') == 1 || donew > 0
-        if $DISPLAY != '' && xterm != '' && donew == 1
+      if has('gui_running') == 1 || donew != Behavior.default
+        if $DISPLAY != '' && xterm != '' && donew == Behavior.newwindow
           command = xterm .. ' -T ' .. this.Browsers[which][0] .. ' -e '
             .. this.Browsers[which][1] .. ' ' .. file->shellescape() .. ' &'
         elseif exists_compiled(':terminal') == 2
           execute 'terminal ++close ' .. this.Browsers[which][1] .. ' ' .. file
           return true
         else
-          if donew == 1
+          if donew == Behavior.newwindow
             this.HTMLMessagesObject.Error(printf(this.HTMLMessagesObject.E_XTERM, this.Browsers[which][0]))
           else
             this.HTMLMessagesObject.Error(printf(this.HTMLMessagesObject.E_TERM, this.Browsers[which][0]))
@@ -529,7 +535,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
     # browser:
     if command == ''
       
-      if donew == 2
+      if donew == Behavior.newtab
         this.HTMLMessagesObject.Message('Opening new ' .. this.Browsers[which][0]->Cap()
           .. ' tab...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
@@ -539,7 +545,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
           command = "sh -c \"trap '' HUP; " .. this.Browsers[which][1] .. " "
             .. file->shellescape() .. ' ' .. this.Browsers[which][3]  .. ' &"'
         endif
-      elseif donew > 0
+      elseif donew != Behavior.default
         this.HTMLMessagesObject.Message('Opening new ' .. this.Browsers[which][0]->Cap()
           .. ' window...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)

@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901
+if v:version < 901 || v:versionlong < 9010219
   finish
 endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 27, 2024
+# Last Change: March 28, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -32,6 +32,19 @@ endif
 import '../../import/HTML/Variables.vim' as HTMLVariables
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/Messages.vim'
+
+export enum SetIfUnsetR # {{{1
+  error,
+  exists,
+  success
+endenum
+
+enum MapCheckR # {{{1
+  notfound,
+  override,
+  nooverride,
+  suppressed
+endenum # }}}1
 
 export class HTMLFunctions
 
@@ -64,7 +77,8 @@ export class HTMLFunctions
       .. (HTMLVariables.HTMLVariables.HOMEPAGE)
 
     if message->confirm("&Visit Homepage\n&Dismiss", 2, 'Info') == 1
-      BrowserLauncher.BrowserLauncher.new().Launch('default', 0, HTMLVariables.HTMLVariables.HOMEPAGE)
+      BrowserLauncher.BrowserLauncher.new().Launch('default',
+        BrowserLauncher.Behavior.default, HTMLVariables.HTMLVariables.HOMEPAGE)
     endif
   enddef
 
@@ -77,23 +91,23 @@ export class HTMLFunctions
   #  1       - String: The variable name
   #  2 ... N - String: The default value to use
   # Return Value:
-  #  0  - The variable already existed
-  #  1  - The variable didn't exist and was successfully set
-  #  -1 - An error occurred
-  def SetIfUnset(v: string, ...args: list<any>): number
+  #  SetIfUnsetR.exists   - The variable already existed
+  #  SetIfUnsetR.success  - The variable didn't exist and was successfully set
+  #  SetIfUnsetR.error    - An error occurred
+  def SetIfUnset(v: string, ...args: list<any>): SetIfUnsetR
     var val: any
     var variable = v
 
     if variable =~# '^l:'
       printf(this.HTMLMessagesObject.E_NOLOCALVAR, F())->this.HTMLMessagesObject.Error()
-      return -1
+      return SetIfUnsetR.error
     elseif variable !~# '^[bgstvw]:'
       variable = 'g:' .. variable
     endif
 
     if args->len() == 0
       printf(this.HTMLMessagesObject.E_NARGS, F())->this.HTMLMessagesObject.Error()
-      return -1
+      return SetIfUnsetR.error
     elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict
         || type(args[0]) == v:t_number
       val = args[0]
@@ -102,7 +116,7 @@ export class HTMLFunctions
     endif
 
     if variable->this.IsSet()
-      return 0
+      return SetIfUnsetR.exists
     endif
 
     if type(val) == v:t_string
@@ -121,7 +135,7 @@ export class HTMLFunctions
       execute variable .. ' = ' .. string(val)
     endif
 
-    return 1
+    return SetIfUnsetR.success
   enddef
 
 
@@ -430,7 +444,9 @@ export class HTMLFunctions
       ->substitute('^<elead>\c', g:htmlplugin.entity_map_leader->escape('&~\'), '')
     var newmap_escaped = newmap->substitute('<', '<lt>', 'g')
 
-    if HTMLVariables.HTMLVariables.MODES->has_key(mode) && newmap->this.MapCheck(mode, internal) >= 2
+    var mapchecked: MapCheckR = newmap->this.MapCheck(mode, internal)
+    if HTMLVariables.HTMLVariables.MODES->has_key(mode) &&
+        (mapchecked == MapCheckR.nooverride || mapchecked == MapCheckR.suppressed)
       # this.MapCheck() will echo the necessary message, so just return here
       return false
     endif
@@ -532,7 +548,8 @@ export class HTMLFunctions
 
     var newmap = map->substitute('^<lead>', g:htmlplugin.map_leader, '')
 
-    if newmap->this.MapCheck('o', internal) >= 2
+    var mapchecked: MapCheckR = newmap->this.MapCheck('o', internal)
+    if mapchecked == MapCheckR.nooverride || mapchecked == MapCheckR.suppressed
       # this.MapCheck() will echo the necessary message, so just return here
       return false
     endif
@@ -716,28 +733,29 @@ export class HTMLFunctions
   #  2 - Character: The mode for the mapping.
   #  3 - Boolean:   Whether an "internal" map is being defined
   # Return Value:
-  #  0 - No mapping was found.
-  #  1 - A mapping was found, but overriding has /not/ been suppressed.
-  #  2 - A mapping was found and overriding has been suppressed.
-  #  3 - The mapping to be defined was suppressed by g:htmlplugin.no_maps or
-  #      b:htmlplugin.no_maps.
-  def MapCheck(map: string, mode: string, internal: bool = false): number
+  #  MapCheckR.notfound   - No mapping was found.
+  #  MapCheckR.override   - A mapping was found, but overriding has /not/ been
+  #                         suppressed.
+  #  MapCheckR.nooverride - A mapping was found and overriding has been suppressed.
+  #  MapCheckR.suppressed - The mapping to be defined was suppressed by
+  #                         g:htmlplugin.no_maps or b:htmlplugin.no_maps.
+  def MapCheck(map: string, mode: string, internal: bool = false): MapCheckR
     if internal &&
           ( (g:htmlplugin->has_key('no_maps')
               && g:htmlplugin.no_maps->match('^\C\V' .. map .. '\$') >= 0) ||
             (b:htmlplugin->has_key('no_maps')
               && b:htmlplugin.no_maps->match('^\C\V' .. map .. '\$') >= 0) )
-      return 3
+      return MapCheckR.suppressed
     elseif HTMLVariables.HTMLVariables.MODES->has_key(mode) && map->maparg(mode) != ''
       if this.BoolVar('g:htmlplugin.no_map_override') && internal
-        return 2
+        return MapCheckR.nooverride
       else
         printf(this.HTMLMessagesObject.W_MAPOVERRIDE, map, HTMLVariables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->this.HTMLMessagesObject.Warn()
-        return 1
+        return MapCheckR.override
       endif
     endif
 
-    return 0
+    return MapCheckR.notfound
   enddef
 
   # HTMLOpWrap()  {{{1

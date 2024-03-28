@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Mar 21
+		Last change: 2024 Mar 28
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -1774,11 +1774,11 @@ HTMLFunctionsObject.
 
 To create the object, first include the file in your |vim9script|: >
 	
-	import autoload 'HTML/functions.vim'
+	import autoload 'HTML/Functions.vim'
 
 <Then create the object: >
 
-	var HTMLFunctionsObject = functions.HTMLFunctions.new()
+	var HTMLFunctionsObject = Functions.HTMLFunctions.new()
 <
 
 					*HTMLFunctionsObject.BoolVar()*
@@ -1938,8 +1938,9 @@ HTMLFunctionsObject.SetIfUnset({variable}, {value})
 	the variable name in quotes. This function will not work for
 	function-local variables (|l:var|).
 
-	This function returns 1 if the variable was set, 0 if it already
-	existed, and -1 for an error.
+	This function returns Functions.SetIfUnsetR.success if the variable
+	was set, Functions.SetIfUnsetR.exists if it already existed, and
+	Functions.SetIfUnsetR.error for an error. (See: |enum|)
 
 
  vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:
