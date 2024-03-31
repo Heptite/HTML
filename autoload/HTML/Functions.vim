@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 28, 2024
+# Last Change: March 31, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -44,6 +44,12 @@ export enum MapCheckR # {{{1
   override,
   nooverride,
   suppressed
+endenum
+
+export enum ToggleClipboardDoWhat # {{{1
+  remove,
+  add,
+  auto
 endenum # }}}1
 
 export class HTMLFunctions
@@ -823,18 +829,18 @@ export class HTMLFunctions
   #
   # (Note that g:htmlplugin.save_clipboard is set by this plugin's
   # initialization.)
-  def ToggleClipboard(dowhat: number = 2): bool
+  def ToggleClipboard(dowhat: ToggleClipboardDoWhat = ToggleClipboardDoWhat.auto): bool
     var newdowhat = dowhat
 
-    if newdowhat == 2
+    if newdowhat == ToggleClipboardDoWhat.auto
       if this.BoolVar('b:htmlplugin.did_mappings')
-        newdowhat = 1
+        newdowhat = ToggleClipboardDoWhat.add
       else
-        newdowhat = 0
+        newdowhat = ToggleClipboardDoWhat.remove
       endif
     endif
 
-    if newdowhat == 0
+    if newdowhat == ToggleClipboardDoWhat.remove
       if g:htmlplugin->has_key('save_clipboard')
         &clipboard = g:htmlplugin.save_clipboard
       else
