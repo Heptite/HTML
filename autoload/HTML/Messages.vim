@@ -1,13 +1,13 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901
+if v:version < 901 || v:versionlong < 9010219
   finish
 endif
 
 # Messaging functions for the HTML macros filetype plugin.
 #
-# Last Change: March 25, 2024
+# Last Change: March 30, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -93,23 +93,23 @@ export class HTMLMessages
 
   def Warn(message: any): void  # {{{1
     echohl WarningMsg
-    this.DoEcho(message, 'w')
+    this._DoEcho(message, 'w')
     echohl None
   enddef
 
   def Message(message: any): void  # {{{1
     echohl Todo
-    this.DoEcho(message, 'm')
+    this._DoEcho(message, 'm')
     echohl None
   enddef
 
   def Error(message: any): void  # {{{1
     echohl ErrorMsg
-    this.DoEcho(message, 'e')
+    this._DoEcho(message, 'e')
     echohl None
   enddef
 
-  def DoEcho(message: any, type: string): void # {{{1
+  def _DoEcho(message: any, type: string): void # {{{1
     var m: list<string>
     if type(message) == v:t_string
       m = [message]

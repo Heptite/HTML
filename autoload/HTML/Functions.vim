@@ -39,7 +39,7 @@ export enum SetIfUnsetR # {{{1
   success
 endenum
 
-enum MapCheckR # {{{1
+export enum MapCheckR # {{{1
   notfound,
   override,
   nooverride,
