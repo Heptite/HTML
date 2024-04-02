@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: March 31, 2024
+# Last Change: April 01, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -563,7 +563,7 @@ export class HTMLFunctions
     execute 'nnoremap <buffer> <silent> ' .. newmap
       .. " <ScriptCmd>b:htmlplugin.tagaction = '" .. newmap .. "'<CR>"
       .. '<ScriptCmd>b:htmlplugin.taginsert = ' .. insert .. "<CR>"
-      .. '<ScriptCmd>&operatorfunc = "function(b:htmlplugin.HTMLFunctionsObject.HTMLOpWrap)"<CR>g@'
+      .. '<ScriptCmd>&operatorfunc = "function(b:htmlplugin.HTMLFunctionsObject.OpWrap)"<CR>g@'
 
     b:htmlplugin.clear_mappings->add(':nunmap <buffer> ' .. newmap)
     newmap->maparg('n', false, true)->this.MappingsListAdd('n', internal)
@@ -764,7 +764,7 @@ export class HTMLFunctions
     return MapCheckR.notfound
   enddef
 
-  # HTMLOpWrap()  {{{1
+  # OpWrap()  {{{1
   #
   # Function set in 'operatorfunc' for mappings that take an operator:
   #
@@ -775,7 +775,7 @@ export class HTMLFunctions
   #  1 - String: The type of movement (visual mode) to be used
   # Return value:
   #  None
-  def HTMLOpWrap(type: string)
+  def OpWrap(type: string)
     this.HTMLVariablesObject.saveopts.selection = &selection
     &selection = 'inclusive'
 
