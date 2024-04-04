@@ -11,8 +11,9 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      March 28, 2024
+# Last Change:      April 02, 2024
 # Original Concept: Doug Renze
+# Requirements:     Vim 9.1.219 or later
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
 # efforts have been modified in this implementation.  My changes and additions
@@ -571,17 +572,17 @@ else
     # Save some menu stuff from the global menu.vim so we can reuse them
     # later--this makes sure updates from menu.vim make it into this codebase:
     var save_toolbar: dict<string>
-    save_toolbar.open      = menu_info('ToolBar.Open')['rhs']->escape('|')
-    save_toolbar.save      = menu_info('ToolBar.Save')['rhs']->escape('|')
-    save_toolbar.saveall   = menu_info('ToolBar.SaveAll')['rhs']->escape('|')
-    save_toolbar.replace   = menu_info('ToolBar.Replace')['rhs']->escape('|')
-    save_toolbar.replace_v = menu_info('ToolBar.Replace', 'v')['rhs']->escape('|')
-    save_toolbar.cut_v     = menu_info('ToolBar.Cut', 'v')['rhs']->escape('|')
-    save_toolbar.copy_v    = menu_info('ToolBar.Copy', 'v')['rhs']->escape('|')
-    save_toolbar.paste_n   = menu_info('ToolBar.Paste', 'n')['rhs']->escape('|')
-    save_toolbar.paste_c   = menu_info('ToolBar.Paste', 'c')['rhs']->escape('|')
-    save_toolbar.paste_i   = menu_info('ToolBar.Paste', 'i')['rhs']->escape('|')
-    save_toolbar.paste_v   = menu_info('ToolBar.Paste', 'v')['rhs']->escape('|')
+    save_toolbar.open      = menu_info('ToolBar.Open').rhs->escape('|')
+    save_toolbar.save      = menu_info('ToolBar.Save').rhs->escape('|')
+    save_toolbar.saveall   = menu_info('ToolBar.SaveAll').rhs->escape('|')
+    save_toolbar.replace   = menu_info('ToolBar.Replace').rhs->escape('|')
+    save_toolbar.replace_v = menu_info('ToolBar.Replace', 'v').rhs->escape('|')
+    save_toolbar.cut_v     = menu_info('ToolBar.Cut', 'v').rhs->escape('|')
+    save_toolbar.copy_v    = menu_info('ToolBar.Copy', 'v').rhs->escape('|')
+    save_toolbar.paste_n   = menu_info('ToolBar.Paste', 'n').rhs->escape('|')
+    save_toolbar.paste_c   = menu_info('ToolBar.Paste', 'c').rhs->escape('|')
+    save_toolbar.paste_i   = menu_info('ToolBar.Paste', 'i').rhs->escape('|')
+    save_toolbar.paste_v   = menu_info('ToolBar.Paste', 'v').rhs->escape('|')
 
     silent! unmenu ToolBar
     silent! unmenu! ToolBar
