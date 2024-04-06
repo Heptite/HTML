@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: April 02, 2024
+# Last Change: April 06, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -45,7 +45,7 @@ export class HTMLVariables
   static const HOMEPAGE  = 'https://christianrobinson.name/HTML/'
   static const COPYRIGHT = 'Copyright © 1998-2024 under the terms of the GPL3'
 
-  static const VERSION   = '1.4.0'
+  static const VERSION   = '1.5.0.testing'
 
   # Used by some of the functions to save then restore some options:
   var saveopts: dict<any> = {}
@@ -596,7 +596,7 @@ export class HTMLVariables
     '&vopf;':                 "\U1D567", '&wopf;':                 "\U1D568", '&xopf;':              "\U1D569",
     '&yopf;':                 "\U1D56A", '&zopf;':                 "\U1D56B"
   }  # }}}
-  static var DictCharToEntities: dict<string> = {}
+  static final DictCharToEntities: dict<string> = {}
 
   static const MODES = {  # {{{
     n: 'normal',
