@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: March 30, 2024
+# Last Change: April 06, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -29,7 +29,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-if get(b:htmlplugin, 'did_commands', false) == true
+if get(b:htmlplugin, 'did_commands', false) == true # {{{
   finish
 endif
 
@@ -56,8 +56,9 @@ command! -buffer -bar HTMLtemplate HTMLTemplate
 
 b:htmlplugin.did_commands = true
 
+# }}}
 
-if get(g:htmlplugin, 'did_commands', false) == true
+if get(g:htmlplugin, 'did_commands', false) == true # {{{
   finish
 endif
 
@@ -65,6 +66,8 @@ command! -bar HTMLAbout Functions.HTMLFunctions.About()
 command! -bar HTMLabout Functions.HTMLFunctions.About()
 
 g:htmlplugin.did_commands = true
+
+# }}}
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=2:comments=b\:#:commentstring=\ #\ %s:

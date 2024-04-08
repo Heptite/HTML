@@ -7,7 +7,7 @@ endif
 
 # Messaging functions for the HTML macros filetype plugin.
 #
-# Last Change: April 02, 2024
+# Last Change: April 07, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
