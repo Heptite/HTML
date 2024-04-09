@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: April 08, 2024
+# Last Change: April 09, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -54,8 +54,8 @@ endenum # }}}1
 
 export class HTMLFunctions
 
-  final HTMLVariablesObject: HTMLVariables.HTMLVariables
-  final HTMLMessagesObject: Messages.HTMLMessages
+  final HTMLVariablesO: HTMLVariables.HTMLVariables
+  final HTMLMessagesO: Messages.HTMLMessages
 
   def new() # {{{
     # Even though this is done in the ftplugin file, this file can be imported
@@ -67,8 +67,8 @@ export class HTMLFunctions
       b:htmlplugin = {}
     endif
 
-    this.HTMLVariablesObject = HTMLVariables.HTMLVariables.new()
-    this.HTMLMessagesObject = Messages.HTMLMessages.new()
+    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+    this.HTMLMessagesO = Messages.HTMLMessages.new()
   enddef # }}}
 
   # About()  {{{1
@@ -114,14 +114,14 @@ export class HTMLFunctions
     var variable = v
 
     if variable =~# '^l:'
-      printf(this.HTMLMessagesObject.E_NOLOCALVAR, F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NOLOCALVAR, F())->this.HTMLMessagesO.Error()
       return SetIfUnsetR.error
     elseif variable !~# '^[bgstvw]:'
       variable = 'g:' .. variable
     endif
 
     if args->len() == 0
-      printf(this.HTMLMessagesObject.E_NARGS, F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NARGS, F())->this.HTMLMessagesO.Error()
       return SetIfUnsetR.error
     elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict
         || type(args[0]) == v:t_number
@@ -177,7 +177,7 @@ export class HTMLFunctions
       return value != {}
     endif
 
-    printf(this.HTMLMessagesObject.E_BOOLTYPE, F(), value->typename())->this.HTMLMessagesObject.Error()
+    printf(this.HTMLMessagesO.E_BOOLTYPE, F(), value->typename())->this.HTMLMessagesO.Error()
     return false
   enddef
 
@@ -284,7 +284,7 @@ export class HTMLFunctions
       var char: string
 
       if c->strchars(1) != 1
-        printf(this.HTMLMessagesObject.E_ONECHAR, HTMLFunctions.F())->this.HTMLMessagesObject.Error()
+        printf(this.HTMLMessagesO.E_ONECHAR, HTMLFunctions.F())->this.HTMLMessagesO.Error()
         return c
       endif
 
@@ -368,23 +368,23 @@ export class HTMLFunctions
   def ToggleOptions(which: bool)
     try
       if which
-        if this.HTMLVariablesObject.saveopts->has_key('formatoptions')
-            && this.HTMLVariablesObject.saveopts.formatoptions != ''
-          &l:showmatch = this.HTMLVariablesObject.saveopts.showmatch
-          &l:indentexpr = this.HTMLVariablesObject.saveopts.indentexpr
-          &l:formatoptions = this.HTMLVariablesObject.saveopts.formatoptions
+        if this.HTMLVariablesO.saveopts->has_key('formatoptions')
+            && this.HTMLVariablesO.saveopts.formatoptions != ''
+          &l:showmatch = this.HTMLVariablesO.saveopts.showmatch
+          &l:indentexpr = this.HTMLVariablesO.saveopts.indentexpr
+          &l:formatoptions = this.HTMLVariablesO.saveopts.formatoptions
         endif
 
         # Restore the last visual mode if it was changed:
-        if this.HTMLVariablesObject.saveopts->get('visualmode', '') != ''
-          execute 'normal! gv' .. this.HTMLVariablesObject.saveopts.visualmode
-          this.HTMLVariablesObject.saveopts->remove('visualmode')
+        if this.HTMLVariablesO.saveopts->get('visualmode', '') != ''
+          execute 'normal! gv' .. this.HTMLVariablesO.saveopts.visualmode
+          this.HTMLVariablesO.saveopts->remove('visualmode')
         endif
       else
         if &l:formatoptions != ''
-          this.HTMLVariablesObject.saveopts.showmatch = &l:showmatch
-          this.HTMLVariablesObject.saveopts.indentexpr = &l:indentexpr
-          this.HTMLVariablesObject.saveopts.formatoptions = &l:formatoptions
+          this.HTMLVariablesO.saveopts.showmatch = &l:showmatch
+          this.HTMLVariablesO.saveopts.indentexpr = &l:indentexpr
+          this.HTMLVariablesO.saveopts.formatoptions = &l:formatoptions
         endif
         &l:showmatch = false
         &l:indentexpr = ''
@@ -394,12 +394,12 @@ export class HTMLFunctions
         # selections is handled properly (turn it into a character-wise
         # selection and exclude the leading indent):
         if visualmode() ==# 'V'
-          this.HTMLVariablesObject.saveopts.visualmode = visualmode()
+          this.HTMLVariablesO.saveopts.visualmode = visualmode()
           execute "normal! \<c-\>\<c-n>`<^v`>"
         endif
       endif
     catch
-      printf(this.HTMLMessagesObject.E_OPTEXCEPTION, v:exception)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_OPTEXCEPTION, v:exception)->this.HTMLMessagesO.Error()
     endtry
   enddef
 
@@ -425,27 +425,27 @@ export class HTMLFunctions
   #  Boolean: Whether a mapping was defined
   def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, internal: bool = false): bool
     if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-      printf(this.HTMLMessagesObject.E_NOMAPLEAD, F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NOMAPLEAD, F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if !g:htmlplugin->has_key('entity_map_leader') && map =~? '^<elead>'
-      printf(this.HTMLMessagesObject.E_NOEMAPLEAD, F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NOEMAPLEAD, F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if map == '' || map ==? '<lead>' || map ==? '<elead>'
-      printf(this.HTMLMessagesObject.E_EMPTYLHS, F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_EMPTYLHS, F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if arg == ''
-      printf(this.HTMLMessagesObject.E_EMPTYRHS, F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_EMPTYRHS, F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if cmd =~# '^no' || cmd =~# '^map$'
-      printf(this.HTMLMessagesObject.E_NOMODE, F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NOMODE, F())->this.HTMLMessagesO.Error()
       return false
     endif
 
@@ -476,7 +476,7 @@ export class HTMLFunctions
       # If 'selection' is "exclusive" all the visual mode mappings need to
       # behave slightly differently:
       newarg = newarg->substitute('`>a\C', '`>i\\<C-R>='
-        .. 'b:htmlplugin.HTMLFunctionsObject.VisualInsertPos()\\<CR>', 'g')
+        .. 'b:htmlplugin.HTMLFunctionsO.VisualInsertPos()\\<CR>', 'g')
 
       if !opts->has_key('extra') || opts.extra
         b:htmlplugin.maps.v[newmap] = [newarg, {}]
@@ -490,23 +490,23 @@ export class HTMLFunctions
         execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
       elseif opts->get('insert', false) && opts->has_key('reindent')
         execute cmd .. ' <buffer> <silent> ' .. newmap
-          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsObject.DoMap("v", "' .. newmap_escaped .. '")<CR>'
+          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "' .. newmap_escaped .. '")<CR>'
 
         b:htmlplugin.maps.v[newmap][1]['reindent'] = opts.reindent
         b:htmlplugin.maps.v[newmap][1]['insert'] = opts.insert
       elseif opts->get('insert', false)
         execute cmd .. ' <buffer> <silent> ' .. newmap
-          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsObject.DoMap("v", "' .. newmap_escaped .. '")<CR>'
+          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "' .. newmap_escaped .. '")<CR>'
 
         b:htmlplugin.maps.v[newmap][1]['insert'] = opts.insert
       elseif opts->has_key('reindent')
         execute cmd .. ' <buffer> <silent> ' .. newmap
-          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsObject.DoMap("v", "' .. newmap_escaped .. '")<CR>'
+          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "' .. newmap_escaped .. '")<CR>'
 
         b:htmlplugin.maps.v[newmap][1]['reindent'] = opts.reindent
       else
         execute cmd .. ' <buffer> <silent> ' .. newmap
-          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsObject.DoMap("v", "' .. newmap_escaped .. '")<CR>'
+          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "' .. newmap_escaped .. '")<CR>'
       endif
     elseif mode == 'i'
       if opts->has_key('extra') && ! opts.extra
@@ -517,7 +517,7 @@ export class HTMLFunctions
           b:htmlplugin.maps.i[newmap][1]['expr'] = opts.expr
         endif
         execute cmd .. ' <buffer> <silent> <expr> ' .. newmap
-          .. ' b:htmlplugin.HTMLFunctionsObject.DoMap("i", "' .. newmap_escaped .. '")'
+          .. ' b:htmlplugin.HTMLFunctionsO.DoMap("i", "' .. newmap_escaped .. '")'
       endif
     else
       execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
@@ -552,12 +552,12 @@ export class HTMLFunctions
   #  Boolean: Whether a mapping was defined
   def Mapo(map: string, insert: bool = false, internal: bool = false): bool
     if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-      printf(this.HTMLMessagesObject.E_NOMAPLEAD, F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NOMAPLEAD, F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if map == '' || map ==? "<lead>"
-      printf(this.HTMLMessagesObject.E_EMPTYLHS, F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_EMPTYLHS, F())->this.HTMLMessagesO.Error()
       return false
     endif
 
@@ -572,7 +572,7 @@ export class HTMLFunctions
     execute 'nnoremap <buffer> <silent> ' .. newmap
       .. " <ScriptCmd>b:htmlplugin.tagaction = '" .. newmap .. "'<CR>"
       .. '<ScriptCmd>b:htmlplugin.taginsert = ' .. insert .. "<CR>"
-      .. '<ScriptCmd>&operatorfunc = "function(b:htmlplugin.HTMLFunctionsObject.OpWrap)"<CR>g@'
+      .. '<ScriptCmd>&operatorfunc = "function(b:htmlplugin.HTMLFunctionsO.OpWrap)"<CR>g@'
 
     b:htmlplugin.clear_mappings->add(':nunmap <buffer> ' .. newmap)
     newmap->maparg('n', false, true)->this.MappingsListAdd('n', internal)
@@ -645,7 +645,7 @@ export class HTMLFunctions
     try
       execute 'keepjumps :' .. range .. 'normal! =='
     catch
-      printf(this.HTMLMessagesObject.E_INDENTEXCEPT, v:exception)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_INDENTEXCEPT, v:exception)->this.HTMLMessagesO.Error()
     finally
       setcharpos('.', charpos)
     endtry
@@ -683,7 +683,7 @@ export class HTMLFunctions
     endif
 
     if mode->strlen() != 1
-      printf(this.HTMLMessagesObject.E_ONECHAR, HTMLFunctions.F())->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_ONECHAR, HTMLFunctions.F())->this.HTMLMessagesO.Error()
       return ''
     endif
 
@@ -695,7 +695,7 @@ export class HTMLFunctions
       try
         execute 'silent normal! ' .. evalstr
       catch
-        printf(this.HTMLMessagesObject.E_MAPEXCEPT, v:exception, map)->this.HTMLMessagesObject.Error()
+        printf(this.HTMLMessagesO.E_MAPEXCEPT, v:exception, map)->this.HTMLMessagesO.Error()
       endtry
 
       this.ToggleOptions(true)
@@ -714,7 +714,7 @@ export class HTMLFunctions
         startinsert
       endif
     else
-      printf(this.HTMLMessagesObject.E_INVALIDARG, F(), mode)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_INVALIDARG, F(), mode)->this.HTMLMessagesO.Error()
     endif
 
     return ''
@@ -765,7 +765,7 @@ export class HTMLFunctions
       if this.BoolVar('g:htmlplugin.no_map_override') && internal
         return MapCheckR.nooverride
       else
-        printf(this.HTMLMessagesObject.W_MAPOVERRIDE, map, HTMLVariables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->this.HTMLMessagesObject.Warn()
+        printf(this.HTMLMessagesO.W_MAPOVERRIDE, map, HTMLVariables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->this.HTMLMessagesO.Warn()
         return MapCheckR.override
       endif
     endif
@@ -785,7 +785,7 @@ export class HTMLFunctions
   # Return value:
   #  None
   def OpWrap(type: string)
-    this.HTMLVariablesObject.saveopts.selection = &selection
+    this.HTMLVariablesO.saveopts.selection = &selection
     &selection = 'inclusive'
 
     try
@@ -797,9 +797,9 @@ export class HTMLFunctions
         execute 'normal `[v`]' .. b:htmlplugin.tagaction
       endif
     catch
-      printf(this.HTMLMessagesObject.W_CAUGHTERR, v:exception)->this.HTMLMessagesObject.Warn()
+      printf(this.HTMLMessagesO.W_CAUGHTERR, v:exception)->this.HTMLMessagesO.Warn()
     finally
-      &selection = this.HTMLVariablesObject.saveopts.selection
+      &selection = this.HTMLVariablesO.saveopts.selection
     endtry
 
     if b:htmlplugin.taginsert
@@ -853,7 +853,7 @@ export class HTMLFunctions
       if g:htmlplugin->has_key('save_clipboard')
         &clipboard = g:htmlplugin.save_clipboard
       else
-        printf(this.HTMLMessagesObject.E_NOCLIPBOARD, F())->this.HTMLMessagesObject.Error()
+        printf(this.HTMLMessagesO.E_NOCLIPBOARD, F())->this.HTMLMessagesO.Error()
         return false
       endif
     else
@@ -905,7 +905,7 @@ export class HTMLFunctions
     elseif type(s) == v:t_string
       str = [s]
     else
-      printf(this.HTMLMessagesObject.E_INVALIDTYPE, typename(str))->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_INVALIDTYPE, typename(str))->this.HTMLMessagesO.Error()
       return 0
     endif
 
@@ -921,7 +921,7 @@ export class HTMLFunctions
     elseif case =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
       newstr = str->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g'))
     else
-      printf(this.HTMLMessagesObject.W_INVALIDCASE, F(), case)->this.HTMLMessagesObject.Warn()
+      printf(this.HTMLMessagesO.W_INVALIDCASE, F(), case)->this.HTMLMessagesO.Warn()
       newstr = str->this.ConvertCase('lowercase')
     endif
 
@@ -1004,7 +1004,7 @@ export class HTMLFunctions
     var column: number
 
     if ! b:htmlplugin.smarttags->has_key(newtag)
-      printf(this.HTMLMessagesObject.E_NOSMART, F(), newtag)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NOSMART, F(), newtag)->this.HTMLMessagesO.Error()
       return ''
     endif
 
@@ -1082,7 +1082,7 @@ export class HTMLFunctions
     endif
 
     if newrows < 1 || newcolumns < 1
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_ZEROROWSCOLS)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_ZEROROWSCOLS)
       return false
     endif
 
@@ -1209,7 +1209,7 @@ export class HTMLFunctions
     enddef  # }}}2
 
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOSOURCED)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOSOURCED)
       return false
     endif
 
@@ -1220,12 +1220,12 @@ export class HTMLFunctions
           this.MenuControl('disable')
         endif
       else
-        this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_DISABLED)
+        this.HTMLMessagesO.Error(this.HTMLMessagesO.E_DISABLED)
         return false
       endif
     elseif dowhat =~? '^\%(e\%(nable\)\?\|on\|true\|1\)$'
       if this.BoolVar('b:htmlplugin.did_mappings')
-        this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_ENABLED)
+        this.HTMLMessagesO.Error(this.HTMLMessagesO.E_ENABLED)
       else
         this.ReadEntities(false, true)
         this.ReadTags(false, true)
@@ -1236,7 +1236,7 @@ export class HTMLFunctions
         this.MenuControl('enable')
       endif
     else
-      printf(this.HTMLMessagesObject.E_INVALIDARG, F(), dowhat)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_INVALIDARG, F(), dowhat)->this.HTMLMessagesO.Error()
       return false
     endif
 
@@ -1256,7 +1256,7 @@ export class HTMLFunctions
   #  Boolean: False if an error occurred, true otherwise
   def MenuControl(which: string = 'detect'): bool
     if which !~? '^disable$\|^enable$\|^detect$'
-      printf(this.HTMLMessagesObject.E_INVALIDARG, F(), which)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_INVALIDARG, F(), which)->this.HTMLMessagesO.Error()
       return false
     endif
 
@@ -1313,7 +1313,7 @@ export class HTMLFunctions
   #  String: The converted color
   def ToRGB(color: string, percent: bool = false): string
     if color !~ '^#\x\{6}$'
-      printf(this.HTMLMessagesObject.E_COLOR, F(), color)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_COLOR, F(), color)->this.HTMLMessagesO.Error()
       return ''
     endif
 
@@ -1337,7 +1337,7 @@ export class HTMLFunctions
   #  None
   def ColorChooser(how: string = 'i'): void
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOSOURCED)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOSOURCED)
       return
     endif
 
@@ -1491,7 +1491,7 @@ export class HTMLFunctions
     var found: list<string> = findfile(inc, path, -1)
 
     if len(found) <= 0
-      printf(this.HTMLMessagesObject.E_NOTFOUND, inc)->this.HTMLMessagesObject.Warn()
+      printf(this.HTMLMessagesO.E_NOTFOUND, inc)->this.HTMLMessagesO.Warn()
       return []
     endif
            
@@ -1532,7 +1532,7 @@ export class HTMLFunctions
       if template->expand()->filereadable()
         template->readfile()->this.TokenReplace(fnamemodify(template, ':p:h'))->append(0)
       else
-        printf(this.HTMLMessagesObject.E_TEMPLATE, template)->this.HTMLMessagesObject.Error()
+        printf(this.HTMLMessagesO.E_TEMPLATE, template)->this.HTMLMessagesO.Error()
         return false
       endif
     else
@@ -1570,8 +1570,8 @@ export class HTMLFunctions
   #  Boolean - Whether the cursor is not on an insert point.
   def Template(file: string = ''): bool
     var ret = false
-    this.HTMLVariablesObject.saveopts.ruler = &ruler
-    this.HTMLVariablesObject.saveopts.showcmd = &showcmd
+    this.HTMLVariablesO.saveopts.ruler = &ruler
+    this.HTMLVariablesO.saveopts.showcmd = &showcmd
     set noruler noshowcmd
 
     if line('$') == 1 && getline(1) == ''
@@ -1586,8 +1586,8 @@ export class HTMLFunctions
       endif
     endif
 
-    &ruler = this.HTMLVariablesObject.saveopts.ruler
-    &showcmd = this.HTMLVariablesObject.saveopts.showcmd
+    &ruler = this.HTMLVariablesO.saveopts.ruler
+    &showcmd = this.HTMLVariablesO.saveopts.showcmd
 
     return ret
   enddef
@@ -1889,7 +1889,7 @@ export class HTMLFunctions
     var json_data: list<any> = []
 
     if json_files->len() == 0
-      printf(this.HTMLMessagesObject.E_NOTFOUNDRTP, F(), file)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NOTFOUNDRTP, F(), file)->this.HTMLMessagesO.Error()
       return []
     endif
 
@@ -1897,7 +1897,7 @@ export class HTMLFunctions
       if f->filereadable()
         json_data->extend(f->readfile()->join("\n")->json_decode())
       else
-        printf(this.HTMLMessagesObject.E_NOREAD, F(), f)->this.HTMLMessagesObject.Error()
+        printf(this.HTMLMessagesO.E_NOREAD, F(), f)->this.HTMLMessagesO.Error()
       endif
     endfor
 
@@ -1922,7 +1922,7 @@ export class HTMLFunctions
     var json_data = this.ReadJsonFile(file)
 
     if json_data == []
-      printf(this.HTMLMessagesObject.E_NOTAG)
+      printf(this.HTMLMessagesO.E_NOTAG)
       return false
     endif
 
@@ -2019,7 +2019,7 @@ export class HTMLFunctions
           # actually defined, don't set the menu items for this mapping either:
           if did_mappings == 0
             if maplhs != ''
-              this.HTMLMessagesObject.Warn('No mapping(s) were defined for "' .. maplhs .. '".'
+              this.HTMLMessagesO.Warn('No mapping(s) were defined for "' .. maplhs .. '".'
                 .. (json->has_key('menu') ? '' : ' Skipping menu item.'))
             endif
             continue
@@ -2067,7 +2067,7 @@ export class HTMLFunctions
           endif
 
           if did_menus == 0
-              printf(this.HTMLMessagesObject.W_NOMENU, json.menu[1][-1])->this.HTMLMessagesObject.Warn()
+              printf(this.HTMLMessagesO.W_NOMENU, json.menu[1][-1])->this.HTMLMessagesO.Warn()
           endif
         endif
     endfor
@@ -2091,13 +2091,13 @@ export class HTMLFunctions
     var json_data = this.ReadJsonFile(file)
 
     if json_data == []
-      printf(this.HTMLMessagesObject.E_NOENTITY)
+      printf(this.HTMLMessagesO.E_NOENTITY)
       return false
     endif
 
     for json in json_data
       if json->len() != 4 || json[2]->type() != v:t_list
-        printf(this.HTMLMessagesObject.E_JSON, F(), file, json->string())->this.HTMLMessagesObject.Error()
+        printf(this.HTMLMessagesO.E_JSON, F(), file, json->string())->this.HTMLMessagesO.Error()
         rval = false
         continue
       endif

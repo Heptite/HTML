@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: April 02, 2024
+# Last Change: April 09, 2024
 #
 # Requirements:
 #   Vim 9.1.219 or later
@@ -37,10 +37,10 @@ import autoload 'HTML/Messages.vim'
 
 export class MangleImageTag
 
-  var HTMLMessagesObject: Messages.HTMLMessages
+  var HTMLMessagesO: Messages.HTMLMessages
 
   def new()
-    this.HTMLMessagesObject = Messages.HTMLMessages.new()
+    this.HTMLMessagesO = Messages.HTMLMessages.new()
   enddef
 
   def Update(): bool  # {{{1
@@ -55,7 +55,7 @@ export class MangleImageTag
     line = getline(start_linenr)
 
     if line !~? '<img'
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOIMG) 
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOIMG) 
       return false
     endif
 
@@ -80,7 +80,7 @@ export class MangleImageTag
     tag = tag->strpart(0, tagend)
 
     if tag[0] != '<' || col > strlen(savestart .. tag) - 1
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOIMG)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOIMG)
       return false
     endif
 
@@ -94,18 +94,18 @@ export class MangleImageTag
         case = true
       endif
     else
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOSRC)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOSRC)
       return false
     endif
 
     if src == ''
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_BLANK)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_BLANK)
       return false
     elseif !src->filereadable()
       if filereadable(expand('%:p:h') .. '/' .. src)
         src = expand('%:p:h') .. '/' .. src
       else
-        printf(this.HTMLMessagesObject.E_NOIMAGE, src)->this.HTMLMessagesObject.Error()
+        printf(this.HTMLMessagesO.E_NOIMAGE, src)->this.HTMLMessagesO.Error()
         return false
       endif
     endif
@@ -148,10 +148,10 @@ export class MangleImageTag
     var buf: list<number>
 
     if ['png', 'gif', 'jpg', 'jpeg', 'tif', 'tiff', 'webp']->match(ext) < 0
-      printf(this.HTMLMessagesObject.E_UNSUPPORTED, ext)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_UNSUPPORTED, ext)->this.HTMLMessagesO.Error()
       return []
     elseif !image->filereadable()
-      printf(this.HTMLMessagesObject.E_NOIMGREAD, image)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NOIMGREAD, image)->this.HTMLMessagesO.Error()
       return []
     endif
 
@@ -188,7 +188,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_GIF)
+    this.HTMLMessagesO.Error(this.HTMLMessagesO.E_GIF)
 
     return []
   enddef
@@ -208,7 +208,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_JPG)
+    this.HTMLMessagesO.Error(this.HTMLMessagesO.E_JPG)
 
     return []
   enddef
@@ -228,7 +228,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_PNG)
+    this.HTMLMessagesO.Error(this.HTMLMessagesO.E_PNG)
 
     return []
   enddef
@@ -249,12 +249,12 @@ export class MangleImageTag
       #echomsg "TIFF is Big Endian"
       bigendian = true
     else
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_TIFFENDIAN)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_TIFFENDIAN)
       return []
     endif
 
     if (bigendian ? buf[2 : 3]->this.Vec() : buf[2 : 3]->reverse()->this.Vec()) != 42
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_TIFFID)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_TIFFID)
       return []
     endif
 
@@ -286,7 +286,7 @@ export class MangleImageTag
       endif
     endwhile
 
-    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_TIFF)
+    this.HTMLMessagesO.Error(this.HTMLMessagesO.E_TIFF)
 
     return []
   enddef
@@ -296,7 +296,7 @@ export class MangleImageTag
     var len = buf->len()
 
     if buf[0 : 11]->join(' ') !~ '^82 73 70 70\%( \d\+\)\{4} 87 69 66 80'
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_WEBP)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_WEBP)
       return []
     endif
 
@@ -314,7 +314,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_WEBP)
+    this.HTMLMessagesO.Error(this.HTMLMessagesO.E_WEBP)
 
     return []
   enddef

@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: April 02, 2024
+# Last Change: April 09, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -96,7 +96,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
   var MacBrowsersExist = ['default']
 
   def new() # {{{
-    this.HTMLMessagesObject = Messages.HTMLMessages.new()
+    this.HTMLMessagesO = Messages.HTMLMessages.new()
 
     if (has('mac') == 1) || (has('macunix') == 1)
       return
@@ -170,7 +170,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
 
     else
 
-      this.HTMLMessagesObject.Warn('Your OS is not recognized, browser controls will not work.')
+      this.HTMLMessagesO.Warn('Your OS is not recognized, browser controls will not work.')
 
       this.Browsers = {}
       this.TextmodeBrowsers = []
@@ -254,18 +254,18 @@ export class BrowserLauncher extends Functions.HTMLFunctions
     var as_msg: string
 
     if (!this.MacExists(app) && app !=? 'default')
-      printf(this.HTMLMessagesObject.E_NOAPP, app)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_NOAPP, app)->this.HTMLMessagesO.Error()
       return false
     endif
 
     if url != ''
       file = url
     elseif expand('%') == ''
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOFILE)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOFILE)
       return false
     else
       if &modified
-        this.HTMLMessagesObject.Warn(this.HTMLMessagesObject.W_UNSAVED)
+        this.HTMLMessagesO.Warn(this.HTMLMessagesO.W_UNSAVED)
       endif
       file = expand('%:p')
     endif
@@ -285,10 +285,10 @@ export class BrowserLauncher extends Functions.HTMLFunctions
       if new != Behavior.default && use_AS
         if new == Behavior.newtab
           torn = 't'
-          this.HTMLMessagesObject.Message('Opening file in new Safari tab...')
+          this.HTMLMessagesO.Message('Opening file in new Safari tab...')
         else
           torn = 'n'
-          this.HTMLMessagesObject.Message('Opening file in new Safari window...')
+          this.HTMLMessagesO.Message('Opening file in new Safari window...')
         endif
         script = '-e "tell application \"safari\"" '
           .. '-e "activate" '
@@ -311,7 +311,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
           as_msg->confirm('&Dismiss', 1, 'Error')
         endif
 
-        this.HTMLMessagesObject.Message('Opening file in Safari...')
+        this.HTMLMessagesO.Message('Opening file in Safari...')
         command = '/usr/bin/open -a safari ' .. file->shellescape()
       endif
     endif "}}}
@@ -321,11 +321,11 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         if new == Behavior.newtab
 
           torn = 't'
-          this.HTMLMessagesObject.Message('Opening file in new Firefox tab...')
+          this.HTMLMessagesO.Message('Opening file in new Firefox tab...')
         else
 
           torn = 'n'
-          this.HTMLMessagesObject.Message('Opening file in new Firefox window...')
+          this.HTMLMessagesO.Message('Opening file in new Firefox window...')
         endif
         script = '-e "tell application \"firefox\"" '
           .. '-e "activate" '
@@ -348,7 +348,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
           as_msg->confirm('&Dismiss', 1, 'Error')
 
         endif
-        this.HTMLMessagesObject.Message('Opening file in Firefox...')
+        this.HTMLMessagesO.Message('Opening file in Firefox...')
         command = '/usr/bin/open -a firefox ' .. file->shellescape()
       endif
     endif # }}}
@@ -358,11 +358,11 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         if new == Behavior.newtab
 
           torn = 't'
-          this.HTMLMessagesObject.Message('Opening file in new Opera tab...')
+          this.HTMLMessagesO.Message('Opening file in new Opera tab...')
         else
 
           torn = 'n'
-          this.HTMLMessagesObject.Message('Opening file in new Opera window...')
+          this.HTMLMessagesO.Message('Opening file in new Opera window...')
         endif
         script = '-e "tell application \"Opera\"" '
           .. '-e "activate" '
@@ -383,18 +383,18 @@ export class BrowserLauncher extends Functions.HTMLFunctions
           as_msg->confirm('&Dismiss', 1, 'Error')
 
         endif
-        this.HTMLMessagesObject.Message('Opening file in Opera...')
+        this.HTMLMessagesO.Message('Opening file in Opera...')
         command = '/usr/bin/open -a opera ' .. file->shellescape()
       endif
     endif # }}}
 
     if (app ==? 'default')
-      this.HTMLMessagesObject.Message('Opening file in default browser...')
+      this.HTMLMessagesO.Message('Opening file in default browser...')
       command = '/usr/bin/open ' .. file->shellescape()
     endif
 
     if (command == '')
-      this.HTMLMessagesObject.Message('Opening ' .. app->substitute('^.', '\U&', '') .. '...')
+      this.HTMLMessagesO.Message('Opening ' .. app->substitute('^.', '\U&', '') .. '...')
       command = '/usr/bin/open -a ' .. app .. ' ' .. file->shellescape()
     endif
 
@@ -456,7 +456,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
     var file: string
 
     if !this.UnixWindowsExists(which)
-      printf(this.HTMLMessagesObject.E_UNKNOWN, which)->this.HTMLMessagesObject.Error()
+      printf(this.HTMLMessagesO.E_UNKNOWN, which)->this.HTMLMessagesO.Error()
       return false
     endif
 
@@ -468,7 +468,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
       file = url
     elseif expand('%') != ''
       if &modified
-        this.HTMLMessagesObject.Warn(this.HTMLMessagesObject.W_UNSAVED)
+        this.HTMLMessagesO.Warn(this.HTMLMessagesO.W_UNSAVED)
       endif
 
       # If we're on Cygwin and not using a text mode browser, translate the file
@@ -478,7 +478,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         .. ((has('win32unix') == 1) && match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') < 0 ?
           system('cygpath -w ' .. expand('%:p')->shellescape())->trim() : expand('%:p'))
     else
-      this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_NOFILE)
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOFILE)
       return false
     endif
 
@@ -486,7 +486,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         && match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') < 0
         && has('win32unix') == 0
       if this.TextmodeBrowsers == []
-        this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_DISPLAY)
+        this.HTMLMessagesO.Error(this.HTMLMessagesO.E_DISPLAY)
         return false
       else
         which = this.TextmodeBrowsers[0]
@@ -495,7 +495,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
 
     # Have to handle the textmode browsers different than the GUI browsers:
     if match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') >= 0 
-      this.HTMLMessagesObject.Message('Launching ' .. this.Browsers[which][0] .. '...')
+      this.HTMLMessagesO.Message('Launching ' .. this.Browsers[which][0] .. '...')
 
       var xterm = system('which xterm')->trim()
       if v:shell_error != 0
@@ -511,9 +511,9 @@ export class BrowserLauncher extends Functions.HTMLFunctions
           return true
         else
           if donew == Behavior.newwindow
-            this.HTMLMessagesObject.Error(printf(this.HTMLMessagesObject.E_XTERM, this.Browsers[which][0]))
+            this.HTMLMessagesO.Error(printf(this.HTMLMessagesO.E_XTERM, this.Browsers[which][0]))
           else
-            this.HTMLMessagesObject.Error(printf(this.HTMLMessagesObject.E_TERM, this.Browsers[which][0]))
+            this.HTMLMessagesO.Error(printf(this.HTMLMessagesO.E_TERM, this.Browsers[which][0]))
           endif
 
           return false
@@ -523,7 +523,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         execute '!' .. this.Browsers[which][1] .. ' ' .. file->shellescape()
 
         if v:shell_error
-          printf(this.HTMLMessagesObject.E_LAUNCH, this.Browsers[which][0])->this.HTMLMessagesObject.Error()
+          printf(this.HTMLMessagesO.E_LAUNCH, this.Browsers[which][0])->this.HTMLMessagesO.Error()
           return false
         endif
 
@@ -536,7 +536,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
     if command == ''
       
       if donew == Behavior.newtab
-        this.HTMLMessagesObject.Message('Opening new ' .. this.Browsers[which][0]->Cap()
+        this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->Cap()
           .. ' tab...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
@@ -546,7 +546,7 @@ export class BrowserLauncher extends Functions.HTMLFunctions
             .. file->shellescape() .. ' ' .. this.Browsers[which][3]  .. ' &"'
         endif
       elseif donew != Behavior.default
-        this.HTMLMessagesObject.Message('Opening new ' .. this.Browsers[which][0]->Cap()
+        this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->Cap()
           .. ' window...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
@@ -557,9 +557,9 @@ export class BrowserLauncher extends Functions.HTMLFunctions
         endif
       else
         if which == 'default'
-          this.HTMLMessagesObject.Message('Invoking system default browser...')
+          this.HTMLMessagesO.Message('Invoking system default browser...')
         else
-          this.HTMLMessagesObject.Message('Invoking ' .. this.Browsers[which][0]->Cap() .. '...')
+          this.HTMLMessagesO.Message('Invoking ' .. this.Browsers[which][0]->Cap() .. '...')
         endif
 
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
@@ -584,15 +584,15 @@ export class BrowserLauncher extends Functions.HTMLFunctions
       output = system(command)
 
       if v:shell_error
-        printf(this.HTMLMessagesObject.E_COMMAND, command)->this.HTMLMessagesObject.Error()
-        this.HTMLMessagesObject.Error(output)
+        printf(this.HTMLMessagesO.E_COMMAND, command)->this.HTMLMessagesO.Error()
+        this.HTMLMessagesO.Error(output)
         return false
       endif
 
       return true
     endif
 
-    this.HTMLMessagesObject.Error(this.HTMLMessagesObject.E_FINAL)
+    this.HTMLMessagesO.Error(this.HTMLMessagesO.E_FINAL)
     return false
   enddef
 

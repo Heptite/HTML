@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: April 06, 2024
+# Last Change: April 09, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -36,22 +36,22 @@ endif
 
 import autoload 'HTML/Functions.vim'
 
-var HTMLFunctionsObject = Functions.HTMLFunctions.new()
+var HTMLFunctionsO = Functions.HTMLFunctions.new()
 
-command! -buffer -bar -nargs=1 HTMLplugin HTMLFunctionsObject.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 HTMLPlugin HTMLFunctionsObject.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 HTMLmappings HTMLFunctionsObject.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 HTMLMappings HTMLFunctionsObject.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLplugin HTMLFunctionsO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLPlugin HTMLFunctionsO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLmappings HTMLFunctionsO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLMappings HTMLFunctionsO.PluginControl(<f-args>)
 if exists(':HTML') != 2
-  command! -buffer -bar -nargs=1 HTML HTMLFunctionsObject.PluginControl(<f-args>)
+  command! -buffer -bar -nargs=1 HTML HTMLFunctionsO.PluginControl(<f-args>)
 endif
 
-command! -buffer -bar -nargs=? ColorChooser HTMLFunctionsObject.ColorChooser(<f-args>)
+command! -buffer -bar -nargs=? ColorChooser HTMLFunctionsO.ColorChooser(<f-args>)
 if exists(':CC') != 2
-  command! -buffer -bar -nargs=? CC HTMLFunctionsObject.ColorChooser(<f-args>)
+  command! -buffer -bar -nargs=? CC HTMLFunctionsO.ColorChooser(<f-args>)
 endif
 
-command! -buffer -bar HTMLTemplate if HTMLFunctionsObject.Template() | startinsert | endif
+command! -buffer -bar HTMLTemplate if HTMLFunctionsO.Template() | startinsert | endif
 command! -buffer -bar HTMLtemplate HTMLTemplate
 
 b:htmlplugin.did_commands = true
