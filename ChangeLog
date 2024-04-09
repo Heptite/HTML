@@ -1,3 +1,123 @@
+Tue, 9 Apr 2024 16:23:24 -0600 Christian J. Robinson
+ * Update version
+
+Tue, 9 Apr 2024 16:20:00 -0600 Christian J. Robinson
+ * Shorten object variable names
+
+Mon, 8 Apr 2024 18:17:29 -0600 Christian J. Robinson
+ * Make sure the buffer and global plugin vars are set
+
+Mon, 8 Apr 2024 17:28:01 -0600 Christian J. Robinson
+ * fold sections for commands
+
+Sat, 6 Apr 2024 12:58:24 -0600 Christian J. Robinson
+ * use final where appropriate
+
+Wed, 3 Apr 2024 18:32:54 -0600 Christian J. Robinson
+ * small tweaks
+
+Mon, 1 Apr 2024 18:35:49 -0600 Christian J. Robinson
+ * Remove unnecessary "HTML" from OpWrap() name
+
+Sun, 31 Mar 2024 14:37:12 -0600 Christian J. Robinson
+ * enum for what to do with ToggleClipboard()
+
+Sun, 31 Mar 2024 14:15:54 -0600 Christian J. Robinson
+ * Update Vim version check
+
+Thu, 28 Mar 2024 11:43:02 -0600 Christian J. Robinson
+ * Start using enums instead of numbers
+
+Wed, 27 Mar 2024 20:10:55 -0600 Christian J. Robinson
+ * variables.vim -> Variables.vim
+
+Wed, 27 Mar 2024 20:06:16 -0600 Christian J. Robinson
+ * change case of functions file
+
+Tue, 26 Mar 2024 16:52:01 -0600 Christian J. Robinson
+ * Separate out messaging code
+
+Mon, 25 Mar 2024 17:15:12 -0600 Christian J. Robinson
+ * fix modes
+
+Sun, 24 Mar 2024 19:35:26 -0600 Christian J. Robinson
+ * Code tweaks
+
+Sun, 24 Mar 2024 11:38:49 -0600 Christian J. Robinson
+ * syntax tweaks for readability
+
+Sat, 23 Mar 2024 10:11:43 -0600 Christian J. Robinson
+ * ...
+
+Fri, 22 Mar 2024 16:25:47 -0600 Christian J. Robinson
+ * ...
+
+Thu, 21 Mar 2024 18:38:12 -0600 Christian J. Robinson
+ * document more functions
+
+Thu, 21 Mar 2024 18:35:45 -0600 Christian J. Robinson
+ * document more functions
+
+Thu, 21 Mar 2024 17:17:17 -0600 Christian J. Robinson
+ * document more functions, etc.
+
+Wed, 20 Mar 2024 21:14:45 -0600 Christian J. Robinson
+ * Improve messaging handling code
+
+Wed, 20 Mar 2024 17:36:02 -0600 Christian J. Robinson
+ * tweak error/warning/message handler
+
+Tue, 19 Mar 2024 20:42:36 -0600 Christian J. Robinson
+ * refactoring, documentation improvements
+
+Tue, 19 Mar 2024 10:58:02 -0600 Christian J. Robinson
+ * Small tweak
+
+Mon, 18 Mar 2024 21:57:42 -0600 Christian J. Robinson
+ * Code tweaks
+
+Mon, 18 Mar 2024 18:10:53 -0600 Christian J. Robinson
+ * Make DoMap() less noisy
+
+Sun, 17 Mar 2024 14:19:04 -0600 Christian J. Robinson
+ * Color selector bug crept in
+
+Sun, 17 Mar 2024 13:56:30 -0600 Christian J. Robinson
+ * Slight code optimization and cleanup
+
+Sun, 17 Mar 2024 07:31:37 -0600 Christian J. Robinson
+ * Simplify data structures
+
+Thu, 14 Mar 2024 17:22:37 -0600 Christian J. Robinson
+ * Allow include files in the template
+
+Mon, 11 Mar 2024 19:40:41 -0600 Christian J. Robinson
+ * Improve template token logic, allow buffer-local config options
+
+Mon, 11 Mar 2024 17:57:45 -0600 Christian J. Robinson
+ * Revise documentation, add authorurl template token
+
+Mon, 11 Mar 2024 17:48:02 -0600 Christian J. Robinson
+ * ...
+
+Mon, 11 Mar 2024 16:54:07 -0600 Christian J. Robinson
+ * Update Vim version requirement tests
+
+Mon, 11 Mar 2024 15:56:40 -0600 Christian J. Robinson
+ * MangleImageTag code is now a class
+
+Mon, 11 Mar 2024 14:03:06 -0600 Christian J. Robinson
+ * Begin to make BrowserLauncher code into an object
+
+Mon, 11 Mar 2024 12:40:02 -0600 Christian J. Robinson
+ * Testing of objects
+
+Sun, 10 Mar 2024 12:47:51 -0600 Christian J. Robinson
+ * Internal tweaks
+
+Mon, 26 Feb 2024 11:24:54 -0700 Christian J. Robinson
+ * update README
+
 Mon, 26 Feb 2024 11:18:54 -0700 Christian J. Robinson
  * Small tweaks and fixes
 
