@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: April 02, 2024
+# Last Change: April 08, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -54,10 +54,19 @@ endenum # }}}1
 
 export class HTMLFunctions
 
-  var HTMLVariablesObject: HTMLVariables.HTMLVariables
-  var HTMLMessagesObject: Messages.HTMLMessages
+  final HTMLVariablesObject: HTMLVariables.HTMLVariables
+  final HTMLMessagesObject: Messages.HTMLMessages
 
   def new() # {{{
+    # Even though this is done in the ftplugin file, this file can be imported
+    # alone, so do it here as well:
+    if !exists('g:htmlplugin')
+      g:htmlplugin = {}
+    endif
+    if !exists('b:htmlplugin')
+      b:htmlplugin = {}
+    endif
+
     this.HTMLVariablesObject = HTMLVariables.HTMLVariables.new()
     this.HTMLMessagesObject = Messages.HTMLMessages.new()
   enddef # }}}
