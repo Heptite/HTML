@@ -1,7 +1,7 @@
 # HTML/XHTML Editing Macros
 
-Note that this plugin requires Vim 9 or later; nightly builds are available for
-Windows at:
+Note that this plugin requires Vim 9.1.219 or later; nightly builds are
+available for Windows at:
 <https://github.com/vim/vim-win32-installer/releases>
 Or semi-frequent builds are available for Windows at:
 <https://tuxproject.de/projects/vim/>
