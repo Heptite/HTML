@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: April 09, 2024
+# Last Change: April 13, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -1093,8 +1093,8 @@ export class HTMLFunctions
     endif
 
     if rows < 0 && columns < 0 && border < 0
-      newthead = confirm('Insert a table header?', "&Yes\n&No", 2, 'Question') == 1
-      newtfoot = confirm('Insert a table footer?', "&Yes\n&No", 2, 'Question') == 1
+      newthead = 'Insert a table header?'->confirm("&Yes\n&No", 2, 'Question') == 1
+      newtfoot = 'Insert a table footer?'->confirm("&Yes\n&No", 2, 'Question') == 1
     endif
 
     if newborder > 0
@@ -1577,7 +1577,7 @@ export class HTMLFunctions
     if line('$') == 1 && getline(1) == ''
       ret = this.InsertTemplate(file)
     else
-      var YesNoOverwrite = confirm("Non-empty file.\nInsert template anyway?", "&Yes\n&No\n&Overwrite", 2, 'Question')
+      var YesNoOverwrite = "Non-empty file.\nInsert template anyway?"->confirm("&Yes\n&No\n&Overwrite", 2, 'Question')
       if YesNoOverwrite == 1
         ret = this.InsertTemplate(file)
       elseif YesNoOverwrite == 3
@@ -1876,7 +1876,7 @@ export class HTMLFunctions
     endif
   enddef
 
-  # ReadJsonFile()  {{{1
+  # ReadJsonFiles()  {{{1
   #
   #  Purpose:
   #   Find JSON files in the runtimepath and return them as a Vim array
@@ -1884,7 +1884,7 @@ export class HTMLFunctions
   #   1 - String: The filename to find and read
   #  Return Value:
   #   List - The JSON data as a Vim array, empty if there was a problem
-  def ReadJsonFile(file: string): list<any>
+  def ReadJsonFiles(file: string): list<any>
     var json_files: list<string> = file->findfile(&runtimepath, -1)
     var json_data: list<any> = []
 
@@ -1919,7 +1919,7 @@ export class HTMLFunctions
     var maplhs: string
     var menulhs: string
     var rval = true
-    var json_data = this.ReadJsonFile(file)
+    var json_data = this.ReadJsonFiles(file)
 
     if json_data == []
       printf(this.HTMLMessagesO.E_NOTAG)
@@ -2088,7 +2088,7 @@ export class HTMLFunctions
   #   Boolean - Whether the json file was successfully read in without error
   def ReadEntities(domenu: bool = true, internal: bool = false, file: string = HTMLVariables.HTMLVariables.ENTITIES_FILE): bool
     var rval = true
-    var json_data = this.ReadJsonFile(file)
+    var json_data = this.ReadJsonFiles(file)
 
     if json_data == []
       printf(this.HTMLMessagesO.E_NOENTITY)
