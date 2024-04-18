@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Mar 28
+		Last change: 2024 Apr 13
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -1926,8 +1926,8 @@ HTMLFunctionsObject.Template()			*HTMLFunctionsObject.Template()*
 	This is normally called by the |n_;html| mapping, but it works
 	the same if called any other way.
 
-	This function returns true if the cursor is on an insert point, false
-	otherwise.
+	This function returns true if the cursor is on an insert point after
+	creating the template in the buffer, false otherwise.
 
 						*HTMLFunctionsObject.SetIfUnset()*
 HTMLFunctionsObject.SetIfUnset({variable}, {value})
