@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: April 09, 2024
+# Last Change: April 17, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -80,7 +80,6 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import autoload 'HTML/Functions.vim'
 import autoload 'HTML/Messages.vim'
 
 export enum Behavior
@@ -89,11 +88,12 @@ export enum Behavior
   newtab
 endenum
 
-export class BrowserLauncher extends Functions.HTMLFunctions
+export class BrowserLauncher
 
   var Browsers: dict<list<any>>
   var TextmodeBrowsers = ['lynx', 'w3m', 'links']
   var MacBrowsersExist = ['default']
+  var HTMLMessagesO: Messages.HTMLMessages
 
   def new() # {{{
     this.HTMLMessagesO = Messages.HTMLMessages.new()
