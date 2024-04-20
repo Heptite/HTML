@@ -173,22 +173,6 @@ installed: $(PLUGIN_FILES) $(alldoc) $(allxpm) $(allbmp) doc/tags
 		autoload/HTML/Functions.vim autoload/HTML/Messages.vim \
 		~/.vim/pack/cjr/start/HTML/autoload/HTML/
 	cp -f bitmaps/* ~/.vim/pack/cjr/start/HTML/bitmaps/
-	mkdir -p ~/Dropbox/vimfiles/pack/cjr/start/HTML/ftplugin/html/ \
-		~/Dropbox/vimfiles/pack/cjr/start/HTML/doc/ \
-		~/Dropbox/vimfiles/pack/cjr/start/HTML/import/HTML/ \
-		~/Dropbox/vimfiles/pack/cjr/start/HTML/commands/HTML/ \
-		~/Dropbox/vimfiles/pack/cjr/start/HTML/json/HTML/ \
-		~/Dropbox/vimfiles/pack/cjr/start/HTML/autoload/HTML/ \
-		~/Dropbox/vimfiles/pack/cjr/start/HTML/bitmaps/
-	cp -f ftplugin/html/HTML.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/ftplugin/html/
-	cp -f doc/HTML.txt doc/tags ~/Dropbox/vimfiles/pack/cjr/start/HTML/doc/
-	cp -f import/HTML/Variables.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/import/HTML/
-	cp -f commands/HTML/Commands.vim ~/Dropbox/vimfiles/pack/cjr/start/HTML/commands/HTML/
-	cp -f json/HTML/*.json ~/Dropbox/vimfiles/pack/cjr/start/HTML/json/HTML/
-	cp -f autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim \
-		autoload/HTML/Functions.vim autoload/HTML/Messages.vim \
-		~/Dropbox/vimfiles/pack/cjr/start/HTML/autoload/HTML/
-	cp -f bitmaps/* ~/Dropbox/vimfiles/pack/cjr/start/HTML/bitmaps/
 	touch installed
 
 
