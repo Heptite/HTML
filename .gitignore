@@ -1,0 +1,15 @@
+.*.swp
+.*.swo
+RCS
+HTML.html.bak
+HTML.html
+HTML.zip
+ChangeLog-base
+ChangeLog.html
+vim-html-pixmaps.zip
+vim-html-pixmaps-OLD.zip
+toolbar-icons.png
+old
+pushed
+installed
+unused.vim
