@@ -7,7 +7,7 @@ endif
 
 # Messaging functions for the HTML macros filetype plugin.
 #
-# Last Change: April 07, 2024
+# Last Change: April 21, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -127,7 +127,13 @@ export class HTMLMessages
         echomsg s
       endif
     endfor
-  enddef # }}}1
+  enddef
+
+  static def F(): string # {{{1
+    return split(expand('<stack>'), '\.\.')[-2]->substitute('\[\d\+\]$', '', '')
+  enddef
+
+  # }}}1
 
 endclass
 

@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: April 20, 2024
+# Last Change: April 21, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -29,9 +29,15 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
+import autoload 'HTML/Messages.vim'
+
 export class HTMLVariables
 
+  final HTMLMessagesO: Messages.HTMLMessages
+
   def new() # {{{
+    this.HTMLMessagesO = Messages.HTMLMessages.new()
+    
     if empty(HTMLVariables.DictCharToEntities) == 1
       var json_files: list<string> = ENTITY_TABLE_FILE->findfile(&runtimepath, -1)
 
@@ -47,9 +53,7 @@ export class HTMLVariables
             DictCharToEntities[entities[key].characters] = key
           endfor
         else
-          echohl Error
-          echomsg $"Unable to read file: {f}"
-          echohl None
+          printf(this.HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->this.HTMLMessagesO.Error()
         endif
       endfor
     endif

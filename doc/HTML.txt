@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Apr 13
+		Last change: 2024 Apr 21
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -1940,7 +1940,7 @@ HTMLFunctionsObject.SetIfUnset({variable}, {value})
 
 	This function returns Functions.SetIfUnsetR.success if the variable
 	was set, Functions.SetIfUnsetR.exists if it already existed, and
-	Functions.SetIfUnsetR.error for an error. (See: |enum|)
+	Functions.SetIfUnsetR.error for an error (|enum|).
 
 
  vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:

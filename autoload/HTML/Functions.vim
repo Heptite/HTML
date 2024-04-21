@@ -46,7 +46,7 @@ export enum MapCheckR # {{{1
   suppressed
 endenum
 
-export enum ToggleClipboardDoWhat # {{{1
+export enum ToggleClipboardA # {{{1
   remove,
   add,
   auto
@@ -115,14 +115,14 @@ export class HTMLFunctions
     var variable = v
 
     if variable =~# '^l:'
-      printf(this.HTMLMessagesO.E_NOLOCALVAR, F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_NOLOCALVAR, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return SetIfUnsetR.error
     elseif variable !~# '^[bgstvw]:'
       variable = 'g:' .. variable
     endif
 
     if args->len() == 0
-      printf(this.HTMLMessagesO.E_NARGS, F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_NARGS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return SetIfUnsetR.error
     elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict
         || type(args[0]) == v:t_number
@@ -178,7 +178,7 @@ export class HTMLFunctions
       return value != {}
     endif
 
-    printf(this.HTMLMessagesO.E_BOOLTYPE, F(), value->typename())->this.HTMLMessagesO.Error()
+    printf(this.HTMLMessagesO.E_BOOLTYPE, Messages.HTMLMessages.F(), value->typename())->this.HTMLMessagesO.Error()
     return false
   enddef
 
@@ -285,7 +285,7 @@ export class HTMLFunctions
       var char: string
 
       if c->strchars(1) != 1
-        printf(this.HTMLMessagesO.E_ONECHAR, HTMLFunctions.F())->this.HTMLMessagesO.Error()
+        printf(this.HTMLMessagesO.E_ONECHAR, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
         return c
       endif
 
@@ -426,27 +426,27 @@ export class HTMLFunctions
   #  Boolean: Whether a mapping was defined
   def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, internal: bool = false): bool
     if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-      printf(this.HTMLMessagesO.E_NOMAPLEAD, F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_NOMAPLEAD, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if !g:htmlplugin->has_key('entity_map_leader') && map =~? '^<elead>'
-      printf(this.HTMLMessagesO.E_NOEMAPLEAD, F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_NOEMAPLEAD, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if map == '' || map ==? '<lead>' || map ==? '<elead>'
-      printf(this.HTMLMessagesO.E_EMPTYLHS, F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_EMPTYLHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if arg == ''
-      printf(this.HTMLMessagesO.E_EMPTYRHS, F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_EMPTYRHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if cmd =~# '^no' || cmd =~# '^map$'
-      printf(this.HTMLMessagesO.E_NOMODE, F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_NOMODE, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
 
@@ -553,12 +553,12 @@ export class HTMLFunctions
   #  Boolean: Whether a mapping was defined
   def Mapo(map: string, insert: bool = false, internal: bool = false): bool
     if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-      printf(this.HTMLMessagesO.E_NOMAPLEAD, F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_NOMAPLEAD, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
 
     if map == '' || map ==? "<lead>"
-      printf(this.HTMLMessagesO.E_EMPTYLHS, F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_EMPTYLHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
 
@@ -684,7 +684,7 @@ export class HTMLFunctions
     endif
 
     if mode->strlen() != 1
-      printf(this.HTMLMessagesO.E_ONECHAR, HTMLFunctions.F())->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_ONECHAR, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return ''
     endif
 
@@ -715,7 +715,7 @@ export class HTMLFunctions
         startinsert
       endif
     else
-      printf(this.HTMLMessagesO.E_INVALIDARG, F(), mode)->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), mode)->this.HTMLMessagesO.Error()
     endif
 
     return ''
@@ -833,28 +833,29 @@ export class HTMLFunctions
   # switching buffers.
   #
   # Arguments:
-  #  1 - Integer: 0 - Remove 'html' if it was removed before.
-  #               1 - Add 'html'.
-  #               2 - Auto detect which to do. (Default)
+  #  1 - ToggleClipboardA:
+  #      remove - Remove 'html' if it was removed before.
+  #      add    - Add 'html'.
+  #      auto   - Auto detect which to do. (Default)
   #
   # (Note that g:htmlplugin.save_clipboard is set by this plugin's
   # initialization.)
-  def ToggleClipboard(dowhat: ToggleClipboardDoWhat = ToggleClipboardDoWhat.auto): bool
+  def ToggleClipboard(dowhat: ToggleClipboardA = ToggleClipboardA.auto): bool
     var newdowhat = dowhat
 
-    if newdowhat == ToggleClipboardDoWhat.auto
+    if newdowhat == ToggleClipboardA.auto
       if this.BoolVar('b:htmlplugin.did_mappings')
-        newdowhat = ToggleClipboardDoWhat.add
+        newdowhat = ToggleClipboardA.add
       else
-        newdowhat = ToggleClipboardDoWhat.remove
+        newdowhat = ToggleClipboardA.remove
       endif
     endif
 
-    if newdowhat == ToggleClipboardDoWhat.remove
+    if newdowhat == ToggleClipboardA.remove
       if g:htmlplugin->has_key('save_clipboard')
         &clipboard = g:htmlplugin.save_clipboard
       else
-        printf(this.HTMLMessagesO.E_NOCLIPBOARD, F())->this.HTMLMessagesO.Error()
+        printf(this.HTMLMessagesO.E_NOCLIPBOARD, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
         return false
       endif
     else
@@ -922,7 +923,7 @@ export class HTMLFunctions
     elseif case =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
       newstr = str->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g'))
     else
-      printf(this.HTMLMessagesO.W_INVALIDCASE, F(), case)->this.HTMLMessagesO.Warn()
+      printf(this.HTMLMessagesO.W_INVALIDCASE, Messages.HTMLMessages.F(), case)->this.HTMLMessagesO.Warn()
       newstr = str->this.ConvertCase('lowercase')
     endif
 
@@ -1005,7 +1006,7 @@ export class HTMLFunctions
     var column: number
 
     if ! b:htmlplugin.smarttags->has_key(newtag)
-      printf(this.HTMLMessagesO.E_NOSMART, F(), newtag)->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_NOSMART, Messages.HTMLMessages.F(), newtag)->this.HTMLMessagesO.Error()
       return ''
     endif
 
@@ -1237,7 +1238,7 @@ export class HTMLFunctions
         this.MenuControl('enable')
       endif
     else
-      printf(this.HTMLMessagesO.E_INVALIDARG, F(), dowhat)->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->this.HTMLMessagesO.Error()
       return false
     endif
 
@@ -1257,7 +1258,7 @@ export class HTMLFunctions
   #  Boolean: False if an error occurred, true otherwise
   def MenuControl(which: string = 'detect'): bool
     if which !~? '^disable$\|^enable$\|^detect$'
-      printf(this.HTMLMessagesO.E_INVALIDARG, F(), which)->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), which)->this.HTMLMessagesO.Error()
       return false
     endif
 
@@ -1314,7 +1315,7 @@ export class HTMLFunctions
   #  String: The converted color
   def ToRGB(color: string, percent: bool = false): string
     if color !~ '^#\x\{6}$'
-      printf(this.HTMLMessagesO.E_COLOR, F(), color)->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_COLOR, Messages.HTMLMessages.F(), color)->this.HTMLMessagesO.Error()
       return ''
     endif
 
@@ -1890,7 +1891,7 @@ export class HTMLFunctions
     var json_data: list<any> = []
 
     if json_files->len() == 0
-      printf(this.HTMLMessagesO.E_NOTFOUNDRTP, F(), file)->this.HTMLMessagesO.Error()
+      printf(this.HTMLMessagesO.E_NOTFOUNDRTP, Messages.HTMLMessages.F(), file)->this.HTMLMessagesO.Error()
       return []
     endif
 
@@ -1898,7 +1899,7 @@ export class HTMLFunctions
       if f->filereadable()
         json_data->extend(f->readfile()->join("\n")->json_decode())
       else
-        printf(this.HTMLMessagesO.E_NOREAD, F(), f)->this.HTMLMessagesO.Error()
+        printf(this.HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->this.HTMLMessagesO.Error()
       endif
     endfor
 
@@ -2098,7 +2099,7 @@ export class HTMLFunctions
 
     for json in json_data
       if json->len() != 4 || json[2]->type() != v:t_list
-        printf(this.HTMLMessagesO.E_JSON, F(), file, json->string())->this.HTMLMessagesO.Error()
+        printf(this.HTMLMessagesO.E_JSON, Messages.HTMLMessages.F(), file, json->string())->this.HTMLMessagesO.Error()
         rval = false
         continue
       endif
@@ -2119,19 +2120,6 @@ export class HTMLFunctions
     endfor
 
     return rval
-  enddef
-
-
-  # F()  {{{1
-  #
-  #  Purpose:
-  #   Get the function name from the stack in the context of the caller of F().
-  #  Arguments:
-  #   None
-  #  Return Value:
-  #   String: The function name
-  static def F(): string
-    return split(expand('<stack>'), '\.\.')[-2]->substitute('\[\d\+\]$', '', '')
   enddef
 
   # }}}1
