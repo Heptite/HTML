@@ -33,7 +33,7 @@ export class HTMLVariables
 
   def new() # {{{
     if empty(HTMLVariables.DictCharToEntities) == 1
-      var json_files: list<string> = 'json/HTML/entitytable.json'->findfile(&runtimepath, -1)
+      var json_files: list<string> = ENTITY_TABLE_FILE->findfile(&runtimepath, -1)
 
       if json_files->len() == 0
         return
@@ -46,6 +46,10 @@ export class HTMLVariables
             DictEntitiesToChar[key] = entities[key].characters
             DictCharToEntities[entities[key].characters] = key
           endfor
+        else
+          echohl Error
+          echomsg $"Unable to read file: {f}"
+          echohl None
         endif
       endfor
     endif
@@ -65,6 +69,7 @@ export class HTMLVariables
 
   static const TAGS_FILE = 'json/HTML/tags.json'
   static const ENTITIES_FILE = 'json/HTML/entities.json'
+  static const ENTITY_TABLE_FILE = 'json/HTML/entitytable.json'
 
   static const TEMPLATE_TOKENS = { # {{{
     authorname:  'author_name',

@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: April 17, 2024
+# Last Change: April 21, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -86,8 +86,9 @@ export class HTMLFunctions
       .. ' <' .. (HTMLVariables.HTMLVariables.EMAIL) .. ">\n"
       .. "With thanks to Doug Renze for the original concept,\n"
       .. "Devin Weaver for the original mangleImageTag,\n"
-      .. "Israel Chauca Fuentes for the MacOS version of the browser\n"
-      .. "launcher code, and several others for their contributions.\n"
+      .. "Israel Chauca Fuentes for the MacOS version of the\n"
+      .. "browser launcher code, and several others for their\n"
+      .. "contributions.\n"
       .. (HTMLVariables.HTMLVariables.COPYRIGHT) .. "\n" .. "URL: "
       .. (HTMLVariables.HTMLVariables.HOMEPAGE)
 
