@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: April 21, 2024
+# Last Change: April 27, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later

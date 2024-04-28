@@ -41,12 +41,12 @@ export class HTMLMessages
   const E_LAUNCH       = 'Unable to launch %s.'
   const E_COMMAND      = 'Command failed: %s'
   const E_FINAL        = 'Something went wrong, we should never get here...'
-  const E_NOMAP        = ' No mapping defined.'
-  const E_NOMAPLEAD    = '%s g:htmlplugin.map_leader is not set!' .. E_NOMAP
-  const E_NOEMAPLEAD   = '%s g:htmlplugin.entity_map_leader is not set!' .. E_NOMAP
-  const E_EMPTYLHS     = '%s must have a non-empty lhs.' .. E_NOMAP
-  const E_EMPTYRHS     = '%s must have a non-empty rhs.' .. E_NOMAP
-  const E_NOMODE       = '%s must have one of the modes explicitly stated.' .. E_NOMAP
+  const E_NOMAP        = 'No mapping defined.'
+  const E_NOMAPLEAD    = $'%s g:htmlplugin.map_leader is not set! {E_NOMAP}'
+  const E_NOEMAPLEAD   = $'%s g:htmlplugin.entity_map_leader is not set! {E_NOMAP}'
+  const E_EMPTYLHS     = $'%s must have a non-empty lhs. {E_NOMAP}'
+  const E_EMPTYRHS     = $'%s must have a non-empty rhs. {E_NOMAP}'
+  const E_NOMODE       = $'%s must have one of the modes explicitly stated. {E_NOMAP}'
   const E_NOLOCALVAR   = 'Cannot set a local variable with %s'
   const E_NARGS        = 'E119: Not enough arguments for %s'
   const E_NOSOURCED    = 'The HTML macros plugin was not sourced for this buffer.'
@@ -80,8 +80,8 @@ export class HTMLMessages
   const E_JPG          = 'Malformed JPEG file.'
   const E_PNG          = 'Malformed PNG file.'
   const E_TIFF         = 'Malformed TIFF file.'
-  const E_TIFFENDIAN   = E_TIFF .. ' Endian identifier not found.'
-  const E_TIFFID       = E_TIFF .. ' Identifier not found.'
+  const E_TIFFENDIAN   = $'{E_TIFF} Endian identifier not found.'
+  const E_TIFFID       = $'{E_TIFF} Identifier not found.'
   const E_WEBP         = 'Malformed WEBP file.'
 
   const W_MAPOVERRIDE  = 'WARNING: A mapping of %s for %s mode has been overridden for buffer number %d: %s'
