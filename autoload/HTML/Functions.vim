@@ -758,9 +758,9 @@ export class HTMLFunctions
   def MapCheck(map: string, mode: string, internal: bool = false): MapCheckR
     if internal &&
           ( (g:htmlplugin->has_key('no_maps')
-              && g:htmlplugin.no_maps->match('^\C\V' .. map .. '\$') >= 0) ||
+              && g:htmlplugin.no_maps->match($'^\C\V{map}\$') >= 0) ||
             (b:htmlplugin->has_key('no_maps')
-              && b:htmlplugin.no_maps->match('^\C\V' .. map .. '\$') >= 0) )
+              && b:htmlplugin.no_maps->match($'^\C\V{map}\$') >= 0) )
       return MapCheckR.suppressed
     elseif HTMLVariables.HTMLVariables.MODES->has_key(mode) && map->maparg(mode) != ''
       if this.BoolVar('g:htmlplugin.no_map_override') && internal
@@ -1014,8 +1014,7 @@ export class HTMLFunctions
       [line, column] = searchpairpos('<!--', '', '-->', 'ncW')
     else
       var realtag = tag->substitute('\d\+$', '', '')
-      [line, column] = searchpairpos($'\c<{realtag}'
-        .. '\>[^>]*>', '', $'\c<\/{realtag}>', 'ncW')
+      [line, column] = searchpairpos($'\c<{realtag}\>[^>]*>', '', $'\c<\/{realtag}>', 'ncW')
     endif
 
     which = (line == 0 && column == 0 ? 'o' : 'c')
@@ -1161,8 +1160,7 @@ export class HTMLFunctions
 
     lines->append('.')
 
-    execute ':' .. (line('.') + 1) .. ',' .. (line('.') + lines->len())
-      .. 'normal! =='
+    execute $':{(line('.') + 1)},{(line('.') + lines->len())}normal! =='
 
     setcharpos('.', charpos)
 
@@ -1283,21 +1281,18 @@ export class HTMLFunctions
       if this.BoolVar('b:htmlplugin.did_mappings_init')
           && !this.BoolVar('b:htmlplugin.did_mappings')
         execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
-        execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
-          .. '.Enable\ Mappings'
+        execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}.Enable\ Mappings'
       endif
     elseif which == 'enable' || this.BoolVar('b:htmlplugin.did_mappings_init')
       execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
       if this.BoolVar('b:htmlplugin.did_mappings')
         execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}.*'
-        execute $'amenu disable {g:htmlplugin.toplevel_menu_escaped}'
-          .. '.Enable\ Mappings'
+        execute $'amenu disable {g:htmlplugin.toplevel_menu_escaped}.Enable\ Mappings'
         if this.BoolVar('g:htmlplugin.did_toolbar')
           amenu enable ToolBar.*
         endif
       else
-        execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
-          .. '.Enable\ Mappings'
+        execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}.Enable\ Mappings'
       endif
     endif
 
@@ -1770,7 +1765,7 @@ export class HTMLFunctions
         newsymb = newsymb->substitute('^\\[xuU]', '', '')->str2nr(16)->nr2char(1)
       endif
 
-      newsymb = '\ (' .. newsymb->escape(' &<.|') .. ')'
+      newsymb = $'\ ({newsymb->escape(" &<.|")})'
       newsymb = newsymb->substitute('\\&', '\&\&', 'g')
     endif
 
