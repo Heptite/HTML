@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: April 27, 2024
+# Last Change: April 28, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -95,7 +95,7 @@ export class HTMLVariables
     '',
     '  <[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=%charset%" />',
     '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% (Vi IMproved editor; http://www.vim.org/) with HTML Editing Macros '
-      .. '%htmlversion% (' .. HTMLVariables.HOMEPAGE .. ')" />',
+    .. $'%htmlversion% ({HTMLVariables.HOMEPAGE})" />',
     '  <[{META NAME}]="Author" [{CONTENT}]="%authorname%" />',
     '  <[{META NAME}]="Copyright" [{CONTENT}]="Copyright (C) %date% %authorname%" />',
     '  <[{LINK REL}]="made" [{HREF}]="mailto:%authoremail%" />',

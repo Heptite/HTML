@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: April 21, 2024
+# Last Change: April 28, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -81,16 +81,16 @@ export class HTMLFunctions
   #  None
   static def About(): void
     var message = "HTML/XHTML Editing Macros and Menus Plugin\n"
-      .. "Version: " .. (HTMLVariables.HTMLVariables.VERSION)
-      .. "\n" .. "Written by: " .. (HTMLVariables.HTMLVariables.AUTHOR)
-      .. ' <' .. (HTMLVariables.HTMLVariables.EMAIL) .. ">\n"
+      .. $"Version: {HTMLVariables.HTMLVariables.VERSION}"
+      .. $"\nWritten by: {HTMLVariables.HTMLVariables.AUTHOR}"
+      .. $" <{HTMLVariables.HTMLVariables.EMAIL}>\n"
       .. "With thanks to Doug Renze for the original concept,\n"
       .. "Devin Weaver for the original mangleImageTag,\n"
       .. "Israel Chauca Fuentes for the MacOS version of the\n"
       .. "browser launcher code, and several others for their\n"
       .. "contributions.\n"
-      .. (HTMLVariables.HTMLVariables.COPYRIGHT) .. "\n" .. "URL: "
-      .. (HTMLVariables.HTMLVariables.HOMEPAGE)
+      .. $"{HTMLVariables.HTMLVariables.COPYRIGHT}\nURL: "
+      .. $"{HTMLVariables.HTMLVariables.HOMEPAGE}"
 
     if message->confirm("&Visit Homepage\n&Dismiss", 2, 'Info') == 1
       BrowserLauncher.BrowserLauncher.new().Launch('default',
@@ -118,7 +118,7 @@ export class HTMLFunctions
       printf(this.HTMLMessagesO.E_NOLOCALVAR, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return SetIfUnsetR.error
     elseif variable !~# '^[bgstvw]:'
-      variable = 'g:' .. variable
+      variable = $'g:{variable}'
     endif
 
     if args->len() == 0
@@ -137,18 +137,18 @@ export class HTMLFunctions
 
     if type(val) == v:t_string
       if val == '""' || val == "''" || val == '[]' || val == '{}'
-        execute variable .. ' = ' .. val
+        execute $'{variable} = {val}'
       elseif val =~ '^-\?[[:digit:]]\+$'
-        execute variable .. ' = ' val->str2nr()
+        execute $'{variable} = {val->str2nr()}'
       elseif val =~ '^-\?[[:digit:].]\+$'
-        execute variable .. ' = ' val->str2float()
+        execute $'{variable} = {val->str2float()}'
       else
-        execute variable .. " = '" .. val->escape("'\\") .. "'"
+        execute $'{variable} = ''{val->escape("''\\")}'''
       endif
     elseif type(val) == v:t_number || type(val) == v:t_float
-      execute variable .. ' = ' .. val
+      execute $'{variable} = {val}'
     else
-      execute variable .. ' = ' .. string(val)
+      execute $'{variable} = {string(val)}'
     endif
 
     return SetIfUnsetR.success
@@ -198,7 +198,7 @@ export class HTMLFunctions
     var variable = v
 
     if variable !~ '^[bgstvw]:'
-      variable = 'g:' .. variable
+      variable = 'g:{variable}'
     endif
 
     if variable->this.IsSet()
@@ -378,7 +378,7 @@ export class HTMLFunctions
 
         # Restore the last visual mode if it was changed:
         if this.HTMLVariablesO.saveopts->get('visualmode', '') != ''
-          execute 'normal! gv' .. this.HTMLVariablesO.saveopts.visualmode
+          execute $'normal! gv{this.HTMLVariablesO.saveopts.visualmode}'
           this.HTMLVariablesO.saveopts->remove('visualmode')
         endif
       else
@@ -488,47 +488,47 @@ export class HTMLFunctions
       endif
 
       if opts->has_key('extra') && ! opts.extra
-        execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
+        execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
       elseif opts->get('insert', false) && opts->has_key('reindent')
-        execute cmd .. ' <buffer> <silent> ' .. newmap
-          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "' .. newmap_escaped .. '")<CR>'
+        execute $'{cmd} <buffer> <silent> {newmap}'
+          .. $' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "{newmap_escaped}")<CR>'
 
         b:htmlplugin.maps.v[newmap][1]['reindent'] = opts.reindent
         b:htmlplugin.maps.v[newmap][1]['insert'] = opts.insert
       elseif opts->get('insert', false)
-        execute cmd .. ' <buffer> <silent> ' .. newmap
-          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "' .. newmap_escaped .. '")<CR>'
+        execute $'{cmd} <buffer> <silent> {newmap}'
+          .. $' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "{newmap_escaped}")<CR>'
 
         b:htmlplugin.maps.v[newmap][1]['insert'] = opts.insert
       elseif opts->has_key('reindent')
-        execute cmd .. ' <buffer> <silent> ' .. newmap
-          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "' .. newmap_escaped .. '")<CR>'
+        execute $'{cmd} <buffer> <silent> {newmap}'
+          .. $' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "{newmap_escaped}")<CR>'
 
         b:htmlplugin.maps.v[newmap][1]['reindent'] = opts.reindent
       else
-        execute cmd .. ' <buffer> <silent> ' .. newmap
-          .. ' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "' .. newmap_escaped .. '")<CR>'
+        execute $'{cmd} <buffer> <silent> {newmap}'
+          .. $' <ScriptCmd>b:htmlplugin.HTMLFunctionsO.DoMap("v", "{newmap_escaped}")<CR>'
       endif
     elseif mode == 'i'
       if opts->has_key('extra') && ! opts.extra
-        execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
+        execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
       else
         b:htmlplugin.maps.i[newmap] = [newarg, {}]
         if opts->has_key('expr')
           b:htmlplugin.maps.i[newmap][1]['expr'] = opts.expr
         endif
         execute cmd .. ' <buffer> <silent> <expr> ' .. newmap
-          .. ' b:htmlplugin.HTMLFunctionsO.DoMap("i", "' .. newmap_escaped .. '")'
+          .. $' b:htmlplugin.HTMLFunctionsO.DoMap("i", "{newmap_escaped}")'
       endif
     else
-      execute cmd .. ' <buffer> <silent> ' .. newmap .. ' ' .. newarg
+      execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
     endif
 
     if HTMLVariables.HTMLVariables.MODES->has_key(mode)
-      b:htmlplugin.clear_mappings->add(':' .. mode .. 'unmap <buffer> ' .. newmap)
+      b:htmlplugin.clear_mappings->add($':{mode}unmap <buffer> {newmap}')
     else
-      b:htmlplugin.clear_mappings->add(':unmap <buffer> ' .. newmap)
-      b:htmlplugin.clear_mappings->add(':unmap! <buffer> ' .. newmap)
+      b:htmlplugin.clear_mappings->add($':unmap <buffer> {newmap}')
+      b:htmlplugin.clear_mappings->add($':unmap! <buffer> {newmap}')
     endif
 
     # Save extra (nonplugin) mappings so they can be restored if we need to later:
@@ -570,12 +570,12 @@ export class HTMLFunctions
       return false
     endif
 
-    execute 'nnoremap <buffer> <silent> ' .. newmap
-      .. " <ScriptCmd>b:htmlplugin.tagaction = '" .. newmap .. "'<CR>"
-      .. '<ScriptCmd>b:htmlplugin.taginsert = ' .. insert .. "<CR>"
+    execute $'nnoremap <buffer> <silent> {newmap}'
+      .. $" <ScriptCmd>b:htmlplugin.tagaction = '{newmap}'<CR>"
+      .. $"<ScriptCmd>b:htmlplugin.taginsert = {insert}<CR>"
       .. '<ScriptCmd>&operatorfunc = "function(b:htmlplugin.HTMLFunctionsO.OpWrap)"<CR>g@'
 
-    b:htmlplugin.clear_mappings->add(':nunmap <buffer> ' .. newmap)
+    b:htmlplugin.clear_mappings->add($':nunmap <buffer> {newmap}')
     newmap->maparg('n', false, true)->this.MappingsListAdd('n', internal)
 
     return true
@@ -640,11 +640,11 @@ export class HTMLFunctions
       lastline = line('$')
     endif
 
-    var range = firstline == lastline ? firstline : firstline .. ',' .. lastline
+    var range = firstline == lastline ? firstline : $'{firstline},{lastline}'
     var charpos = getcharpos('.')
 
     try
-      execute 'keepjumps :' .. range .. 'normal! =='
+      execute $'keepjumps :{range}normal! =='
     catch
       printf(this.HTMLMessagesO.E_INDENTEXCEPT, v:exception)->this.HTMLMessagesO.Error()
     finally
@@ -694,7 +694,7 @@ export class HTMLFunctions
       this.ToggleOptions(false)
 
       try
-        execute 'silent normal! ' .. evalstr
+        execute $'silent normal! {evalstr}'
       catch
         printf(this.HTMLMessagesO.E_MAPEXCEPT, v:exception, map)->this.HTMLMessagesO.Error()
       endtry
@@ -791,11 +791,11 @@ export class HTMLFunctions
 
     try
       if type == 'line'
-        execute 'normal `[V`]' .. b:htmlplugin.tagaction
+        execute $'normal `[V`]{b:htmlplugin.tagaction}'
       elseif type == 'block'
-        execute "normal `[\<C-V>`]" .. b:htmlplugin.tagaction
+        execute $"normal `[\<C-V>`]{b:htmlplugin.tagaction}"
       else
-        execute 'normal `[v`]' .. b:htmlplugin.tagaction
+        execute $'normal `[v`]{b:htmlplugin.tagaction}'
       endif
     catch
       printf(this.HTMLMessagesO.W_CAUGHTERR, v:exception)->this.HTMLMessagesO.Warn()
@@ -1014,8 +1014,8 @@ export class HTMLFunctions
       [line, column] = searchpairpos('<!--', '', '-->', 'ncW')
     else
       var realtag = tag->substitute('\d\+$', '', '')
-      [line, column] = searchpairpos('\c<' .. realtag
-        .. '\>[^>]*>', '', '\c<\/' .. realtag .. '>', 'ncW')
+      [line, column] = searchpairpos($'\c<{realtag}'
+        .. '\>[^>]*>', '', $'\c<\/{realtag}>', 'ncW')
     endif
 
     which = (line == 0 && column == 0 ? 'o' : 'c')
@@ -1025,7 +1025,7 @@ export class HTMLFunctions
     if newmode == 'v'
       # If 'selection' is "exclusive" all the visual mode mappings need to
       # behave slightly differently:
-      ret = ret->substitute('`>a\C', '`>i' .. this.VisualInsertPos(), 'g')
+      ret = ret->substitute('`>a\C', $'`>i{this.VisualInsertPos()}', 'g')
     endif
 
     return ret
@@ -1100,7 +1100,7 @@ export class HTMLFunctions
     endif
 
     if newborder > 0
-      lines->add('<[{TABLE STYLE}]="border: solid ' .. g:htmlplugin.textcolor .. ' ' .. newborder .. 'px; padding: 3px;">')
+      lines->add($'<[{{TABLE STYLE}}]="border: solid {g:htmlplugin.textcolor} {newborder}px; padding: 3px;">')
     else
       lines->add('<[{TABLE}]>')
     endif
@@ -1110,7 +1110,7 @@ export class HTMLFunctions
       lines->add('<[{TR}]>')
       for c in newcolumns->range()
         if newborder > 0
-          lines->add('<[{TH STYLE}]="border: solid ' .. g:htmlplugin.textcolor .. ' '  .. newborder .. 'px; padding: 3px;"></[{TH}]>')
+          lines->add($'<[{{TH STYLE}}]="border: solid {g:htmlplugin.textcolor} {newborder}px; padding: 3px;"></[{{TH}}]>')
         else
           lines->add('<[{TH></TH}]>')
         endif
@@ -1128,7 +1128,7 @@ export class HTMLFunctions
 
       for c in newcolumns->range()
         if newborder > 0
-          lines->add('<[{TD STYLE}]="border: solid ' .. g:htmlplugin.textcolor .. ' '  .. newborder .. 'px; padding: 3px;"></[{TD}]>')
+          lines->add($'<[{{TD STYLE}}]="border: solid {g:htmlplugin.textcolor} {newborder}px; padding: 3px;"></[{{TD}}]>')
         else
           lines->add('<[{TD></TD}]>')
         endif
@@ -1146,7 +1146,7 @@ export class HTMLFunctions
       lines->add('<[{TR}]>')
       for c in newcolumns->range()
         if newborder > 0
-          lines->add('<[{TD STYLE}]="border: solid ' .. g:htmlplugin.textcolor .. ' '  .. newborder .. 'px; padding: 3px;"></[{TD}]>')
+          lines->add($'<[{{TD STYLE}}]="border: solid {g:htmlplugin.textcolor} {newborder}px; padding: 3px;"></[{{TD}}]>')
         else
           lines->add('<[{TD></TD}]>')
         endif
@@ -1263,8 +1263,8 @@ export class HTMLFunctions
     endif
 
     if which == 'disable' || !this.BoolVar('b:htmlplugin.did_mappings')
-      execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-      execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped .. '.*'
+      execute $'amenu disable {g:htmlplugin.toplevel_menu_escaped}'
+      execute $'amenu disable {g:htmlplugin.toplevel_menu_escaped}.*'
       if g:htmlplugin->has_key('did_toolbar')
         amenu disable ToolBar.*
         amenu enable ToolBar.Open
@@ -1282,21 +1282,21 @@ export class HTMLFunctions
       endif
       if this.BoolVar('b:htmlplugin.did_mappings_init')
           && !this.BoolVar('b:htmlplugin.did_mappings')
-        execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
-        execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+        execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
+        execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
           .. '.Enable\ Mappings'
       endif
     elseif which == 'enable' || this.BoolVar('b:htmlplugin.did_mappings_init')
-      execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+      execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
       if this.BoolVar('b:htmlplugin.did_mappings')
-        execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped .. '.*'
-        execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
+        execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}.*'
+        execute $'amenu disable {g:htmlplugin.toplevel_menu_escaped}'
           .. '.Enable\ Mappings'
         if this.BoolVar('g:htmlplugin.did_toolbar')
           amenu enable ToolBar.*
         endif
       else
-        execute 'amenu enable ' .. g:htmlplugin.toplevel_menu_escaped
+        execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
           .. '.Enable\ Mappings'
       endif
     endif
@@ -1357,20 +1357,20 @@ export class HTMLFunctions
       var color = HTMLVariables.HTMLVariables.COLOR_LIST[result - 1]
 
       if doname
-        execute 'normal! ' .. how .. color[0]->substitute('\s', '', 'g')
+        execute $'normal! {how} {color[0]->substitute("\\s", "", "g")}'
       elseif dorgb
-        execute 'normal! ' .. how .. color[1]->this.ToRGB(false)
+        execute $'normal! {how} {color[1]->this.ToRGB(false)}'
       elseif dorgbpercent
-        execute 'normal! ' .. how .. color[1]->this.ToRGB(true)
+        execute $'normal! {how} {color[1]->this.ToRGB(true)}'
       else
-        execute 'normal! ' .. how .. color[1]
+        execute $'normal! {how} {color[1]}'
       endif
 
       if mode == 'i'
         if col('.') == getline('.')->strlen()
           startinsert!
         else
-          execute "normal! l"
+          execute 'normal! l'
         endif
       else
         stopinsert
@@ -1429,7 +1429,7 @@ export class HTMLFunctions
       ->sort('f')[-1]
 
     var colorwin = HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
-        (_, value) => printf('%' .. maxw .. 's = %s', (value[0] == '' ? value[1] : value[0]), value[1])
+        (_, value) => printf($'%{maxw}s = %s', (value[0] == '' ? value[1] : value[0]), value[1])
       )->popup_menu({
         callback: CCSelect, filter: CCKeyFilter,
         pos: 'topleft',     col: 'cursor',
@@ -1440,13 +1440,10 @@ export class HTMLFunctions
     HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
       (_, value) => {
         var csplit = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
-        var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ?
-          0x000000 : 0xFFFFFF)
+        var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ? 0x000000 : 0xFFFFFF)
         var namenospace = (value[0] == '' ? value[1] : value[0]->substitute('\s', '', 'g'))
-        win_execute(colorwin, 'syntax match hc_' .. namenospace .. ' /'
-          .. value[1] .. '$/')
-        win_execute(colorwin, 'highlight hc_' .. namenospace .. ' guibg='
-          .. value[1] .. ' guifg=#' .. printf('%06X', contrast))
+        win_execute(colorwin, $'syntax match hc_{namenospace} /{value[1]}$/')
+        win_execute(colorwin, $'highlight hc_{namenospace} guibg={value[1]} guifg=#{printf("%06X", contrast)}')
 
         return
       })
@@ -1463,7 +1460,7 @@ export class HTMLFunctions
   def TokenReplace(text: list<string>, directory: string = ''): list<string>
     return text->mapnew(
       (_, str) =>
-          str->substitute('\C%\(' .. join(keys(HTMLVariables.HTMLVariables.TEMPLATE_TOKENS), '\|') .. '\)%',
+          str->substitute($'\C%\({join(keys(HTMLVariables.HTMLVariables.TEMPLATE_TOKENS), '\|')}\)%',
                 '\=get(b:htmlplugin, HTMLVariables.HTMLVariables.TEMPLATE_TOKENS[submatch(1)], "")', 'g')
               ->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
               ->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%',
@@ -1704,7 +1701,7 @@ export class HTMLFunctions
       newlevel = priorityprefix .. level
     endif
 
-    execute type .. ' ' .. newlevel .. ' ' .. nameescaped .. ' ' .. item
+    execute $'{type} {newlevel} {nameescaped} {item}'
   enddef
 
   # LeadMenu()  {{{1
@@ -1740,8 +1737,7 @@ export class HTMLFunctions
       newlevel = priorityprefix .. level
     endif
 
-    execute type .. ' ' .. newlevel .. ' ' .. nameescaped .. '<tab>'
-      .. leaderescaped .. item .. ' ' .. pre .. g:htmlplugin.map_leader .. item
+    execute $'{type} {newlevel} {nameescaped}<tab>{leaderescaped}{item} {pre}{g:htmlplugin.map_leader}{item}'
   enddef
 
   # EntityMenu()  {{{1
@@ -1778,15 +1774,9 @@ export class HTMLFunctions
       newsymb = newsymb->substitute('\\&', '\&\&', 'g')
     endif
 
-    execute 'imenu ' .. nameescaped .. newsymb .. '<tab>'
-      .. leaderescaped .. itemescaped .. ' '
-      .. g:htmlplugin.entity_map_leader .. item
-    execute 'nmenu ' .. nameescaped .. newsymb .. '<tab>'
-      .. leaderescaped .. itemescaped .. ' ' .. 'i'
-      .. g:htmlplugin.entity_map_leader .. item .. '<esc>'
-    execute 'vmenu ' .. nameescaped .. newsymb .. '<tab>'
-      .. leaderescaped .. itemescaped .. ' ' .. 's'
-      .. g:htmlplugin.entity_map_leader .. item .. '<esc>'
+    execute $'imenu {nameescaped}{newsymb}<tab>{leaderescaped}{itemescaped} {g:htmlplugin.entity_map_leader}{item}'
+    execute $'nmenu {nameescaped}{newsymb}<tab>{leaderescaped}{itemescaped} i{g:htmlplugin.entity_map_leader}{item}<esc>'
+    execute $'vmenu {nameescaped}{newsymb}<tab>{leaderescaped}{itemescaped} s{g:htmlplugin.entity_map_leader}{item}<esc>'
   enddef
 
   # ColorsMenu()  {{{1
@@ -1827,54 +1817,33 @@ export class HTMLFunctions
     rgbpercent = color->this.ToRGB(true)
 
     if namenospace == color
-      execute 'inoremenu ' .. nameescaped
-        .. '.Insert\ &Hexadecimal ' .. color
-      execute 'nnoremenu ' .. nameescaped
-        .. '.Insert\ &Hexadecimal i' .. color .. '<esc>'
-      execute 'vnoremenu ' .. nameescaped
-        .. '.Insert\ &Hexadecimal s' .. color .. '<esc>'
+      execute $'inoremenu {nameescaped}.Insert\ &Hexadecimal {color}'
+      execute $'nnoremenu {nameescaped}.Insert\ &Hexadecimal i{color}<esc>'
+      execute $'vnoremenu {nameescaped}.Insert\ &Hexadecimal s{color}<esc>'
 
-      execute 'inoremenu ' .. nameescaped
-        .. '.Insert\ &RGB ' .. rgb
-      execute 'nnoremenu ' .. nameescaped
-        .. '.Insert\ &RGB i' .. rgb .. '<esc>'
-      execute 'vnoremenu ' .. nameescaped
-        .. '.Insert\ &RGB s' .. rgb .. '<esc>'
+      execute $'inoremenu {nameescaped}.Insert\ &RGB {rgb}'
+      execute $'nnoremenu {nameescaped}.Insert\ &RGB i{rgb}<esc>'
+      execute $'vnoremenu {nameescaped}.Insert\ &RGB s{rgb}<esc>'
 
-      execute 'inoremenu ' .. nameescaped
-        .. '.Insert\ RGB\ &Percent ' .. rgbpercent
-      execute 'nnoremenu ' .. nameescaped
-        .. '.Insert\ RGB\ &Percent i' .. rgbpercent .. '<esc>'
-      execute 'vnoremenu ' .. nameescaped
-        .. '.Insert\ RGB\ &Percent s' .. rgbpercent .. '<esc>'
+      execute $'inoremenu {nameescaped}.Insert\ RGB\ &Percent {rgbpercent}'
+      execute $'nnoremenu {nameescaped}.Insert\ RGB\ &Percent i{rgbpercent}<esc>'
+      execute $'vnoremenu {nameescaped}.Insert\ RGB\ &Percent s{rgbpercent}<esc>'
     else
-      execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Name ' .. namenospace
-      execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Name i' .. namenospace .. '<esc>'
-      execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Name s' .. namenospace .. '<esc>'
+      execute $'inoremenu {nameescaped}<tab>({color}).Insert\ &Name {namenospace}'
+      execute $'nnoremenu {nameescaped}<tab>({color}).Insert\ &Name i{namenospace}<esc>'
+      execute $'vnoremenu {nameescaped}<tab>({color}).Insert\ &Name s{namenospace}<esc>'
 
-      execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Hexadecimal ' .. color
-      execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Hexadecimal i' .. color .. '<esc>'
-      execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &Hexadecimal s' .. color .. '<esc>'
+      execute $'inoremenu {nameescaped}<tab>({color}).Insert\ &Hexadecimal {color}'
+      execute $'nnoremenu {nameescaped}<tab>({color}).Insert\ &Hexadecimal i{color}<esc>'
+      execute $'vnoremenu {nameescaped}<tab>({color}).Insert\ &Hexadecimal s{color}<esc>'
 
-      execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &RGB ' .. rgb
-      execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &RGB i' .. rgb .. '<esc>'
-      execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ &RGB s' .. rgb .. '<esc>'
+      execute $'inoremenu {nameescaped}<tab>({color}).Insert\ &RGB {rgb}'
+      execute $'nnoremenu {nameescaped}<tab>({color}).Insert\ &RGB i{rgb}<esc>'
+      execute $'vnoremenu {nameescaped}<tab>({color}).Insert\ &RGB s{rgb}<esc>'
 
-      execute 'inoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ RGB\ &Percent ' .. rgbpercent
-      execute 'nnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ RGB\ &Percent i' .. rgbpercent .. '<esc>'
-      execute 'vnoremenu ' .. nameescaped .. '<tab>(' .. color
-        .. ').Insert\ RGB\ &Percent s' .. rgbpercent .. '<esc>'
+      execute $'inoremenu {nameescaped}<tab>({color}).Insert\ RGB\ &Percent {rgbpercent}'
+      execute $'nnoremenu {nameescaped}<tab>({color}).Insert\ RGB\ &Percent i{rgbpercent}<esc>'
+      execute $'vnoremenu {nameescaped}<tab>({color}).Insert\ RGB\ &Percent s{rgbpercent}<esc>'
     endif
   enddef
 
@@ -1952,7 +1921,7 @@ export class HTMLFunctions
         endif
 
         if json->has_key('lhs')
-          maplhs = '<lead>' .. json.lhs
+          maplhs = $'<lead>{json.lhs}'
           menulhs = json.lhs
         else
           maplhs = ""
@@ -1971,10 +1940,10 @@ export class HTMLFunctions
           var did_mappings = 0
 
           if json.maps->has_key('i')
-              && maparg((maplhs == '' ? '<lead>' .. json.maps.i[0] : maplhs)->substitute('^<lead>\c',
+              && maparg((maplhs == '' ? $'<lead>{json.maps.i[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'i') == ''
             if this.Map('inoremap',
-                (maplhs == '' ? '<lead>' .. json.maps.i[0] : maplhs),
+                (maplhs == '' ? $'<lead>{json.maps.i[0]}' : maplhs),
                 json.maps.i[1],
                 len(json.maps.i) >= 3 ? json.maps.i[2] : {},
                 internal)
@@ -1983,10 +1952,10 @@ export class HTMLFunctions
           endif
 
           if json.maps->has_key('v')
-              && maparg((maplhs == '' ? '<lead>' .. json.maps.v[0] : maplhs)->substitute('^<lead>\c',
+              && maparg((maplhs == '' ? $'<lead>{json.maps.v[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'v') == ''
             if this.Map('vnoremap',
-                (maplhs == '' ? '<lead>' .. json.maps.v[0] : maplhs),
+                (maplhs == '' ? $'<lead>{json.maps.v[0]}' : maplhs),
                 json.maps.v[1],
                 len(json.maps.v) >= 3 ? json.maps.v[2] : {},
                 internal)
@@ -1995,10 +1964,10 @@ export class HTMLFunctions
           endif
 
           if json.maps->has_key('n')
-              && maparg((maplhs == '' ? '<lead>' .. json.maps.n[0] : maplhs)->substitute('^<lead>\c',
+              && maparg((maplhs == '' ? $'<lead>{json.maps.n[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'n') == ''
             if this.Map('nnoremap',
-                (maplhs == '' ? '<lead>' .. json.maps.n[0] : maplhs),
+                (maplhs == '' ? $'<lead>{json.maps.n[0]}' : maplhs),
                 json.maps.n[1],
                 v:none,
                 internal)
@@ -2007,10 +1976,10 @@ export class HTMLFunctions
           endif
 
           if json.maps->has_key('o')
-              && maparg((maplhs == '' ? '<lead>' .. json.maps.o[0] : maplhs)->substitute('^<lead>\c',
+              && maparg((maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'o') == ''
             if this.Mapo(
-                (maplhs == '' ? '<lead>' .. json.maps.o[0] : maplhs),
+                (maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs),
                 json.maps.o[1],
                 internal)
               ++did_mappings
@@ -2021,7 +1990,7 @@ export class HTMLFunctions
           # actually defined, don't set the menu items for this mapping either:
           if did_mappings == 0
             if maplhs != ''
-              this.HTMLMessagesO.Warn('No mapping(s) were defined for "' .. maplhs .. '".'
+              this.HTMLMessagesO.Warn($'No mapping(s) were defined for "{maplhs}".'
                 .. (json->has_key('menu') ? '' : ' Skipping menu item.'))
             endif
             continue
@@ -2109,7 +2078,7 @@ export class HTMLFunctions
         endif
       else
         if maparg(g:htmlplugin.entity_map_leader .. json[0], 'i') != '' ||
-          !this.Map('inoremap', '<elead>' .. json[0], json[1], {extra: false}, internal)
+            !this.Map('inoremap', $'<elead>{json[0]}', json[1], {extra: false}, internal)
           # Failed to map? No menu item should be defined either:
           continue
         endif
