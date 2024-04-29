@@ -1760,7 +1760,7 @@ export class HTMLFunctions
     var itemescaped = item->escape('&<.|')->substitute('\\&', '\&\&', 'g')
 
     if newsymb != ''
-      # Makes it so UTF8 characters don't have to be hardcoded:
+      # Makes it so UTF8 characters don't have to be hardcoded in JSON files:
       if newsymb =~# '^\\[xuU]\x\+$'
         newsymb = newsymb->substitute('^\\[xuU]', '', '')->str2nr(16)->nr2char(1)
       endif

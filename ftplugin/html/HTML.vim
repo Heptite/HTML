@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      April 21, 2024
+# Last Change:      April 28, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.219 or later
 #
@@ -252,11 +252,11 @@ b:htmlplugin.did_mappings = true
 b:htmlplugin.clear_mappings = []
 
 # Make it easy to use a ; (or whatever the map leader is) as normal:
-HTMLFunctionsO.Map('inoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {extra: false})
-HTMLFunctionsO.Map('vnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader, {extra: false})
-HTMLFunctionsO.Map('nnoremap', '<lead>' .. g:htmlplugin.map_leader, g:htmlplugin.map_leader)
+HTMLFunctionsO.Map('inoremap', $'<lead>{g:htmlplugin.map_leader}', g:htmlplugin.map_leader, {extra: false})
+HTMLFunctionsO.Map('vnoremap', $'<lead>{g:htmlplugin.map_leader}', g:htmlplugin.map_leader, {extra: false})
+HTMLFunctionsO.Map('nnoremap', $'<lead>{g:htmlplugin.map_leader}', g:htmlplugin.map_leader)
 # Make it easy to insert a & (or whatever the entity leader is):
-HTMLFunctionsO.Map('inoremap', '<lead>' .. g:htmlplugin.entity_map_leader, g:htmlplugin.entity_map_leader, {extra: false})
+HTMLFunctionsO.Map('inoremap', $'<lead>{g:htmlplugin.entity_map_leader}', g:htmlplugin.entity_map_leader, {extra: false})
 
 if !HTMLFunctionsO.BoolVar('g:htmlplugin.no_tab_mapping')
   # Allow hard tabs to be used:
@@ -305,12 +305,12 @@ else
   # Strict HTML:
   HTMLFunctionsO.Map('nnoremap', '<lead>s4', "<ScriptCmd>append(0, ['<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"', ' \"http://www.w3.org/TR/html4/strict.dtd\">'])<CR>")
 endif
-HTMLFunctionsO.Map('imap', '<lead>4', '\<C-O>' .. g:htmlplugin.map_leader .. '4')
-HTMLFunctionsO.Map('imap', '<lead>s4', '\<C-O>' .. g:htmlplugin.map_leader .. 's4')
+HTMLFunctionsO.Map('imap', '<lead>4', $'\<C-O>{g:htmlplugin.map_leader}4')
+HTMLFunctionsO.Map('imap', '<lead>s4', $'\<C-O>{g:htmlplugin.map_leader}s4')
 
 #       HTML5 Doctype Command           HTML 5
 HTMLFunctionsO.Map('nnoremap', '<lead>5', "<ScriptCmd>append(0, '<!DOCTYPE html>')<CR>")
-HTMLFunctionsO.Map('imap', '<lead>5', '\<C-O>' .. g:htmlplugin.map_leader .. '5')
+HTMLFunctionsO.Map('imap', '<lead>5', $'\<C-O>{g:htmlplugin.map_leader}5')
 
 
 #       HTML
@@ -644,18 +644,18 @@ else
 
     HTMLFunctionsO.Menu('tmenu',     '1.130', ['ToolBar', 'Blist'],     'Create Bullet List')
     HTMLFunctionsO.Menu('imenu',     '1.130', ['ToolBar', 'Blist'],
-      g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
+      $'{g:htmlplugin.map_leader}ul{g:htmlplugin.map_leader}li')
     HTMLFunctionsO.Menu('vmenu',     '-',     ['ToolBar', 'Blist'], 
-      g:htmlplugin.map_leader .. 'uli' .. g:htmlplugin.map_leader .. 'li<ESC>')
+      $'{g:htmlplugin.map_leader}uli{g:htmlplugin.map_leader}li<ESC>')
     HTMLFunctionsO.Menu('nmenu',     '-',     ['ToolBar', 'Blist'], 
-      'i' .. g:htmlplugin.map_leader .. 'ul' .. g:htmlplugin.map_leader .. 'li')
+      $'i{g:htmlplugin.map_leader}ul{g:htmlplugin.map_leader}li')
     HTMLFunctionsO.Menu('tmenu',     '1.140', ['ToolBar', 'Nlist'],     'Create Numbered List')
     HTMLFunctionsO.Menu('imenu',     '1.140', ['ToolBar', 'Nlist'], 
-      g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
+      $'{g:htmlplugin.map_leader}ol{g:htmlplugin.map_leader}li')
     HTMLFunctionsO.Menu('vmenu',     '-',     ['ToolBar', 'Nlist'], 
-      g:htmlplugin.map_leader .. 'oli' .. g:htmlplugin.map_leader .. 'li<ESC>')
+      $'{g:htmlplugin.map_leader}oli{g:htmlplugin.map_leader}li<ESC>')
     HTMLFunctionsO.Menu('nmenu',     '-',     ['ToolBar', 'Nlist'], 
-      'i' .. g:htmlplugin.map_leader .. 'ol' .. g:htmlplugin.map_leader .. 'li')
+      $'i{g:htmlplugin.map_leader}ol{g:htmlplugin.map_leader}li')
     HTMLFunctionsO.Menu('tmenu',     '1.150', ['ToolBar', 'Litem'],     'Add List Item')
     HTMLFunctionsO.LeadMenu('imenu', '1.150', ['ToolBar', 'Litem'],     'li')
     HTMLFunctionsO.LeadMenu('nmenu', '-',     ['ToolBar', 'Litem'],     'li', 'i')
@@ -709,61 +709,61 @@ else
 
     HTMLFunctionsO.Menu('menu', '1.500', ['ToolBar', '-sep50-'], '<Nop>')
 
-    if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}db', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.510', ['ToolBar', 'Browser'],
         'Launch the Default Browser on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.510', ['ToolBar', 'Browser'], 'db')
     endif
 
-    if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}bv', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.520', ['ToolBar', 'Brave'],
         'Launch Brave on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.520', ['ToolBar', 'Brave'], 'bv')
     endif
 
-    if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}gc', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.530', ['ToolBar', 'Chrome'],
         'Launch Chrome on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.530', ['ToolBar', 'Chrome'], 'gc')
     endif
 
-    if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}ed', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.540', ['ToolBar', 'Edge'],
         'Launch Edge on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.540', ['ToolBar', 'Edge'], 'ed')
     endif
 
-    if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}ff', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.550', ['ToolBar', 'Firefox'],
         'Launch Firefox on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.550', ['ToolBar', 'Firefox'], 'ff')
     endif
 
-    if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}oa', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.560', ['ToolBar', 'Opera'],
         'Launch Opera on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.560', ['ToolBar', 'Opera'], 'oa')
     endif
 
-    if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}sf', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.570', ['ToolBar', 'Safari'],
         'Launch Safari on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.570', ['ToolBar', 'Safari'], 'sf')
     endif
 
-    if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}w3', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.580', ['ToolBar', 'w3m'],
         'Launch w3m on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.580', ['ToolBar', 'w3m'], 'w3')
     endif
 
-    if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}ly', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.590', ['ToolBar', 'Lynx'],
         'Launch Lynx on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.590', ['ToolBar', 'Lynx'], 'ly')
     endif
 
-    if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
+    if maparg($'{g:htmlplugin.map_leader}ln', 'n') != ''
       HTMLFunctionsO.Menu('tmenu', '1.600', ['ToolBar', 'Links'],
         'Launch Links on the Current File')
       HTMLFunctionsO.LeadMenu('amenu', '1.600', ['ToolBar', 'Links'], 'ln')
@@ -812,8 +812,7 @@ else
   HTMLFunctionsO.Menu('amenu', '-',    ['&Enable Mappings<tab>:HTML enable'],
     ':HTMLmappings enable<CR>')
 
-  execute 'amenu disable ' .. g:htmlplugin.toplevel_menu_escaped
-    .. '.Enable\ Mappings'
+  execute $'amenu disable {g:htmlplugin.toplevel_menu_escaped}.Enable\ Mappings'
 
   HTMLFunctionsO.Menu('menu',  '.9999', ['-sep999-'], '<Nop>')
 
@@ -822,58 +821,58 @@ else
   HTMLFunctionsO.Menu('amenu', '.9999', ['Help', 'About the HTML Plugin<TAB>:HTMLAbout'],
     ':HTMLAbout<CR>')
 
-  if maparg(g:htmlplugin.map_leader .. 'db', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}db', 'n') != ''
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', '&Default Browser'], 'db')
   endif
-  if maparg(g:htmlplugin.map_leader .. 'bv', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}bv', 'n') != ''
     HTMLFunctionsO.Menu('menu', '-', ['Preview', '-sep1-'], '<nop>')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', '&Brave'], 'bv')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Window)'], 'nbv')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Brave (New Tab)'], 'tbv')
   endif
-  if maparg(g:htmlplugin.map_leader .. 'gc', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}gc', 'n') != ''
     HTMLFunctionsO.Menu('menu', '-', ['Preview', '-sep3-'], '<nop>')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', '&Chrome'], 'gc')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Window)'], 'ngc')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Chrome (New Tab)'], 'tgc')
   endif
-  if maparg(g:htmlplugin.map_leader .. 'ed', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}ed', 'n') != ''
     HTMLFunctionsO.Menu('menu', '-', ['Preview', '-sep4-'], '<nop>')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', '&Edge'], 'ed')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Window)'], 'ned')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Edge (New Tab)'], 'ted')
   endif
-  if maparg(g:htmlplugin.map_leader .. 'ff', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}ff', 'n') != ''
     HTMLFunctionsO.Menu('menu', '-', ['Preview', '-sep2-'], '<nop>')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', '&Firefox'], 'ff')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Window)'], 'nff')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Firefox (New Tab)'], 'tff')
   endif
-  if maparg(g:htmlplugin.map_leader .. 'oa', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}oa', 'n') != ''
     HTMLFunctionsO.Menu('menu', '-', ['Preview', '-sep5-'], '<nop>')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', '&Opera'], 'oa')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Opera (New Window)'], 'noa')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Opera (New Tab)'], 'toa')
   endif
-  if maparg(g:htmlplugin.map_leader .. 'sf', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}sf', 'n') != ''
     HTMLFunctionsO.Menu('menu', '-', ['Preview', '-sep6-'], '<nop>')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', '&Safari'], 'sf')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Safari (New Window)'], 'nsf')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Safari (New Tab)'], 'tsf')
   endif
-  if maparg(g:htmlplugin.map_leader .. 'ly', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}ly', 'n') != ''
     HTMLFunctionsO.Menu('menu', '-', ['Preview', '-sep7-'], '<nop>')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', '&Lynx'], 'ly')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Lynx (New Window)'], 'nly')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Lynx (:terminal)'], 'tly')
   endif
-  if maparg(g:htmlplugin.map_leader .. 'w3', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}w3', 'n') != ''
     HTMLFunctionsO.Menu('menu', '-', ['Preview', '-sep8-'], '<nop>')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', '&w3m'], 'w3')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'w3m (New Window)'], 'nw3')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'w3m (:terminal)'], 'tw3')
   endif
-  if maparg(g:htmlplugin.map_leader .. 'ln', 'n') != ''
+  if maparg($'{g:htmlplugin.map_leader}ln', 'n') != ''
     HTMLFunctionsO.Menu('menu', '-', ['Preview', '-sep9-'], '<nop>')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Li&nks'], 'ln')
     HTMLFunctionsO.LeadMenu('amenu', '-', ['&Preview', 'Links (New Window)'], 'nln')

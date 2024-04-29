@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: April 17, 2024
+# Last Change: April 28, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -117,7 +117,7 @@ export class BrowserLauncher
 
       for tempkey in keys(this.Browsers)
         for tempname in (type(this.Browsers[tempkey][0]) == v:t_list ? this.Browsers[tempkey][0] : [this.Browsers[tempkey][0]])
-          temppath = system('which ' .. tempname)->trim()
+          temppath = system($'which {tempname}')->trim()
           if v:shell_error == 0
             this.Browsers[tempkey][0] = tempname
             this.Browsers[tempkey][1] = temppath
@@ -210,11 +210,11 @@ export class BrowserLauncher
     this.TextmodeBrowsers->copy()->mapnew(
       (_, textbrowser) => {
         var temp: string
-        temp = system('which ' .. textbrowser)->trim()
+        temp = system($'which {textbrowser}')->trim()
         if v:shell_error == 0
           this.Browsers[textbrowser] = [textbrowser, temp, '', '', '']
         else
-          this.TextmodeBrowsers->filter("v:val !=? '" .. textbrowser .. "'")
+          this.TextmodeBrowsers->filter($"v:val !=? '{textbrowser}'")
         endif
         return
       }
@@ -566,8 +566,7 @@ export class BrowserLauncher
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
             .. ' ' .. this.Browsers[which][2] 
         else
-          command = "sh -c \"trap '' HUP; " .. this.Browsers[which][1] .. " "
-            .. file->shellescape() .. ' ' .. this.Browsers[which][2]  .. ' &"'
+          command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]} {file->shellescape()} {this.Browsers[which][2]} &"'
         endif
       endif
     endif

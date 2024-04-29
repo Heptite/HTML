@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: April 17, 2024
+# Last Change: April 28, 2024
 #
 # Requirements:
 #   Vim 9.1.219 or later
@@ -62,7 +62,7 @@ export class MangleImageTag
     # Get the rest of the tag if we have a partial tag:
     while line =~? '<img\_[^>]*$'
       ++end_linenr
-      line = line .. "\n" .. getline(end_linenr)
+      line = $"{line}\n{getline(end_linenr)}"
     endwhile
 
     # Make sure we modify the right tag if more than one is on the line:
@@ -102,8 +102,8 @@ export class MangleImageTag
       this.HTMLMessagesO.Error(this.HTMLMessagesO.E_BLANK)
       return false
     elseif !src->filereadable()
-      if filereadable(expand('%:p:h') .. '/' .. src)
-        src = expand('%:p:h') .. '/' .. src
+      if filereadable($"{expand('%:p:h')}/{src}")
+        src = $"{expand('%:p:h')}/{src}"
       else
         printf(this.HTMLMessagesO.E_NOIMAGE, src)->this.HTMLMessagesO.Error()
         return false
