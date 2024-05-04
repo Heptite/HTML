@@ -5,6 +5,7 @@
 %bgcolor%	HTML.txt	/*%bgcolor%*
 %charset%	HTML.txt	/*%charset%*
 %date%	HTML.txt	/*%date%*
+%htmlversion%	HTML.txt	/*%htmlversion%*
 %include%	HTML.txt	/*%include%*
 %linkcolor%	HTML.txt	/*%linkcolor%*
 %textcolor%	HTML.txt	/*%textcolor%*

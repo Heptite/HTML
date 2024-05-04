@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Apr 21
+		Last change: 2024 May 04
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -372,7 +372,10 @@ The current version of Vim, based on |v:version| and |v:versionlong|. For
 example, if v:version was "901" and v:versionlong was "9010220" the
 %vimversion% token would be replaced by "9.1.220".
 
-%include {file}%					*%include%*
+%htmlversion%					*%htmlversion%*
+The current version of this HTML plugin.
+
+%include {file}%				*%include%*
 This will include {file} into the current template at the location it appears.
 {File} is searched for relative to the template and the directory of the
 current buffer.
