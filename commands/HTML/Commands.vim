@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: April 09, 2024
+# Last Change: May 09, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -34,6 +34,7 @@ if get(b:htmlplugin, 'did_commands', false) == true # {{{
 endif
 
 
+import autoload 'HTML/Util.vim'
 import autoload 'HTML/Functions.vim'
 
 var HTMLFunctionsO = Functions.HTMLFunctions.new()
@@ -62,8 +63,8 @@ if get(g:htmlplugin, 'did_commands', false) == true # {{{
   finish
 endif
 
-command! -bar HTMLAbout Functions.HTMLFunctions.About()
-command! -bar HTMLabout Functions.HTMLFunctions.About()
+command! -bar HTMLAbout Util.HTMLUtil.About()
+command! -bar HTMLabout Util.HTMLUtil.About()
 
 g:htmlplugin.did_commands = true
 

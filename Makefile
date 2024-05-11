@@ -14,7 +14,7 @@ savecwd  := $(shell pwd)
 vim2html := $(shell find $(HOME)/share/vim -name vim2html.pl | tail -1)
 vim2html := $(or $(vim2html),false)
 
-PLUGIN_FILES = ftplugin/html/HTML.vim autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim autoload/HTML/Messages.vim autoload/HTML/Functions.vim commands/HTML/Commands.vim import/HTML/Variables.vim json/HTML/entities.json json/HTML/tags.json json/HTML/entitytable.json
+PLUGIN_FILES = ftplugin/html/HTML.vim autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim autoload/HTML/Messages.vim autoload/HTML/Functions.vim autoload/HTML/Menu.vim autoload/HTML/Util.vim commands/HTML/Commands.vim import/HTML/Variables.vim json/HTML/entities.json json/HTML/tags.json json/HTML/entitytable.json
 
 .PHONY : default debug all force html.zip html.html bitmaps pixmaps changelog push
 
@@ -79,13 +79,11 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) doc/tags
 		${tmpdir}/pack/cjr/start/HTML/import/HTML \
 		${tmpdir}/pack/cjr/start/HTML/json/HTML
 	cp ${bitmaps}/* ${tmpdir}/pack/cjr/start/HTML/bitmaps/
-	cp ftplugin/html/HTML.vim ${tmpdir}/pack/cjr/start/HTML/ftplugin/html/
-	cp import/HTML/Variables.vim ${tmpdir}/pack/cjr/start/HTML/import/HTML/
-	cp commands/HTML/Commands.vim ${tmpdir}/pack/cjr/start/HTML/commands/HTML/
+	cp ftplugin/html/*.vim ${tmpdir}/pack/cjr/start/HTML/ftplugin/html/
+	cp import/HTML/*.vim ${tmpdir}/pack/cjr/start/HTML/import/HTML/
+	cp commands/HTML/*.vim ${tmpdir}/pack/cjr/start/HTML/commands/HTML/
 	cp json/HTML/*.json ${tmpdir}/pack/cjr/start/HTML/json/HTML/
-	cp autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim \
-		autoload/HTML/Functions.vim autoload/HTML/Messages.vim \
-		${tmpdir}/pack/cjr/start/HTML/autoload/HTML/
+	cp autoload/HTML/*.vim ${tmpdir}/pack/cjr/start/HTML/autoload/HTML/
 	cp doc/tags doc/gpl-3.0.html ${alldoc} ${tmpdir}/pack/cjr/start/HTML/doc/
 	chmod -R a+rX ${tmpdir}
 	cd ${tmpdir}; zip -9mr ${savecwd}/HTML.zip *
@@ -164,14 +162,12 @@ installed: $(PLUGIN_FILES) $(alldoc) $(allxpm) $(allbmp) doc/tags
 		~/.vim/pack/cjr/start/HTML/json/HTML/ \
 		~/.vim/pack/cjr/start/HTML/autoload/HTML/ \
 		~/.vim/pack/cjr/start/HTML/bitmaps/
-	cp -f ftplugin/html/HTML.vim ~/.vim/pack/cjr/start/HTML/ftplugin/html/
-	cp -f doc/HTML.txt doc/tags ~/.vim/pack/cjr/start/HTML/doc/
+	cp -f ftplugin/html/*.vim ~/.vim/pack/cjr/start/HTML/ftplugin/html/
 	cp -f import/HTML/Variables.vim ~/.vim/pack/cjr/start/HTML/import/HTML/
 	cp -f commands/HTML/Commands.vim ~/.vim/pack/cjr/start/HTML/commands/HTML/
 	cp -f json/HTML/*.json ~/.vim/pack/cjr/start/HTML/json/HTML/
-	cp -f autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim \
-		autoload/HTML/Functions.vim autoload/HTML/Messages.vim \
-		~/.vim/pack/cjr/start/HTML/autoload/HTML/
+	cp -f autoload/HTML/*.vim ~/.vim/pack/cjr/start/HTML/autoload/HTML/
+	cp -f doc/tags doc/gpl-3.0.html ${alldoc} ~/.vim/pack/cjr/start/HTML/doc/
 	cp -f bitmaps/* ~/.vim/pack/cjr/start/HTML/bitmaps/
 	touch installed
 

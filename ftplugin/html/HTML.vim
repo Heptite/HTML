@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      April 28, 2024
+# Last Change:      May 08, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.219 or later
 #
@@ -100,14 +100,13 @@ var HTMLFunctionsO = Functions.HTMLFunctions.new()
 b:htmlplugin.HTMLFunctionsO = HTMLFunctionsO
 # ...
 var BrowserLauncherO = BrowserLauncher.BrowserLauncher.new()
-# ...
 b:htmlplugin.BrowserLauncherO = BrowserLauncherO
 # ...
 var MangleImageTagO = MangleImageTag.MangleImageTag.new()
-# ...
 b:htmlplugin.MangleImageTagO = MangleImageTagO
 # ...
 var HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+#b:HTMLVariablesO = HTMLVariablesO
 
 if !HTMLFunctionsO.BoolVar('b:htmlplugin.did_mappings_init')
   b:htmlplugin.did_mappings_init = true
