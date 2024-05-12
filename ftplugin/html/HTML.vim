@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      May 08, 2024
+# Last Change:      May 11, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.219 or later
 #
@@ -323,7 +323,7 @@ else
   HTMLFunctionsO.Map('vnoremap', '<lead>ht', '\<ESC>`>a\<CR></[{HTML}]>\<C-O>`<<[{HTML}]>\<CR>\<ESC>', {reindent: 1})
 endif
 # Motion mapping:
-HTMLFunctionsO.Mapo('<lead>ht')
+HTMLFunctionsO.MapOp('<lead>ht')
 
 # ----------------------------------------------------------------------------
 

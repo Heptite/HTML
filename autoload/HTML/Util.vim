@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: May 10, 2024
+# Last Change: May 11, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -37,7 +37,15 @@ export enum SetIfUnsetR # {{{1
   error,
   exists,
   success
-endenum  # }}}1
+endenum
+
+export enum ToggleClipboardA # {{{1
+  remove,
+  add,
+  auto
+endenum
+
+# }}}1
 
 export class HTMLUtil
 
@@ -127,6 +135,126 @@ export class HTMLUtil
     else
       return false
     endif
+  enddef
+
+  # ColorChooser()  {{{1
+  #
+  # Purpose:
+  #  Use the popup feature of Vim to display HTML colors for selection
+  # Arguments:
+  #  1 - String: Default is "i", how to insert the chosen color
+  # Return Value:
+  #  None
+  def ColorChooser(how: string = 'i'): void
+    if !this.BoolVar('b:htmlplugin.did_mappings_init')
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOSOURCED)
+      return
+    endif
+
+    var maxw = 0
+    var doname = false
+    var dorgb = false
+    var dorgbpercent = false
+    var mode = mode()
+
+    def CCSelect(id: number, result: number)  # {{{2
+      if result < 0
+        return
+      endif
+
+      var color = HTMLVariables.HTMLVariables.COLOR_LIST[result - 1]
+
+      if doname
+        execute $'normal! {how} {color[0]->substitute("\\s", "", "g")}'
+      elseif dorgb
+        execute $'normal! {how} ' .. color[1]->this.ToRGB(false)
+      elseif dorgbpercent
+        execute $'normal! {how} ' .. color[1]->this.ToRGB(true)
+      else
+        execute $'normal! {how} {color[1]}'
+      endif
+
+      if mode == 'i'
+        if col('.') == getline('.')->strlen()
+          startinsert!
+        else
+          execute 'normal! l'
+        endif
+      else
+        stopinsert
+      endif
+    enddef
+
+    def CCKeyFilter(id: number, key: string): bool  # {{{2
+      var newkey = key
+      if key == "\<tab>" || key ==? 'n' || key ==? 'f'
+        newkey = 'j'
+      elseif key == "\<s-tab>" || key ==? 'p' || key ==? 'b'
+        newkey = 'k'
+      elseif key ==# 'r'
+        dorgb = true
+        newkey = "\<cr>"
+      elseif key ==# 'R'
+        dorgbpercent = true
+        newkey = "\<cr>"
+      elseif key == "\<s-cr>"
+        doname = true
+        newkey = "\<cr>"
+      elseif key ==? 'q'
+        popup_close(id, -2)
+        return true
+      elseif key == "\<2-leftmouse>" || key == "\<s-2-leftmouse>" || key == "\<c-2-leftmouse>"
+        var mousepos = getmousepos()
+        if mousepos.screencol < (popup_getpos(id)['core_col'] - 1) ||
+            mousepos.screenrow < (popup_getpos(id)['core_line']) ||
+            mousepos.screencol > (popup_getpos(id)['core_col']
+              + popup_getpos(id)['core_width'] - 1) ||
+            mousepos.screenrow > (popup_getpos(id)['core_line']
+              + popup_getpos(id)['core_height'] - 1)
+          newkey = key
+        else
+          if key == "\<s-2-leftmouse>"
+            dorgb = true
+          elseif key == "\<c-2-leftmouse>"
+            dorgbpercent = true
+          elseif mousepos.screencol < (popup_getpos(id)['core_col']
+              + popup_getpos(id)['core_width'] - 9)
+            doname = true
+          endif
+
+          popup_close(id, popup_getpos(id)['firstline']
+            + mousepos.winrow - 2)
+          return true
+        endif
+      else
+        newkey = key
+      endif
+
+      return popup_filter_menu(id, newkey)
+    enddef  # }}}2
+
+    maxw = HTMLVariables.HTMLVariables.COLOR_LIST->mapnew((_, value) => value[0]->strlen())
+      ->sort('f')[-1]
+
+    var colorwin = HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
+        (_, value) => printf($'%{maxw}s = %s', (value[0] == '' ? value[1] : value[0]), value[1])
+      )->popup_menu({
+        callback: CCSelect, filter: CCKeyFilter,
+        pos: 'topleft',     col: 'cursor',
+        line: 1,            maxheight: &lines - 3,
+        close: 'button',
+      })
+
+    HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
+      (_, value) => {
+        var csplit = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
+        var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ? 0x000000 : 0xFFFFFF)
+        var namenospace = (value[0] == '' ? value[1] : value[0]->substitute('\s', '', 'g'))
+        win_execute(colorwin, $'syntax match hc_{namenospace} /{value[1]}$/')
+        win_execute(colorwin, $'highlight hc_{namenospace} guibg={value[1]} guifg=#{printf("%06X", contrast)}')
+
+        return
+      })
   enddef
 
   # ConvertCase()  {{{1
@@ -397,6 +525,47 @@ export class HTMLUtil
               ->substitute('\C%include\s\+\(.\{-1,}\)%',
                 '\=this.FindAndRead(submatch(1), expand("%:p:h") .. (directory != "" ? "," .. directory : ""))->join("%newline%")', 'g')
       )
+  enddef
+
+  # ToggleClipboard()  {{{1
+  #
+  # Used to turn off/on the inclusion of "html" in the 'clipboard' option when
+  # switching buffers.
+  #
+  # Arguments:
+  #  1 - ToggleClipboardA:
+  #      remove - Remove 'html' if it was removed before.
+  #      add    - Add 'html'.
+  #      auto   - Auto detect which to do. (Default)
+  #
+  # (Note that g:htmlplugin.save_clipboard is set by this plugin's
+  # initialization.)
+  def ToggleClipboard(dowhat: ToggleClipboardA = ToggleClipboardA.auto): bool
+    var newdowhat = dowhat
+
+    if newdowhat == ToggleClipboardA.auto
+      if this.BoolVar('b:htmlplugin.did_mappings')
+        newdowhat = ToggleClipboardA.add
+      else
+        newdowhat = ToggleClipboardA.remove
+      endif
+    endif
+
+    if newdowhat == ToggleClipboardA.remove
+      if g:htmlplugin->has_key('save_clipboard')
+        &clipboard = g:htmlplugin.save_clipboard
+      else
+        printf(this.HTMLMessagesO.E_NOCLIPBOARD, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+        return false
+      endif
+    else
+      if &clipboard !~? 'html'
+        g:htmlplugin.save_clipboard = &clipboard
+      endif
+      silent! set clipboard+=html
+    endif
+
+    return true
   enddef
 
   # ToRGB()  {{{1
