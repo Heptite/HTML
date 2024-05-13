@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: May 11, 2024
+# Last Change: May 12, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -568,6 +568,54 @@ export class HTMLUtil
     return true
   enddef
 
+  # ToggleOptions()  {{{1
+  #
+  # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
+  # are off temporarily to prevent the visual mappings from causing a
+  # (visual)bell or inserting improperly.
+  #
+  # Arguments:
+  #  1 - Boolean: false - Turn options off.
+  #               true  - Turn options back on, if they were on before.
+  def ToggleOptions(which: bool)
+    try
+      if which
+        if this.HTMLVariablesO.saveopts->has_key('formatoptions')
+            && this.HTMLVariablesO.saveopts.formatoptions != ''
+          &l:showmatch = this.HTMLVariablesO.saveopts.showmatch
+          &l:indentexpr = this.HTMLVariablesO.saveopts.indentexpr
+          &l:formatoptions = this.HTMLVariablesO.saveopts.formatoptions
+        endif
+
+        # Restore the last visual mode if it was changed:
+        if this.HTMLVariablesO.saveopts->get('visualmode', '') != ''
+          execute $'normal! gv{this.HTMLVariablesO.saveopts.visualmode}'
+          this.HTMLVariablesO.saveopts->remove('visualmode')
+        endif
+      else
+        if &l:formatoptions != ''
+          this.HTMLVariablesO.saveopts.showmatch = &l:showmatch
+          this.HTMLVariablesO.saveopts.indentexpr = &l:indentexpr
+          this.HTMLVariablesO.saveopts.formatoptions = &l:formatoptions
+        endif
+        &l:showmatch = false
+        &l:indentexpr = ''
+        &l:formatoptions = ''
+
+        # A trick to make leading indent on the first line of visual-line
+        # selections is handled properly (turn it into a character-wise
+        # selection and exclude the leading indent):
+        if visualmode() ==# 'V'
+          this.HTMLVariablesO.saveopts.visualmode = visualmode()
+          execute "normal! \<c-\>\<c-n>`<^v`>"
+        endif
+      endif
+    catch
+      printf(this.HTMLMessagesO.E_OPTEXCEPTION, v:exception)->this.HTMLMessagesO.Error()
+    endtry
+  enddef
+
+  # }}}1
   # ToRGB()  {{{1
   #
   # Purpose:

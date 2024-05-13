@@ -5,7 +5,7 @@
 		"lhs": "&",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLFunctionsO.TranscodeString(@\")<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\")<CR><Esc>", {"extra": false}],
 			"o": ["", false]
 		},
 
@@ -18,7 +18,7 @@
 		"lhs": "*",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLFunctionsO.TranscodeString(@\",'x')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\",'x')<CR><Esc>", {"extra": false}],
 			"o": ["", false]
 		},
 
@@ -31,7 +31,7 @@
 		"lhs": "%",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLFunctionsO.TranscodeString(@\",'%')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\",'%')<CR><Esc>", {"extra": false}],
 			"o": ["", false]
 		},
 
@@ -44,7 +44,7 @@
 		"lhs": "^",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLFunctionsO.TranscodeString(@\",'d')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\",'d')<CR><Esc>", {"extra": false}],
 			"o": ["", false]
 		},
 
@@ -57,9 +57,9 @@
 		"lhs": "cc",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>b:htmlplugin.HTMLFunctionsO.ColorChooser()<CR>"],
-			"i": ["", "<ScriptCmd>b:htmlplugin.HTMLFunctionsO.ColorChooser()<CR>", {"extra": false}],
-			"v": ["", "s<ScriptCmd>b:htmlplugin.HTMLFunctionsO.ColorChooser()<CR>", {"extra": false}]
+			"n": ["", "<ScriptCmd>b:htmlplugin.HTMLUtilO.ColorChooser()<CR>"],
+			"i": ["", "<ScriptCmd>b:htmlplugin.HTMLUtilO.ColorChooser()<CR>", {"extra": false}],
+			"v": ["", "s<ScriptCmd>b:htmlplugin.HTMLUtilO.ColorChooser()<CR>", {"extra": false}]
 		},
 
 		"menu": ["-", ["&Colors", "Display All && Select"], {
@@ -75,8 +75,8 @@
 		"lhs": "bo",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('b', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('b', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('b', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('b', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -103,8 +103,8 @@
 		"lhs": "st",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('strong', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('strong', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('strong', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('strong', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -131,8 +131,8 @@
 		"lhs": "it",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('i', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('i', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('i', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('i', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -159,8 +159,8 @@
 		"lhs": "em",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('em', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('em', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('em', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('em', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -187,8 +187,8 @@
 		"lhs": "un",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('u', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('u', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('u', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('u', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -275,8 +275,8 @@
 		"lhs": "ci",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('cite', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('cite', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('cite', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('cite', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -303,8 +303,8 @@
 		"lhs": "co",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('code', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('code', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('code', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('code', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -331,8 +331,8 @@
 		"lhs": "in",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('ins', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('ins', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('ins', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('ins', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -359,8 +359,8 @@
 		"lhs": "de",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('del', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('del', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('del', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('del', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -387,8 +387,8 @@
 		"lhs": "kb",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('kbd', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('kbd', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('kbd', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('kbd', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -415,8 +415,8 @@
 		"lhs": "sa",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('samp', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('samp', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('samp', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('samp', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -443,8 +443,8 @@
 		"lhs": "sb",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('sub', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('sub', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('sub', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('sub', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -471,8 +471,8 @@
 		"lhs": "sp",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('sup', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('sup', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('sup', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('sup', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -513,8 +513,8 @@
 		"lhs": "va",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('var', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('var', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('var', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('var', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -541,8 +541,8 @@
 		"lhs": "fm",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('form', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('form', 'v')", {"expr": true, "reindent": 1}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('form', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('form', 'v')", {"expr": true, "reindent": 1}],
 			"o": ["", true]
 		},
 
@@ -709,8 +709,8 @@
 		"lhs": "op",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('option', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('option', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('option', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('option', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1023,8 +1023,8 @@
 		"lhs": "ah",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('a1', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('a1', 'v')", {"expr": true, "insert": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('a1', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('a1', 'v')", {"expr": true, "insert": true}],
 			"o": ["", true]
 		},
 
@@ -1049,8 +1049,8 @@
 
 	{
 		"maps": {
-			"i": ["aH", "b:htmlplugin.HTMLFunctionsO.SmartTag('a2', 'i')", {"expr": true}],
-			"v": ["aH", "b:htmlplugin.HTMLFunctionsO.SmartTag('a2', 'v')", {"expr": true, "insert": true}],
+			"i": ["aH", "b:htmlplugin.HTMLMapO.SmartTag('a2', 'i')", {"expr": true}],
+			"v": ["aH", "b:htmlplugin.HTMLMapO.SmartTag('a2', 'v')", {"expr": true, "insert": true}],
 			"o": ["aH", true]
 		},
 
@@ -1071,8 +1071,8 @@
 
 	{
 		"maps": {
-			"i": ["at", "b:htmlplugin.HTMLFunctionsO.SmartTag('a3', 'i')", {"expr": true}],
-			"v": ["at", "b:htmlplugin.HTMLFunctionsO.SmartTag('a3', 'v')", {"expr": true, "insert": true}],
+			"i": ["at", "b:htmlplugin.HTMLMapO.SmartTag('a3', 'i')", {"expr": true}],
+			"v": ["at", "b:htmlplugin.HTMLMapO.SmartTag('a3', 'v')", {"expr": true, "insert": true}],
 			"o": ["at", true]
 		},
 
@@ -1093,8 +1093,8 @@
 
 	{
 		"maps": {
-			"i": ["aT", "b:htmlplugin.HTMLFunctionsO.SmartTag('a4', 'i')", {"expr": true}],
-			"v": ["aT", "b:htmlplugin.HTMLFunctionsO.SmartTag('a4', 'v')", {"expr": true, "insert": true}],
+			"i": ["aT", "b:htmlplugin.HTMLMapO.SmartTag('a4', 'i')", {"expr": true}],
+			"v": ["aT", "b:htmlplugin.HTMLMapO.SmartTag('a4', 'v')", {"expr": true, "insert": true}],
 			"o": ["aT", true]
 		},
 
@@ -1165,8 +1165,8 @@
 		"lhs": "pp",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('p', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('p', 'v')", {"expr": true, "reindent": 1}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('p', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('p', 'v')", {"expr": true, "reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1199,8 +1199,8 @@
 		"lhs": "pr",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('pre', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('pre', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('pre', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('pre', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1485,8 +1485,8 @@
 		"lhs": "fg",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('figure', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('figure', 'v')", {"expr": true, "reindent": 1}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('figure', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('figure', 'v')", {"expr": true, "reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1513,8 +1513,8 @@
 		"lhs": "fp",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('figcaption', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('figcaption', 'v')", {"expr": true, "reindent": 1}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('figcaption', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('figcaption', 'v')", {"expr": true, "reindent": 1}],
 			"o": ["", false]
 		},
 
@@ -1583,8 +1583,8 @@
 		"lhs": "mk",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('mark', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('mark', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('mark', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('mark', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1843,8 +1843,8 @@
 		"lhs": "bl",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('blockquote', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('blockquote', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('blockquote', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('blockquote', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1871,8 +1871,8 @@
 		"lhs": "cm",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('comment', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('comment', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('comment', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('comment', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1899,8 +1899,8 @@
 		"lhs": "df",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('dfn', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('dfn', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('dfn', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('dfn', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -1955,8 +1955,8 @@
 		"lhs": "js",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('script1', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('script1', 'v')", {"expr": true, "reindent": 3}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('script1', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('script1', 'v')", {"expr": true, "reindent": 3}],
 			"o": ["", false]
 		},
 
@@ -1983,8 +1983,8 @@
 		"lhs": "jm",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('script2', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('script2', 'v')", {"expr": true, "reindent": 3}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('script2', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('script2', 'v')", {"expr": true, "reindent": 3}],
 			"o": ["", false]
 		},
 
@@ -2131,8 +2131,8 @@
 		"lhs": "qu",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('q', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLFunctionsO.SmartTag('q', 'v')", {"expr": true}],
+			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('q', 'i')", {"expr": true}],
+			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('q', 'v')", {"expr": true}],
 			"o": ["", false]
 		},
 
@@ -2355,7 +2355,7 @@
 		"lhs": "tA",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>b:htmlplugin.HTMLFunctionsO.GenerateTable()<CR>"]
+			"n": ["", "<ScriptCmd>b:htmlplugin.HTMLMapO.GenerateTable()<CR>"]
 		},
 
 		"menu": ["-", ["&Tables", "Interactive Table"], {
@@ -2481,7 +2481,7 @@
 		"lhs": "html",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>if b:htmlplugin.HTMLFunctionsO.Template() \\| startinsert \\| endif<CR>"]
+			"n": ["", "<ScriptCmd>if b:htmlplugin.HTMLMapO.Template() \\| startinsert \\| endif<CR>"]
 		},
 
 		"menu": ["-", ["Template"], {
@@ -2499,7 +2499,7 @@
 		"lhs": "ct",
 
 		"maps": {
-			"i": ["", "'<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=' .. b:htmlplugin.HTMLFunctionsO.DetectCharset() .. '\" />'", {"expr": true}]
+			"i": ["", "'<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=' .. b:htmlplugin.HTMLUtilO.DetectCharset() .. '\" />'", {"expr": true}]
 		},
 
 		"menu": ["-", ["Content-Type"], {
