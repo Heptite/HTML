@@ -5,9 +5,9 @@ if v:version < 901 || v:versionlong < 9010219
   finish
 endif
 
-# Various functions for the HTML macros filetype plugin.
+# Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: May 12, 2024
+# Last Change: May 13, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -35,7 +35,7 @@ import autoload 'HTML/Messages.vim'
 import autoload 'HTML/Menu.vim'
 import autoload 'HTML/Util.vim'
 
-export class HTMLFunctions extends Util.HTMLUtil
+export class HTMLGlue extends Util.HTMLUtil
 
   final HTMLMapO: Map.HTMLMap
   final HTMLMenuO: Menu.HTMLMenu

@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      May 12, 2024
+# Last Change:      May 13, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.219 or later
 #
@@ -90,17 +90,18 @@ endif
 runtime commands/HTML/Commands.vim
 
 import '../../import/HTML/Variables.vim' as HTMLVariables
-import autoload 'HTML/Functions.vim'
+import autoload 'HTML/Glue.vim'
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/MangleImageTag.vim'
 import autoload 'HTML/Map.vim'
 import autoload 'HTML/Menu.vim'
 import autoload 'HTML/Util.vim'
+import autoload 'HTML/Messages.vim'
 
 # Create functions object ...
-var HTMLFunctionsO = Functions.HTMLFunctions.new()
+var HTMLGlueO = Glue.HTMLGlue.new()
 # ...and save it where it can be used by the mappings:
-b:htmlplugin.HTMLFunctionsO = HTMLFunctionsO
+b:htmlplugin.HTMLGlueO = HTMLGlueO
 # ...
 var BrowserLauncherO = BrowserLauncher.BrowserLauncher.new()
 b:htmlplugin.BrowserLauncherO = BrowserLauncherO
@@ -113,6 +114,9 @@ b:htmlplugin.HTMLMapO = HTMLMapO
 # ...
 var HTMLMenuO = Menu.HTMLMenu.new()
 #b:htmlplugin.HTMLMenuO = HTMLMenuO
+# ...
+var HTMLMessagesO = Messages.HTMLMessages.new()
+#b:htmlplugin.HTMLMessagesO = HTMLMessagesO
 # ...
 var HTMLVariablesO = HTMLVariables.HTMLVariables.new()
 #b:htmlplugin.HTMLVariablesO = HTMLVariablesO
@@ -165,7 +169,7 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
   # Intitialize some necessary variables:  {{{2
 
   if type(g:htmlplugin.toplevel_menu) != v:t_list
-    Functions.HTMLFunctions.Error('g:htmlplugin.toplevel_menu must be a list! Overriding to default.')
+    Messages.HTMLMessages.Error('g:htmlplugin.toplevel_menu must be a list! Overriding to default.')
     sleep 3
     g:htmlplugin.toplevel_menu = []
   endif
@@ -181,8 +185,8 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
   setlocal matchpairs+=<:>
 
   if g:htmlplugin.entity_map_leader ==# g:htmlplugin.map_leader
-    Functions.HTMLFunctions.Error('"g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!')
-    Functions.HTMLFunctions.Error('Resetting both to their defaults (";" and "&" respectively).')
+    Messages.HTMLmessages.Error('"g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!')
+    Messages.HTMLmessages.Error('Resetting both to their defaults (";" and "&" respectively).')
     sleep 3
     g:htmlplugin.map_leader = ';'
     g:htmlplugin.entity_map_leader = '&'
@@ -219,7 +223,7 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
     b:htmlplugin.tag_case = 'lowercase'
   endif
 
-  HTMLFunctionsO.SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
+  HTMLUtilO.SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
 
   # Template Creation: {{{2
 
@@ -551,15 +555,15 @@ if HTMLUtilO.BoolVar('g:htmlplugin.did_menus')
     # Already did the menus but the tags and entities mappings need to be
     # defined for this new buffer:
     b:htmlplugin.did_json = true
-    HTMLFunctionsO.ReadTags(false, true)
-    HTMLFunctionsO.ReadEntities(false, true)
+    HTMLGlueO.ReadTags(false, true)
+    HTMLGlueO.ReadEntities(false, true)
   endif
 elseif HTMLUtilO.BoolVar('g:htmlplugin.no_menu')
   # No menus were requested, so just define the tags and entities mappings:
   if !HTMLUtilO.BoolVar('b:htmlplugin.did_json')
     b:htmlplugin.did_json = true
-    HTMLFunctionsO.ReadTags(false, true)
-    HTMLFunctionsO.ReadEntities(false, true)
+    HTMLGlueO.ReadTags(false, true)
+    HTMLGlueO.ReadEntities(false, true)
   endif
 else
 
@@ -894,8 +898,8 @@ else
   # got here they weren't brought in above.):
   if !HTMLUtilO.BoolVar('b:htmlplugin.did_json')
     b:htmlplugin.did_json = true
-    HTMLFunctionsO.ReadTags(true, true)
-    HTMLFunctionsO.ReadEntities(true, true)
+    HTMLGlueO.ReadTags(true, true)
+    HTMLGlueO.ReadEntities(true, true)
   endif
 
   # Create the rest of the colors menu:
@@ -935,7 +939,7 @@ if !HTMLUtilO.BoolVar('g:htmlplugin.did_plugin_warning_check')
   g:htmlplugin.did_plugin_warning_check = true
   var files = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
   if files->len() > 1
-    var filesmatched = files->Functions.HTMLFunctions.FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)
+    var filesmatched = files->Util.HTMLUtil.FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)
     if filesmatched->len() > 1
       var message = "Multiple versions of the HTML plugin are installed.\n"
         .. "Locations:\n   " .. filesmatched->map((_, value) => value->fnamemodify(':~'))->join("\n   ")

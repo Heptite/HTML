@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 May 11
+		Last change: 2024 May 13
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -208,7 +208,7 @@ must be set before HTML.vim is sourced. e.g.: >
 	:let g:htmlplugin.no_map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |HTMLFunctionsObject.Map()| function elsewhere you will still get a warning
+call the |HTMLMapObject.Map()| function elsewhere you will still get a warning
 message when there is an already existing mapping and the mapping will still
 be overridden.
 
@@ -224,7 +224,7 @@ centered headings tags: >
 		\ ';H4', ';H5', ';H6']
 
 This only applies to the mappings defined internally to the plugin. If you
-call the |HTMLFunctionsObject.Map()| function elsewhere the mapping will be defined
+call the |HTMLMapObject.Map()| function elsewhere the mapping will be defined
 even if it matches this list; this is useful if you wish to define custom
 variants of some of the plugin's mappings without getting warning messages.
 
@@ -290,7 +290,7 @@ internal template.
 The default for these variables are empty strings.
 
 *g:htmlplugin.author_email_encoded* *b:htmlplugin.author_email_encoded*
-This variable will be set using |HTMLFunctionsObject.TranscodeString()| if your
+This variable will be set using |HTMLUtilObject.TranscodeString()| if your
 |g:htmlplugin.author_email| variable is set. (Do not set this variable
 yourself, it will be overwritten when the template macro is used.)
 
@@ -445,8 +445,8 @@ The following commands are only defined in HTML buffers.
 	would want to be able to type literal ";", "&" and tab characters
 	without interference. (Also see |i_;;|, |i_;&| and |i_;<Tab>|)
 
-	Note that all of the mappings defined by calling |HTMLFunctionsObject.Map()|
-	or |HTMLFunctionsObject.MapOp()|--including all of the mappings
+	Note that all of the mappings defined by calling |HTMLMapObject.Map()|
+	or |HTMLMapObject.MapOp()|--including all of the mappings
 	defined by this script--are disabled/enabled when this command is
 	used, regardless of what |g:htmlplugin.map_leader| is set to.
 
@@ -705,12 +705,12 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 							*html-object*
 							*i_;ob* *v_;ob* *n_;ob*
 ;ob	Generic embedded object: >
-	<HTMLFunctionsObject DATA="" WIDTH="" HEIGHT="">
-	</HTMLFunctionsObject>
+	<HTML DATA="" WIDTH="" HEIGHT="">
+	</HTML>
 <	Visual mode puts the selected text >
-	<HTMLFunctionsObject DATA="" WIDTH="" HEIGHT="">
+	<HTML DATA="" WIDTH="" HEIGHT="">
 <	here >
-	</HTMLFunctionsObject>.
+	</HTML>.
 <	(|n_;|)
 							*html-object-parameter*
 							*i_;pm* *v_;pm* *n_;pm*
@@ -1340,7 +1340,7 @@ characters into the HTML buffer. These are known as characters entities.
 	(|n_;|)
 
 	(Note that this will not touch Unicode characters. See
-	|HTMLFunctionsObject.TranscodeString()|)
+	|HTMLUtilObject.TranscodeString()|)
 							*n_;^* *v_;^*
 ;^	This mapping will decode the &..., &#...; and %XX elements of the
 	motion or visually selected characters to their actual characters.
@@ -1771,21 +1771,22 @@ drive).
 Some of the functions used by the HTML mappings:	*html-functions*
 ------------------------------------------------
 
-These functions are now wrapped into a class called HTMLFunctions, and must be
-imported and a new object created to be used, herafter referred to as
-HTMLFunctionsObject.
-
-To create the object, first include the file in your |vim9script|: >
+These functions are wrapped into various classes and must be imported and a
+new object created to be used.  For example, to to create an object, first
+include the respective file(s) in your |vim9script|: >
 	
-	import autoload 'HTML/Functions.vim'
+	vim9script
+	import autoload 'HTML/Map.vim'
+	import autoload 'HTML/Util.vim'
 
-<Then create the object: >
+<Then create the object(s): >
 
-	var HTMLFunctionsObject = Functions.HTMLFunctions.new()
+	var HTMLMapObject = Map.HTMLMap.new()
+	var HTMLUtilObject = Util.HTMLUtil.new()
 <
+Hereafter, example objects will be used for the various functions listed:
 
-					*HTMLFunctionsObject.BoolVar()*
-HTMLFunctionsObject.BoolVar('{variable}')
+HTMLUtilObject.BoolVar('{variable}')	*HTMLUtilObject.BoolVar()*
 	Tests to see if the contents of the named variable in the string
 	argument (don't forget the quotes!) are "truty" in a very broad sense
 	of the word. >
@@ -1795,28 +1796,31 @@ HTMLFunctionsObject.BoolVar('{variable}')
 	prefixable variables such as |b:|, |g:|, |s:|, |t:|, |v:|, and |w:| variables
 	are valid for testing, and the default, if unspecified, is to check
 	for a g: (global) variable.
-					*HTMLFunctionsObject.ColorChooser()*
-HTMLFunctionsObject.ColorChooser({how})
+
+HTMLUtilObject.ColorChooser({how})	*HTMLUtilObject.ColorChooser()*
 	Create the Color Chooser popup. {how} determines if it is inserted
 	('i') or appended ('a') at the cursor position.
-					*HTMLFunctionsObject.Bool()*
-HTMLFunctionsObject.Bool('{variable}')
-	This is the helper function called by |HTMLFunctionsObject.BoolVar()|
+
+HTMLUtilObject.Bool('{variable}')	*HTMLUtilObject.Bool()*
+	This is the helper function called by |HTMLUtilObject.BoolVar()|
 	and does the actual test, so it can be used more directly if desired.
-					*HTMLFunctionsObject.IsSet()*
-HTMLFunctionsObject.IsSet('{variable}')
+
+HTMLUtilObject.IsSet('{variable}')	*HTMLUtilObject.IsSet()*
 	Tests to see if the named variable is set. (Don't forget the quotes!)
-					*HTMLFunctionsObject.FilesWithMatch()*
-HTMLFunctionsObject.FilesWithMatch([{filelist}], '{pattern}', [max])
+
+					*HTMLUtilObject.FilesWithMatch()*
+HTMLUtilObject.FilesWithMatch([{filelist}], '{pattern}', [max])
 	Search {filelist} for {pattern}, scanning at most {max} lines per file
 	for the match. A list of files that matched is returned.
-					*HTMLFunctionsObject.ToRGB()*
-HTMLFunctionsObject.ToRGB({string} [, {bool}])
+
+					*HTMLUtilObject.ToRGB()*
+HTMLUtilObject.ToRGB({string} [, {bool}])
 	Convert a #XXXXXX Hexadecimal color {string} to rgb() format. {bool}
 	determines whether to convert to percentages (|v:true|) or 0-255 format.
 	A blank string is returned on error.
-					*HTMLFunctionsObject.TranscodeString()*
-HTMLFunctionsObject.TranscodeString({string} [, {...}])
+
+					*HTMLUtilObject.TranscodeString()*
+HTMLUtilObject.TranscodeString({string} [, {...}])
 	Returns {string} encoded into HTML entities, or decode HTML encoded
 	strings.
 
@@ -1841,8 +1845,8 @@ HTMLFunctionsObject.TranscodeString({string} [, {...}])
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 
-					*HTMLFunctionsObject.GenerateTable()*
-HTMLFunctionsObject.GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
+					*HTMLMapObject.GenerateTable()*
+HTMLMapObject.GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 	This is normally called by the |n_;tA|, mapping but it can be called
 	with argumetns to non-interactively generate a table:
 
@@ -1860,8 +1864,8 @@ HTMLFunctionsObject.GenerateTable([{rows}, {columns}, {border-width}, {thead}, {
 
 	This function returns true if a table was generated, false otherwise.
 
-						*HTMLFunctionsObject.Map()*
-HTMLFunctionsObject.Map({maptype}, {lhs}, {rhs} [, {options}])
+						*HTMLMapObject.Map()*
+HTMLMapObject.Map({maptype}, {lhs}, {rhs} [, {options}])
 	This function defines a mapping, local to the buffer and silent.
 	{maptype} is any map command. {lhs} and {rhs} are equivalent to `:map`
 	arguments, see |map.txt|. This is useful for autocommands and HTML
@@ -1900,15 +1904,15 @@ HTMLFunctionsObject.Map({maptype}, {lhs}, {rhs} [, {options}])
 
 	This function returns true if a map was defined, false otherwise.
 
-HTMLFunctionsObject.MapOp({map} [, {insert}])	*HTMLFunctionsObject.MapOp()*
+HTMLMapObject.MapOp({map} [, {insert}])	*HTMLMapObject.MapOp()*
 	Creates an operator-pending mapping wrapper for {map} that calls the
 	visual mapping by the same name. {insert} is a |Boolean| value that
 	indicates whether to end in insert mode, default false.
 
 	This function returns true if a map was defined, false otherwise.
 
-					*HTMLFunctionsObject.NextInsertPoint()*
-HTMLFunctionsObject.NextInsertPoint([{mode}, {direction}])
+					*HTMLMapObject.NextInsertPoint()*
+HTMLMapObject.NextInsertPoint([{mode}, {direction}])
 	This is normally called by the |i_;<Tab>| mapping, but it works the
 	same if called any other way. The {mode} argument is either 'i' or 'n'
 	(default) which means |Insert| or |Normal|. In insert mode, if the
@@ -1919,21 +1923,20 @@ HTMLFunctionsObject.NextInsertPoint([{mode}, {direction}])
 
 	This function returns true if the cursor was moved, false otherwise.
 
-					*HTMLFunctionsObject.PluginControl()*
-HTMLFunctionsObject.PluginControl({what})
+HTMLMapObject.PluginControl({what})	*HTMLMapObject.PluginControl()*
 	This is normally called by the |:HTMLplugin| command.  It can either
 	disable or enable the mappings by specifying "on" or "true" as {what},
 	or "off" or "false" to disable.
 
-HTMLFunctionsObject.Template()			*HTMLFunctionsObject.Template()*
+HTMLMapObject.Template()		*HTMLMapObject.Template()*
 	This is normally called by the |n_;html| mapping, but it works
 	the same if called any other way.
 
 	This function returns true if the cursor is on an insert point after
 	creating the template in the buffer, false otherwise.
 
-						*HTMLFunctionsObject.SetIfUnset()*
-HTMLFunctionsObject.SetIfUnset({variable}, {value})
+					*HTMLUtilObject.SetIfUnset()*
+HTMLUtilObject.SetIfUnset({variable}, {value})
 	This function sets {variable} to {value} if the variable is not
 	already set. A {value} of "" makes sure the variable is set with an
 	empty string, a {value} of [] initializes to an empty list, and a
@@ -1941,9 +1944,9 @@ HTMLFunctionsObject.SetIfUnset({variable}, {value})
 	the variable name in quotes. This function will not work for
 	function-local variables (|l:var|).
 
-	This function returns Functions.SetIfUnsetR.success if the variable
-	was set, Functions.SetIfUnsetR.exists if it already existed, and
-	Functions.SetIfUnsetR.error for an error (|enum|).
+	This function returns Util.SetIfUnsetR.success if the variable
+	was set, Util.SetIfUnsetR.exists if it already existed, and
+	Util.SetIfUnsetR.error for an error (|enum|).
 
 
  vim:tw=78:ts=8:sw=0:ft=help:fo=tcq2:ai:
