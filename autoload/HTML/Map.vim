@@ -5,7 +5,7 @@ if v:version < 901 || v:versionlong < 9010219
   finish
 endif
 
-# Various functions for the HTML macros filetype plugin.
+# Mapping functions for the HTML macros filetype plugin.
 #
 # Last Change: May 14, 2024
 #
@@ -32,7 +32,6 @@ endif
 import '../../import/HTML/Variables.vim' as HTMLVariables
 import autoload 'HTML/Messages.vim'
 import autoload 'HTML/Util.vim'
-import autoload 'HTML/Menu.vim'
 
 export enum MapCheckR # {{{1
   notfound,
@@ -45,12 +44,9 @@ endenum
 
 export class HTMLMap extends Util.HTMLUtil
   
-  final HTMLMenuO: Menu.HTMLMenu
-
   def new() # {{{
     this.HTMLMessagesO = Messages.HTMLMessages.new()
     this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
-    this.HTMLMenuO = Menu.HTMLMenu.new()
   enddef # }}}
 
   # CreateExtraMappings()  {{{1

@@ -5,9 +5,9 @@ if v:version < 901 || v:versionlong < 9010219
   finish
 endif
 
-# Various functions for the HTML macros filetype plugin.
+# Menu functions for the HTML macros filetype plugin.
 #
-# Last Change: May 11, 2024
+# Last Change: May 14, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
