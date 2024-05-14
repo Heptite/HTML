@@ -5,9 +5,9 @@ if v:version < 901 || v:versionlong < 9010219
   finish
 endif
 
-# MangleImageTag#Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
+# MangleImageTag.Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: April 28, 2024
+# Last Change: May 14, 2024
 #
 # Requirements:
 #   Vim 9.1.219 or later

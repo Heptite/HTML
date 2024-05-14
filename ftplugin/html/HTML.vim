@@ -225,7 +225,7 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
 
   HTMLUtilO.SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
 
-  # Template Creation: {{{2
+  # Template creation: {{{2
 
   if HTMLUtilO.BoolVar('b:htmlplugin.do_xhtml_mappings')
     b:htmlplugin.internal_template = HTMLVariables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([

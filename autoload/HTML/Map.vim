@@ -7,7 +7,7 @@ endif
 
 # Various functions for the HTML macros filetype plugin.
 #
-# Last Change: May 12, 2024
+# Last Change: May 14, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -32,6 +32,7 @@ endif
 import '../../import/HTML/Variables.vim' as HTMLVariables
 import autoload 'HTML/Messages.vim'
 import autoload 'HTML/Util.vim'
+import autoload 'HTML/Menu.vim'
 
 export enum MapCheckR # {{{1
   notfound,
@@ -44,9 +45,12 @@ endenum
 
 export class HTMLMap extends Util.HTMLUtil
   
+  final HTMLMenuO: Menu.HTMLMenu
+
   def new() # {{{
     this.HTMLMessagesO = Messages.HTMLMessages.new()
     this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+    this.HTMLMenuO = Menu.HTMLMenu.new()
   enddef # }}}
 
   # CreateExtraMappings()  {{{1
@@ -652,76 +656,6 @@ export class HTMLMap extends Util.HTMLUtil
       execute "normal! \<c-\>\<c-n>l"
       startinsert
     endif
-  enddef
-
-  # PluginControl()  {{{1
-  #
-  # Purpose:
-  #  Disable/enable all the mappings defined by
-  #  Map()/MapOp().
-  # Arguments:
-  #  1 - String: Whether to disable or enable the mappings:
-  #               d/disable/off:   Clear the mappings
-  #               e/enable/on:     Redefine the mappings
-  # Return Value:
-  #  Boolean: False for an error, true otherwise
-  def PluginControl(dowhat: string): bool
-
-    # ClearMappings()  {{{2
-    #
-    # Purpose:
-    #  Iterate over all the commands to clear the mappings.  (This used to be
-    #  just one long single command but that had drawbacks, so now it's a List
-    #  that must be looped over.)
-    # Arguments:
-    #  None
-    # Return Value:
-    #  None
-    def ClearMappings(): void
-      b:htmlplugin.clear_mappings->mapnew(
-        (_, mapping) => {
-          silent! execute mapping
-          return
-        }
-      )
-      b:htmlplugin.clear_mappings = []
-      unlet b:htmlplugin.did_mappings
-      unlet b:htmlplugin.did_json
-    enddef  # }}}2
-
-    if !this.BoolVar('b:htmlplugin.did_mappings_init')
-      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOSOURCED)
-      return false
-    endif
-
-    if dowhat =~? '^\%(d\%(isable\)\?\|off\|false\|0\)$'
-      if this.BoolVar('b:htmlplugin.did_mappings')
-        ClearMappings()
-        if this.BoolVar('g:htmlplugin.did_menus')
-          this.HTMLMenuO.MenuControl('disable')
-        endif
-      else
-        this.HTMLMessagesO.Error(this.HTMLMessagesO.E_DISABLED)
-        return false
-      endif
-    elseif dowhat =~? '^\%(e\%(nable\)\?\|on\|true\|1\)$'
-      if this.BoolVar('b:htmlplugin.did_mappings')
-        this.HTMLMessagesO.Error(this.HTMLMessagesO.E_ENABLED)
-      else
-        this.ReadEntities(false, true)
-        this.ReadTags(false, true)
-        if b:htmlplugin->has_key('mappings')
-          this.CreateExtraMappings(b:htmlplugin.mappings)
-        endif
-        b:htmlplugin.did_mappings = true
-        this.HTMLMenuO.MenuControl('enable')
-      endif
-    else
-      printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->this.HTMLMessagesO.Error()
-      return false
-    endif
-
-    return true
   enddef
 
   # ReIndent()  {{{1

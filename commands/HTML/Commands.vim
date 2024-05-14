@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: May 12, 2024
+# Last Change: May 14, 2024
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -36,16 +36,18 @@ endif
 
 import autoload 'HTML/Util.vim'
 import autoload 'HTML/Map.vim'
+import autoload 'HTML/Glue.vim'
 
 var HTMLUtilO = Util.HTMLUtil.new()
 var HTMLMapO = Map.HTMLMap.new()
+var HTMLGlueO = Glue.HTMLGlue.new()
 
-command! -buffer -bar -nargs=1 HTMLplugin HTMLMapO.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 HTMLPlugin HTMLMapO.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 HTMLmappings HTMLMapO.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 HTMLMappings HTMLMapO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLplugin HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLPlugin HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLmappings HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 HTMLMappings HTMLGlueO.PluginControl(<f-args>)
 if exists(':HTML') != 2
-  command! -buffer -bar -nargs=1 HTML HTMLMapO.PluginControl(<f-args>)
+  command! -buffer -bar -nargs=1 HTML HTMLGlueO.PluginControl(<f-args>)
 endif
 
 command! -buffer -bar -nargs=? ColorChooser HTMLUtilO.ColorChooser(<f-args>)
