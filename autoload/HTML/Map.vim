@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: May 14, 2024
+# Last Change: May 15, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -49,6 +49,29 @@ export class HTMLMap extends Util.HTMLUtil
     this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
   enddef # }}}
 
+  var _mode: string
+  var _lhs: string
+  var _rhs: string
+  var _options: dict<any>
+
+  def newMap(this._mode, this._lhs, this._rhs, this._options) # {{{
+  enddef # }}}
+
+  def Get(arg: string): any # {{{
+    if arg ==# 'mode'
+      return this._mode
+    elseif arg ==# 'lhs'
+      return this._lhs
+    elseif arg ==# 'rhs'
+      return this._rhs
+    elseif arg ==# 'options'
+      return this._options
+    else
+      printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), arg)->this.HTMLMessagesO.Error()
+      return false
+    endif
+  enddef # }}}
+
   # CreateExtraMappings()  {{{1
   #
   # Purpose:
@@ -78,16 +101,14 @@ export class HTMLMap extends Util.HTMLUtil
   # Return Value:
   #  String: Either an empty string (for visual mappings) or the key sequence to
   #  run (for insert mode mappings).
-  def DoMap(mode: string, map: string): string
+  #def DoMap(mode: string, map: string): string
+  def DoMap(): string
     var evalstr: string
-    var rhs: string
-    var opts: dict<any>
 
-    rhs = b:htmlplugin.maps[mode][map][0]
-    rhs = rhs->substitute('\c\\<[a-z0-9_-]\+>',
-      '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
-
-    opts = b:htmlplugin.maps[mode][map][1]
+    var mode = this._mode
+    var lhs = this._lhs
+    var rhs = this._rhs->substitute('\c\\<[a-z0-9_-]\+>', '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
+    var opts = this._options
 
     if opts->get('expr', false)
       evalstr = eval(rhs)
@@ -108,7 +129,7 @@ export class HTMLMap extends Util.HTMLUtil
       try
         execute $'silent normal! {evalstr}'
       catch
-        printf(this.HTMLMessagesO.E_MAPEXCEPT, v:exception, map)->this.HTMLMessagesO.Error()
+        printf(this.HTMLMessagesO.E_MAPEXCEPT, v:exception, lhs)->this.HTMLMessagesO.Error()
       endtry
 
       this.ToggleOptions(true)
@@ -407,6 +428,12 @@ export class HTMLMap extends Util.HTMLUtil
       newarg = newarg->substitute(' \?/>', '>', 'g')
     endif
 
+
+    var tmpmode: string = ''
+    var tmplhs: string = ''
+    var tmprhs: string = ''
+    var tmpopts: dict<any> = {}
+
     if mode == 'v'
       # If 'selection' is "exclusive" all the visual mode mappings need to
       # behave slightly differently:
@@ -414,10 +441,12 @@ export class HTMLMap extends Util.HTMLUtil
         .. 'b:htmlplugin.HTMLMapO.VisualInsertPos()\\<CR>', 'g')
 
       if !opts->has_key('extra') || opts.extra
-        b:htmlplugin.maps.v[newmap] = [newarg, {}]
+        tmpmode = 'v'
+        tmplhs = newmap
+        tmprhs = newarg
 
         if opts->has_key('expr')
-          b:htmlplugin.maps.v[newmap][1]['expr'] = opts.expr
+          tmpopts.expr = opts.expr
         endif
       endif
 
@@ -425,34 +454,36 @@ export class HTMLMap extends Util.HTMLUtil
         execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
       elseif opts->get('insert', false) && opts->has_key('reindent')
         execute $'{cmd} <buffer> <silent> {newmap}'
-          .. $' <ScriptCmd>b:htmlplugin.HTMLMapO.DoMap("v", "{newmap_escaped}")<CR>'
+          .. $' <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
 
-        b:htmlplugin.maps.v[newmap][1]['reindent'] = opts.reindent
-        b:htmlplugin.maps.v[newmap][1]['insert'] = opts.insert
+        tmpopts.reindent = opts.reindent
+        tmpopts.insert = opts.insert
       elseif opts->get('insert', false)
         execute $'{cmd} <buffer> <silent> {newmap}'
-          .. $' <ScriptCmd>b:htmlplugin.HTMLMapO.DoMap("v", "{newmap_escaped}")<CR>'
+          .. $' <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
 
-        b:htmlplugin.maps.v[newmap][1]['insert'] = opts.insert
+        tmpopts.insert = opts.insert
       elseif opts->has_key('reindent')
         execute $'{cmd} <buffer> <silent> {newmap}'
-          .. $' <ScriptCmd>b:htmlplugin.HTMLMapO.DoMap("v", "{newmap_escaped}")<CR>'
+          .. $' <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
 
-        b:htmlplugin.maps.v[newmap][1]['reindent'] = opts.reindent
+        tmpopts.reindent = opts.reindent
       else
         execute $'{cmd} <buffer> <silent> {newmap}'
-          .. $' <ScriptCmd>b:htmlplugin.HTMLMapO.DoMap("v", "{newmap_escaped}")<CR>'
+          .. $' <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
       endif
     elseif mode == 'i'
       if opts->has_key('extra') && ! opts.extra
         execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
       else
-        b:htmlplugin.maps.i[newmap] = [newarg, {}]
+        tmpmode = 'i'
+        tmplhs = newmap
+        tmprhs = newarg
         if opts->has_key('expr')
-          b:htmlplugin.maps.i[newmap][1]['expr'] = opts.expr
+          tmpopts.expr = opts.expr
         endif
         execute cmd .. ' <buffer> <silent> <expr> ' .. newmap
-          .. $' b:htmlplugin.HTMLMapO.DoMap("i", "{newmap_escaped}")'
+          .. $' b:htmlplugin.maps.i["{newmap_escaped}"].DoMap()'
       endif
     else
       execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
@@ -467,6 +498,11 @@ export class HTMLMap extends Util.HTMLUtil
 
     # Save extra (nonplugin) mappings so they can be restored if we need to later:
     newmap->maparg(mode, false, true)->this.MappingsListAdd(mode, internal)
+
+    if tmpmode != '' && tmplhs != '' && tmprhs != ''
+      b:htmlplugin.maps[tmpmode][tmplhs] =
+        HTMLMap.newMap(tmpmode, tmplhs, tmprhs, tmpopts)
+    endif
 
     return true
   enddef
