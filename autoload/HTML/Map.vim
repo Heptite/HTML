@@ -44,33 +44,20 @@ endenum
 
 export class HTMLMap extends Util.HTMLUtil
   
-  def new() # {{{
-    this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
-  enddef # }}}
-
   var _mode: string
   var _lhs: string
   var _rhs: string
   var _options: dict<any>
 
-  def newMap(this._mode, this._lhs, this._rhs, this._options) # {{{
-  enddef # }}}
+  def new() # {{{1
+    this.HTMLMessagesO = Messages.HTMLMessages.new()
+    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+  enddef
 
-  def Get(arg: string): any # {{{
-    if arg ==# 'mode'
-      return this._mode
-    elseif arg ==# 'lhs'
-      return this._lhs
-    elseif arg ==# 'rhs'
-      return this._rhs
-    elseif arg ==# 'options'
-      return this._options
-    else
-      printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), arg)->this.HTMLMessagesO.Error()
-      return false
-    endif
-  enddef # }}}
+  def newMap(this._mode, this._lhs, this._rhs, this._options) # {{{1
+    this.HTMLMessagesO = Messages.HTMLMessages.new()
+    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+  enddef # }}}1
 
   # CreateExtraMappings()  {{{1
   #
@@ -95,12 +82,12 @@ export class HTMLMap extends Util.HTMLUtil
   #  Execute or return the "right hand side" of a mapping, while preventing an
   #  error to cause it to abort.
   # Arguments:
-  #  1 - String: The mode, either 'v' or 'i'
-  #  2 - String: The mapping name (lhs) of the mapping to call, stored in
-  #              b:htmlplugin.maps
+  #  None, as DoMap() should be invoked via a mapping object that contains the
+  #  information needed.
   # Return Value:
-  #  String: Either an empty string (for visual mappings) or the key sequence to
-  #  run (for insert mode mappings).
+  #  String: Either an empty string (for visual mappings) or the key sequence
+  #  to run (for insert mode mappings). This oddity is because the two modes
+  #  need to be handled differently.
   #def DoMap(mode: string, map: string): string
   def DoMap(): string
     var evalstr: string
@@ -146,6 +133,8 @@ export class HTMLMap extends Util.HTMLUtil
       if opts->get('insert', false)
         execute "normal! \<c-\>\<c-n>l"
         startinsert
+      #else
+      #  normal gv
       endif
     else
       printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), mode)->this.HTMLMessagesO.Error()
