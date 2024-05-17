@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: May 15, 2024
+# Last Change: May 16, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -55,6 +55,9 @@ export class HTMLMap extends Util.HTMLUtil
   enddef
 
   def newMap(this._mode, this._lhs, this._rhs, this._options) # {{{1
+    if strlen(this._mode) != 1 && this._mode !~# '^[iv]$'
+      echoerr $'Mode is invalid: {this._mode}'
+    endif
     this.HTMLMessagesO = Messages.HTMLMessages.new()
     this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
   enddef # }}}1
@@ -284,68 +287,6 @@ export class HTMLMap extends Util.HTMLUtil
     this.NextInsertPoint()
 
     return true
-  enddef
-
-  # InsertTemplate()  {{{1
-  #
-  # Purpose:
-  #  Actually insert the HTML template.
-  # Arguments:
-  #  None
-  # Return Value:
-  #  Boolean - Whether the cursor is not on an insert point.
-  def InsertTemplate(f: string = ''): bool
-    if g:htmlplugin.author_email != ''
-      g:htmlplugin.author_email_encoded = g:htmlplugin.author_email->this.TranscodeString()
-    else
-      b:htmlplugin.author_email_encoded = ''
-    endif
-    if b:htmlplugin.author_email != ''
-      b:htmlplugin.author_email_encoded = b:htmlplugin.author_email->this.TranscodeString()
-    else
-      g:htmlplugin.author_email_encoded = ''
-    endif
-
-    var template: string
-
-    if f != ''
-      template = f
-    elseif b:htmlplugin->get('template', '') != ''
-      template = b:htmlplugin.template
-    elseif g:htmlplugin->get('template', '') != ''
-      template = g:htmlplugin.template
-    endif
-
-    if template != ''
-      if template->expand()->filereadable()
-        template->readfile()->this.TokenReplace(fnamemodify(template, ':p:h'))->append(0)
-      else
-        printf(this.HTMLMessagesO.E_TEMPLATE, template)->this.HTMLMessagesO.Error()
-        return false
-      endif
-    else
-      b:htmlplugin.internal_template->this.TokenReplace()->append(0)
-    endif
-
-    # Special case, can't be done in TokenReplace():
-    silent! execute ':%s/%newline%/\r/g'
-
-    if getline('$') =~ '^\s*$'
-      :$delete
-    endif
-
-    cursor(1, 1)
-
-    redraw
-
-    this.NextInsertPoint('n')
-
-    if getline('.')[col('.') - 2 : col('.') - 1] == '><'
-        || (getline('.') =~ '^\s*$' && line('.') != 1)
-      return true
-    else
-      return false
-    endif
   enddef
 
   # Map()  {{{1
@@ -813,14 +754,14 @@ export class HTMLMap extends Util.HTMLUtil
     set noruler noshowcmd
 
     if line('$') == 1 && getline(1) == ''
-      ret = this.InsertTemplate(file)
+      ret = this.TemplateInsert(file)
     else
       var YesNoOverwrite = "Non-empty file.\nInsert template anyway?"->confirm("&Yes\n&No\n&Overwrite", 2, 'Question')
       if YesNoOverwrite == 1
-        ret = this.InsertTemplate(file)
+        ret = this.TemplateInsert(file)
       elseif YesNoOverwrite == 3
         execute ':%delete'
-        ret = this.InsertTemplate(file)
+        ret = this.TemplateInsert(file)
       endif
     endif
 
@@ -828,6 +769,68 @@ export class HTMLMap extends Util.HTMLUtil
     &showcmd = this.HTMLVariablesO.saveopts.showcmd
 
     return ret
+  enddef
+
+  # TemplateInsert()  {{{1
+  #
+  # Purpose:
+  #  Actually insert the HTML template.
+  # Arguments:
+  #  None
+  # Return Value:
+  #  Boolean - Whether the cursor is not on an insert point.
+  def TemplateInsert(f: string = ''): bool
+    if g:htmlplugin.author_email != ''
+      g:htmlplugin.author_email_encoded = g:htmlplugin.author_email->this.TranscodeString()
+    else
+      b:htmlplugin.author_email_encoded = ''
+    endif
+    if b:htmlplugin.author_email != ''
+      b:htmlplugin.author_email_encoded = b:htmlplugin.author_email->this.TranscodeString()
+    else
+      g:htmlplugin.author_email_encoded = ''
+    endif
+
+    var template: string
+
+    if f != ''
+      template = f
+    elseif b:htmlplugin->get('template', '') != ''
+      template = b:htmlplugin.template
+    elseif g:htmlplugin->get('template', '') != ''
+      template = g:htmlplugin.template
+    endif
+
+    if template != ''
+      if template->expand()->filereadable()
+        template->readfile()->this.TokenReplace(fnamemodify(template, ':p:h'))->append(0)
+      else
+        printf(this.HTMLMessagesO.E_TEMPLATE, template)->this.HTMLMessagesO.Error()
+        return false
+      endif
+    else
+      b:htmlplugin.internal_template->this.TokenReplace()->append(0)
+    endif
+
+    # Special case, can't be done in TokenReplace():
+    silent! execute ':%s/%newline%/\r/g'
+
+    if getline('$') =~ '^\s*$'
+      :$delete
+    endif
+
+    cursor(1, 1)
+
+    redraw
+
+    this.NextInsertPoint('n')
+
+    if getline('.')[col('.') - 2 : col('.') - 1] == '><'
+        || (getline('.') =~ '^\s*$' && line('.') != 1)
+      return true
+    else
+      return false
+    endif
   enddef
 
   # VisualInsertPos()  {{{1
