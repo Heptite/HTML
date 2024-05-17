@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: May 15, 2024
+# Last Change: May 16, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -441,25 +441,18 @@ export class HTMLMap extends Util.HTMLUtil
 
       if opts->has_key('extra') && ! opts.extra
         execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
-      elseif opts->get('insert', false) && opts->has_key('reindent')
-        execute $'{cmd} <buffer> <silent> {newmap}'
-          .. $' <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
-
-        tmpopts.reindent = opts.reindent
-        tmpopts.insert = opts.insert
-      elseif opts->get('insert', false)
-        execute $'{cmd} <buffer> <silent> {newmap}'
-          .. $' <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
-
-        tmpopts.insert = opts.insert
-      elseif opts->has_key('reindent')
-        execute $'{cmd} <buffer> <silent> {newmap}'
-          .. $' <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
-
-        tmpopts.reindent = opts.reindent
       else
         execute $'{cmd} <buffer> <silent> {newmap}'
           .. $' <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
+
+        if opts->get('insert', false) && opts->has_key('reindent')
+          tmpopts.reindent = opts.reindent
+          tmpopts.insert = opts.insert
+        elseif opts->get('insert', false)
+          tmpopts.insert = opts.insert
+        elseif opts->has_key('reindent')
+          tmpopts.reindent = opts.reindent
+        endif
       endif
     elseif mode == 'i'
       if opts->has_key('extra') && ! opts.extra
@@ -471,7 +464,7 @@ export class HTMLMap extends Util.HTMLUtil
         if opts->has_key('expr')
           tmpopts.expr = opts.expr
         endif
-        execute cmd .. ' <buffer> <silent> <expr> ' .. newmap
+        execute $'{cmd} <buffer> <silent> <expr> {newmap}'
           .. $' b:htmlplugin.maps.i["{newmap_escaped}"].DoMap()'
       endif
     else
