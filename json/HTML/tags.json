@@ -1668,7 +1668,7 @@
 
 		"maps": {
 			"i": ["", "<[{TIME DATETIME=\"\"></TIME}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{TIME}]>\\<C-O>`<<[{TIME DATETIME=\"\"}]>\\<ESC>F\"i", {"insert": true}],
+			"v": ["", "\\<ESC>`>a</[{TIME}]>\\<C-O>`<<[{TIME DATETIME=\"\"}]>\\<ESC>hi", {"insert": true}],
 			"o": ["", true]
 		},
 
@@ -2160,7 +2160,7 @@
 
 		"maps": {
 			"i": ["", "<[{SPAN CLASS=\"\"></SPAN}]>\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN CLASS}]=\"\">\\<ESC>F\"i", {"insert": true}],
+			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN CLASS}]=\"\">\\<ESC>hi", {"insert": true}],
 			"o": ["", true]
 		},
 
@@ -2174,7 +2174,7 @@
 
 		"maps": {
 			"i": ["", "<[{SPAN STYLE=\"\"></SPAN}]>\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"\">\\<ESC>F\"i", {"insert": true}],
+			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"\">\\<ESC>hi", {"insert": true}],
 			"o": ["", true]
 		},
 
