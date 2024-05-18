@@ -274,11 +274,10 @@ export class HTMLGlue extends Util.HTMLUtil
           if json.maps->has_key('o')
               && maparg((maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'o') == ''
-            if this.HTMLMapO.Map(
-                'nnoremap',
+            if this.HTMLMapO.Map('nnoremap',
                 (maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs),
                 '',
-                {insert: json.maps.o[1]},
+                json.maps.o[1],
                 internal)
               ++did_mappings
             endif

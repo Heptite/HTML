@@ -1880,7 +1880,15 @@ HTMLMapObject.Map({maptype}, {lhs}, {rhs} [, {options}])
 	Any text in {rhs} that is enclosed by [{}] will be converted to
 	uppercase/lowercase according to the |g:htmlplugin.tag_case| or
 	|b:htmlplugin.tag_case| variable, and the [{}] markers will be
-	removed.
+	removed.  If {rhs} is an empty string and {maptype} is a normal
+	mapping, then the plugin assumes you're creating an mapping that takes
+	a motion/operator to complete it, and it will be mapped onto the
+	corresponding visual mapping.  In other words, the plugin uses visual
+	mode over the motion/operator area and then executes the corresponding
+	visual map.  These are equivalent: >
+		viw;bo
+		;boiw
+<	Both will put <b></b> around the word under the cursor.
 
 	{options} is optional, but if it exists it's a |Dictionary| that
 	specifies changed mapping behavior; for insert mode and visual mode
@@ -1893,16 +1901,16 @@ HTMLMapObject.Map({maptype}, {lhs}, {rhs} [, {options}])
 	Do not add extra magic to the visual mapping. This suppresses the
 	other options.
 
-	For visual mappings only:
-
 	{"insert": true} ~
-	The visual mapping enters insert mode. 
+	The visual or normal (operator) mapping enters insert mode. 
+	(For visual or normal mode mappings.)
 
 	{"reindent": N} ~
 	Re-indent the visually selected lines, plus N lines below. This value
 	is usually going to be 1, and sometimes 2; very rarely other values.
 
 	This function returns true if a map was defined, false otherwise.
+	(For visual mappings.)
 
 					*HTMLMapObject.NextInsertPoint()*
 HTMLMapObject.NextInsertPoint([{mode}, {direction}])

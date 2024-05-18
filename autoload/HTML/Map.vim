@@ -96,15 +96,17 @@ export class HTMLMap extends Util.HTMLUtil
   #  information needed.
   # Return Value:
   #  String: Either an empty string (for visual mappings) or the key sequence
-  #  to run (for insert mode mappings). This oddity is because the two modes
-  #  need to be handled differently.
+  #           to run (for insert mode mappings). This oddity is because the
+  #           two modes need to be handled differently.
   #def DoMap(mode: string, map: string): string
   def DoMap(): string
     var evalstr: string
 
     var mode = this._mode
     var lhs = this._lhs
-    var rhs = this._rhs->substitute('\c\\<[a-z0-9_-]\+>', '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
+    var rhs = this._rhs
+       ->substitute('\c\\<[a-z0-9_-]\+>', '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
+       ->this.ConvertCase()
     var opts = this._options
 
     if opts->get('expr', false)
@@ -304,7 +306,7 @@ export class HTMLMap extends Util.HTMLUtil
   # Map()  {{{1
   #
   # Purpose:
-  #  Define the HTML mappings with the appropriate case, plus some extra stuff.
+  #  Create a wrapper around a mapping.
   # Arguments:
   #  1 - String: Which map command to run.
   #  2 - String: LHS of the map.
@@ -370,8 +372,6 @@ export class HTMLMap extends Util.HTMLUtil
       return false
     endif
 
-    newarg = newarg->this.ConvertCase()
-
     if ! this.BoolVar('b:htmlplugin.do_xhtml_mappings')
       newarg = newarg->substitute(' \?/>', '>', 'g')
     endif
@@ -383,6 +383,9 @@ export class HTMLMap extends Util.HTMLUtil
     var tmpopts: dict<any> = {}
 
     if mode == 'n' && newarg == ''
+      tmpmode = 'n'
+      tmplhs = newmap
+      tmpopts = opts
       execute $'{cmd} <buffer> <silent> <expr> {newmap} b:htmlplugin.maps.n["{newmap_escaped}"].DoMap()'
     elseif mode == 'v'
       # If 'selection' is "exclusive" all the visual mode mappings need to
