@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: May 16, 2024
+# Last Change: May 18, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -329,6 +329,11 @@ export class HTMLMap extends Util.HTMLUtil
       printf(this.HTMLMessagesO.E_EMPTYRHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
+    
+    if cmd->strlen() == 1
+      printf(this.HTMLMessagesO.E_NOFULL, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      return false
+    endif
 
     if cmd =~# '^no' || cmd =~# '^map$'
       printf(this.HTMLMessagesO.E_NOMODE, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
@@ -383,8 +388,7 @@ export class HTMLMap extends Util.HTMLUtil
       if opts->has_key('extra') && ! opts.extra
         execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
       else
-        execute $'{cmd} <buffer> <silent> {newmap}'
-          .. $' <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
+        execute $'{cmd} <buffer> <silent> {newmap} <ScriptCmd>b:htmlplugin.maps.v["{newmap_escaped}"].DoMap()<CR>'
 
         if opts->get('insert', false) && opts->has_key('reindent')
           tmpopts.reindent = opts.reindent
@@ -405,8 +409,7 @@ export class HTMLMap extends Util.HTMLUtil
         if opts->has_key('expr')
           tmpopts.expr = opts.expr
         endif
-        execute $'{cmd} <buffer> <silent> <expr> {newmap}'
-          .. $' b:htmlplugin.maps.i["{newmap_escaped}"].DoMap()'
+        execute $'{cmd} <buffer> <silent> <expr> {newmap} b:htmlplugin.maps.i["{newmap_escaped}"].DoMap()'
       endif
     else
       execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
@@ -481,33 +484,15 @@ export class HTMLMap extends Util.HTMLUtil
   # Return Value:
   #  Boolean: Whether a mapping was defined
   def MapOp(map: string, insert: bool = false, internal: bool = false): bool
-    if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-      printf(this.HTMLMessagesO.E_NOMAPLEAD, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
-      return false
-    endif
-
-    if map == '' || map ==? "<lead>"
-      printf(this.HTMLMessagesO.E_EMPTYLHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
-      return false
-    endif
-
-    var newmap = map->substitute('^<lead>', g:htmlplugin.map_leader, '')
-
-    var mapchecked: MapCheckR = newmap->this.MapCheck('o', internal)
-    if mapchecked == MapCheckR.nooverride || mapchecked == MapCheckR.suppressed
-      # this.MapCheck() will echo the necessary message, so just return here
-      return false
-    endif
-
-    execute $'nnoremap <buffer> <silent> {newmap}'
-      .. $" <ScriptCmd>b:htmlplugin.tagaction = '{newmap}'<CR>"
-      .. $"<ScriptCmd>b:htmlplugin.taginsert = {insert}<CR>"
-      .. '<ScriptCmd>&operatorfunc = "function(b:htmlplugin.HTMLMapO.OpWrap)"<CR>g@'
-
-    b:htmlplugin.clear_mappings->add($':nunmap <buffer> {newmap}')
-    newmap->maparg('n', false, true)->this.MappingsListAdd('n', internal)
-
-    return true
+    return this.Map(
+      'nnoremap',
+      map,
+      $" <ScriptCmd>b:htmlplugin.tagaction = '{map->substitute('<lead>', g:htmlplugin.map_leader->escape('&~\'), '')}'<CR>"
+        .. $'<ScriptCmd>b:htmlplugin.taginsert = {insert}<CR>'
+        .. '<ScriptCmd>&operatorfunc = "function(b:htmlplugin.HTMLMapO.OpWrap)"<CR>g@',
+      {},
+      internal
+    )
   enddef
 
   # MappingsListAdd()  {{{1

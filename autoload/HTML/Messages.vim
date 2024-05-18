@@ -7,7 +7,7 @@ endif
 
 # Messaging functions for the HTML macros filetype plugin.
 #
-# Last Change: April 21, 2024
+# Last Change: May 18, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -47,6 +47,7 @@ export class HTMLMessages
   const E_EMPTYLHS     = $'%s must have a non-empty lhs. {E_NOMAP}'
   const E_EMPTYRHS     = $'%s must have a non-empty rhs. {E_NOMAP}'
   const E_NOMODE       = $'%s must have one of the modes explicitly stated. {E_NOMAP}'
+  const E_NOFULL       = $'%s must use a full map command. {E_NOMAP}'
   const E_NOLOCALVAR   = 'Cannot set a local variable with %s'
   const E_NARGS        = 'E119: Not enough arguments for %s'
   const E_NOSOURCED    = 'The HTML macros plugin was not sourced for this buffer.'
