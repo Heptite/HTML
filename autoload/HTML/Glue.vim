@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: May 14, 2024
+# Last Change: May 18, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -60,7 +60,7 @@ export class HTMLGlue extends Util.HTMLUtil
   #
   # Purpose:
   #  Disable/enable all the mappings defined by
-  #  Map()/MapOp().
+  #  Map().
   # Arguments:
   #  1 - String: Whether to disable or enable the mappings:
   #               d/disable/off:   Clear the mappings
@@ -274,9 +274,11 @@ export class HTMLGlue extends Util.HTMLUtil
           if json.maps->has_key('o')
               && maparg((maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'o') == ''
-            if this.HTMLMapO.MapOp(
+            if this.HTMLMapO.Map(
+                'nnoremap',
                 (maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs),
-                json.maps.o[1],
+                '',
+                {insert: json.maps.o[1]},
                 internal)
               ++did_mappings
             endif

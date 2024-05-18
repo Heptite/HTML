@@ -60,6 +60,13 @@ export class HTMLMap extends Util.HTMLUtil
     endif
     this.HTMLMessagesO = Messages.HTMLMessages.new()
     this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+  enddef
+
+  def newOpMap(this._lhs, this._options) # {{{1
+    this._mode = 'n'
+    this._rhs = ''
+    this.HTMLMessagesO = Messages.HTMLMessages.new()
+    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
   enddef # }}}1
 
   # CreateExtraMappings()  {{{1
@@ -111,7 +118,12 @@ export class HTMLMap extends Util.HTMLUtil
       return ''
     endif
 
-    if mode == 'i'
+    if mode == 'n' && rhs == ''
+      b:htmlplugin.tagaction = lhs->escape('&~\')
+      b:htmlplugin.taginsert = opts.insert
+      &operatorfunc = 'function(b:htmlplugin.HTMLMapO.OpWrap)'
+      return 'g@'
+    elseif mode == 'i'
       return evalstr
     elseif mode == 'v'
       this.ToggleOptions(false)
@@ -296,7 +308,8 @@ export class HTMLMap extends Util.HTMLUtil
   # Arguments:
   #  1 - String: Which map command to run.
   #  2 - String: LHS of the map.
-  #  3 - String: RHS of the map.
+  #  3 - String: RHS of the map--empty if it's a normal map designed to
+  #                trigger a visual mapping via a motion/operator.
   #  4 - Dictionary: Optional:
   #                {'extra': bool}
   #                 Whether to suppress extra code on the mapping
@@ -325,7 +338,7 @@ export class HTMLMap extends Util.HTMLUtil
       return false
     endif
 
-    if arg == ''
+    if arg == '' && map =~# '^n'
       printf(this.HTMLMessagesO.E_EMPTYRHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
@@ -341,7 +354,7 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     if !b:htmlplugin->has_key('maps')
-      b:htmlplugin.maps = {'v': {}, 'i': {}}
+      b:htmlplugin.maps = {'n': {}, 'v': {}, 'i': {}}
     endif
 
     var mode = cmd->strpart(0, 1)
@@ -369,7 +382,9 @@ export class HTMLMap extends Util.HTMLUtil
     var tmprhs: string = ''
     var tmpopts: dict<any> = {}
 
-    if mode == 'v'
+    if mode == 'n' && newarg == ''
+      execute $'{cmd} <buffer> <silent> <expr> {newmap} b:htmlplugin.maps.n["{newmap_escaped}"].DoMap()'
+    elseif mode == 'v'
       # If 'selection' is "exclusive" all the visual mode mappings need to
       # behave slightly differently:
       newarg = newarg->substitute('`>a\C', '`>i\\<C-R>='
@@ -422,7 +437,7 @@ export class HTMLMap extends Util.HTMLUtil
       b:htmlplugin.clear_mappings->add($':unmap! <buffer> {newmap}')
     endif
 
-    if tmpmode != '' && tmplhs != '' && tmprhs != ''
+    if tmpmode != '' && tmplhs != ''
       b:htmlplugin.maps[tmpmode][tmplhs] =
         HTMLMap.newMap(tmpmode, tmplhs, tmprhs, tmpopts)
     endif
@@ -467,32 +482,6 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     return MapCheckR.notfound
-  enddef
-
-  # MapOp()  {{{1
-  #
-  # Purpose:
-  #  Define a normal mode map that takes an operator and assign it to its
-  #  corresponding visual mode mapping. (i.e. operator map linked to a visual
-  #  mapping)
-  # Arguments:
-  #  1 - String: The mapping.
-  #  2 - Boolean: Optional, Whether to enter insert mode after the mapping has
-  #                          executed. Default false.
-  #  3 - Boolean: Optional, Whether the map is internal to the plugin.  Default
-  #                          false.
-  # Return Value:
-  #  Boolean: Whether a mapping was defined
-  def MapOp(map: string, insert: bool = false, internal: bool = false): bool
-    return this.Map(
-      'nnoremap',
-      map,
-      $" <ScriptCmd>b:htmlplugin.tagaction = '{map->substitute('<lead>', g:htmlplugin.map_leader->escape('&~\'), '')}'<CR>"
-        .. $'<ScriptCmd>b:htmlplugin.taginsert = {insert}<CR>'
-        .. '<ScriptCmd>&operatorfunc = "function(b:htmlplugin.HTMLMapO.OpWrap)"<CR>g@',
-      {},
-      internal
-    )
   enddef
 
   # MappingsListAdd()  {{{1

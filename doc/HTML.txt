@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 May 13
+		Last change: 2024 May 18
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -445,10 +445,10 @@ The following commands are only defined in HTML buffers.
 	would want to be able to type literal ";", "&" and tab characters
 	without interference. (Also see |i_;;|, |i_;&| and |i_;<Tab>|)
 
-	Note that all of the mappings defined by calling |HTMLMapObject.Map()|
-	or |HTMLMapObject.MapOp()|--including all of the mappings
-	defined by this script--are disabled/enabled when this command is
-	used, regardless of what |g:htmlplugin.map_leader| is set to.
+	Note that all of the mappings defined by calling
+	|HTMLMapObject.Map()|--including all of the mappings defined by this
+	script--are disabled/enabled when this command is used, regardless of
+	what |g:htmlplugin.map_leader| is set to.
 
 							*:ColorChooser* *:CC*
 :ColorChooser
@@ -1901,13 +1901,6 @@ HTMLMapObject.Map({maptype}, {lhs}, {rhs} [, {options}])
 	{"reindent": N} ~
 	Re-indent the visually selected lines, plus N lines below. This value
 	is usually going to be 1, and sometimes 2; very rarely other values.
-
-	This function returns true if a map was defined, false otherwise.
-
-HTMLMapObject.MapOp({map} [, {insert}])	*HTMLMapObject.MapOp()*
-	Creates an operator-pending mapping wrapper for {map} that calls the
-	visual mapping by the same name. {insert} is a |Boolean| value that
-	indicates whether to end in insert mode, default false.
 
 	This function returns true if a map was defined, false otherwise.
 

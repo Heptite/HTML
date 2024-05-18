@@ -27,7 +27,6 @@ HTML.vim	HTML.txt	/*HTML.vim*
 HTML.zip	HTML.txt	/*HTML.zip*
 HTMLMapObject.GenerateTable()	HTML.txt	/*HTMLMapObject.GenerateTable()*
 HTMLMapObject.Map()	HTML.txt	/*HTMLMapObject.Map()*
-HTMLMapObject.MapOp()	HTML.txt	/*HTMLMapObject.MapOp()*
 HTMLMapObject.NextInsertPoint()	HTML.txt	/*HTMLMapObject.NextInsertPoint()*
 HTMLMapObject.PluginControl()	HTML.txt	/*HTMLMapObject.PluginControl()*
 HTMLMapObject.Template()	HTML.txt	/*HTMLMapObject.Template()*
