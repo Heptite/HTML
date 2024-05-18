@@ -330,7 +330,7 @@ export class HTMLMap extends Util.HTMLUtil
       return false
     endif
     
-    if cmd->strlen() == 1
+    if cmd->strlen() <= 1
       printf(this.HTMLMessagesO.E_NOFULL, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
@@ -422,13 +422,13 @@ export class HTMLMap extends Util.HTMLUtil
       b:htmlplugin.clear_mappings->add($':unmap! <buffer> {newmap}')
     endif
 
-    # Save extra (nonplugin) mappings so they can be restored if we need to later:
-    newmap->maparg(mode, false, true)->this.MappingsListAdd(mode, internal)
-
     if tmpmode != '' && tmplhs != '' && tmprhs != ''
       b:htmlplugin.maps[tmpmode][tmplhs] =
         HTMLMap.newMap(tmpmode, tmplhs, tmprhs, tmpopts)
     endif
+
+    # Save extra (nonplugin) mappings so they can be restored if we need to later:
+    newmap->maparg(mode, false, true)->this.MappingsListAdd(mode, internal)
 
     return true
   enddef
