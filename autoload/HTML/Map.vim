@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: May 18, 2024
+# Last Change: May 19, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -120,14 +120,14 @@ export class HTMLMap extends Util.HTMLUtil
       return ''
     endif
 
-    if mode == 'n' && rhs == ''
+    if mode ==# 'n' && rhs == ''
       b:htmlplugin.tagaction = lhs->escape('&~\')
       b:htmlplugin.taginsert = opts.insert
       &operatorfunc = 'function(b:htmlplugin.HTMLMapO.OpWrap)'
       return 'g@'
-    elseif mode == 'i'
+    elseif mode ==# 'i' || mode ==# 'n'
       return evalstr
-    elseif mode == 'v'
+    elseif mode ==# 'v'
       this.ToggleOptions(false)
 
       try
@@ -382,12 +382,12 @@ export class HTMLMap extends Util.HTMLUtil
     var tmprhs: string = ''
     var tmpopts: dict<any> = {}
 
-    if mode == 'n' && newarg == ''
+    if mode ==# 'n' && newarg == ''
       tmpmode = 'n'
       tmplhs = newmap
       tmpopts = opts
       execute $'{cmd} <buffer> <silent> <expr> {newmap} b:htmlplugin.maps.n["{newmap_escaped}"].DoMap()'
-    elseif mode == 'v'
+    elseif mode ==# 'v'
       # If 'selection' is "exclusive" all the visual mode mappings need to
       # behave slightly differently:
       newarg = newarg->substitute('`>a\C', '`>i\\<C-R>='
@@ -417,7 +417,7 @@ export class HTMLMap extends Util.HTMLUtil
           tmpopts.reindent = opts.reindent
         endif
       endif
-    elseif mode == 'i'
+    elseif mode ==# 'i'
       if opts->has_key('extra') && ! opts.extra
         execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
       else
@@ -700,7 +700,7 @@ export class HTMLMap extends Util.HTMLUtil
 
     ret = b:htmlplugin.smarttags[newtag][newmode][which]->this.ConvertCase()
 
-    if newmode == 'v'
+    if newmode ==# 'v'
       # If 'selection' is "exclusive" all the visual mode mappings need to
       # behave slightly differently:
       ret = ret->substitute('`>a\C', $'`>i{this.VisualInsertPos()}', 'g')
