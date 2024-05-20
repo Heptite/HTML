@@ -139,19 +139,17 @@ export class HTMLMap extends Util.HTMLUtil
       this.ToggleOptions(true)
 
       if opts->has_key('reindent') && opts.reindent >= 0
-        #normal m'
+        #normal! m'
         var curpos = getcharpos('.')[1 : -1]
         #keepjumps ReIndent(line('v'), line('.'), opts.reindent)
         keepjumps this.ReIndent(line("'<"), line("'>"), opts.reindent)
-        #normal ``
+        #normal! ``
         setcharpos('.', curpos)
       endif
 
       if opts->get('insert', false)
         execute "normal! \<c-\>\<c-n>l"
         startinsert
-      #else
-      #  normal gv
       endif
     else
       printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), mode)->this.HTMLMessagesO.Error()
@@ -572,11 +570,11 @@ export class HTMLMap extends Util.HTMLUtil
 
     try
       if type == 'line'
-        execute $'normal `[V`]{b:htmlplugin.tagaction}'
+        execute $'normal! `[V`]{b:htmlplugin.tagaction}'
       elseif type == 'block'
-        execute $"normal `[\<C-V>`]{b:htmlplugin.tagaction}"
+        execute $"normal! `[\<C-V>`]{b:htmlplugin.tagaction}"
       else
-        execute $'normal `[v`]{b:htmlplugin.tagaction}'
+        execute $'normal! `[v`]{b:htmlplugin.tagaction}'
       endif
     catch
       printf(this.HTMLMessagesO.W_CAUGHTERR, v:exception)->this.HTMLMessagesO.Warn()
