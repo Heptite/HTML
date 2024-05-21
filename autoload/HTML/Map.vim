@@ -58,6 +58,7 @@ export class HTMLMap extends Util.HTMLUtil
     if strlen(this._mode) != 1 && this._mode !~# '^[iv]$'
       echoerr $'Mode is invalid: {this._mode}'
     endif
+
     this.HTMLMessagesO = Messages.HTMLMessages.new()
     this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
   enddef
@@ -65,6 +66,7 @@ export class HTMLMap extends Util.HTMLUtil
   def newOpMap(this._lhs, this._options) # {{{1
     this._mode = 'n'
     this._rhs = this._lhs
+
     this.HTMLMessagesO = Messages.HTMLMessages.new()
     this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
   enddef # }}}1
@@ -120,9 +122,9 @@ export class HTMLMap extends Util.HTMLUtil
       return ''
     endif
 
-    if mode ==# 'n' && rhs ==# lhs
-      b:htmlplugin.tagaction = lhs->escape('&~\')
-      b:htmlplugin.taginsert = opts.insert
+    if mode ==# 'n' && lhs ==# rhs
+      b:htmlplugin.operator_action = rhs->escape('&~\')
+      b:htmlplugin.operator_insert = opts.insert
       &operatorfunc = 'function(b:htmlplugin.HTMLMapO.OpWrap)'
       return 'g@'
     elseif mode ==# 'i' || mode ==# 'n'
@@ -383,6 +385,7 @@ export class HTMLMap extends Util.HTMLUtil
     if mode ==# 'n' && newarg == ''
       tmpmode = 'n'
       tmplhs = newmap
+      tmprhs = newmap
       tmpopts = opts
       execute $'{cmd} <buffer> <silent> <expr> {newmap} b:htmlplugin.maps.n["{newmap_escaped}"].DoMap()'
     elseif mode ==# 'v'
@@ -569,12 +572,13 @@ export class HTMLMap extends Util.HTMLUtil
     &selection = 'inclusive'
 
     try
+      # Do not use ":normal!" here because we _want_ mappings to be triggered:
       if type == 'line'
-        execute $'normal! `[V`]{b:htmlplugin.tagaction}'
+        execute $'normal `[V`]{b:htmlplugin.operator_action}'
       elseif type == 'block'
-        execute $"normal! `[\<C-V>`]{b:htmlplugin.tagaction}"
+        execute $"normal `[\<C-V>`]{b:htmlplugin.operator_action}"
       else
-        execute $'normal! `[v`]{b:htmlplugin.tagaction}'
+        execute $'normal `[v`]{b:htmlplugin.operator_action}'
       endif
     catch
       printf(this.HTMLMessagesO.W_CAUGHTERR, v:exception)->this.HTMLMessagesO.Warn()
@@ -582,7 +586,7 @@ export class HTMLMap extends Util.HTMLUtil
       &selection = this.HTMLVariablesO.saveopts.selection
     endtry
 
-    if b:htmlplugin.taginsert
+    if b:htmlplugin.operator_insert
       execute "normal! \<c-\>\<c-n>l"
       startinsert
     endif
