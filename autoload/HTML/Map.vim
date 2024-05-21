@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: May 20, 2024
+# Last Change: May 21, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -306,7 +306,7 @@ export class HTMLMap extends Util.HTMLUtil
   # Map()  {{{1
   #
   # Purpose:
-  #  Create a wrapper around a mapping.
+  #  Create a wrapper for a mapping.
   # Arguments:
   #  1 - String: Which map command to run.
   #  2 - String: LHS of the map.
@@ -340,12 +340,12 @@ export class HTMLMap extends Util.HTMLUtil
       return false
     endif
 
-    if arg == '' && map =~# '^n'
+    if arg == '' && map =~# '^\(nmap\|nnoremap\)$'
       printf(this.HTMLMessagesO.E_EMPTYRHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
     
-    if cmd->strlen() <= 1
+    if cmd->strlen() <= 2
       printf(this.HTMLMessagesO.E_NOFULL, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
@@ -368,7 +368,7 @@ export class HTMLMap extends Util.HTMLUtil
     var mapchecked: MapCheckR = newmap->this.MapCheck(mode, internal)
     if HTMLVariables.HTMLVariables.MODES->has_key(mode) &&
         (mapchecked == MapCheckR.nooverride || mapchecked == MapCheckR.suppressed)
-      # this.MapCheck() will echo the necessary message, so just return here
+      # MapCheck() will echo the necessary message, so just return here
       return false
     endif
 
@@ -441,12 +441,12 @@ export class HTMLMap extends Util.HTMLUtil
       b:htmlplugin.clear_mappings->add($':unmap! <buffer> {newmap}')
     endif
 
-    if tmpmode != '' && tmplhs != ''
+    if tmpmode != '' && tmplhs != '' && tmprhs != ''
       b:htmlplugin.maps[tmpmode][tmplhs] =
         HTMLMap.newMap(tmpmode, tmplhs, tmprhs, tmpopts)
     endif
 
-    # Save extra (nonplugin) mappings so they can be restored if we need to later:
+    # Save extra (non-plugin) mappings so they can be restored if we need to later:
     newmap->maparg(mode, false, true)->this.MappingsListAdd(mode, internal)
 
     return true
