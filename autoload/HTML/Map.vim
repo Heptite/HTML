@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: May 21, 2024
+# Last Change: May 26, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -721,9 +721,6 @@ export class HTMLMap extends Util.HTMLUtil
   #  Boolean - Whether the cursor is not on an insert point.
   def Template(file: string = ''): bool
     var ret = false
-    this.HTMLVariablesO.saveopts.ruler = &ruler
-    this.HTMLVariablesO.saveopts.showcmd = &showcmd
-    set noruler noshowcmd
 
     if line('$') == 1 && getline(1) == ''
       ret = this.TemplateInsert(file)
@@ -736,9 +733,6 @@ export class HTMLMap extends Util.HTMLUtil
         ret = this.TemplateInsert(file)
       endif
     endif
-
-    &ruler = this.HTMLVariablesO.saveopts.ruler
-    &showcmd = this.HTMLVariablesO.saveopts.showcmd
 
     return ret
   enddef
