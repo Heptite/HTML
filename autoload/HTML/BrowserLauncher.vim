@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: April 28, 2024
+# Last Change: June 01, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -91,7 +91,7 @@ endenum
 export class BrowserLauncher
 
   var Browsers: dict<list<any>>
-  var TextmodeBrowsers = ['lynx', 'w3m', 'links']
+  var TextModeBrowsers = ['lynx', 'w3m', 'links']
   var MacBrowsersExist = ['default']
   var HTMLMessagesO: Messages.HTMLMessages
 
@@ -130,7 +130,7 @@ export class BrowserLauncher
         endif
       endfor
 
-      this.FindTextmodeBrowsers()
+      this.FindTextModeBrowsers()
 
     elseif (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
 
@@ -162,7 +162,7 @@ export class BrowserLauncher
       this.Browsers.default = ['"RunDll32.exe shell32.dll,ShellExec_RunDLL"', '', '', '', '']
 
       if has('win32unix') == 1
-        this.FindTextmodeBrowsers()
+        this.FindTextModeBrowsers()
 
         # Different quoting required for "cygstart":
         this.Browsers.default = ['RunDll32.exe shell32.dll,ShellExec_RunDLL', '', '', '', '']
@@ -173,7 +173,7 @@ export class BrowserLauncher
       this.HTMLMessagesO.Warn('Your OS is not recognized, browser controls will not work.')
 
       this.Browsers = {}
-      this.TextmodeBrowsers = []
+      this.TextModeBrowsers = []
 
     endif
   enddef # }}}
@@ -194,9 +194,9 @@ export class BrowserLauncher
     endif
   enddef  # }}}1
 
-  # FindTextmodeBrowsers() {{{1
+  # FindTextModeBrowsers() {{{1
   #
-  # Remove browsers from TextmodeBrowsers that aren't found, and add to
+  # Remove browsers from TextModeBrowsers that aren't found, and add to
   # Browsers dictionary of textmode browsers that are found.
   #
   # It's a little hacky to use global variables, but it's not really any cleaner
@@ -206,28 +206,28 @@ export class BrowserLauncher
   #  None
   # Return value:
   #  None
-  def FindTextmodeBrowsers()
-    this.TextmodeBrowsers->copy()->mapnew(
+  def FindTextModeBrowsers()
+    this.TextModeBrowsers->copy()->mapnew(
       (_, textbrowser) => {
         var temp: string
         temp = system($'which {textbrowser}')->trim()
         if v:shell_error == 0
           this.Browsers[textbrowser] = [textbrowser, temp, '', '', '']
         else
-          this.TextmodeBrowsers->filter($"v:val !=? '{textbrowser}'")
+          this.TextModeBrowsers->filter($"v:val !=? '{textbrowser}'")
         endif
         return
       }
     )
   enddef # }}}1
 
-  def UseAppleScript(): bool # {{{
+  def UseAppleScript(): bool # {{{1
     return system('/usr/bin/osascript -e '
       .. "'tell application \"System Events\" to set UI_enabled "
       .. "to UI elements enabled' 2>/dev/null")->trim() ==? 'true' ? true : false
-  enddef # }}}
+  enddef
 
-  def MacExists(app: string = ''): any # {{{
+  def MacExists(app: string = ''): any # {{{1
     if app == ''
       return this.MacBrowsersExist
     endif
@@ -243,9 +243,9 @@ export class BrowserLauncher
       this.MacBrowsersExist->add(app->tolower())->sort()->uniq()
       return true
     endif
-  enddef # }}}
+  enddef
 
-  def MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool # {{{
+  def MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool # {{{1
     var file: string
     var torn: string
     var script: string
@@ -475,7 +475,7 @@ export class BrowserLauncher
       # path to a Windows native path for later use, otherwise just add the
       # file:// prefix:
       file = 'file://'
-        .. ((has('win32unix') == 1) && match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') < 0 ?
+        .. ((has('win32unix') == 1) && match(this.TextModeBrowsers, '^\c\V' .. which .. '\$') < 0 ?
           system('cygpath -w ' .. expand('%:p')->shellescape())->trim() : expand('%:p'))
     else
       this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOFILE)
@@ -483,18 +483,18 @@ export class BrowserLauncher
     endif
 
     if has('unix') == 1 && $DISPLAY == ''
-        && match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') < 0
+        && match(this.TextModeBrowsers, '^\c\V' .. which .. '\$') < 0
         && has('win32unix') == 0
-      if this.TextmodeBrowsers == []
+      if this.TextModeBrowsers == []
         this.HTMLMessagesO.Error(this.HTMLMessagesO.E_DISPLAY)
         return false
       else
-        which = this.TextmodeBrowsers[0]
+        which = this.TextModeBrowsers[0]
       endif
     endif
 
     # Have to handle the textmode browsers different than the GUI browsers:
-    if match(this.TextmodeBrowsers, '^\c\V' .. which .. '\$') >= 0 
+    if match(this.TextModeBrowsers, '^\c\V' .. which .. '\$') >= 0 
       this.HTMLMessagesO.Message('Launching ' .. this.Browsers[which][0] .. '...')
 
       var xterm = system('which xterm')->trim()
