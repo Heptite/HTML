@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: May 18, 2024
+# Last Change: June 01, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -748,4 +748,4 @@ export class HTMLUtil
 endclass
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
-# vim:foldmethod=marker:foldcolumn=5:comments=b\:#:commentstring=\ #\ %s:
+# vim:foldmethod=marker:foldcolumn=3:comments=b\:#:commentstring=\ #\ %s:
