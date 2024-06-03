@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: June 01, 2024
+# Last Change: June 02, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -363,7 +363,7 @@ export class HTMLMap extends Util.HTMLUtil
     var newarg = arg
     var newmap = map->substitute('^<lead>\c', g:htmlplugin.map_leader->escape('&~\'), '')
       ->substitute('^<elead>\c', g:htmlplugin.entity_map_leader->escape('&~\'), '')
-    var newmap_escaped = newmap->substitute('<', '<lt>', 'g')
+    var newmap_escaped = newmap->substitute('<', '<lt>', 'g')->escape('"')
 
     var mapchecked: MapCheckR = newmap->this.MapCheck(mode, internal)
     if HTMLVariables.HTMLVariables.MODES->has_key(mode) &&
