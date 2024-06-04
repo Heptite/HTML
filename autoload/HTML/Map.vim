@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: June 02, 2024
+# Last Change: June 03, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -742,19 +742,20 @@ export class HTMLMap extends Util.HTMLUtil
   # Purpose:
   #  Actually insert the HTML template.
   # Arguments:
-  #  None
+  #  1 - String (optional): The file being processed, defaults to the
+  #                         configured files.
   # Return Value:
   #  Boolean - Whether the cursor is not on an insert point.
   def TemplateInsert(f: string = ''): bool
     if g:htmlplugin.author_email != ''
       g:htmlplugin.author_email_encoded = g:htmlplugin.author_email->this.TranscodeString()
     else
-      b:htmlplugin.author_email_encoded = ''
+      g:htmlplugin.author_email_encoded = ''
     endif
     if b:htmlplugin.author_email != ''
       b:htmlplugin.author_email_encoded = b:htmlplugin.author_email->this.TranscodeString()
     else
-      g:htmlplugin.author_email_encoded = ''
+      b:htmlplugin.author_email_encoded = ''
     endif
 
     var template: string
