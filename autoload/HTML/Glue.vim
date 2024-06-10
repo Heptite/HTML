@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: June 01, 2024
+# Last Change: June 08, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -69,28 +69,6 @@ export class HTMLGlue extends Util.HTMLUtil
   #  Boolean: False for an error, true otherwise
   def PluginControl(dowhat: string): bool
 
-    # ClearMappings()  {{{2
-    #
-    # Purpose:
-    #  Iterate over all the commands to clear the mappings.  (This used to be
-    #  just one long single command but that had drawbacks, so now it's a List
-    #  that must be looped over.)
-    # Arguments:
-    #  None
-    # Return Value:
-    #  None
-    def ClearMappings(): void
-      b:htmlplugin.clear_mappings->mapnew(
-        (_, mapping) => {
-          silent! execute mapping
-          return
-        }
-      )
-      b:htmlplugin.clear_mappings = []
-      unlet b:htmlplugin.did_mappings
-      unlet b:htmlplugin.did_json
-    enddef  # }}}2
-
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
       this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOSOURCED)
       return false
@@ -98,7 +76,16 @@ export class HTMLGlue extends Util.HTMLUtil
 
     if dowhat =~? '^\%(d\%(isable\)\?\|off\|false\|0\)$'
       if this.BoolVar('b:htmlplugin.did_mappings')
-        ClearMappings()
+        b:htmlplugin.clear_mappings->mapnew(
+          (_, mapping) => {
+            silent! execute mapping
+            return
+          }
+        )
+        b:htmlplugin.clear_mappings = []
+        unlet b:htmlplugin.did_mappings
+        unlet b:htmlplugin.did_json
+
         if this.BoolVar('g:htmlplugin.did_menus')
           this.HTMLMenuO.MenuControl('disable')
         endif

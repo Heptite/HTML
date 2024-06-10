@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: June 01, 2024
+# Last Change: June 09, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -384,20 +384,40 @@ export class HTMLUtil
   # Purpose:
   #  Find an include file and return it.
   # Arguments:
-  #  1 - String: File to find
-  #  2 - String: Directories to search, comma separated, last one is
-  #              passed on in recursive calls
+  #  1 - String:  File to find.
+  #  2 - String:  Directories to search, comma separated.
+  #  3 - Boolean: Whether to do token replacement on the file contents before
+  #               returning it.
+  #  4 - Boolean: Whether to return all the files found or just the first.
   # Return Value:
   #  String: The file's contents
-  def FindAndRead(inc: string, path: string): list<string>
-    var found: list<string> = findfile(inc, path, -1)
+  def FindAndRead(file: string, path: string, tokenize: bool = false, all: bool = false): list<string>
+    var found: list<string> = file->findfile(path, -1)
 
     if len(found) <= 0
-      printf(this.HTMLMessagesO.E_NOTFOUND, inc)->this.HTMLMessagesO.Warn()
+      printf(this.HTMLMessagesO.E_NOTFOUND, file)->this.HTMLMessagesO.Warn()
       return []
     endif
+
+    var contents: list<string> = []
+
+    for f in found
+      if f->filereadable()
+        contents->extend(f->readfile())
+      else
+        printf(this.HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->this.HTMLMessagesO.Error()
+      endif
+
+      if ! all
+        break
+      endif
+    endfor
            
-    return readfile(found[0])->this.TokenReplace(split(path, ':')[-1])
+    if tokenize
+      return contents->this.TokenReplace(path)
+    else
+      return contents
+    endif
   enddef
 
   # IsSet()  {{{1
@@ -419,29 +439,14 @@ export class HTMLUtil
   # ReadJsonFiles()  {{{1
   #
   #  Purpose:
-  #   Find JSON files in the runtimepath and return them as a Vim array
+  #   Find JSON files in the runtimepath, or specified path and return their
+  #   contents as a Vim list
   #  Arguments:
   #   1 - String: The filename to find and read
   #  Return Value:
-  #   List - The JSON data as a Vim array, empty if there was a problem
-  def ReadJsonFiles(file: string): list<any>
-    var json_files: list<string> = file->findfile(&runtimepath, -1)
-    var json_data: list<any> = []
-
-    if json_files->len() == 0
-      printf(this.HTMLMessagesO.E_NOTFOUNDRTP, Messages.HTMLMessages.F(), file)->this.HTMLMessagesO.Error()
-      return []
-    endif
-
-    for f in json_files
-      if f->filereadable()
-        json_data->extend(f->readfile()->join("\n")->json_decode())
-      else
-        printf(this.HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->this.HTMLMessagesO.Error()
-      endif
-    endfor
-
-    return json_data
+  #   List - The JSON data as a Vim list, empty if there was a problem
+  def ReadJsonFiles(file: string, path: string = &runtimepath): list<any>
+    return file->this.FindAndRead(path, false, true)->join("\n")->json_decode()
   enddef
 
   # SetIfUnset()  {{{1
@@ -508,22 +513,29 @@ export class HTMLUtil
   #  1 - String or List of strings: The text to do token replacement on
   # Return Value:
   #  String or List: The new text
-  def TokenReplace(text: list<string>, directory: string = ''): list<string>
+  def TokenReplace(text: list<string>, path: string = ''): list<string>
+    var newpath: string
+    if path == ''
+      newpath = expand('%:p:h')
+    else
+      newpath = split(expand('%:p:h') .. ',' .. path, ',')->uniq()->join(',')
+    endif
+
     return text->mapnew(
       (_, str) =>
-          str->substitute($'\C%\({join(keys(HTMLVariables.HTMLVariables.TEMPLATE_TOKENS), '\|')}\)%',
-                '\=get(b:htmlplugin, HTMLVariables.HTMLVariables.TEMPLATE_TOKENS[submatch(1)], "")', 'g')
-              ->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
-              ->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%',
-                '\=submatch(1)->substitute(''\\%'', "%%", "g")->substitute(''\\\@<!!'', "%", "g")->strftime()', 'g')
-              ->substitute('\C%time%', '\=strftime("%r %Z")', 'g')
-              ->substitute('\C%time12%', '\=strftime("%r %Z")', 'g')
-              ->substitute('\C%time24%', '\=strftime("%T")', 'g')
-              ->substitute('\C%charset%', '\=this.DetectCharset()', 'g')
-              ->substitute('\C%vimversion%', '\=(v:version / 100) .. "." .. (v:version % 100) .. "." .. (v:versionlong % 10000)', 'g')
-              ->substitute('\C%htmlversion%', HTMLVariables.HTMLVariables.VERSION, 'g')
-              ->substitute('\C%include\s\+\(.\{-1,}\)%',
-                '\=this.FindAndRead(submatch(1), expand("%:p:h") .. (directory != "" ? "," .. directory : ""))->join("%newline%")', 'g')
+        str->substitute($'\C%\({join(keys(HTMLVariables.HTMLVariables.TEMPLATE_TOKENS), '\|')}\)%',
+              '\=get(b:htmlplugin, HTMLVariables.HTMLVariables.TEMPLATE_TOKENS[submatch(1)], "")', 'g')
+            ->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
+            ->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%',
+              '\=submatch(1)->substitute(''\\%'', "%%", "g")->substitute(''\\\@<!!'', "%", "g")->strftime()', 'g')
+            ->substitute('\C%time%', '\=strftime("%r %Z")', 'g')
+            ->substitute('\C%time12%', '\=strftime("%r %Z")', 'g')
+            ->substitute('\C%time24%', '\=strftime("%T")', 'g')
+            ->substitute('\C%charset%', '\=this.DetectCharset()', 'g')
+            ->substitute('\C%vimversion%', '\=(v:version / 100) .. "." .. (v:version % 100) .. "." .. (v:versionlong % 10000)', 'g')
+            ->substitute('\C%htmlversion%', HTMLVariables.HTMLVariables.VERSION, 'g')
+            ->substitute('\C%include\s\+\(.\{-1,}\)%',
+              '\=this.FindAndRead(submatch(1), newpath, true, true)->join("%newline%")', 'g')
       )
   enddef
 

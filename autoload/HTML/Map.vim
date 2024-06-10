@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: June 03, 2024
+# Last Change: June 09, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -780,7 +780,7 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     # Special case, can't be done in TokenReplace():
-    silent! execute ':%s/%newline%/\r/g'
+    silent! :%s/%newline%/\r/g
 
     if getline('$') =~ '^\s*$'
       :$delete
