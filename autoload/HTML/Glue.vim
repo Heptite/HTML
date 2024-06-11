@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: June 08, 2024
+# Last Change: June 10, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -87,7 +87,7 @@ export class HTMLGlue extends Util.HTMLUtil
         unlet b:htmlplugin.did_json
 
         if this.BoolVar('g:htmlplugin.did_menus')
-          this.HTMLMenuO.MenuControl('disable')
+          this.HTMLMenuO.MenuControl(Menu.MenuControlA.disable)
         endif
       else
         this.HTMLMessagesO.Error(this.HTMLMessagesO.E_DISABLED)
@@ -103,7 +103,7 @@ export class HTMLGlue extends Util.HTMLUtil
           this.HTMLMapO.CreateExtraMappings(b:htmlplugin.mappings)
         endif
         b:htmlplugin.did_mappings = true
-        this.HTMLMenuO.MenuControl('enable')
+        this.HTMLMenuO.MenuControl(Menu.MenuControlA.enable)
       endif
     else
       printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->this.HTMLMessagesO.Error()

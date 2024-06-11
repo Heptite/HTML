@@ -7,7 +7,7 @@ endif
 
 # Menu functions for the HTML macros filetype plugin.
 #
-# Last Change: June 01, 2024
+# Last Change: June 10, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -32,6 +32,12 @@ endif
 import '../../import/HTML/Variables.vim' as HTMLVariables
 import autoload 'HTML/Messages.vim'
 import autoload 'HTML/Util.vim'
+
+export enum MenuControlA
+    disable,
+    enable,
+    detect
+endenum
 
 export class HTMLMenu extends Util.HTMLUtil
 
@@ -231,18 +237,13 @@ export class HTMLMenu extends Util.HTMLUtil
   #  Disable/enable the HTML menu and toolbar.
   # Arguments:
   #  1 - String: Optional, Whether to disable or enable the menus:
-  #                empty: Detect which to do
+  #                empty/"detect": Detect which to do
   #                "disable": Disable the menu and toolbar
   #                "enable": Enable the menu and toolbar
   # Return Value:
   #  Boolean: False if an error occurred, true otherwise
-  def MenuControl(which: string = 'detect'): bool
-    if which !~? '^disable$\|^enable$\|^detect$'
-      printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), which)->this.HTMLMessagesO.Error()
-      return false
-    endif
-
-    if which == 'disable' || !this.BoolVar('b:htmlplugin.did_mappings')
+  def MenuControl(which: MenuControlA = MenuControlA.detect): bool
+    if which == MenuControlA.disable || !this.BoolVar('b:htmlplugin.did_mappings')
       execute $'amenu disable {g:htmlplugin.toplevel_menu_escaped}'
       execute $'amenu disable {g:htmlplugin.toplevel_menu_escaped}.*'
       if g:htmlplugin->has_key('did_toolbar')
@@ -265,7 +266,7 @@ export class HTMLMenu extends Util.HTMLUtil
         execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
         execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}.Enable\ Mappings'
       endif
-    elseif which == 'enable' || this.BoolVar('b:htmlplugin.did_mappings_init')
+    elseif which == MenuControlA.enable || this.BoolVar('b:htmlplugin.did_mappings_init')
       execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}'
       if this.BoolVar('b:htmlplugin.did_mappings')
         execute $'amenu enable {g:htmlplugin.toplevel_menu_escaped}.*'
