@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: June 10, 2024
+# Last Change: June 13, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -40,7 +40,7 @@ export class HTMLGlue extends Util.HTMLUtil
   final HTMLMapO: Map.HTMLMap
   final HTMLMenuO: Menu.HTMLMenu
 
-  def new() # {{{
+  def new() # {{{1
     # Even though this is done in the ftplugin file, this file can be imported
     # alone, so do it here as well:
     if !exists('g:htmlplugin')
@@ -54,7 +54,7 @@ export class HTMLGlue extends Util.HTMLUtil
     this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
     this.HTMLMapO = Map.HTMLMap.new()
     this.HTMLMenuO = Menu.HTMLMenu.new()
-  enddef # }}}
+  enddef # }}}1
 
   # PluginControl()  {{{1
   #
