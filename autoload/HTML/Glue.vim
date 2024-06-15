@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: June 10, 2024
+# Last Change: June 14, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -275,7 +275,7 @@ export class HTMLGlue extends Util.HTMLUtil
           if did_mappings == 0
             if maplhs != ''
               this.HTMLMessagesO.Warn($'No mapping(s) were defined for "{maplhs}".'
-                .. (json->has_key('menu') ? '' : ' Skipping menu item.'))
+                .. (domenu && json->has_key('menu') ? '' : ' Skipping menu item.'))
             endif
             continue
           endif
