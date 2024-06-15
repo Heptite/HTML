@@ -29,7 +29,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import '../../import/HTML/Variables.vim' as HTMLVariables
+import '../../import/HTML/Variables.vim' as Variables
 import autoload 'HTML/Map.vim'
 import autoload 'HTML/Menu.vim'
 import autoload 'HTML/Messages.vim'
@@ -51,7 +51,7 @@ export class HTMLGlue extends Util.HTMLUtil
     endif
 
     this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+    this.HTMLVariablesO = Variables.HTMLVariables.new()
     this.HTMLMapO = Map.HTMLMap.new()
     this.HTMLMenuO = Menu.HTMLMenu.new()
   enddef # }}}1
@@ -124,7 +124,7 @@ export class HTMLGlue extends Util.HTMLUtil
   #   3 - String:  Optional, what json file to read
   #  Return Value:
   #   Boolean - Whether the json file was successfully read in without error
-  def ReadEntities(domenu: bool = true, internal: bool = false, file: string = HTMLVariables.HTMLVariables.ENTITIES_FILE): bool
+  def ReadEntities(domenu: bool = true, internal: bool = false, file: string = Variables.HTMLVariables.ENTITIES_FILE): bool
     var rval = true
     var json_data = this.ReadJsonFiles(file)
 
@@ -169,7 +169,7 @@ export class HTMLGlue extends Util.HTMLUtil
   #   3 - String:  Optional, what json file to read
   #  Return Value:
   #   Boolean - Whether the json file was successfully read in without error
-  def ReadTags(domenu: bool = true, internal: bool = false, file: string = HTMLVariables.HTMLVariables.TAGS_FILE): bool
+  def ReadTags(domenu: bool = true, internal: bool = false, file: string = Variables.HTMLVariables.TAGS_FILE): bool
     var maplhs: string
     var menulhs: string
     var rval = true

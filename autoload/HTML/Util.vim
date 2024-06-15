@@ -29,7 +29,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import '../../import/HTML/Variables.vim' as HTMLVariables
+import '../../import/HTML/Variables.vim' as Variables
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/Messages.vim'
 
@@ -50,11 +50,11 @@ endenum
 export class HTMLUtil
 
   final HTMLMessagesO: Messages.HTMLMessages
-  final HTMLVariablesO: HTMLVariables.HTMLVariables
+  final HTMLVariablesO: Variables.HTMLVariables
 
   def new() # {{{
     this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+    this.HTMLVariablesO = Variables.HTMLVariables.new()
   enddef # }}}
 
   # About()  {{{1
@@ -67,20 +67,20 @@ export class HTMLUtil
   #  None
   static def About(): void
     var message = "HTML/XHTML Editing Macros and Menus Plugin\n"
-      .. $"Version: {HTMLVariables.HTMLVariables.VERSION}"
-      .. $"\nWritten by: {HTMLVariables.HTMLVariables.AUTHOR}"
-      .. $" <{HTMLVariables.HTMLVariables.EMAIL}>\n"
+      .. $"Version: {Variables.HTMLVariables.VERSION}"
+      .. $"\nWritten by: {Variables.HTMLVariables.AUTHOR}"
+      .. $" <{Variables.HTMLVariables.EMAIL}>\n"
       .. "With thanks to Doug Renze for the original concept,\n"
       .. "Devin Weaver for the original mangleImageTag,\n"
       .. "Israel Chauca Fuentes for the MacOS version of the\n"
       .. "browser launcher code, and several others for their\n"
       .. "contributions.\n"
-      .. $"{HTMLVariables.HTMLVariables.COPYRIGHT}\nURL: "
-      .. $"{HTMLVariables.HTMLVariables.HOMEPAGE}"
+      .. $"{Variables.HTMLVariables.COPYRIGHT}\nURL: "
+      .. $"{Variables.HTMLVariables.HOMEPAGE}"
 
     if message->confirm("&Visit Homepage\n&Dismiss", 2, 'Info') == 1
       BrowserLauncher.BrowserLauncher.new().Launch('default',
-        BrowserLauncher.Behavior.default, HTMLVariables.HTMLVariables.HOMEPAGE)
+        BrowserLauncher.Behavior.default, Variables.HTMLVariables.HOMEPAGE)
     endif
   enddef
 
@@ -162,7 +162,7 @@ export class HTMLUtil
         return
       endif
 
-      var color = HTMLVariables.HTMLVariables.COLOR_LIST[result - 1]
+      var color = Variables.HTMLVariables.COLOR_LIST[result - 1]
 
       if doname
         execute $'normal! {how} {color[0]->substitute("\\s", "", "g")}'
@@ -233,10 +233,10 @@ export class HTMLUtil
       return popup_filter_menu(id, newkey)
     enddef  # }}}2
 
-    maxw = HTMLVariables.HTMLVariables.COLOR_LIST->mapnew((_, value) => value[0]->strlen())
+    maxw = Variables.HTMLVariables.COLOR_LIST->mapnew((_, value) => value[0]->strlen())
       ->sort('f')[-1]
 
-    var colorwin = HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
+    var colorwin = Variables.HTMLVariables.COLOR_LIST->mapnew(
         (_, value) => printf($'%{maxw}s = %s', (value[0] == '' ? value[1] : value[0]), value[1])
       )->popup_menu({
         callback: CCSelect, filter: CCKeyFilter,
@@ -245,7 +245,7 @@ export class HTMLUtil
         close: 'button',
       })
 
-    HTMLVariables.HTMLVariables.COLOR_LIST->mapnew(
+    Variables.HTMLVariables.COLOR_LIST->mapnew(
       (_, value) => {
         var csplit = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
         var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ? 0x000000 : 0xFFFFFF)
@@ -341,8 +341,8 @@ export class HTMLUtil
 
     enc = enc->substitute('\W', '_', 'g')
 
-    if HTMLVariables.HTMLVariables.CHARSETS[enc] != ''
-      return HTMLVariables.HTMLVariables.CHARSETS[enc]
+    if Variables.HTMLVariables.CHARSETS[enc] != ''
+      return Variables.HTMLVariables.CHARSETS[enc]
     endif
 
     return g:htmlplugin.default_charset
@@ -523,8 +523,8 @@ export class HTMLUtil
 
     return text->mapnew(
       (_, str) =>
-        str->substitute($'\C%\({join(keys(HTMLVariables.HTMLVariables.TEMPLATE_TOKENS), '\|')}\)%',
-              '\=get(b:htmlplugin, HTMLVariables.HTMLVariables.TEMPLATE_TOKENS[submatch(1)], "")', 'g')
+        str->substitute($'\C%\({join(keys(Variables.HTMLVariables.TEMPLATE_TOKENS), '\|')}\)%',
+              '\=get(b:htmlplugin, Variables.HTMLVariables.TEMPLATE_TOKENS[submatch(1)], "")', 'g')
             ->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
             ->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%',
               '\=submatch(1)->substitute(''\\%'', "%%", "g")->substitute(''\\\@<!!'', "%", "g")->strftime()', 'g')
@@ -533,7 +533,7 @@ export class HTMLUtil
             ->substitute('\C%time24%', '\=strftime("%T")', 'g')
             ->substitute('\C%charset%', '\=this.DetectCharset()', 'g')
             ->substitute('\C%vimversion%', '\=(v:version / 100) .. "." .. (v:version % 100) .. "." .. (v:versionlong % 10000)', 'g')
-            ->substitute('\C%htmlversion%', HTMLVariables.HTMLVariables.VERSION, 'g')
+            ->substitute('\C%htmlversion%', Variables.HTMLVariables.VERSION, 'g')
             ->substitute('\C%include\s\+\(.\{-1,}\)%',
               '\=this.FindAndRead(submatch(1), newpath, true, true)->join("%newline%")', 'g')
       )
@@ -687,7 +687,7 @@ export class HTMLUtil
         return c
       endif
 
-      char = HTMLVariables.HTMLVariables.DictCharToEntities->get(c, printf('&#x%X;', c->char2nr()))
+      char = Variables.HTMLVariables.DictCharToEntities->get(c, printf('&#x%X;', c->char2nr()))
 
       return char
     enddef  # }}}2
@@ -714,8 +714,8 @@ export class HTMLUtil
       def EntityToChar(entity: string): string
         var char: string
 
-        if HTMLVariables.HTMLVariables.DictEntitiesToChar->has_key(entity)
-          char = HTMLVariables.HTMLVariables.DictEntitiesToChar[entity]
+        if Variables.HTMLVariables.DictEntitiesToChar->has_key(entity)
+          char = Variables.HTMLVariables.DictEntitiesToChar[entity]
         elseif entity =~ '^&#\%(x\x\+\);$'
           char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
         elseif entity =~ '^&#\%(\d\+\);$'

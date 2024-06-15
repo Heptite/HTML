@@ -29,7 +29,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import '../../import/HTML/Variables.vim' as HTMLVariables
+import '../../import/HTML/Variables.vim' as Variables
 import autoload 'HTML/Messages.vim'
 import autoload 'HTML/Util.vim'
 
@@ -43,7 +43,7 @@ export class HTMLMenu extends Util.HTMLUtil
 
   def new() # {{{
     this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+    this.HTMLVariablesO = Variables.HTMLVariables.new()
   enddef # }}}
 
   # ColorsMenu()  {{{1
@@ -63,8 +63,8 @@ export class HTMLMenu extends Util.HTMLUtil
     var rgb: string
     var rgbpercent: string
 
-    if HTMLVariables.HTMLVariables.COLORS_SORT->has_key(c)
-      newname = [name]->extendnew(['&Colors', '&' .. HTMLVariables.HTMLVariables.COLORS_SORT[c]], 0)
+    if Variables.HTMLVariables.COLORS_SORT->has_key(c)
+      newname = [name]->extendnew(['&Colors', '&' .. Variables.HTMLVariables.COLORS_SORT[c]], 0)
     else
       if name == ''
         newname = [color]->extendnew(['&Colors', 'Web Safe Palette'], 0)

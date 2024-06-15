@@ -89,7 +89,7 @@ endif
 
 runtime commands/HTML/Commands.vim
 
-import '../../import/HTML/Variables.vim' as HTMLVariables
+import '../../import/HTML/Variables.vim' as Variables
 import autoload 'HTML/Glue.vim'
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/MangleImageTag.vim'
@@ -118,7 +118,7 @@ var HTMLMenuO = Menu.HTMLMenu.new()
 var HTMLMessagesO = Messages.HTMLMessages.new()
 #b:htmlplugin.HTMLMessagesO = HTMLMessagesO
 # ...
-var HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+var HTMLVariablesO = Variables.HTMLVariables.new()
 #b:htmlplugin.HTMLVariablesO = HTMLVariablesO
 # ...
 var HTMLUtilO = Util.HTMLUtil.new()
@@ -176,7 +176,7 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
 
   if !g:htmlplugin->has_key('toplevel_menu_escaped')
     g:htmlplugin.toplevel_menu_escaped =
-      HTMLMenuO.MenuJoin(g:htmlplugin.toplevel_menu->add(HTMLVariables.HTMLVariables.MENU_NAME))
+      HTMLMenuO.MenuJoin(g:htmlplugin.toplevel_menu->add(Variables.HTMLVariables.MENU_NAME))
     lockvar g:htmlplugin.toplevel_menu
     lockvar g:htmlplugin.toplevel_menu_escaped
   endif
@@ -228,7 +228,7 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
   # Template creation: {{{2
 
   if HTMLUtilO.BoolVar('b:htmlplugin.do_xhtml_mappings')
-    b:htmlplugin.internal_template = HTMLVariables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = Variables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
         ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
         '<html xmlns="http://www.w3.org/1999/xhtml">'
@@ -237,7 +237,7 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
     b:htmlplugin.internal_template =
       HTMLUtilO.ConvertCase(b:htmlplugin.internal_template)
   else
-    b:htmlplugin.internal_template = HTMLVariables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = Variables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html>',
         '<[{HTML}]>'
       ], 0)
@@ -903,7 +903,7 @@ else
   endif
 
   # Create the rest of the colors menu:
-  HTMLVariables.HTMLVariables.COLOR_LIST->mapnew((_, value) => HTMLMenuO.ColorsMenu(value[0], value[1]))
+  Variables.HTMLVariables.COLOR_LIST->mapnew((_, value) => HTMLMenuO.ColorsMenu(value[0], value[1]))
 
   # }}}2
 

@@ -29,7 +29,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import '../../import/HTML/Variables.vim' as HTMLVariables
+import '../../import/HTML/Variables.vim' as Variables
 import autoload 'HTML/Messages.vim'
 import autoload 'HTML/Util.vim'
 
@@ -51,7 +51,7 @@ export class HTMLMap extends Util.HTMLUtil
 
   def new() # {{{1
     this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+    this.HTMLVariablesO = Variables.HTMLVariables.new()
   enddef
 
   def newMap(this._mode, this._lhs, this._rhs, this._options) # {{{1
@@ -60,7 +60,7 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+    this.HTMLVariablesO = Variables.HTMLVariables.new()
   enddef
 
   def newOpMap(this._lhs, this._options) # {{{1
@@ -68,7 +68,7 @@ export class HTMLMap extends Util.HTMLUtil
     this._rhs = this._lhs
 
     this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = HTMLVariables.HTMLVariables.new()
+    this.HTMLVariablesO = Variables.HTMLVariables.new()
   enddef # }}}1
 
   # CreateExtraMappings()  {{{1
@@ -366,7 +366,7 @@ export class HTMLMap extends Util.HTMLUtil
     var newmap_escaped = newmap->substitute('<', '<lt>', 'g')->escape('"')
 
     var mapchecked: MapCheckR = newmap->this.MapCheck(mode, internal)
-    if HTMLVariables.HTMLVariables.MODES->has_key(mode) &&
+    if Variables.HTMLVariables.MODES->has_key(mode) &&
         (mapchecked == MapCheckR.nooverride || mapchecked == MapCheckR.suppressed)
       # MapCheck() will echo the necessary message, so just return here
       return false
@@ -434,7 +434,7 @@ export class HTMLMap extends Util.HTMLUtil
       execute $'{cmd} <buffer> <silent> {newmap} {newarg}'
     endif
 
-    if HTMLVariables.HTMLVariables.MODES->has_key(mode)
+    if Variables.HTMLVariables.MODES->has_key(mode)
       b:htmlplugin.clear_mappings->add($':{mode}unmap <buffer> {newmap}')
     else
       b:htmlplugin.clear_mappings->add($':unmap <buffer> {newmap}')
@@ -476,11 +476,11 @@ export class HTMLMap extends Util.HTMLUtil
             (b:htmlplugin->has_key('no_maps')
               && b:htmlplugin.no_maps->match($'^\C\V{map}\$') >= 0) )
       return MapCheckR.suppressed
-    elseif HTMLVariables.HTMLVariables.MODES->has_key(mode) && map->maparg(mode) != ''
+    elseif Variables.HTMLVariables.MODES->has_key(mode) && map->maparg(mode) != ''
       if this.BoolVar('g:htmlplugin.no_map_override') && internal
         return MapCheckR.nooverride
       else
-        printf(this.HTMLMessagesO.W_MAPOVERRIDE, map, HTMLVariables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->this.HTMLMessagesO.Warn()
+        printf(this.HTMLMessagesO.W_MAPOVERRIDE, map, Variables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->this.HTMLMessagesO.Warn()
         return MapCheckR.override
       endif
     endif
