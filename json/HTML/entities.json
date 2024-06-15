@@ -65,7 +65,7 @@
    ["c\\|",    "&cent;",     ["Curre&ncy", "&Cent"],                        "\\xA2"],
    ["#",       "&pound;",    ["Curre&ncy", "&Pound"],                       "\\xA3"],
    ["E=",      "&euro;",     ["Curre&ncy", "&Euro"],                        "\\u20AC"],
-   ["L=",      "&#x20A4;",   ["Curre&ncy", "&Lira"],                        "\\u20A4"], 
+   ["L=",      "&#x20A4;",   ["Curre&ncy", "&Lira"],                        "\\u20A4"],
    ["Y=",      "&yen;",      ["Curre&ncy", "&Yen"],                         "\\xA5"],
 
    ["A`",      "&Agrave;",   ["&Graves", "A-grave"],                        "\\xC0"],

@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: June 01, 2024
+# Last Change: June 15, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -102,7 +102,7 @@ export class BrowserLauncher
       return
     elseif (has('unix') == 1) && (has('win32unix') == 0)
 
-      this.Browsers.firefox = [['firefox', 'iceweasel'], 
+      this.Browsers.firefox = [['firefox', 'iceweasel'],
         '', '', '--new-tab', '--new-window']
       this.Browsers.brave   = [['brave-browser', 'brave'],
         '', '', '',          '--new-window']
@@ -494,7 +494,7 @@ export class BrowserLauncher
     endif
 
     # Have to handle the textmode browsers different than the GUI browsers:
-    if match(this.TextModeBrowsers, '^\c\V' .. which .. '\$') >= 0 
+    if match(this.TextModeBrowsers, '^\c\V' .. which .. '\$') >= 0
       this.HTMLMessagesO.Message('Launching ' .. this.Browsers[which][0] .. '...')
 
       var xterm = system('which xterm')->trim()
@@ -534,13 +534,13 @@ export class BrowserLauncher
     # If we haven't already defined a command, we are going to use a GUI
     # browser:
     if command == ''
-      
+
       if donew == Behavior.newtab
         this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->Cap()
           .. ' tab...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
-            .. ' ' .. this.Browsers[which][3] 
+            .. ' ' .. this.Browsers[which][3]
         else
           command = "sh -c \"trap '' HUP; " .. this.Browsers[which][1] .. " "
             .. file->shellescape() .. ' ' .. this.Browsers[which][3]  .. ' &"'
@@ -550,7 +550,7 @@ export class BrowserLauncher
           .. ' window...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
-            .. ' ' .. this.Browsers[which][4] 
+            .. ' ' .. this.Browsers[which][4]
         else
           command = "sh -c \"trap '' HUP; " .. this.Browsers[which][1] .. ' '
             .. file->shellescape() .. ' ' .. this.Browsers[which][4]  .. ' &"'
@@ -564,7 +564,7 @@ export class BrowserLauncher
 
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
-            .. ' ' .. this.Browsers[which][2] 
+            .. ' ' .. this.Browsers[which][2]
         else
           command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]} {file->shellescape()} {this.Browsers[which][2]} &"'
         endif

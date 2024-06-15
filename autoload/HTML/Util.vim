@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: June 09, 2024
+# Last Change: June 15, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -29,7 +29,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import '../../import/HTML/Variables.vim' as Variables
+import '../../import/HTML/Variables.vim'
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/Messages.vim'
 
@@ -412,7 +412,7 @@ export class HTMLUtil
         break
       endif
     endfor
-           
+
     if tokenize
       return contents->this.TokenReplace(path)
     else

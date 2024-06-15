@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      May 18, 2024
+# Last Change:      June 15, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.219 or later
 #
@@ -89,7 +89,7 @@ endif
 
 runtime commands/HTML/Commands.vim
 
-import '../../import/HTML/Variables.vim' as Variables
+import '../../import/HTML/Variables.vim'
 import autoload 'HTML/Glue.vim'
 import autoload 'HTML/BrowserLauncher.vim'
 import autoload 'HTML/MangleImageTag.vim'
@@ -660,16 +660,16 @@ else
     HTMLMenuO.Menu('tmenu',     '1.130', ['ToolBar', 'Blist'],     'Create Bullet List')
     HTMLMenuO.Menu('imenu',     '1.130', ['ToolBar', 'Blist'],
       $'{g:htmlplugin.map_leader}ul{g:htmlplugin.map_leader}li')
-    HTMLMenuO.Menu('vmenu',     '-',     ['ToolBar', 'Blist'], 
+    HTMLMenuO.Menu('vmenu',     '-',     ['ToolBar', 'Blist'],
       $'{g:htmlplugin.map_leader}uli{g:htmlplugin.map_leader}li<ESC>')
-    HTMLMenuO.Menu('nmenu',     '-',     ['ToolBar', 'Blist'], 
+    HTMLMenuO.Menu('nmenu',     '-',     ['ToolBar', 'Blist'],
       $'i{g:htmlplugin.map_leader}ul{g:htmlplugin.map_leader}li')
     HTMLMenuO.Menu('tmenu',     '1.140', ['ToolBar', 'Nlist'],     'Create Numbered List')
-    HTMLMenuO.Menu('imenu',     '1.140', ['ToolBar', 'Nlist'], 
+    HTMLMenuO.Menu('imenu',     '1.140', ['ToolBar', 'Nlist'],
       $'{g:htmlplugin.map_leader}ol{g:htmlplugin.map_leader}li')
-    HTMLMenuO.Menu('vmenu',     '-',     ['ToolBar', 'Nlist'], 
+    HTMLMenuO.Menu('vmenu',     '-',     ['ToolBar', 'Nlist'],
       $'{g:htmlplugin.map_leader}oli{g:htmlplugin.map_leader}li<ESC>')
-    HTMLMenuO.Menu('nmenu',     '-',     ['ToolBar', 'Nlist'], 
+    HTMLMenuO.Menu('nmenu',     '-',     ['ToolBar', 'Nlist'],
       $'i{g:htmlplugin.map_leader}ol{g:htmlplugin.map_leader}li')
     HTMLMenuO.Menu('tmenu',     '1.150', ['ToolBar', 'Litem'],     'Add List Item')
     HTMLMenuO.LeadMenu('imenu', '1.150', ['ToolBar', 'Litem'],     'li')

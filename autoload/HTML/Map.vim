@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: June 09, 2024
+# Last Change: June 15, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -29,7 +29,7 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import '../../import/HTML/Variables.vim' as Variables
+import '../../import/HTML/Variables.vim'
 import autoload 'HTML/Messages.vim'
 import autoload 'HTML/Util.vim'
 
@@ -43,7 +43,7 @@ endenum
 # }}}1
 
 export class HTMLMap extends Util.HTMLUtil
-  
+
   var _mode: string
   var _lhs: string
   var _rhs: string
@@ -344,7 +344,7 @@ export class HTMLMap extends Util.HTMLUtil
       printf(this.HTMLMessagesO.E_EMPTYRHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false
     endif
-    
+
     if cmd->strlen() <= 2
       printf(this.HTMLMessagesO.E_NOFULL, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
       return false

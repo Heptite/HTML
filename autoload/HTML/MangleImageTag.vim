@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag.Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: May 19, 2024
+# Last Change: June 15, 2024
 #
 # Requirements:
 #   Vim 9.1.219 or later
@@ -55,7 +55,7 @@ export class MangleImageTag
     line = getline(start_linenr)
 
     if line !~? '<img'
-      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOIMG) 
+      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOIMG)
       return false
     endif
 
