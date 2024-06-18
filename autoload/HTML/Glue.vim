@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: June 15, 2024
+# Last Change: June 17, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -336,4 +336,4 @@ export class HTMLGlue extends Util.HTMLUtil
 endclass
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
-# vim:foldmethod=marker:foldcolumn=3:comments=b\:#:commentstring=\ #\ %s:
+# vim:foldmethod=marker:foldcolumn=2:comments=b\:#:commentstring=\ #\ %s:
