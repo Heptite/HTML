@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: June 15, 2024
+# Last Change: June 17, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
