@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901 || v:versionlong < 9010219
+if v:version < 901 || v:versionlong < 9010509
   finish
 endif
 
@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: June 15, 2024
+# Last Change: June 20, 2024
 #
 # Currently supported browsers:
 # Unix:
