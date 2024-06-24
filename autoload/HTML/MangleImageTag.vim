@@ -142,45 +142,45 @@ export class MangleImageTag
     return true
   enddef
 
-  def ImageSize(image: string): list<number>  # {{{1
-    var ext = image->fnamemodify(':e')->tolower()
+  def ImageSize(file: string): list<number>  # {{{1
+    var ext = file->fnamemodify(':e')->tolower()
     var size: list<number>
     var buf: list<number>
 
     if ['png', 'gif', 'jpg', 'jpeg', 'tif', 'tiff', 'webp']->match(ext) < 0
       printf(this.HTMLMessagesO.E_UNSUPPORTED, ext)->this.HTMLMessagesO.Error()
       return []
-    elseif !image->filereadable()
-      printf(this.HTMLMessagesO.E_NOIMGREAD, image)->this.HTMLMessagesO.Error()
+    elseif !file->filereadable()
+      printf(this.HTMLMessagesO.E_NOIMGREAD, file)->this.HTMLMessagesO.Error()
       return []
     endif
 
     # Read the image and convert it to a list of numbers:
-    buf = image->readblob()->blob2list()
+    buf = file->readblob()->blob2list()
 
     if ext == 'png'
-      size = buf->this.SizePng()
+      size = buf->this._SizePng()
     elseif ext == 'gif'
-      size = buf->this.SizeGif()
+      size = buf->this._SizeGif()
     elseif ext == 'jpg' || ext == 'jpeg'
-      size = buf->this.SizeJpeg()
+      size = buf->this._SizeJpeg()
     elseif ext == 'tif' || ext == 'tiff'
-      size = buf->this.SizeTiff()
+      size = buf->this._SizeTiff()
     elseif ext == 'webp'
-      size = buf->this.SizeWebP()
+      size = buf->this._SizeWebP()
     endif
 
     return size
   enddef
 
-  def SizeGif(buf: list<number>): list<number>  # {{{1
+  def _SizeGif(buf: list<number>): list<number>  # {{{1
     var i = 0
     var len = buf->len()
 
     while i < len
       if buf[i : i + 9]->join(' ') =~ '^71 73 70\%( \d\+\)\{7}'
-        var width = buf[i + 6 : i + 7]->reverse()->this.Vec()
-        var height = buf[i + 8 : i + 9]->reverse()->this.Vec()
+        var width = buf[i + 6 : i + 7]->reverse()->this._Vec()
+        var height = buf[i + 8 : i + 9]->reverse()->this._Vec()
 
         return [width, height]
       endif
@@ -193,14 +193,14 @@ export class MangleImageTag
     return []
   enddef
 
-  def SizeJpeg(buf: list<number>): list<number>  # {{{1
+  def _SizeJpeg(buf: list<number>): list<number>  # {{{1
     var i = 0
     var len = buf->len()
 
     while i < len
       if buf[i : i + 8]->join(' ') =~ '^255 192\%( \d\+\)\{7}'
-        var height = buf[i + 5 : i + 6]->this.Vec()
-        var width = buf[i + 7 : i + 8]->this.Vec()
+        var height = buf[i + 5 : i + 6]->this._Vec()
+        var width = buf[i + 7 : i + 8]->this._Vec()
 
         return [width, height]
       endif
@@ -213,14 +213,14 @@ export class MangleImageTag
     return []
   enddef
 
-  def SizePng(buf: list<number>): list<number>  # {{{1
+  def _SizePng(buf: list<number>): list<number>  # {{{1
     var i = 0
     var len = buf->len()
 
     while i < len
       if buf[i : i + 11]->join(' ') =~ '^73 72 68 82\%( \d\+\)\{8}'
-        var width = buf[i + 4 : i + 7]->this.Vec()
-        var height = buf[i + 8 : i + 11]->this.Vec()
+        var width = buf[i + 4 : i + 7]->this._Vec()
+        var height = buf[i + 8 : i + 11]->this._Vec()
 
         return [width, height]
       endif
@@ -233,7 +233,7 @@ export class MangleImageTag
     return []
   enddef
 
-  def SizeTiff(buf: list<number>): list<number>  # {{{1
+  def _SizeTiff(buf: list<number>): list<number>  # {{{1
     var i: number
     var j: number
     var len = buf->len()
@@ -253,22 +253,22 @@ export class MangleImageTag
       return []
     endif
 
-    if (bigendian ? buf[2 : 3]->this.Vec() : buf[2 : 3]->reverse()->this.Vec()) != 42
+    if (bigendian ? buf[2 : 3]->this._Vec() : buf[2 : 3]->reverse()->this._Vec()) != 42
       this.HTMLMessagesO.Error(this.HTMLMessagesO.E_TIFFID)
       return []
     endif
 
-    i = bigendian ? buf[4 : 7]->this.Vec() : buf[4 : 7]->reverse()->this.Vec()
-    j = bigendian ? buf[i : i + 1]->this.Vec() : buf[i : i + 1]->reverse()->this.Vec()
+    i = bigendian ? buf[4 : 7]->this._Vec() : buf[4 : 7]->reverse()->this._Vec()
+    j = bigendian ? buf[i : i + 1]->this._Vec() : buf[i : i + 1]->reverse()->this._Vec()
     i += 2
 
     while i < len
-      type = bigendian ? buf[i : i + 1]->this.Vec() : buf[i : i + 1]->reverse()->this.Vec()
+      type = bigendian ? buf[i : i + 1]->this._Vec() : buf[i : i + 1]->reverse()->this._Vec()
 
       if type == 0x100
-        width = bigendian ? buf[i + 8 : i + 11]->this.Vec() : buf[i + 8 : i + 11]->reverse()->this.Vec()
+        width = bigendian ? buf[i + 8 : i + 11]->this._Vec() : buf[i + 8 : i + 11]->reverse()->this._Vec()
       elseif type == 0x101
-        height = bigendian ? buf[i + 8 : i + 11]->this.Vec() : buf[i + 8 : i + 11]->reverse()->this.Vec()
+        height = bigendian ? buf[i + 8 : i + 11]->this._Vec() : buf[i + 8 : i + 11]->reverse()->this._Vec()
       endif
 
       if width > 0 && height > 0
@@ -278,8 +278,8 @@ export class MangleImageTag
       i += 12
 
       if j == 0
-        i = bigendian ? buf[i + 4 : i + 7]->this.Vec() : buf[i + 4 : i + 7]->reverse()->this.Vec()
-        j = bigendian ? buf[i : i + 1]->this.Vec() : buf[i : i + 1]->reverse()->this.Vec()
+        i = bigendian ? buf[i + 4 : i + 7]->this._Vec() : buf[i + 4 : i + 7]->reverse()->this._Vec()
+        j = bigendian ? buf[i : i + 1]->this._Vec() : buf[i : i + 1]->reverse()->this._Vec()
         i += 2
       else
         --j
@@ -291,7 +291,7 @@ export class MangleImageTag
     return []
   enddef
 
-  def SizeWebP(buf: list<number>): list<number>  # {{{1
+  def _SizeWebP(buf: list<number>): list<number>  # {{{1
     var i = 0
     var len = buf->len()
 
@@ -305,8 +305,8 @@ export class MangleImageTag
     while i < len
       if buf[i : i + 3]->join(' ') =~ '^86 80 56 \d\+'
         i += 14
-        var width = and(buf[i : i + 1]->reverse()->this.Vec(), 0x3fff)
-        var height = and(buf[i + 2 : i + 3]->reverse()->this.Vec(), 0x3fff)
+        var width = and(buf[i : i + 1]->reverse()->this._Vec(), 0x3fff)
+        var height = and(buf[i + 2 : i + 3]->reverse()->this._Vec(), 0x3fff)
 
         return [width, height]
       endif
@@ -319,7 +319,7 @@ export class MangleImageTag
     return []
   enddef
 
-  def Vec(numbers: list<number>): number  # {{{1
+  def _Vec(numbers: list<number>): number  # {{{1
     var n = 0
     numbers->mapnew(
       (_, i): void => {
