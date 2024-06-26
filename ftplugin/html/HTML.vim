@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      June 24, 2024
+# Last Change:      June 25, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.509 or later
 #
@@ -259,10 +259,10 @@ endif # !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
 
 # ----------------------------------------------------------------------------
 
-# ---- Miscellaneous Mappings: ------------------------------------------ {{{1
-
 if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings')
 b:htmlplugin.did_mappings = true
+
+# ---- Miscellaneous Mappings: ------------------------------------------ {{{1
 
 b:htmlplugin.clear_mappings = []
 
