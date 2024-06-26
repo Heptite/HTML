@@ -346,7 +346,7 @@ HTMLMapO.Map('nnoremap', '<lead>ht', '')
 # ---- Browser Remote Controls: ----------------------------------------- {{{1
 
 # Can't access an imported enum from mappings, so kluge it:
-b:htmlplugin.Behavior = {
+b:htmlplugin.BrowserBehavior = {
   default: BrowserLauncher.Behavior.default,
   newwindow: BrowserLauncher.Behavior.newwindow,
   newtab: BrowserLauncher.Behavior.newtab
@@ -366,19 +366,19 @@ if BrowserLauncherO.Exists('brave') # {{{2
   HTMLMapO.Map(
     'nnoremap',
     '<lead>bv',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('brave', b:htmlplugin.Behavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('brave', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # Chrome: Open a new window, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>nbv',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('brave', b:htmlplugin.Behavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('brave', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
   # Chrome: Open a new tab, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>tbv',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('brave', b:htmlplugin.Behavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('brave', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif
 
@@ -387,19 +387,19 @@ if BrowserLauncherO.Exists('chrome') # {{{2
   HTMLMapO.Map(
     'nnoremap',
     '<lead>gc',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('chrome', b:htmlplugin.Behavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('chrome', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # Chrome: Open a new window, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ngc',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('chrome', b:htmlplugin.Behavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('chrome', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
   # Chrome: Open a new tab, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>tgc',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('chrome', b:htmlplugin.Behavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('chrome', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif
 
@@ -408,19 +408,19 @@ if BrowserLauncherO.Exists('edge') # {{{2
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ed',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('edge', b:htmlplugin.Behavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('edge', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # Edge: Open a new window, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ned',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('edge', b:htmlplugin.Behavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('edge', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
   # Edge: Open a new tab, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ted',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('edge', b:htmlplugin.Behavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('edge', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif
 
@@ -429,19 +429,19 @@ if BrowserLauncherO.Exists('firefox') # {{{2
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ff',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('firefox', b:htmlplugin.Behavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('firefox', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # Firefox: Open a new window, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>nff',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('firefox', b:htmlplugin.Behavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('firefox', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
   # Firefox: Open a new tab, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>tff',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('firefox', b:htmlplugin.Behavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('firefox', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif
 
@@ -450,19 +450,19 @@ if BrowserLauncherO.Exists('opera') # {{{2
   HTMLMapO.Map(
     'nnoremap',
     '<lead>oa',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('opera', b:htmlplugin.Behavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('opera', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # Opera: Open a new window, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>noa',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('opera', b:htmlplugin.Behavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('opera', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
   # Opera: Open a new tab, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>toa',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('opera', b:htmlplugin.Behavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('opera', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif
 
@@ -471,19 +471,19 @@ if BrowserLauncherO.Exists('safari') # {{{2
   HTMLMapO.Map(
     'nnoremap',
     '<lead>sf',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('safari', b:htmlplugin.Behavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('safari', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # Safari: Open a new window, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>nsf',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('safari', b:htmlplugin.Behavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('safari', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
     )
   # Safari: Open a new tab, and view the current file:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>tsf',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('safari', b:htmlplugin.Behavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('safari', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif
 
@@ -492,19 +492,19 @@ if BrowserLauncherO.Exists('lynx') # {{{2
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ly',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.Behavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # Lynx in an xterm:  (This always happens in the Vim GUI.)
   HTMLMapO.Map(
     'nnoremap',
     '<lead>nly',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.Behavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
   # Lynx in a new Vim window, using ":terminal":
   HTMLMapO.Map(
     'nnoremap',
     '<lead>tly',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.Behavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif
 
@@ -513,19 +513,19 @@ if BrowserLauncherO.Exists('w3m') # {{{2
   HTMLMapO.Map(
     'nnoremap',
     '<lead>w3',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('w3m', b:htmlplugin.Behavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('w3m', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # w3m in an xterm:  (This always happens in the Vim GUI.)
   HTMLMapO.Map(
     'nnoremap',
     '<lead>nw3',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('w3m', b:htmlplugin.Behavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('w3m', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
   # w3m in a new Vim window, using ":terminal":
   HTMLMapO.Map(
     'nnoremap',
     '<lead>tw3',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('w3m', b:htmlplugin.Behavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('w3m', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif
 
@@ -534,19 +534,19 @@ if BrowserLauncherO.Exists('links') # {{{2
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.Behavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # Lynx in an xterm:  (This always happens in the Vim GUI.)
   HTMLMapO.Map(
     'nnoremap',
     '<lead>nln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.Behavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
   # Lynx in a new Vim window, using ":terminal":
   HTMLMapO.Map(
     'nnoremap',
     '<lead>tln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.Behavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif # }}}2
 
