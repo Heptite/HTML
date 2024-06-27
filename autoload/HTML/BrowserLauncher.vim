@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: June 24, 2024
+# Last Change: June 27, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -92,7 +92,6 @@ export class BrowserLauncher
 
   var Browsers: dict<list<any>>
   var TextModeBrowsers: dict<list<any>> = {lynx: [], w3m: [], links: []}
-  var TextModeBrowsersExist: list<any> = []
   var MacBrowsersExist = ['default']
   var HTMLMessagesO: Messages.HTMLMessages
 
@@ -116,7 +115,7 @@ export class BrowserLauncher
 
       var temppath: string
 
-      for tempkey in keys(this.Browsers)
+      for tempkey in this.Browsers->keys()
         for tempname in (type(this.Browsers[tempkey][0]) == v:t_list ? this.Browsers[tempkey][0] : [this.Browsers[tempkey][0]])
           temppath = system($'which {tempname}')->trim()
           if v:shell_error == 0
@@ -132,7 +131,6 @@ export class BrowserLauncher
       endfor
 
       this.TextModeBrowsers = this.FindTextModeBrowsers()
-      this.TextModeBrowsersExist = keys(this.TextModeBrowsers)
       this.Browsers->extend(this.TextModeBrowsers)
 
     elseif (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
@@ -166,7 +164,6 @@ export class BrowserLauncher
 
       if has('win32unix') == 1
         this.TextModeBrowsers = this.FindTextModeBrowsers()
-        this.TextModeBrowsersExist = keys(this.TextModeBrowsers)
         this.Browsers->extend(this.TextModeBrowsers)
 
         # Different quoting required for "cygstart":
@@ -178,7 +175,6 @@ export class BrowserLauncher
       this.HTMLMessagesO.Warn('Your OS is not recognized, browser controls will not work.')
 
       this.Browsers = {}
-      this.TextModeBrowsersExist = []
 
     endif
   enddef # }}}
@@ -482,7 +478,7 @@ export class BrowserLauncher
       # path to a Windows native path for later use, otherwise just add the
       # file:// prefix:
       file = 'file://'
-        .. ((has('win32unix') == 1) && match(this.TextModeBrowsersExist, '^\c\V' .. which .. '\$') < 0 ?
+        .. ((has('win32unix') == 1) && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0 ?
           system('cygpath -w ' .. expand('%:p')->shellescape())->trim() : expand('%:p'))
     else
       this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOFILE)
@@ -490,18 +486,18 @@ export class BrowserLauncher
     endif
 
     if has('unix') == 1 && $DISPLAY == ''
-        && match(this.TextModeBrowsersExist, '^\c\V' .. which .. '\$') < 0
+        && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0
         && has('win32unix') == 0
-      if this.TextModeBrowsersExist == []
+      if this.TextModeBrowsers->keys() == []
         this.HTMLMessagesO.Error(this.HTMLMessagesO.E_DISPLAY)
         return false
       else
-        which = this.TextModeBrowsersExist[0]
+        which = this.TextModeBrowsers->keys()[0]
       endif
     endif
 
     # Have to handle the textmode browsers different than the GUI browsers:
-    if match(this.TextModeBrowsersExist, '^\c\V' .. which .. '\$') >= 0
+    if match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') >= 0
       this.HTMLMessagesO.Message('Launching ' .. this.Browsers[which][0] .. '...')
 
       var xterm = system('which xterm')->trim()
