@@ -259,10 +259,10 @@ endif # !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
 
 # ----------------------------------------------------------------------------
 
-# ---- Miscellaneous Mappings: ------------------------------------------ {{{1
-
 if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings')
 b:htmlplugin.did_mappings = true
+
+# ---- Miscellaneous Mappings: ------------------------------------------ {{{1
 
 b:htmlplugin.clear_mappings = []
 
