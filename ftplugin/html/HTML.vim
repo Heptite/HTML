@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      June 25, 2024
+# Last Change:      June 26, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.509 or later
 #
