@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      June 25, 2024
+# Last Change:      June 26, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.509 or later
 #
@@ -922,7 +922,8 @@ endif
 # ---- Finalize and Clean Up: ------------------------------------------- {{{1
 
 # Try to reduce support requests from users:  {{{
-if !HTMLUtilO.BoolVar('g:htmlplugin.did_old_variable_check') &&
+
+if !HTMLUtilO.BoolVar('g:htmlplugin.did_old_variable_check') &&  # {{{
     (exists('g:html_author_name') || exists('g:html_author_email')
     || exists('g:html_bgcolor') || exists('g:html_textcolor')
     || exists('g:html_alinkcolor') || exists('g:html_vlinkcolor')
@@ -932,7 +933,7 @@ if !HTMLUtilO.BoolVar('g:htmlplugin.did_old_variable_check') &&
     || exists('g:no_html_maps') || exists('g:no_html_menu')
     || exists('g:no_html_toolbar') || exists('g:no_html_tab_mapping'))
   g:htmlplugin.did_old_variable_check = true
-  var message = "You have set one of the old HTML plugin configuration variables.\n"
+  var message = "You have set one or more of the old HTML plugin configuration variables.\n"
   .. "These variables are no longer used in favor of a new dictionary variable.\n\n"
   .. "Please refer to \":help html-variables\"."
   if message->confirm("&Help\n&Dismiss", 2, 'Warning') == 1
@@ -940,9 +941,9 @@ if !HTMLUtilO.BoolVar('g:htmlplugin.did_old_variable_check') &&
     # Go to the previous window or everything gets messy:
     wincmd p
   endif
-endif
+endif  # }}}
 
-if !HTMLUtilO.BoolVar('g:htmlplugin.did_plugin_warning_check')
+if !HTMLUtilO.BoolVar('g:htmlplugin.did_plugin_warning_check')  # {{{
   g:htmlplugin.did_plugin_warning_check = true
   var files = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
   if files->len() > 1
@@ -955,7 +956,8 @@ if !HTMLUtilO.BoolVar('g:htmlplugin.did_plugin_warning_check')
       message->confirm('&Dismiss', 1, 'Warning')
     endif
   endif
-endif
+endif  #}}}
+
 # }}}
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
