@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: June 20, 2024
+# Last Change: June 29, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -664,11 +664,11 @@ export class HTMLUtil
   #                          the provided string
   #              - %:        Encode as a %XX string
   #              - x:        Encode as a &#x...; string
-  #              - omitted:  Encode as a &#...; string
+  #              - omitted or e/encode:  Encode as a &#...; string
   #              - other:    No change to the string
   # Return Value:
   #  String: The encoded string.
-  def TranscodeString(str: string, code: string = ''): string
+  def TranscodeString(str: string, code: string = 'encode'): string
 
     # CharToEntity()  {{{2
     #
@@ -740,9 +740,9 @@ export class HTMLUtil
       return char
     enddef  # }}}2
 
-    if code == ''
+    if code == '' || code =~? '^e\%(ncode\)\=$'
       return str->mapnew((_, char) => char->CharToEntity())
-    elseif code == 'x'
+    elseif code ==? 'x'
       return str->mapnew((_, char) => printf("&#x%x;", char->char2nr()))
     elseif code == '%'
       return str->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')

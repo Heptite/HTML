@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: June 15, 2024
+# Last Change: June 29, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -38,10 +38,11 @@ export class HTMLVariables
   def new() # {{{
     this.HTMLMessagesO = Messages.HTMLMessages.new()
 
-    if empty(HTMLVariables.DictCharToEntities) == 1
+    if empty(DictCharToEntities) == 1
       var json_files: list<string> = ENTITY_TABLE_FILE->findfile(&runtimepath, -1)
 
       if json_files->len() == 0
+        printf(this.HTMLMessagesO.E_NOTFOUND, ENTITY_TABLE_FILE)->this.HTMLMessagesO.Error()
         return
       endif
 

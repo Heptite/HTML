@@ -5,7 +5,7 @@
 		"lhs": "&",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\")<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'e')<CR><Esc>", {"extra": false}],
 			"o": ["", {"insert": false}]
 		},
 
@@ -18,7 +18,7 @@
 		"lhs": "*",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\",'x')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'x')<CR><Esc>", {"extra": false}],
 			"o": ["", {"insert": false}]
 		},
 
@@ -31,7 +31,7 @@
 		"lhs": "%",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\",'%')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", '%')<CR><Esc>", {"extra": false}],
 			"o": ["", {"insert": false}]
 		},
 
@@ -44,7 +44,7 @@
 		"lhs": "^",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\",'d')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'd')<CR><Esc>", {"extra": false}],
 			"o": ["", {"insert": false}]
 		},
 
