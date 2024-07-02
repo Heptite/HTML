@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: June 20, 2024
+# Last Change: July 02, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -68,7 +68,6 @@ export class HTMLGlue extends Util.HTMLUtil
   # Return Value:
   #  Boolean: False for an error, true otherwise
   def PluginControl(dowhat: string): bool
-
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
       this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOSOURCED)
       return false
