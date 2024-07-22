@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: July 01, 2024
+# Last Change: July 22, 2024
 #
 # Requirements:
 #       Vim 9.1.219 or later
@@ -740,7 +740,7 @@ export class HTMLUtil
       return char
     enddef  # }}}2
 
-    if code == '' || code =~? '^\%(e\%(ncode\)\=)\=$'
+    if code == '' || code =~? '^\%(e\%(ncode\)\=\)\=$'
       return str->mapnew((_, char) => char->CharToEntity())
     elseif code ==? 'x'
       return str->mapnew((_, char) => printf("&#x%x;", char->char2nr()))
