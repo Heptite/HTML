@@ -10,7 +10,7 @@ endif
 # Last Change: June 23, 2024
 #
 # Requirements:
-#   Vim 9.1.219 or later
+#   Vim 9.1.509 or later
 # Assumptions:
 #   The filename extension is correct for the image type
 #
