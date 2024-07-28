@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: June 27, 2024
+# Last Change: July 27, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -100,6 +100,28 @@ export class BrowserLauncher
 
     if (has('mac') == 1) || (has('macunix') == 1)
       return
+    elseif readfile('/proc/version')[0] =~# 'WSL2'
+      # These applications _could_ be installed elsewhere, but there's no reliable
+      # way to find them if they are, so just assume they would be in a standard
+      # location:
+      if filereadable('/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe')
+        this.Browsers.brave = ['/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '', '--new-window']
+      endif
+      if filereadable('/mnt/c/Program Files/Mozilla Firefox/firefox.exe')
+        this.Browsers.firefox = ['/mnt/c/Program Files/Mozilla Firefox/firefox.exe', '', '', '--new-tab', '--new-window']
+      endif
+      if filereadable('/mnt/c/Program Files/Google/Chrome/Application/chrome.exe')
+        this.Browsers.chrome = ['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '', '', '', '--new-window']
+      endif
+      if filereadable('/mnt/c/Program Files/Opera/launcher.exe')
+        this.Browsers.opera = ['/mnt/c/Program Files/Opera/launcher.exe', '', '', '', '--new-window']
+      endif
+      if filereadable('/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe')
+        this.Browsers.edge = ['/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe', '', '', '', '--new-window']
+      endif
+
+      this.TextModeBrowsers = this.FindTextModeBrowsers()
+      this.Browsers->extend(this.TextModeBrowsers)
     elseif (has('unix') == 1) && (has('win32unix') == 0)
 
       this.Browsers.firefox = [['firefox', 'iceweasel'],
@@ -474,12 +496,16 @@ export class BrowserLauncher
         this.HTMLMessagesO.Warn(this.HTMLMessagesO.W_UNSAVED)
       endif
 
-      # If we're on Cygwin and not using a text mode browser, translate the file
-      # path to a Windows native path for later use, otherwise just add the
-      # file:// prefix:
-      file = 'file://'
-        .. ((has('win32unix') == 1) && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0 ?
-          system('cygpath -w ' .. expand('%:p')->shellescape())->trim() : expand('%:p'))
+      # If we're on Cygwin or WSL2 and not using a text mode browser,
+      # translate the file path to a Windows native path for later use,
+      # otherwise just add the file:// prefix:
+      if has('win32unix') == 1 && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0
+        file = 'file://' .. system('cygpath -w ' .. expand('%:p')->shellescape())->trim()
+      elseif readfile('/proc/version')[0] =~# 'WSL2' && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0
+        file = 'file://' .. system('wslpath -w ' .. expand('%:p')->shellescape())->trim()
+      else
+        file = 'file://' .. expand('%:p')
+      endif
     else
       this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOFILE)
       return false
