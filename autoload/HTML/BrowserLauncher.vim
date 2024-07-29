@@ -17,7 +17,6 @@ endif
 #  - Chrome   (remote [new window / new tab] / launch)
 #    (This will fall back to Chromium if it's installed and Chrome isn't.)
 #  - Firefox  (remote [new window / new tab] / launch)
-#    (This will fall back to Iceweasel for Debian installs.)
 #  - Opera    (remote [new window / new tab] / launch)
 #  - Lynx     (Under the current TTY if not running the GUI, or a new xterm
 #              window if DISPLAY is set.)
@@ -136,7 +135,7 @@ export class BrowserLauncher
       this.Browsers->extend(this.TextModeBrowsers)
     elseif (has('unix') == 1) && (has('win32unix') == 0)
 
-      this.Browsers.firefox = [['firefox', 'iceweasel'],
+      this.Browsers.firefox = ['firefox',
         '', '', '--new-tab', '--new-window']
       this.Browsers.brave   = [['brave-browser', 'brave'],
         '', '', '',          '--new-window']
