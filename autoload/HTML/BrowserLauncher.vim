@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: June 27, 2024
+# Last Change: July 28, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -33,7 +33,7 @@ endif
 #  - Safari   (remote [new window / new tab] / launch)
 #  - Default
 #
-# Windows and Cygwin:
+# Windows, Cygwin, and WSL2:
 #  - Brave    (remote [new window / new tab] / launch)
 #  - Chrome   (remote [new window / new tab] / launch)
 #  - Edge     (remote [new window / new tab] / launch)
