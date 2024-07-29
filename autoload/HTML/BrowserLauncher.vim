@@ -91,7 +91,7 @@ export class BrowserLauncher
 
   var Browsers: dict<list<any>>
   var TextModeBrowsers: dict<list<any>> = {lynx: [], w3m: [], links: []}
-  var MacBrowsersExist = ['default']
+  var MacBrowsersExist: list<string> = ['default']
   var HTMLMessagesO: Messages.HTMLMessages
 
   def new() # {{{
