@@ -104,32 +104,30 @@ export class BrowserLauncher
       # way to find them if they are, so just assume they would be in a standard
       # location:
       if filereadable('/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe')
-        this.Browsers.brave = ['/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '', '--new-window']
+        this.Browsers.brave = ['brave', '/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '--new-window']
+      elseif filereadable('/mnt/c/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe')
+        this.Browsers.brave = ['brave', '/mnt/c/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '--new-window']
       endif
       if filereadable('/mnt/c/Program Files/Mozilla Firefox/firefox.exe')
-        this.Browsers.firefox = ['/mnt/c/Program Files/Mozilla Firefox/firefox.exe', '', '', '--new-tab', '--new-window']
+        this.Browsers.firefox = ['firefox', '/mnt/c/Program Files/Mozilla Firefox/firefox.exe', '', '--new-tab', '--new-window']
+      elseif filereadable('/mnt/c/Program Files (x86)/Mozilla Firefox/firefox.exe')
+        this.Browsers.firefox = ['firefox', '/mnt/c/Program Files (x86)/Mozilla Firefox/firefox.exe', '', '--new-tab', '--new-window']
       endif
       if filereadable('/mnt/c/Program Files/Google/Chrome/Application/chrome.exe')
-        this.Browsers.chrome = ['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '', '', '', '--new-window']
+        this.Browsers.chrome = ['chrome', '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '', '', '--new-window']
+      elseif filereadable('/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe')
+        this.Browsers.chrome = ['chrome', '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe', '', '', '--new-window']
       endif
       if filereadable('/mnt/c/Program Files/Opera/launcher.exe')
-        this.Browsers.opera = ['/mnt/c/Program Files/Opera/launcher.exe', '', '', '', '--new-window']
+        this.Browsers.opera = ['opera', '/mnt/c/Program Files/Opera/launcher.exe', '', '', '--new-window']
+      elseif filereadable('/mnt/c/Program Files (x86)/Opera/launcher.exe')
+        this.Browsers.opera = ['opera', '/mnt/c/Program Files (x86)/Opera/launcher.exe', '', '', '--new-window']
       endif
       if filereadable('/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe')
-        this.Browsers.edge = ['/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe', '', '', '', '--new-window']
+        this.Browsers.edge = ['msedge', '/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe', '', '', '--new-window']
+      elseif filereadable('/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe')
+        this.Browsers.edge = ['msedge', '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '', '', '--new-window']
       endif
-
-      var tempname: string
-      for tempkey in this.Browsers->keys()
-        for temppath in (type(this.Browsers[tempkey][0]) == v:t_list ? this.Browsers[tempkey][0] : [this.Browsers[tempkey][0]])
-          tempname = temppath->fnamemodify(':t:r')
-          if v:shell_error == 0
-            this.Browsers[tempkey][0] = tempname
-            this.Browsers[tempkey][1] = temppath
-            break
-          endif
-        endfor
-      endfor
 
       this.TextModeBrowsers = this.FindTextModeBrowsers()
       this.Browsers->extend(this.TextModeBrowsers)
@@ -512,7 +510,7 @@ export class BrowserLauncher
         file = 'file://' .. system('cygpath -w ' .. expand('%:p')->shellescape())->trim()
       elseif filereadable('/proc/version') && readfile('/proc/version')[0] =~# 'WSL2'
           && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0
-        # No doule slash here, please:
+        # No double slash here, please:
         file = 'file:/' .. system('wslpath -w ' .. expand('%:p')->shellescape())->trim()
       else
         file = 'file://' .. expand('%:p')
