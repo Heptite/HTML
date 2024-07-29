@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 27, 2024
+# Last Change: July 29, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -100,7 +100,7 @@ export class BrowserLauncher
 
     if (has('mac') == 1) || (has('macunix') == 1)
       return
-    elseif readfile('/proc/version')[0] =~# 'WSL2'
+    elseif filereadable('/proc/version') && readfile('/proc/version')[0] =~# 'WSL2'
       # These applications _could_ be installed elsewhere, but there's no reliable
       # way to find them if they are, so just assume they would be in a standard
       # location:
@@ -120,6 +120,18 @@ export class BrowserLauncher
         this.Browsers.edge = ['/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe', '', '', '', '--new-window']
       endif
 
+      var tempname: string
+      for tempkey in this.Browsers->keys()
+        for temppath in (type(this.Browsers[tempkey][0]) == v:t_list ? this.Browsers[tempkey][0] : [this.Browsers[tempkey][0]])
+          tempname = temppath->fnamemodify(':t:r')
+          if v:shell_error == 0
+            this.Browsers[tempkey][0] = tempname
+            this.Browsers[tempkey][1] = temppath
+            break
+          endif
+        endfor
+      endfor
+
       this.TextModeBrowsers = this.FindTextModeBrowsers()
       this.Browsers->extend(this.TextModeBrowsers)
     elseif (has('unix') == 1) && (has('win32unix') == 0)
@@ -136,7 +148,6 @@ export class BrowserLauncher
         '', '', '',          '']
 
       var temppath: string
-
       for tempkey in this.Browsers->keys()
         for tempname in (type(this.Browsers[tempkey][0]) == v:t_list ? this.Browsers[tempkey][0] : [this.Browsers[tempkey][0]])
           temppath = system($'which {tempname}')->trim()
@@ -226,7 +237,7 @@ export class BrowserLauncher
   #  The list of browsers to search for
   # Return value:
   #  A list of browsers that were found, in lisdt<list<string>> format
-  def FindTextModeBrowsers(browserlist: dict<list<string>> = this.TextModeBrowsers): dict<list<any>>
+  def FindTextModeBrowsers(browserlist: dict<list<any>> = this.TextModeBrowsers): dict<list<any>>
     var browsers: dict<list<any>>
 
     browsers = browserlist->mapnew(
@@ -461,7 +472,6 @@ export class BrowserLauncher
   #  false - Failure (No browser was launched/controlled.)
   #  true  - Success (A browser was launched/controlled.)
   def UnixWindowsLaunch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool
-
     # Cap() {{{2
     #
     # Capitalize the first letter of every word in a string
@@ -501,8 +511,10 @@ export class BrowserLauncher
       # otherwise just add the file:// prefix:
       if has('win32unix') == 1 && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0
         file = 'file://' .. system('cygpath -w ' .. expand('%:p')->shellescape())->trim()
-      elseif readfile('/proc/version')[0] =~# 'WSL2' && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0
-        file = 'file://' .. system('wslpath -w ' .. expand('%:p')->shellescape())->trim()
+      elseif filereadable('/proc/version') && readfile('/proc/version')[0] =~# 'WSL2'
+          && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0
+        # No doule slash here, please:
+        file = 'file:/' .. system('wslpath -w ' .. expand('%:p')->shellescape())->trim()
       else
         file = 'file://' .. expand('%:p')
       endif
@@ -595,7 +607,7 @@ export class BrowserLauncher
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
             .. ' ' .. this.Browsers[which][2]
         else
-          command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]} {file->shellescape()} {this.Browsers[which][2]} &"'
+          command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][2]} &"'
         endif
       endif
     endif
