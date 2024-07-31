@@ -147,9 +147,7 @@ export class BrowserLauncher
       var temppath: string
       for tempkey in this.Browsers->keys()
         for tempname in (type(this.Browsers[tempkey][0]) == v:t_list ? this.Browsers[tempkey][0] : [this.Browsers[tempkey][0]])
-          #temppath = system($'which {tempname}')->trim()
           temppath = tempname->exepath()
-          #if v:shell_error == 0
           if temppath != ''
             this.Browsers[tempkey][0] = tempname
             this.Browsers[tempkey][1] = temppath
@@ -241,10 +239,8 @@ export class BrowserLauncher
 
     browsers = browserlist->mapnew(
       (textbrowser, _) => {
-        #var temp: string = system($'which {textbrowser}')->trim()
         var temp: string = textbrowser->exepath()
 
-        #if v:shell_error == 0
         if temp == ''
           return []
         else
@@ -539,10 +535,7 @@ export class BrowserLauncher
     if match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') >= 0
       this.HTMLMessagesO.Message('Launching ' .. this.Browsers[which][0] .. '...')
 
-      var xterm = system('which xterm')->trim()
-      if v:shell_error != 0
-        xterm = ''
-      endif
+      var xterm = exepath('xterm')
 
       if has('gui_running') == 1 || donew != Behavior.default
         if $DISPLAY != '' && xterm != '' && donew == Behavior.newwindow
