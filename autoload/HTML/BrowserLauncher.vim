@@ -574,21 +574,17 @@ export class BrowserLauncher
         this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->Cap()
           .. ' tab...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
-          command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
-            .. ' ' .. this.Browsers[which][3]
+          command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][3]}'
         else
-          command = "sh -c \"trap '' HUP; " .. this.Browsers[which][1] .. " "
-            .. file->shellescape() .. ' ' .. this.Browsers[which][3]  .. ' &"'
+          command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][3]} &"'
         endif
       elseif donew != Behavior.default
         this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->Cap()
           .. ' window...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
-          command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
-            .. ' ' .. this.Browsers[which][4]
+          command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][4]}'
         else
-          command = "sh -c \"trap '' HUP; " .. this.Browsers[which][1] .. ' '
-            .. file->shellescape() .. ' ' .. this.Browsers[which][4]  .. ' &"'
+          command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][4]} &"'
         endif
       else
         if which == 'default'
@@ -598,8 +594,7 @@ export class BrowserLauncher
         endif
 
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
-          command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
-            .. ' ' .. this.Browsers[which][2]
+          command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][2]}'
         else
           command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][2]} &"'
         endif
