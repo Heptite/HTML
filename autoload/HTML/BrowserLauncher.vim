@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 29, 2024
+# Last Change: July 31, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -147,8 +147,10 @@ export class BrowserLauncher
       var temppath: string
       for tempkey in this.Browsers->keys()
         for tempname in (type(this.Browsers[tempkey][0]) == v:t_list ? this.Browsers[tempkey][0] : [this.Browsers[tempkey][0]])
-          temppath = system($'which {tempname}')->trim()
-          if v:shell_error == 0
+          #temppath = system($'which {tempname}')->trim()
+          temppath = tempname->exepath()
+          #if v:shell_error == 0
+          if temppath != ''
             this.Browsers[tempkey][0] = tempname
             this.Browsers[tempkey][1] = temppath
             break
@@ -233,18 +235,20 @@ export class BrowserLauncher
   # Args:
   #  The list of browsers to search for
   # Return value:
-  #  A list of browsers that were found, in lisdt<list<string>> format
+  #  A list of browsers that were found, in list<list<any>> format
   def FindTextModeBrowsers(browserlist: dict<list<any>> = this.TextModeBrowsers): dict<list<any>>
     var browsers: dict<list<any>>
 
     browsers = browserlist->mapnew(
       (textbrowser, _) => {
-        var temp: string = system($'which {textbrowser}')->trim()
+        #var temp: string = system($'which {textbrowser}')->trim()
+        var temp: string = textbrowser->exepath()
 
-        if v:shell_error == 0
-          return [textbrowser, temp, '', '', '']
-        else
+        #if v:shell_error == 0
+        if temp == ''
           return []
+        else
+          return [textbrowser, temp, '', '', '']
         endif
       }
     )
