@@ -155,7 +155,7 @@ export class BrowserLauncher
           endif
         endfor
 
-        if v:shell_error != 0
+        if temppath == ''
           this.Browsers->remove(tempkey)
         endif
       endfor
