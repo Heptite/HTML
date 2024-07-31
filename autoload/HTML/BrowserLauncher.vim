@@ -469,18 +469,6 @@ export class BrowserLauncher
   #  false - Failure (No browser was launched/controlled.)
   #  true  - Success (A browser was launched/controlled.)
   def UnixWindowsLaunch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool
-    # Cap() {{{2
-    #
-    # Capitalize the first letter of every word in a string
-    #
-    # Args:
-    #  1 - String: The words
-    # Return value:
-    #  String: The words capitalized
-    def Cap(arg: string): string
-      return arg->substitute('\<.', '\U&', 'g')
-    enddef # }}}2
-
     var which = browser
     var donew = new
     var command: string
@@ -571,7 +559,7 @@ export class BrowserLauncher
     if command == ''
 
       if donew == Behavior.newtab
-        this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->Cap()
+        this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->this.Cap()
           .. ' tab...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
@@ -581,7 +569,7 @@ export class BrowserLauncher
             .. file->shellescape() .. ' ' .. this.Browsers[which][3]  .. ' &"'
         endif
       elseif donew != Behavior.default
-        this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->Cap()
+        this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->this.Cap()
           .. ' window...')
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
           command = 'start ' .. this.Browsers[which][0] .. ' ' .. file->shellescape()
@@ -594,7 +582,7 @@ export class BrowserLauncher
         if which == 'default'
           this.HTMLMessagesO.Message('Invoking system default browser...')
         else
-          this.HTMLMessagesO.Message('Invoking ' .. this.Browsers[which][0]->Cap() .. '...')
+          this.HTMLMessagesO.Message('Invoking ' .. this.Browsers[which][0]->this.Cap() .. '...')
         endif
 
         if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
@@ -628,6 +616,18 @@ export class BrowserLauncher
 
     this.HTMLMessagesO.Error(this.HTMLMessagesO.E_FINAL)
     return false
+  enddef
+
+  # Cap() {{{1
+  #
+  # Capitalize the first letter of every word in a string
+  #
+  # Args:
+  #  1 - String: The words
+  # Return value:
+  #  String: The words capitalized
+  def Cap(arg: string): string
+    return arg->substitute('\<.', '\U&', 'g')
   enddef
 
   # }}}1
