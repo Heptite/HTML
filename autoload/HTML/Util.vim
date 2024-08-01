@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: July 25, 2024
+# Last Change: July 31, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -417,6 +417,27 @@ export class HTMLUtil
       return contents->this.TokenReplace(path)
     else
       return contents
+    endif
+  enddef
+
+  # Has()  {{{1
+  #
+  # Purpose:
+  #  Extended version of Vim's internal has()
+  # Arguments:
+  #  1 - String:  Feature to test for
+  # Return Value:
+  #  Boolean - Whether the test is true or not
+  def Has(feat: string): bool
+    if feat ==? 'WSL2'
+      return filereadable('/proc/version') && readfile('/proc/version')[0] =~# 'WSL2'
+    elseif feat ==? 'win'
+      #return has('win32') == 1 || has('win64') == 1 || has('win32unix') == 1
+      return (has('win32') == 1) || (has('win32unix') == 1)
+    elseif feat ==? 'mac'
+      return (has('mac') == 1) || (has('macunix') == 1)
+    else
+      return has(feat) != 0
     endif
   enddef
 

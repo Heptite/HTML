@@ -80,6 +80,7 @@ endif
 # https://www.gnu.org/licenses/licenses.html#GPL
 
 import autoload 'HTML/Messages.vim'
+import autoload 'HTML/Util.vim'
 
 export enum Behavior
   default,
@@ -93,13 +94,15 @@ export class BrowserLauncher
   var TextModeBrowsers: dict<list<any>> = {lynx: [], w3m: [], links: []}
   var MacBrowsersExist: list<string> = ['default']
   var HTMLMessagesO: Messages.HTMLMessages
+  var HTMLUtilO: Util.HTMLUtil
 
   def new() # {{{
     this.HTMLMessagesO = Messages.HTMLMessages.new()
+    this.HTMLUtilO = Util.HTMLUtil.new()
 
-    if (has('mac') == 1) || (has('macunix') == 1)
+    if this.HTMLUtilO.Has('mac')
       return
-    elseif filereadable('/proc/version') && readfile('/proc/version')[0] =~# 'WSL2'
+    elseif this.HTMLUtilO.Has('WSL2')
       # These applications _could_ be installed elsewhere, but there's no reliable
       # way to find them if they are, so just assume they would be in a standard
       # location:
@@ -163,7 +166,7 @@ export class BrowserLauncher
       this.TextModeBrowsers = this.FindTextModeBrowsers()
       this.Browsers->extend(this.TextModeBrowsers)
 
-    elseif (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
+    elseif this.HTMLUtilO.Has('win')
 
       # These applications _could_ be installed elsewhere, but there's no reliable
       # way to find them if they are, so just assume they would be in a standard
@@ -210,7 +213,7 @@ export class BrowserLauncher
   enddef # }}}
 
   def Exists(browser: string = ''): any  # {{{1
-    if has('mac') == 1 || has('macunix') == 1
+    if this.HTMLUtilO.Has('mac')
       return this.MacExists(browser)
     else
       return this.UnixWindowsExists(browser)
@@ -218,7 +221,7 @@ export class BrowserLauncher
   enddef
 
   def Launch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool  # {{{1
-    if (has('mac') == 1) || (has('macunix') == 1)
+    if this.HTMLUtilO.Has('mac')
       return this.MacLaunch(browser, new, url)
     else
       return this.UnixWindowsLaunch(browser, new, url)
@@ -496,7 +499,7 @@ export class BrowserLauncher
       # otherwise just add the file:// prefix:
       if has('win32unix') == 1 && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0
         file = 'file://' .. system('cygpath -w ' .. expand('%:p')->shellescape())->trim()
-      elseif filereadable('/proc/version') && readfile('/proc/version')[0] =~# 'WSL2'
+      elseif this.HTMLUtilO.Has('WSL2')
           && match(this.TextModeBrowsers->keys(), '^\c\V' .. which .. '\$') < 0
         # No double slash here, please:
         file = 'file:/' .. system('wslpath -w ' .. expand('%:p')->shellescape())->trim()
@@ -561,7 +564,7 @@ export class BrowserLauncher
       if donew == Behavior.newtab
         this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->this.Cap()
           .. ' tab...')
-        if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
+        if this.HTMLUtilO.Has('win')
           command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][3]}'
         else
           command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][3]} &"'
@@ -569,7 +572,7 @@ export class BrowserLauncher
       elseif donew != Behavior.default
         this.HTMLMessagesO.Message('Opening new ' .. this.Browsers[which][0]->this.Cap()
           .. ' window...')
-        if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
+        if this.HTMLUtilO.Has('win')
           command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][4]}'
         else
           command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][4]} &"'
@@ -581,7 +584,7 @@ export class BrowserLauncher
           this.HTMLMessagesO.Message('Invoking ' .. this.Browsers[which][0]->this.Cap() .. '...')
         endif
 
-        if (has('win32') == 1) || (has('win64') == 1) || (has('win32unix') == 1)
+        if this.HTMLUtilO.Has('win')
           command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][2]}'
         else
           command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][2]} &"'
