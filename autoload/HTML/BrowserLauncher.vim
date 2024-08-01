@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: July 31, 2024
+# Last Change: August 01, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -281,7 +281,7 @@ export class BrowserLauncher
     endif
   enddef
 
-  def MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool # {{{1
+  def MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool  # {{{1
     var file: string
     var torn: string
     var script: string
@@ -350,7 +350,7 @@ export class BrowserLauncher
         this.HTMLMessagesO.Message('Opening file in Safari...')
         command = '/usr/bin/open -a safari ' .. file->shellescape()
       endif
-    endif "}}}
+    endif # }}}
 
     if (app ==? 'firefox') # {{{
       if new != Behavior.default && use_AS
@@ -435,6 +435,7 @@ export class BrowserLauncher
     endif
 
     system(command)
+    return v:shell_error == 0 ? true : false
   enddef # }}}
 
   # UnixWindowsExists() {{{1
