@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 05, 2024
+# Last Change: August 06, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -330,7 +330,7 @@ export class BrowserLauncher
           .. '-e "activate" '
           .. '-e "tell application \"System Events\"" '
           .. '-e "tell process \"safari\"" '
-          .. $'-e "keystroke \"{torn}\" using {command down}" '
+          .. $'-e "keystroke \"{torn}\" using {{command down}}" '
           .. '-e "end tell" '
           .. '-e "end tell" '
           .. '-e "delay 0.3" '
@@ -367,7 +367,7 @@ export class BrowserLauncher
           .. '-e "activate" '
           .. '-e "tell application \"System Events\"" '
           .. '-e "tell process \"firefox\"" '
-          .. $'-e "keystroke \"{torn}\" using {command down}" '
+          .. $'-e "keystroke \"{torn}\" using {{command down}}" '
           .. '-e "delay 0.8" '
           .. '-e "keystroke \"l\" using {command down}" '
           .. '-e "keystroke \"a\" using {command down}" '
@@ -430,7 +430,7 @@ export class BrowserLauncher
     endif
 
     if (command == '')
-      this.HTMLMessagesO.Message('Opening ' .. app->substitute('^.', '\U&', '') .. '...')
+      this.HTMLMessagesO.Message($'Opening {this.HTMLUtilO.Cap(app)}...')
       command = $'/usr/bin/open -a {app} {file->shellescape()}'
     endif
 
@@ -563,14 +563,14 @@ export class BrowserLauncher
     if command == ''
 
       if donew == Behavior.newtab
-        this.HTMLMessagesO.Message($'Opening new {this.Browsers[which][0]->this.Cap()} tab...')
+        this.HTMLMessagesO.Message($'Opening new {this.HTMLUtilO.Cap(this.Browsers[which][0])} tab...')
         if this.HTMLUtilO.Has('win')
           command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][3]}'
         else
           command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][3]} &"'
         endif
       elseif donew != Behavior.default
-        this.HTMLMessagesO.Message($'Opening new {this.Browsers[which][0]->this.Cap()} window...')
+        this.HTMLMessagesO.Message($'Opening new {this.HTMLUtilO.Cap(this.Browsers[which][0])} window...')
         if this.HTMLUtilO.Has('win')
           command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][4]}'
         else
@@ -580,7 +580,7 @@ export class BrowserLauncher
         if which == 'default'
           this.HTMLMessagesO.Message('Invoking system default browser...')
         else
-          this.HTMLMessagesO.Message($'Invoking {this.Browsers[which][0]->this.Cap()}...')
+          this.HTMLMessagesO.Message($'Invoking {this.HTMLUtilO.Cap(this.Browsers[which][0])}...')
         endif
 
         if this.HTMLUtilO.Has('win')
@@ -615,21 +615,11 @@ export class BrowserLauncher
     return false
   enddef
 
-  # Cap() {{{1
-  #
-  # Capitalize the first letter of every word in a string
-  #
-  # Args:
-  #  1 - String: The words
-  # Return value:
-  #  String: The words capitalized
-  def Cap(arg: string): string
-    return arg->substitute('\<.', '\U&', 'g')
-  enddef
-
   # }}}1
 
 endclass
+
+defcompile
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=4:comments=b\:#:commentstring=\ #\ %s:

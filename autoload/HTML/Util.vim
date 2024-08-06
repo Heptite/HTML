@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: July 31, 2024
+# Last Change: August 06, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -135,6 +135,18 @@ export class HTMLUtil
     else
       return false
     endif
+  enddef
+
+  # Cap() {{{1
+  #
+  # Capitalize the first letter of every word in a string
+  #
+  # Args:
+  #  1 - String: The words
+  # Return value:
+  #  String: The words capitalized
+  def Cap(arg: string): string
+    return arg->substitute('\<.', '\U&', 'g')
   enddef
 
   # ColorChooser()  {{{1
