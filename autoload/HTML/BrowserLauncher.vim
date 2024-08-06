@@ -619,7 +619,5 @@ export class BrowserLauncher
 
 endclass
 
-defcompile
-
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=4:comments=b\:#:commentstring=\ #\ %s:

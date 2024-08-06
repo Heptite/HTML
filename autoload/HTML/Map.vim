@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: June 29, 2024
+# Last Change: August 06, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -139,6 +139,7 @@ export class HTMLMap extends Util.HTMLUtil
         printf(this.HTMLMessagesO.E_MAPEXCEPT, v:exception, lhs)->this.HTMLMessagesO.Error()
       endtry
 
+      # Can't :defer this because we need it reset here, not later:
       this.ToggleOptions(true)
 
       if opts->has_key('reindent') && opts.reindent >= 0
@@ -158,6 +159,8 @@ export class HTMLMap extends Util.HTMLUtil
       printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), mode)->this.HTMLMessagesO.Error()
     endif
 
+    # If we got here, we already ran the mapping and don't need to run it
+    # again, so return an empty string:
     return ''
   enddef
 

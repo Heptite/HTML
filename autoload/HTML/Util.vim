@@ -615,8 +615,8 @@ export class HTMLUtil
 
   # ToggleOptions()  {{{1
   #
-  # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions' options
-  # are off temporarily to prevent the visual mappings from causing a
+  # Used to make sure the 'showmatch', 'indentexpr', and 'formatoptions'
+  # options are off temporarily to prevent the visual mappings from causing a
   # (visual)bell or inserting improperly.
   #
   # Arguments:
