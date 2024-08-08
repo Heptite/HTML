@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 06, 2024
+# Last Change: August 08, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -90,8 +90,8 @@ endenum # }}}1
 
 export class BrowserLauncher
 
-  var Browsers: dict<list<any>>
-  var TextModeBrowsers: dict<list<any>> = {lynx: [], w3m: [], links: []}
+  var Browsers: dict<list<string>>
+  var TextModeBrowsers: dict<list<string>> = {lynx: [], w3m: [], links: []}
   var MacBrowsersExist: list<string> = ['default']
   var HTMLMessagesO: Messages.HTMLMessages
   var HTMLUtilO: Util.HTMLUtil
@@ -236,9 +236,9 @@ export class BrowserLauncher
   # Args:
   #  The list of browsers to search for
   # Return value:
-  #  A list of browsers that were found, in list<list<any>> format
-  def FindTextModeBrowsers(browserlist: dict<list<any>> = this.TextModeBrowsers): dict<list<any>>
-    var browsers: dict<list<any>>
+  #  A list of browsers that were found, in list<list<string>> format
+  def FindTextModeBrowsers(browserlist: dict<list<string>> = this.TextModeBrowsers): dict<list<string>>
+    var browsers: dict<list<string>>
 
     browsers = browserlist->mapnew(
       (textbrowser, _) => {
