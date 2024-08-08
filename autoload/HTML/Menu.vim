@@ -7,7 +7,7 @@ endif
 
 # Menu functions for the HTML macros filetype plugin.
 #
-# Last Change: June 20, 2024
+# Last Change: August 06, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -33,11 +33,11 @@ import '../../import/HTML/Variables.vim'
 import autoload 'HTML/Messages.vim'
 import autoload 'HTML/Util.vim'
 
-export enum MenuControlA
+export enum MenuControlA # {{{1
     disable,
     enable,
     detect
-endenum
+endenum # }}}1
 
 export class HTMLMenu extends Util.HTMLUtil
 

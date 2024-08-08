@@ -82,11 +82,11 @@ endif
 import autoload 'HTML/Messages.vim'
 import autoload 'HTML/Util.vim'
 
-export enum Behavior
+export enum Behavior # {{{1
   default,
   newwindow,
   newtab
-endenum
+endenum # }}}1
 
 export class BrowserLauncher
 
@@ -212,11 +212,11 @@ export class BrowserLauncher
     endif
   enddef # }}}
 
-  def Exists(browser: string = ''): any  # {{{1
+  def BrowserExists(browser: string = ''): any  # {{{1
     if this.HTMLUtilO.Has('mac')
-      return this.MacExists(browser)
+      return this.MacBrowserExists(browser)
     else
-      return this.UnixWindowsExists(browser)
+      return this.UnixWindowsBrowserExists(browser)
     endif
   enddef
 
@@ -263,7 +263,7 @@ export class BrowserLauncher
       .. "to UI elements enabled' 2>/dev/null")->trim() ==? 'true' ? true : false
   enddef
 
-  def MacExists(app: string = ''): any # {{{1
+  def MacBrowserExists(app: string = ''): any # {{{1
     if app == ''
       return this.MacBrowsersExist
     endif
@@ -289,7 +289,7 @@ export class BrowserLauncher
     var use_AS: bool
     var as_msg: string
 
-    if (!this.MacExists(app) && app !=? 'default')
+    if (!this.MacBrowserExists(app) && app !=? 'default')
       printf(this.HTMLMessagesO.E_NOAPP, app)->this.HTMLMessagesO.Error()
       return false
     endif
@@ -438,14 +438,14 @@ export class BrowserLauncher
     return v:shell_error == 0 ? true : false
   enddef # }}}
 
-  # UnixWindowsExists() {{{1
+  # UnixWindowsBrowserExists() {{{1
   #
   # Usage:
-  #  UnixWindowsExists([browser])
+  #  UnixWindowsBrowserExists([browser])
   # Return value:
   #  With an argument: True or False - Whether the browser was found (exists)
   #  Without an argument: list - The names of the browsers that were found
-  def UnixWindowsExists(browser: string = ''): any
+  def UnixWindowsBrowserExists(browser: string = ''): any
     if browser == ''
       return this.Browsers->keys()->sort()
     else
@@ -458,7 +458,7 @@ export class BrowserLauncher
   # Usage:
   #  UnixWindowsLaunch({...}, [{0/1/2}], [url])
   #    The first argument is which browser to launch, by name (not executable).
-  #    Use BrowserLauncher#Exists() to see which ones are available.
+  #    Use BrowserExists() to see which ones are available.
   #
   #    The optional second argument is whether to launch a new window:
   #      0 - No (default -- in modern brosers this tends to open a new tab)
@@ -479,7 +479,7 @@ export class BrowserLauncher
     var output: string
     var file: string
 
-    if !this.UnixWindowsExists(which)
+    if !this.UnixWindowsBrowserExists(which)
       printf(this.HTMLMessagesO.E_UNKNOWN, which)->this.HTMLMessagesO.Error()
       return false
     endif

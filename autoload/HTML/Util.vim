@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: August 06, 2024
+# Last Change: August 08, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -43,6 +43,10 @@ export enum ToggleClipboardA # {{{1
   remove,
   add,
   auto
+endenum
+export enum ToggleOptionsA # {{{1
+  save,
+  restore
 endenum
 
 # }}}1
@@ -620,11 +624,11 @@ export class HTMLUtil
   # (visual)bell or inserting improperly.
   #
   # Arguments:
-  #  1 - Boolean: false - Turn options off.
-  #               true  - Turn options back on, if they were on before.
-  def ToggleOptions(which: bool)
+  #  1 - Enum: ToggleOptionsA.save - Save and turn options off.
+  #            ToggleOptionsA.restore - Turn options back on, if they were on before.
+  def ToggleOptions(which: ToggleOptionsA)
     try
-      if which
+      if which == ToggleOptionsA.restore
         if this.HTMLVariablesO.saveopts->has_key('formatoptions')
             && this.HTMLVariablesO.saveopts.formatoptions != ''
           &l:showmatch = this.HTMLVariablesO.saveopts.showmatch

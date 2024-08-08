@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: August 06, 2024
+# Last Change: August 08, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -131,7 +131,7 @@ export class HTMLMap extends Util.HTMLUtil
     elseif mode ==# 'i' || mode ==# 'n'
       return evalstr
     elseif mode ==# 'v'
-      this.ToggleOptions(false)
+      this.ToggleOptions(Util.ToggleOptionsA.save)
 
       try
         execute $'silent normal! {evalstr}'
@@ -140,7 +140,7 @@ export class HTMLMap extends Util.HTMLUtil
       endtry
 
       # Can't :defer this because we need it reset here, not later:
-      this.ToggleOptions(true)
+      this.ToggleOptions(Util.ToggleOptionsA.restore)
 
       if opts->has_key('reindent') && opts.reindent >= 0
         #normal! m'

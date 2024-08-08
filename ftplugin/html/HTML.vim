@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      June 26, 2024
+# Last Change:      August 06, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.509 or later
 #
@@ -352,7 +352,7 @@ b:htmlplugin.BrowserBehavior = {
   newtab: BrowserLauncher.Behavior.newtab
 }
 
-if BrowserLauncherO.Exists('default') # {{{2
+if BrowserLauncherO.BrowserExists('default') # {{{2
   # Run the default browser:
   HTMLMapO.Map(
     'nnoremap',
@@ -361,7 +361,7 @@ if BrowserLauncherO.Exists('default') # {{{2
   )
 endif
 
-if BrowserLauncherO.Exists('brave') # {{{2
+if BrowserLauncherO.BrowserExists('brave') # {{{2
   # Chrome: View current file, starting Chrome if it's not running:
   HTMLMapO.Map(
     'nnoremap',
@@ -382,7 +382,7 @@ if BrowserLauncherO.Exists('brave') # {{{2
   )
 endif
 
-if BrowserLauncherO.Exists('chrome') # {{{2
+if BrowserLauncherO.BrowserExists('chrome') # {{{2
   # Chrome: View current file, starting Chrome if it's not running:
   HTMLMapO.Map(
     'nnoremap',
@@ -403,7 +403,7 @@ if BrowserLauncherO.Exists('chrome') # {{{2
   )
 endif
 
-if BrowserLauncherO.Exists('edge') # {{{2
+if BrowserLauncherO.BrowserExists('edge') # {{{2
   # Edge: View current file, starting Microsoft Edge if it's not running:
   HTMLMapO.Map(
     'nnoremap',
@@ -424,7 +424,7 @@ if BrowserLauncherO.Exists('edge') # {{{2
   )
 endif
 
-if BrowserLauncherO.Exists('firefox') # {{{2
+if BrowserLauncherO.BrowserExists('firefox') # {{{2
   # Firefox: View current file, starting Firefox if it's not running:
   HTMLMapO.Map(
     'nnoremap',
@@ -445,7 +445,7 @@ if BrowserLauncherO.Exists('firefox') # {{{2
   )
 endif
 
-if BrowserLauncherO.Exists('opera') # {{{2
+if BrowserLauncherO.BrowserExists('opera') # {{{2
   # Opera: View current file, starting Opera if it's not running:
   HTMLMapO.Map(
     'nnoremap',
@@ -466,7 +466,7 @@ if BrowserLauncherO.Exists('opera') # {{{2
   )
 endif
 
-if BrowserLauncherO.Exists('safari') # {{{2
+if BrowserLauncherO.BrowserExists('safari') # {{{2
   # Safari: View current file, starting Safari if it's not running:
   HTMLMapO.Map(
     'nnoremap',
@@ -487,7 +487,7 @@ if BrowserLauncherO.Exists('safari') # {{{2
   )
 endif
 
-if BrowserLauncherO.Exists('lynx') # {{{2
+if BrowserLauncherO.BrowserExists('lynx') # {{{2
   # Lynx:  (This may happen anyway if there's no GUI available.)
   HTMLMapO.Map(
     'nnoremap',
@@ -508,7 +508,7 @@ if BrowserLauncherO.Exists('lynx') # {{{2
   )
 endif
 
-if BrowserLauncherO.Exists('w3m') # {{{2
+if BrowserLauncherO.BrowserExists('w3m') # {{{2
   # w3m:  (This may happen anyway if there's no GUI available.)
   HTMLMapO.Map(
     'nnoremap',
@@ -529,7 +529,7 @@ if BrowserLauncherO.Exists('w3m') # {{{2
   )
 endif
 
-if BrowserLauncherO.Exists('links') # {{{2
+if BrowserLauncherO.BrowserExists('links') # {{{2
   # Links:  (This may happen anyway if there's no GUI available.)
   HTMLMapO.Map(
     'nnoremap',
