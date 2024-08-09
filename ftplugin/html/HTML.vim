@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      August 06, 2024
+# Last Change:      August 09, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.509 or later
 #
@@ -90,13 +90,13 @@ endif
 runtime commands/HTML/Commands.vim
 
 import '../../import/HTML/Variables.vim'
-import autoload 'HTML/Glue.vim'
-import autoload 'HTML/BrowserLauncher.vim'
-import autoload 'HTML/MangleImageTag.vim'
-import autoload 'HTML/Map.vim'
-import autoload 'HTML/Menu.vim'
-import autoload 'HTML/Util.vim'
-import autoload 'HTML/Messages.vim'
+import autoload '../../autoload/HTML/Glue.vim'
+import autoload '../../autoload/HTML/BrowserLauncher.vim'
+import autoload '../../autoload/HTML/MangleImageTag.vim'
+import autoload '../../autoload/HTML/Map.vim'
+import autoload '../../autoload/HTML/Menu.vim'
+import autoload '../../autoload/HTML/Util.vim'
+import autoload '../../autoload/HTML/Messages.vim'
 
 # Create functions object ...
 var HTMLGlueO = Glue.HTMLGlue.new()
