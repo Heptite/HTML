@@ -46,10 +46,10 @@ export class HTMLVariables
         return
       endif
 
-      for f in json_files
+      for f: string in json_files
         if f->filereadable()
-          var entities = f->readfile()->join("\n")->json_decode()
-          for key in entities->keys()
+          var entities: dict<dict<any>> = f->readfile()->join("\n")->json_decode()
+          for key: string in entities->keys()
             DictEntitiesToChar[key] = entities[key].characters
             DictCharToEntities[entities[key].characters] = key
           endfor
@@ -60,23 +60,23 @@ export class HTMLVariables
     endif
   enddef # }}}
 
-  static const AUTHOR    = 'Christian J. Robinson'
-  static const EMAIL     = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
-  static const HOMEPAGE  = 'https://christianrobinson.name/HTML/'
-  static const COPYRIGHT = 'Copyright © 1998-2024 under the terms of the GPL3'
+  static const AUTHOR: string    = 'Christian J. Robinson'
+  static const EMAIL: string     = 'heptite' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
+  static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
+  static const COPYRIGHT: string = 'Copyright © 1998-2024 under the terms of the GPL3'
 
-  static const VERSION   = '1.5.0.testing'
+  static const VERSION: string   = '1.5.0.testing'
 
   var saveopts: dict<any> = {}
 
-  static const MENU_NAME = 'HTM&L'
+  static const MENU_NAME: string = 'HTM&L'
 
-  static const TAGS_FILE = 'json/HTML/tags.json'
-  static const ENTITIES_FILE = 'json/HTML/entities.json'
+  static const TAGS_FILE: string         = 'json/HTML/tags.json'
+  static const ENTITIES_FILE: string     = 'json/HTML/entities.json'
   # https://dev.w3.org/html5/html-author/charref
-  static const ENTITY_TABLE_FILE = 'json/HTML/entitytable.json'
+  static const ENTITY_TABLE_FILE: string = 'json/HTML/entitytable.json'
 
-  static const TEMPLATE_TOKENS = { # {{{
+  static const TEMPLATE_TOKENS: dict<string> = { # {{{
     authorname:  'author_name',
     authoremail: 'author_email_encoded',
     authorurl:   'author_url',
@@ -87,7 +87,7 @@ export class HTMLVariables
     vlinkcolor:  'vlinkcolor',
   } # }}}
 
-  static const INTERNAL_TEMPLATE = [  # {{{
+  static const INTERNAL_TEMPLATE: list<string> = [  # {{{
     # Don't insert the start of the <html> tag here, since logic in the main
     # plugin file adds it depending on the filetype.
     ' <[{HEAD}]>',
@@ -96,7 +96,7 @@ export class HTMLVariables
     '',
     '  <[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=%charset%" />',
     '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% (Vi IMproved editor; http://www.vim.org/) with HTML Editing Macros '
-    .. $'%htmlversion% ({HTMLVariables.HOMEPAGE})" />',
+      .. $'%htmlversion% ({HTMLVariables.HOMEPAGE})" />',
     '  <[{META NAME}]="Author" [{CONTENT}]="%authorname%" />',
     '  <[{META NAME}]="Copyright" [{CONTENT}]="Copyright (C) %date% %authorname%" />',
     '  <[{LINK REL}]="made" [{HREF}]="mailto:%authoremail%" />',
@@ -134,7 +134,7 @@ export class HTMLVariables
   static var DictEntitiesToChar: dict<string> = {}
   static var DictCharToEntities: dict<string> = {}
 
-  static const MODES = {  # {{{
+  static const MODES: dict<string> = {  # {{{
     n: 'normal',
     v: 'visual',
     o: 'operator-pending',
@@ -144,7 +144,7 @@ export class HTMLVariables
   }  # }}}
 
   # TODO: This table needs to be expanded:
-  static const CHARSETS = {  # {{{
+  static const CHARSETS: dict<string> = {  # {{{
     latin1:    'ISO-8859-1',  koi8_u:    'KOI8-U',
     utf_8:     'UTF-8',       macroman:  'macintosh',
     ucs_2:     'UTF-8',       cp866:     'IBM866',
@@ -162,7 +162,7 @@ export class HTMLVariables
     koi8_r:    'KOI8-R',
   }  # }}}
 
-  static const COLORS_SORT = {  # {{{
+  static const COLORS_SORT: dict<string> = {  # {{{
     A: 'A',   B: 'B',   C: 'C',
     D: 'D',   E: 'E-G', F: 'E-G',
     G: 'E-G', H: 'H-K', I: 'H-K',
@@ -174,7 +174,7 @@ export class HTMLVariables
     Y: 'T-Z', Z: 'T-Z',
   }  # }}}
 
-  static const COLOR_LIST = [  # {{{
+  static const COLOR_LIST: list<list<string>> = [  # {{{
     # Standard color names:
     ['Alice Blue',              '#F0F8FF'],
     ['Antique White',           '#FAEBD7'],
