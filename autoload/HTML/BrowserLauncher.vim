@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 08, 2024
+# Last Change: August 09, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -79,8 +79,8 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-import autoload 'HTML/Messages.vim'
-import autoload 'HTML/Util.vim'
+import autoload './Messages.vim'
+import autoload './Util.vim'
 
 export enum Behavior # {{{1
   default,

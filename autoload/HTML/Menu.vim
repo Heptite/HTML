@@ -7,7 +7,7 @@ endif
 
 # Menu functions for the HTML macros filetype plugin.
 #
-# Last Change: August 06, 2024
+# Last Change: August 09, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -30,8 +30,8 @@ endif
 # https://www.gnu.org/licenses/licenses.html#GPL
 
 import '../../import/HTML/Variables.vim'
-import autoload 'HTML/Messages.vim'
-import autoload 'HTML/Util.vim'
+import autoload './Messages.vim'
+import autoload './Util.vim'
 
 export enum MenuControlA # {{{1
     disable,
