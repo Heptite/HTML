@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      August 09, 2024
+# Last Change:      August 10, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.509 or later
 #
@@ -99,29 +99,33 @@ import autoload '../../autoload/HTML/Util.vim'
 import autoload '../../autoload/HTML/Messages.vim'
 
 # Create functions object ...
-var HTMLGlueO = Glue.HTMLGlue.new()
+var HTMLGlueO: Glue.HTMLGlue = Glue.HTMLGlue.new()
 # ...and save it where it can be used by the mappings:
 b:htmlplugin.HTMLGlueO = HTMLGlueO
 # ...
-var BrowserLauncherO = BrowserLauncher.BrowserLauncher.new()
+var BrowserLauncherO: BrowserLauncher.BrowserLauncher =
+  BrowserLauncher.BrowserLauncher.new()
 b:htmlplugin.BrowserLauncherO = BrowserLauncherO
 # ...
-var MangleImageTagO = MangleImageTag.MangleImageTag.new()
+var MangleImageTagO: MangleImageTag.MangleImageTag =
+  MangleImageTag.MangleImageTag.new()
 b:htmlplugin.MangleImageTagO = MangleImageTagO
 # ...
-var HTMLMapO = Map.HTMLMap.new()
+var HTMLMapO: Map.HTMLMap = Map.HTMLMap.new()
 b:htmlplugin.HTMLMapO = HTMLMapO
 # ...
-var HTMLMenuO = Menu.HTMLMenu.new()
+var HTMLMenuO: Menu.HTMLMenu = Menu.HTMLMenu.new()
 #b:htmlplugin.HTMLMenuO = HTMLMenuO
 # ...
-var HTMLMessagesO = Messages.HTMLMessages.new()
+var HTMLMessagesO: Messages.HTMLMessages =
+  Messages.HTMLMessages.new()
 #b:htmlplugin.HTMLMessagesO = HTMLMessagesO
 # ...
-var HTMLVariablesO = Variables.HTMLVariables.new()
+var HTMLVariablesO: Variables.HTMLVariables =
+  Variables.HTMLVariables.new()
 #b:htmlplugin.HTMLVariablesO = HTMLVariablesO
 # ...
-var HTMLUtilO = Util.HTMLUtil.new()
+var HTMLUtilO: Util.HTMLUtil = Util.HTMLUtil.new()
 b:htmlplugin.HTMLUtilO = HTMLUtilO
 
 if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
@@ -204,8 +208,8 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
     if HTMLUtilO.BoolVar('g:htmlplugin.tag_case_autodetect')
         && (line('$') != 1 || getline(1) != '')
 
-      var found_upper = search('\C<\(\s*/\)\?\s*\u\+\_[^<>]*>', 'wn')
-      var found_lower = search('\C<\(\s*/\)\?\s*\l\+\_[^<>]*>', 'wn')
+      var found_upper: number = search('\C<\(\s*/\)\?\s*\u\+\_[^<>]*>', 'wn')
+      var found_lower: number = search('\C<\(\s*/\)\?\s*\l\+\_[^<>]*>', 'wn')
 
       if found_upper != 0 && found_lower == 0
         b:htmlplugin.tag_case = 'uppercase'
