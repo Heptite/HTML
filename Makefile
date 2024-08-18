@@ -178,10 +178,8 @@ $(textfaq): $(faq)
 	w3m -T text/html -cols 79 -dump ${faq} | unix2dos > $(textfaq)
 	chmod a+r ${textfaq}
 
-test:
-	cd test
-	rm -f Xresult
-	vim -u ./test_maps.vim -U NONE --noplugin
+test: force
+	cd test; rm -f Xresult; vim -u ./test_maps.vim -U NONE --noplugin
 
 force:
 
