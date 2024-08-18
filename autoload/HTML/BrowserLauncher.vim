@@ -7,9 +7,9 @@ endif
 
 # --------------------------------------------------------------------------
 #
-# Vim script to launch/control browsers
+# Methods to launch/control browsers
 #
-# Last Change: August 11, 2024
+# Last Change: August 18, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -18,12 +18,9 @@ endif
 #    (This will fall back to Chromium if it's installed and Chrome isn't.)
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
-#  - Lynx     (Under the current TTY if not running the GUI, or a new xterm
-#              window if DISPLAY is set.)
-#  - w3m      (Under the current TTY if not running the GUI, or a new xterm
-#              window if DISPLAY is set.)
-#  - links    (Under the current TTY if not running the GUI, or a new xterm
-#              window if DISPLAY is set.)
+#  - Lynx     (Current TTY / :terminal / new xterm)
+#  - w3m      (Current TTY / :terminal / new xterm)
+#  - links    (Current TTY / :terminal / new xterm)
 #  - Default
 #
 # MacOS:
