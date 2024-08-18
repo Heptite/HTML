@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      August 10, 2024
+# Last Change:      August 11, 2024
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.509 or later
 #
@@ -98,11 +98,11 @@ import autoload '../../autoload/HTML/Menu.vim'
 import autoload '../../autoload/HTML/Util.vim'
 import autoload '../../autoload/HTML/Messages.vim'
 
-# Create functions object ...
+# Create Glue object ...
 var HTMLGlueO: Glue.HTMLGlue = Glue.HTMLGlue.new()
 # ...and save it where it can be used by the mappings:
 b:htmlplugin.HTMLGlueO = HTMLGlueO
-# ...
+# ...and do the same with the rest:
 var BrowserLauncherO: BrowserLauncher.BrowserLauncher =
   BrowserLauncher.BrowserLauncher.new()
 b:htmlplugin.BrowserLauncherO = BrowserLauncherO

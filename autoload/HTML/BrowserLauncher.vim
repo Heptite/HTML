@@ -9,7 +9,7 @@ endif
 #
 # Vim script to launch/control browsers
 #
-# Last Change: August 09, 2024
+# Last Change: August 11, 2024
 #
 # Currently supported browsers:
 # Unix:
@@ -55,7 +55,7 @@ endif
 #    backgorund when possible there's no way to actually get v:shell_error,
 #    so execution errors aren't actually seen.
 #
-#  * On Windows (and Cygwin) there's no reliable way to detect which
+#  * On Windows (and WSL2/Cygwin) there's no reliable way to detect which
 #    browsers are installed so only the most common install locations are
 #    checked.
 #
