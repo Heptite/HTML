@@ -3,7 +3,6 @@ scriptencoding utf8
 
 def Test_insert_mode_mappings(...which: list<string>)
 	var mappings: dict<list<string>> = {
-			';ah': ['<a href=""></a>'],
 			';bo': ['<b></b>'],
 			';st': ['<strong></strong>'],
 			';it': ['<i></i>'],
@@ -49,6 +48,16 @@ def Test_insert_mode_mappings(...which: list<string>)
 			';su': ['<input type="submit" value="Submit">'],
 			';re': ['<input type="reset" value="Reset">'],
 			';la': ['<label for=""></label>'],
+			';bd': ['<body></body>'],
+			';bn': ['<button type="button"></button>'],
+			';ce': ['<div style="text-align: center;">', '', '</div>'],
+			';he': ['<head>', '', '</head>'],
+			';hr': ['<hr>'],
+			';Hr': ['<hr style="width: 75%;">'],
+			';ht': ['<html>', '', '</html>'],
+			';ah': ['<a href=""></a>'],
+			';at': ['<a href="" target=""></a>'],
+			';im': ['<img src="" alt="">'],
 		}
 
 	var do_which: list<string>
