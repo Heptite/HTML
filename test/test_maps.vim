@@ -40,7 +40,15 @@ def Test_insert_mode_mappings(...which: list<string>)
 			';pa': ['<input type="password" name="" value="" size="20">'],
 			';nt': ['<input type="time" name="">'],
 			';#': ['<input type="tel" name="" value="" size="15">'],
-			';te': ['<input type="tel" name="" value="" size="15">'],
+			';te': ['<input type="text" name="" value="" size="20">'],
+			';fi': ['<input type="file" name="" value="" size="20">'],
+			';se': ['<select name="">', '', '</select>'],
+			';ms': ['<select name="" multiple>', '', '</select>'],
+			';tx': ['<textarea name="" rows="10" cols="50">', '</textarea>'],
+			';ur': ['<input type="url" name="" value="" size="20">'],
+			';su': ['<input type="submit" value="Submit">'],
+			';re': ['<input type="reset" value="Reset">'],
+			';la': ['<label for=""></label>'],
 		}
 
 	var do_which: list<string>
