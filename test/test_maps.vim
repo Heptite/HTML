@@ -68,19 +68,26 @@ def Test_insert_mode_mappings(...which: list<string>)
 		do_which = which
 	endif
 	
-	edit mappings.out
-	set runtimepath+=..
+	edit! mappings.out
+
 	source ../ftplugin/html/HTML.vim
 
 	for w: string in do_which
-		:1,$delete
+		:%delete
 		execute 'normal i' .. w
 		assert_equal(mappings[w], getline(1, '$'), $'Mapping: {w}')
 	endfor
 
-	writefile(v:errors, 'Xresult')
-
-	qall!
+	if v:errors != []
+		writefile(v:errors, 'Xresult', 'a')
+	endif
 enddef
 
+
+set runtimepath+=..
+
+delete('./Xresult')
+
 Test_insert_mode_mappings()
+
+qall!
