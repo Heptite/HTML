@@ -787,7 +787,7 @@
 
 		"maps": {
 			"i": ["", "<[{INPUT TYPE=\"TIME\" NAME}]=\"\" />\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"TIME\" NAME}]=\"\\<C-O>2F\"'", {"insert": true}],
+			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"TIME\" NAME}]=\"\\<C-O>2F\"", {"insert": true}],
 			"o": ["", {"insert": true}]
 		},
 
@@ -857,7 +857,7 @@
 
 		"maps": {
 			"i": ["", "<[{SELECT NAME=\"\" MULTIPLE}]>\\<CR></[{SELECT}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{SELECT}]>\\<C-O>`<<[{SELECT NAME=\"\" MULTIPLE}]>\\<CR>\\<ESC>k$F\"i'", {"reindent": 1, "insert": true}],
+			"v": ["", "\\<ESC>`>a\\<CR></[{SELECT}]>\\<C-O>`<<[{SELECT NAME=\"\" MULTIPLE}]>\\<CR>\\<ESC>k$F\"i", {"reindent": 1, "insert": true}],
 			"o": ["", {"insert": true}]
 		},
 
@@ -2410,7 +2410,7 @@
 
 		"maps": {
 			"i": ["", "<[{TR}]>\\<CR></[{TR}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{TR}]>\\<C-O>`<<[{TR}]>\\<CR>\\<ESC>'", {"reindent": 1}],
+			"v": ["", "\\<ESC>`>a\\<CR></[{TR}]>\\<C-O>`<<[{TR}]>\\<CR>\\<ESC>", {"reindent": 1}],
 			"o": ["", {"insert": false}]
 		},
 

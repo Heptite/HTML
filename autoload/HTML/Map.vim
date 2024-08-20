@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: August 09, 2024
+# Last Change: August 20, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -125,7 +125,7 @@ export class HTMLMap extends Util.HTMLUtil
     if mode ==# 'n' && lhs ==# rhs
       #b:htmlplugin.operator_action = rhs->escape('&~\')
       b:htmlplugin.operator_action = rhs
-      b:htmlplugin.operator_insert = opts.insert
+      b:htmlplugin.operator_insert = opts->get('insert', false)
       &operatorfunc = 'function(b:htmlplugin.HTMLMapO.OpWrap)'
       return 'g@'
     elseif mode ==# 'i' || mode ==# 'n'

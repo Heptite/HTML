@@ -181,14 +181,16 @@ $(textfaq): $(faq)
 test: test_maps
 
 test_maps: force
-	sh -c "cd test; \
-		vim -u ./test_maps.vim -U NONE --noplugin; \
+	@sh -c "cd test; \
+		echo -n TESTING MAPPINGS...; \
+		vim -u ./test_maps.vim -U NONE --noplugin > /dev/null 2>&1 ; \
 		if test -f ./Xresult; \
 		then \
-			echo TEST FAILURE; \
+			mv ./Xresult test_maps_results.log; \
+			echo FAILURE: \`wc -l test_maps_result.log | cut -f1 -d' '\` INCORRET -- SEE test/test_maps_results.log FOR DETAILS; \
 			exit 1; \
 		else \
-			echo DONE; \
+			echo PASSED; \
 		fi"
 
 force:
