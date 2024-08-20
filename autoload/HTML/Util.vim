@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: August 09, 2024
+# Last Change: August 20, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -303,7 +303,7 @@ export class HTMLUtil
       this.SetIfUnset('b:htmlplugin.tag_case', g:htmlplugin.tag_case)
       case = b:htmlplugin.tag_case
     else
-      case = case
+      case = c
     endif
 
     if case =~? '^u\%(p\%(per\%(case\)\?\)\?\)\?'
