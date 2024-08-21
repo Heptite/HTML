@@ -18,25 +18,33 @@ PLUGIN_FILES = ftplugin/html/HTML.vim autoload/HTML/BrowserLauncher.vim autoload
 
 .PHONY : default debug all force html.zip html.html bitmaps pixmaps changelog push
 
+define _helptext
+cat <<'EOF'
+Choose a specific target:
+  HTML.zip
+  bitmaps, pixmaps, or vim-html-pixmaps
+  vim-html-pixmaps.zip
+  montage, toolbar-icons, or toolbar-icons.png
+  ChangeLog, ChangeLog.html
+  tags
+  HTML.html or html
+  version
+  FAQ or faq
+
+  "all" will do all of the above.
+  "debug" will show some debugging info.
+  "scp" will rsync all the files to the webserver.
+  "push" will commit the changes and push them to git.
+  "install" will put some, but not all of the files
+            in the appropriate locations on the local
+            machine, for testing.
+  "test" will test (some of) the plugin's functionality
+EOF
+endef
+export HELPTEXT = $(value _helptext)
+
 default:
-	@echo "Choose a specific target:"
-	@echo "  HTML.zip"
-	@echo "  bitmaps, pixmaps, or vim-html-pixmaps"
-	@echo "  vim-html-pixmaps.zip"
-	@echo "  montage, toolbar-icons, or toolbar-icons.png"
-	@echo "  ChangeLog, ChangeLog.html"
-	@echo "  tags"
-	@echo "  HTML.html or html"
-	@echo "  version"
-	@echo "  FAQ or faq"
-	@echo ""
-	@echo "  \"all\" will do all of the above."
-	@echo "  \"debug\" will show some debugging info."
-	@echo "  \"scp\" will rsync all the files to the webserver."
-	@echo "  \"push\" will commit the changes and push them to git."
-	@echo "  \"install\" will put some, but not all of the files"
-	@echo "            in the appropriate locations on the local"
-	@echo "            machine, for testing."
+	@eval "$$HELPTEXT"
 
 debug:
 	@echo "\$$(VIM)           = $(VIM)"
@@ -178,7 +186,20 @@ $(textfaq): $(faq)
 	w3m -T text/html -cols 79 -dump ${faq} | unix2dos > $(textfaq)
 	chmod a+r ${textfaq}
 
-test: test_maps
+test: test_methods test_maps
+
+test_methods: force
+	@sh -c "cd test; \
+		echo -n TESTING METHODS...; \
+		vim -u ./test_methods.vim -U NONE --noplugin > /dev/null 2>&1 ; \
+		if test -f ./Xresult; \
+		then \
+			mv ./Xresult test_methods_results.log; \
+			echo FAILURE: \`wc -l test_methods_result.log | cut -f1 -d' '\` INCORRET -- SEE test/test_methods_results.log FOR DETAILS; \
+			exit 1; \
+		else \
+			echo PASSED; \
+		fi"
 
 test_maps: force
 	@sh -c "cd test; \

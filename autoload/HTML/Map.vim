@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: August 20, 2024
+# Last Change: August 21, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -497,8 +497,10 @@ export class HTMLMap extends Util.HTMLUtil
   # Purpose:
   #  Add to the b:htmlplugin.mappings list variable if necessary.
   # Arguments:
-  #  1 - String: The command necessary to re-define the mapping.
-  #  1 - String: The mode necessary to re-define the mapping.
+  #  1 - Dict<any>: The command necessary to re-define the mapping.
+  #  2 - String:    The mode necessary to re-define the mapping.
+  #  3 - Boolean:   Whether the map is an "internal" mapping to this plugin or
+  #                 a user-defined
   # Return Value:
   #  Boolean: Whether a mapping was added to the mappings list
   def MappingsListAdd(arg: dict<any>, mode: string, internal: bool = false): bool
@@ -722,7 +724,7 @@ export class HTMLMap extends Util.HTMLUtil
   # Arguments:
   #  None
   # Return Value:
-  #  Boolean - Whether the cursor is not on an insert point.
+  #  Boolean - Whether the cursor is on an insert point.
   def Template(file: string = ''): bool
     var ret = false
 
