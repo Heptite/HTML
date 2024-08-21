@@ -147,6 +147,7 @@ def Test_insert_mode_mappings(...which: list<string>)
 		do_which = which
 	endif
 	
+	delete('.insert_mappings.out.swp')
 	edit! insert_mappings.out
 
 	source ../ftplugin/html/HTML.vim
@@ -297,6 +298,7 @@ def Test_normal_mode_mappings(...which: list<string>)
 		do_which = which
 	endif
 	
+	delete('.normal_visual_mappings.out.swp')
 	edit! normal_visual_mappings.out
 
 	source ../ftplugin/html/HTML.vim
@@ -307,35 +309,15 @@ def Test_normal_mode_mappings(...which: list<string>)
 		assert_equal(mappings[w], getline(1, '$'), $'Mapping: {w}')
 	endfor
 
-	if v:errors != []
-		writefile(v:errors, 'Xresult', 'a')
-	endif
-enddef
-
-# TODO: Fix this, currently doesn't work (feedkeys() + confirm() don't like
-#       each other):
-def Test_interactive_mappings(...which: list<string>)
-	var mappings: dict<list<any>> = {
-			';tA': ["2\<cr>2\<cr>2\<cr>yy", ['<table style="border: solid #000000 2px; padding: 3px;">', '<thead>', '<tr>', '<th style="border: solid #000000 2px; padding: 3px;"></th>', '<th style="border: solid #000000 2px; padding: 3px;"></th>', '</tr>', '</thead>', '<tbody>', '<tr>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '</tr>', '<tr>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '</tr>', '</tbody>', '<tfoot>', '<tr>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '</tr>', '</tfoot>', '</table>']],
-		}
-
-	var do_which: list<string>
-
-	if which == []
-		do_which = keys(mappings)
-	else
-		do_which = which
-	endif
-	
-	edit! interactive_mappings.out
-
-	source ../ftplugin/html/HTML.vim
-
-	for w: string in do_which
-		:%delete
-		feedkeys(w .. mappings[w][0], 'xt')
-		assert_equal(mappings[w][1], getline(1, '$'), $'Mapping: {w}')
-	endfor
+	# Special cases:
+	:%delete
+	assert_nobeep("normal ;html")
+	assert_match('^<!DOCTYPE html>\n<html>\n\s<head>\n\n\s\s<title></title>\_.\+</body>\n</html>$',
+		join(getline(1, '$'), "\n"), $'Mapping: ;html')
+	:%delete
+	assert_nobeep("normal i;im../toolbar-icons.png\<esc>;mi")
+	assert_match('<img src="../toolbar-icons.png" width="\d\+" height="\d\+" alt="">',
+		getline(1), $'Mapping: ;mi')
 
 	if v:errors != []
 		writefile(v:errors, 'Xresult', 'a')
@@ -346,13 +328,10 @@ enddef
 set runtimepath+=..
 
 delete('./Xresult')
-delete('./.mappings.out.swp')
 
 Test_insert_mode_mappings()
 # No need for a visual mode test on mappings because the normal mode mappings
 # run a visual selection:
 Test_normal_mode_mappings()
-# See TODO above
-#Test_interactive_mappings()
 
 qall!

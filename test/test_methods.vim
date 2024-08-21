@@ -88,6 +88,7 @@ set runtimepath+=..
 
 source ../ftplugin/html/HTML.vim
 
+delete('.swp')
 delete('./Xresult')
 
 Test_util_methods()

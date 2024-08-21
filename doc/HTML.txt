@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 May 18
+		Last change: 2024 Aug 21
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -1926,8 +1926,8 @@ HTMLMapObject.NextInsertPoint([{mode}, {direction}])
 
 HTMLMapObject.PluginControl({what})	*HTMLMapObject.PluginControl()*
 	This is normally called by the |:HTMLplugin| command.  It can either
-	disable or enable the mappings by specifying "on" or "true" as {what},
-	or "off" or "false" to disable.
+	enable the mappings by specifying "on" or "true" as {what}, or "off"
+	or "false" to disable.
 
 HTMLMapObject.Template()		*HTMLMapObject.Template()*
 	This is normally called by the |n_;html| mapping, but it works
