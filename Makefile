@@ -195,7 +195,7 @@ test_methods: force
 		if test -f ./Xresult; \
 		then \
 			mv ./Xresult test_methods_results.log; \
-			echo FAILURE: \`wc -l test_methods_result.log | cut -f1 -d' '\` INCORRET -- SEE test/test_methods_results.log FOR DETAILS; \
+			echo FAILURE: \`wc -l test_methods_results.log | cut -f1 -d' '\` INCORRET -- SEE test/test_methods_results.log FOR DETAILS; \
 			exit 1; \
 		else \
 			echo PASSED; \
@@ -208,7 +208,7 @@ test_maps: force
 		if test -f ./Xresult; \
 		then \
 			mv ./Xresult test_maps_results.log; \
-			echo FAILURE: \`wc -l test_maps_result.log | cut -f1 -d' '\` INCORRET -- SEE test/test_maps_results.log FOR DETAILS; \
+			echo FAILURE: \`wc -l ./test_maps_results.log | cut -f1 -d' '\` INCORRET -- SEE test/test_maps_results.log FOR DETAILS; \
 			exit 1; \
 		else \
 			echo PASSED; \

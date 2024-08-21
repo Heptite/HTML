@@ -147,13 +147,13 @@ def Test_insert_mode_mappings(...which: list<string>)
 		do_which = which
 	endif
 	
-	edit! mappings.out
+	edit! insert_mappings.out
 
 	source ../ftplugin/html/HTML.vim
 
 	for w: string in do_which
 		:%delete
-		execute 'normal i' .. w
+		assert_nobeep('normal i' .. w)
 		assert_equal(mappings[w], getline(1, '$'), $'Mapping: {w}')
 	endfor
 
@@ -297,13 +297,13 @@ def Test_normal_mode_mappings(...which: list<string>)
 		do_which = which
 	endif
 	
-	edit! mappings.out
+	edit! normal_visual_mappings.out
 
 	source ../ftplugin/html/HTML.vim
 
 	for w: string in do_which
 		:%delete
-		execute "normal itest text\<esc>" .. w .. 'ip'
+		assert_nobeep("normal itest text\<esc>" .. w .. 'ip')
 		assert_equal(mappings[w], getline(1, '$'), $'Mapping: {w}')
 	endfor
 
@@ -312,7 +312,8 @@ def Test_normal_mode_mappings(...which: list<string>)
 	endif
 enddef
 
-# TODO: Fix this, currently doesn't work:
+# TODO: Fix this, currently doesn't work (feedkeys() + confirm() don't like
+#       each other):
 def Test_interactive_mappings(...which: list<string>)
 	var mappings: dict<list<any>> = {
 			';tA': ["2\<cr>2\<cr>2\<cr>yy", ['<table style="border: solid #000000 2px; padding: 3px;">', '<thead>', '<tr>', '<th style="border: solid #000000 2px; padding: 3px;"></th>', '<th style="border: solid #000000 2px; padding: 3px;"></th>', '</tr>', '</thead>', '<tbody>', '<tr>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '</tr>', '<tr>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '</tr>', '</tbody>', '<tfoot>', '<tr>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '</tr>', '</tfoot>', '</table>']],
@@ -326,7 +327,7 @@ def Test_interactive_mappings(...which: list<string>)
 		do_which = which
 	endif
 	
-	edit! mappings.out
+	edit! interactive_mappings.out
 
 	source ../ftplugin/html/HTML.vim
 
@@ -351,6 +352,7 @@ Test_insert_mode_mappings()
 # No need for a visual mode test on mappings because the normal mode mappings
 # run a visual selection:
 Test_normal_mode_mappings()
+# See TODO above
 #Test_interactive_mappings()
 
 qall!

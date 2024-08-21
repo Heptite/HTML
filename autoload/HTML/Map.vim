@@ -145,7 +145,7 @@ export class HTMLMap extends Util.HTMLUtil
       if opts->has_key('reindent') && opts.reindent >= 0
         #normal! m'
         var curpos = getcharpos('.')[1 : -1]
-        #keepjumps ReIndent(line('v'), line('.'), opts.reindent)
+        #keepjumps this.ReIndent(line('v'), line('.'), opts.reindent)
         keepjumps this.ReIndent(line("'<"), line("'>"), opts.reindent)
         #normal! ``
         setcharpos('.', curpos)

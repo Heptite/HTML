@@ -14,3 +14,4 @@ pushed
 installed
 unused.vim
 test/Xresult
+test/*.log

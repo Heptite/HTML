@@ -558,7 +558,7 @@
 					"c": "\\<CR><[{/FORM}]>\\<CR><[{FORM ACTION}]=\"\">\\<CR>\\<ESC>k$F\"i"
 				},
 				"v": {
-					"o": "\\<C-C>`>a\\<CR></[{FORM}]>\\<C-O>`<<[{FORM ACTION}]=\"\">\\<CR>\\<ESC>`<k$F\"",
+					"o": "\\<C-C>`>a\\<CR></[{FORM}]>\\<C-O>`<<[{FORM ACTION}]=\"\">\\<CR>\\<ESC>`<$F\"",
 					"c": "\\<C-C>`>a\\<CR><[{FORM ACTION}]=\"\">\\<CR>\\<C-O>`<\\<CR></[{FORM}]>\\<CR>\\<ESC>`>j$F\""
 				}
 			}
@@ -570,7 +570,7 @@
 
 		"maps": {
 			"i": ["", "<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR></[{FIELDSET}]>\\<ESC>k$F<i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{FIELDSET}]>\\<C-O>`<<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR>\\<ESC>k$F<i", {"reindent": 2, "insert": true}],
+			"v": ["", "\\<ESC>`>a\\<CR></[{FIELDSET}]>\\<C-O>`<<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR>\\<ESC>`<j$F<i", {"reindent": 2, "insert": true}],
 			"o": ["", {"insert": true}]
 		},
 
@@ -1627,7 +1627,7 @@
 		"maps": {
 			"i": ["", "<[{NAV>\\<CR></NAV}]>\\<ESC>O"],
 			"v": ["", "\\<ESC>`>a\\<CR></[{NAV}]>\\<C-O>`<<[{NAV}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": true}]
+			"o": ["", {"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&NAV"], {
@@ -1655,7 +1655,7 @@
 		"maps": {
 			"i": ["", "<[{SECTION>\\<CR></SECTION}]>\\<ESC>O"],
 			"v": ["", "\\<ESC>`>a\\<CR></[{SECTION}]>\\<C-O>`<<[{SECTION}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": true}]
+			"o": ["", {"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&SECTION"], {

@@ -3,6 +3,7 @@ scriptencoding utf8
 
 import "../autoload/HTML/Util.vim"
 import "../autoload/HTML/Map.vim"
+import "../autoload/HTML/Messages.vim"
 import "../import/HTML/Variables.vim"
 
 def Test_util_methods(...which: list<string>)
@@ -73,6 +74,16 @@ def Test_map_methods(...which: list<string>)
 	endif
 enddef
 
+def Test_messages_methods(...which: list<string>)
+	var mapo: Map.HTMLMap = Map.HTMLMap.new()
+
+	assert_match('function <SNR>\d\+_Test_messages_methods', Messages.HTMLMessages.F(), 'Messages.HTMLMessages.F()')
+
+	if v:errors != []
+		writefile(v:errors, 'Xresult', 'a')
+	endif
+enddef
+
 set runtimepath+=..
 
 source ../ftplugin/html/HTML.vim
@@ -81,5 +92,6 @@ delete('./Xresult')
 
 Test_util_methods()
 Test_map_methods()
+Test_messages_methods()
 
 qall!
