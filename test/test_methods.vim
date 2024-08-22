@@ -4,9 +4,10 @@ scriptencoding utf8
 import "../autoload/HTML/Util.vim"
 import "../autoload/HTML/Map.vim"
 import "../autoload/HTML/Messages.vim"
+import "../autoload/HTML/Glue.vim"
 import "../import/HTML/Variables.vim"
 
-def Test_util_methods(...which: list<string>)
+def Test_util_methods()
 	var util: Util.HTMLUtil = Util.HTMLUtil.new()
 
 	assert_true(util.Bool("yes"), 'Bool("yes")')
@@ -46,10 +47,11 @@ def Test_util_methods(...which: list<string>)
 
 	if v:errors != []
 		writefile(v:errors, 'Xresult', 'a')
+		v:errors = []
 	endif
 enddef
 
-def Test_map_methods(...which: list<string>)
+def Test_map_methods()
 	var mapo: Map.HTMLMap = Map.HTMLMap.new()
 
 	assert_true(mapo.GenerateTable(2, 2, 2, true, true), 'GenerateTable(2, 2, 2, true, true)')
@@ -64,33 +66,59 @@ def Test_map_methods(...which: list<string>)
 	assert_true(mapo.MappingsListAdd({";ah": "foobar"}, "i", false), 'MappingsListAdd({";ah": "foobar"}, "i", false)')
 	:%delete
 	assert_false(mapo.NextInsertPoint(), "NextInsertPoint()")
-	setline(1, '<html><title></title></html>')
+	setline(1, ['<html>', '<head>', '<title></title>', '</head>', '</html>'])
 	cursor(0, 0)
-	assert_true(mapo.NextInsertPoint(), "NextInsertPoint()")
-	# TODO: Find a way to test more of the map methods
+	assert_true(mapo.NextInsertPoint(), "NextInsertPoint() cursor should reposition")
+	normal iLorem Ipsum
+	assert_false(mapo.NextInsertPoint(), "NextInsertPoint() cursor should NOT reposition")
+	:%delete
+	assert_equal("<b></b>\<C-O>F<", mapo.SmartTag("b", "i"), 'SmartTag("b", "i")')
+	&selection = 'exclusive'
+	assert_equal("\<C-O>`>", mapo.VisualInsertPos(), "'selection' = exclusive; VisualInsertPos()")
+	&selection = 'inclusive'
+	assert_equal("\<right>", mapo.VisualInsertPos(), "'selection' = inclusive; VisualInsertPos()")
 
 	if v:errors != []
 		writefile(v:errors, 'Xresult', 'a')
+		v:errors = []
 	endif
 enddef
 
-def Test_messages_methods(...which: list<string>)
+def Test_messages_methods()
 	var mapo: Map.HTMLMap = Map.HTMLMap.new()
 
 	assert_match('function <SNR>\d\+_Test_messages_methods', Messages.HTMLMessages.F(), 'Messages.HTMLMessages.F()')
 
 	if v:errors != []
 		writefile(v:errors, 'Xresult', 'a')
+		v:errors = []
+	endif
+enddef
+
+def Test_glue_methods()
+	var glue: Glue.HTMLGlue = Glue.HTMLGlue.new()
+
+	assert_true(glue.PluginControl('disable'), 'PluginControl("disable")')
+	assert_false(glue.PluginControl('disable'), 'PluginControl("disable")')
+	assert_false(glue.PluginControl('foobar'), 'PluginControl("foobar")')
+	assert_true(glue.PluginControl('enable'), 'PluginControl("enable")')
+
+	if v:errors != []
+		writefile(v:errors, 'Xresult', 'a')
+		v:errors = []
 	endif
 enddef
 
 set runtimepath+=..
 
-source ../ftplugin/html/HTML.vim
-
 delete('.swp')
 delete('./Xresult')
 
+source ../ftplugin/html/HTML.vim
+
+# Test glue methods first because we do some hinky stuff later on that would
+# make the tests fail (should probably fix that):
+Test_glue_methods()
 Test_util_methods()
 Test_map_methods()
 Test_messages_methods()

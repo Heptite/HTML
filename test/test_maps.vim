@@ -160,6 +160,7 @@ def Test_insert_mode_mappings(...which: list<string>)
 
 	if v:errors != []
 		writefile(v:errors, 'Xresult', 'a')
+		v:errors = []
 	endif
 enddef
 
@@ -321,6 +322,7 @@ def Test_normal_mode_mappings(...which: list<string>)
 
 	if v:errors != []
 		writefile(v:errors, 'Xresult', 'a')
+		v:errors = []
 	endif
 enddef
 
