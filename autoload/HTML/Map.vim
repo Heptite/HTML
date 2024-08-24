@@ -143,12 +143,8 @@ export class HTMLMap extends Util.HTMLUtil
       this.ToggleOptions(Util.ToggleOptionsA.restore)
 
       if opts->has_key('reindent') && opts.reindent >= 0
-        #normal! m'
-        var curpos = getcharpos('.')
-        #keepjumps this.ReIndent(line('v'), line('.'), opts.reindent)
-        keepjumps this.ReIndent(line("'<"), line("'>"), opts.reindent)
-        #normal! ``
-        setcharpos('.', curpos)
+        #this.ReIndent(line('v'), line('.'), opts.reindent)
+        this.ReIndent(line("'<"), line("'>"), opts.reindent)
       endif
 
       if opts->get('insert', false)

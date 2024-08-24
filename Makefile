@@ -186,7 +186,7 @@ $(textfaq): $(faq)
 	w3m -T text/html -cols 79 -dump ${faq} | unix2dos > $(textfaq)
 	chmod a+r ${textfaq}
 
-test: test_maps test_methods
+test tests: test_maps test_methods
 
 test_methods: force
 	@sh -c "cd test; \
@@ -215,5 +215,7 @@ test_maps: force
 		fi"
 
 force:
+
+#.IGNORE: test_methods test_maps
 
 # vim:ts=4:sw=0:fdm=expr:fdc=2:nu:
