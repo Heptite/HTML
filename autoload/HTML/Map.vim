@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: August 21, 2024
+# Last Change: August 24, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -144,7 +144,7 @@ export class HTMLMap extends Util.HTMLUtil
 
       if opts->has_key('reindent') && opts.reindent >= 0
         #normal! m'
-        var curpos = getcharpos('.')[1 : -1]
+        var curpos = getcharpos('.')
         #keepjumps this.ReIndent(line('v'), line('.'), opts.reindent)
         keepjumps this.ReIndent(line("'<"), line("'>"), opts.reindent)
         #normal! ``
@@ -186,7 +186,7 @@ export class HTMLMap extends Util.HTMLUtil
   # Return Value:
   #  Boolean: Whether a table was generated
   def GenerateTable(rows: number = -1, columns: number = -1, border: number = -1, thead: bool = false, tfoot: bool = false): bool
-    var charpos = getcharpos('.')
+    var curpos = getcharpos('.')
     var rowsstring: string
     var columnsstring: string
     var newrows: number
@@ -296,7 +296,7 @@ export class HTMLMap extends Util.HTMLUtil
 
     execute $':{(line('.') + 1)},{(line('.') + lines->len())}normal! =='
 
-    setcharpos('.', charpos)
+    setcharpos('.', curpos)
 
     if getline('.') =~ '^\s*$'
       delete
@@ -658,14 +658,14 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     var range = firstline == lastline ? firstline : $'{firstline},{lastline}'
-    var charpos = getcharpos('.')
+    var curpos = getcharpos('.')
 
     try
       execute $'keepjumps :{range}normal! =='
     catch
       printf(this.HTMLMessagesO.E_INDENTEXCEPT, v:exception)->this.HTMLMessagesO.Error()
     finally
-      setcharpos('.', charpos)
+      setcharpos('.', curpos)
     endtry
 
     return true

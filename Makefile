@@ -186,7 +186,7 @@ $(textfaq): $(faq)
 	w3m -T text/html -cols 79 -dump ${faq} | unix2dos > $(textfaq)
 	chmod a+r ${textfaq}
 
-test: test_methods test_maps
+test: test_maps test_methods
 
 test_methods: force
 	@sh -c "cd test; \
