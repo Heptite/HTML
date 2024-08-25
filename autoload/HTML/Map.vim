@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: August 24, 2024
+# Last Change: August 25, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -610,26 +610,10 @@ export class HTMLMap extends Util.HTMLUtil
   # Return Value:
   #  Boolean - True if lines were reindented, false otherwise.
   def ReIndent(first: number, last: number, extralines: number = 0, prelines: number = 0): bool
-
-    def GetFiletypeInfo(): dict<string>  # {{{2
-      var ftout: dict<string>
-      execute('filetype')
-        ->trim()
-        ->strpart(9)
-        ->split('  ')
-        ->mapnew(
-          (_, val) => {
-            var newval = val->split(':')
-            ftout[newval[0]] = newval[1]
-          }
-        )
-      return ftout
-    enddef  # }}}2
-
     var firstline: number
     var lastline: number
 
-    if !(this.Bool(GetFiletypeInfo()['indent'])) && &indentexpr == ''
+    if (! this.Bool(this.GetFiletypeInfo()['indent'])) && &indentexpr == ''
       return false
     endif
 

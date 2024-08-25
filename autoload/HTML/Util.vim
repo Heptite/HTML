@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: August 20, 2024
+# Last Change: August 25, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -434,6 +434,29 @@ export class HTMLUtil
     else
       return contents
     endif
+  enddef
+
+  # GetFiletypeInfo()  {{{1
+  #
+  # Purpose:
+  #  Return the output of :filetype as a dictionary
+  # Arguments:
+  #  None
+  # Return Value:
+  #  dict<string>: Filetype options and whether they're on or off
+  def GetFiletypeInfo(): dict<string>
+    var ftout: dict<string>
+    execute('filetype')
+      ->trim()
+      ->strpart(9)
+      ->split('  ')
+      ->mapnew(
+        (_, val) => {
+          var newval = val->split(':')
+          ftout[newval[0]] = newval[1]
+        }
+      )
+    return ftout
   enddef
 
   # Has()  {{{1
