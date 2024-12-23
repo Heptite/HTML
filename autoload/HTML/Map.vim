@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: August 25, 2024
+# Last Change: September 09, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -92,15 +92,17 @@ export class HTMLMap extends Util.HTMLUtil
   #
   # Purpose:
   #  Execute or return the "right hand side" of a mapping, while preventing an
-  #  error to cause it to abort.
+  #  error to cause it or the function to abort.
   # Arguments:
   #  None, as DoMap() should be invoked via a mapping object that contains the
   #  information needed.
   # Return Value:
   #  String: Either an empty string (for visual mappings) or the key sequence
   #           to run (for insert mode mappings). This oddity is because the
-  #           two modes need to be handled differently.
-  #def DoMap(mode: string, map: string): string
+  #           two modes need to be handled differently--more specifically,
+  #           visual mappings have to have some options toggled, reindenting
+  #           applied at the right moment, etc. and that cannot be done by
+  #           returning a key sequence.
   def DoMap(): string
     var evalstr: string
 
@@ -123,7 +125,6 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     if mode ==# 'n' && lhs ==# rhs
-      #b:htmlplugin.operator_action = rhs->escape('&~\')
       b:htmlplugin.operator_action = rhs
       b:htmlplugin.operator_insert = opts->get('insert', false)
       &operatorfunc = 'function(b:htmlplugin.HTMLMapO.OpWrap)'
