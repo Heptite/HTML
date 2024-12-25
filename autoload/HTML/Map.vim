@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: August 25, 2024
+# Last Change: August 31, 2024
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -100,7 +100,6 @@ export class HTMLMap extends Util.HTMLUtil
   #  String: Either an empty string (for visual mappings) or the key sequence
   #           to run (for insert mode mappings). This oddity is because the
   #           two modes need to be handled differently.
-  #def DoMap(mode: string, map: string): string
   def DoMap(): string
     var evalstr: string
 
@@ -126,6 +125,7 @@ export class HTMLMap extends Util.HTMLUtil
       #b:htmlplugin.operator_action = rhs->escape('&~\')
       b:htmlplugin.operator_action = rhs
       b:htmlplugin.operator_insert = opts->get('insert', false)
+      # Shouldn't need to be so abstruse here, but Vim9 has some weird quirks:
       &operatorfunc = 'function(b:htmlplugin.HTMLMapO.OpWrap)'
       return 'g@'
     elseif mode ==# 'i' || mode ==# 'n'
