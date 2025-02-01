@@ -1,6 +1,6 @@
 # HTML/XHTML Editing Macros
 
-Note that this plugin requires Vim 9.1.219 or later; nightly builds are
+Note that this plugin requires Vim 9.1.509 or later; nightly builds are
 available for Windows at:
 <https://github.com/vim/vim-win32-installer/releases>
 Or semi-frequent builds are available for Windows at:
@@ -66,7 +66,7 @@ This includes extra documentation, alternate install methods, an FAQ, etc.
 
 ## License
 
-Copyright © 1998 - 2024 Christian J. Robinson
+Copyright © 1998 - 2025 Christian J. Robinson
 
 Distributable under the terms of the GNU General Public License, version 3 or
 later:  <https://www.gnu.org/licenses/licenses.html#GPL>
