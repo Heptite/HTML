@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: August 25, 2024
+# Last Change: February 26, 2025
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -181,13 +181,13 @@ export class HTMLUtil
       var color = Variables.HTMLVariables.COLOR_LIST[result - 1]
 
       if doname
-        execute $'normal! {how} {color[0]->substitute("\\s", "", "g")}'
+        execute $'normal! {how}{color[0]->substitute("\\s", "", "g")}'
       elseif dorgb
-        execute $'normal! {how} ' .. color[1]->this.ToRGB(false)
+        execute $'normal! {how}' .. color[1]->this.ToRGB(false)
       elseif dorgbpercent
-        execute $'normal! {how} ' .. color[1]->this.ToRGB(true)
+        execute $'normal! {how}' .. color[1]->this.ToRGB(true)
       else
-        execute $'normal! {how} {color[1]}'
+        execute $'normal! {how}{color[1]}'
       endif
 
       if mode == 'i'
