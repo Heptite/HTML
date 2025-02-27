@@ -49,9 +49,14 @@ export class HTMLMap extends Util.HTMLUtil
   var _rhs: string
   var _options: dict<any>
 
+  static var HTMLMessagesO: Messages.HTMLMessages
+  static var HTMLVariablesO: Variables.HTMLVariables
+
   def new() # {{{1
-    this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = Variables.HTMLVariables.new()
+    if HTMLMessagesO == null_object
+      HTMLMessagesO = Messages.HTMLMessages.new()
+      HTMLVariablesO = Variables.HTMLVariables.new()
+    endif
   enddef
 
   def newMap(this._mode, this._lhs, this._rhs, this._options) # {{{1
@@ -59,16 +64,20 @@ export class HTMLMap extends Util.HTMLUtil
       echoerr $'Mode is invalid: {this._mode}'
     endif
 
-    this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = Variables.HTMLVariables.new()
+    if HTMLMessagesO == null_object
+      HTMLMessagesO = Messages.HTMLMessages.new()
+      HTMLVariablesO = Variables.HTMLVariables.new()
+    endif
   enddef
 
   def newOpMap(this._lhs, this._options) # {{{1
     this._mode = 'n'
     this._rhs = this._lhs
 
-    this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = Variables.HTMLVariables.new()
+    if HTMLMessagesO == null_object
+      HTMLMessagesO = Messages.HTMLMessages.new()
+      HTMLVariablesO = Variables.HTMLVariables.new()
+    endif
   enddef # }}}1
 
   # CreateExtraMappings()  {{{1
@@ -120,7 +129,7 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     if mode->strlen() != 1
-      printf(this.HTMLMessagesO.E_ONECHAR, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return ''
     endif
 
@@ -138,7 +147,7 @@ export class HTMLMap extends Util.HTMLUtil
       try
         execute $'silent normal! {evalstr}'
       catch
-        printf(this.HTMLMessagesO.E_MAPEXCEPT, v:exception, lhs)->this.HTMLMessagesO.Error()
+        printf(HTMLMessagesO.E_MAPEXCEPT, v:exception, lhs)->HTMLMessagesO.Error()
       endtry
 
       # Can't :defer this because we need it reset here, not later:
@@ -154,7 +163,7 @@ export class HTMLMap extends Util.HTMLUtil
         startinsert
       endif
     else
-      printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), mode)->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), mode)->HTMLMessagesO.Error()
     endif
 
     # If we got here, we already ran the mapping and don't need to run it
@@ -215,7 +224,7 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     if newrows < 1 || newcolumns < 1
-      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_ZEROROWSCOLS)
+      HTMLMessagesO.Error(HTMLMessagesO.E_ZEROROWSCOLS)
       return false
     endif
 
@@ -328,32 +337,32 @@ export class HTMLMap extends Util.HTMLUtil
   #  Boolean: Whether a mapping was defined
   def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, internal: bool = false): bool
     if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-      printf(this.HTMLMessagesO.E_NOMAPLEAD, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_NOMAPLEAD, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if !g:htmlplugin->has_key('entity_map_leader') && map =~? '^<elead>'
-      printf(this.HTMLMessagesO.E_NOEMAPLEAD, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_NOEMAPLEAD, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if map == '' || map ==? '<lead>' || map ==? '<elead>'
-      printf(this.HTMLMessagesO.E_EMPTYLHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_EMPTYLHS, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if arg == '' && map =~# '^\(nmap\|nnoremap\)$'
-      printf(this.HTMLMessagesO.E_EMPTYRHS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_EMPTYRHS, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if cmd->strlen() <= 2
-      printf(this.HTMLMessagesO.E_NOFULL, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_NOFULL, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if cmd =~# '^no' || cmd =~# '^map$'
-      printf(this.HTMLMessagesO.E_NOMODE, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_NOMODE, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
@@ -482,7 +491,7 @@ export class HTMLMap extends Util.HTMLUtil
       if this.BoolVar('g:htmlplugin.no_map_override') && internal
         return MapCheckR.nooverride
       else
-        printf(this.HTMLMessagesO.W_MAPOVERRIDE, map, Variables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->this.HTMLMessagesO.Warn()
+        printf(HTMLMessagesO.W_MAPOVERRIDE, map, Variables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->HTMLMessagesO.Warn()
         return MapCheckR.override
       endif
     endif
@@ -572,7 +581,7 @@ export class HTMLMap extends Util.HTMLUtil
   # Return value:
   #  None
   def OpWrap(type: string)
-    this.HTMLVariablesO.saveopts.selection = &selection
+    HTMLVariablesO.saveopts.selection = &selection
     &selection = 'inclusive'
 
     try
@@ -585,9 +594,9 @@ export class HTMLMap extends Util.HTMLUtil
         execute $'normal `[v`]{b:htmlplugin.operator_action}'
       endif
     catch
-      printf(this.HTMLMessagesO.W_CAUGHTERR, v:exception)->this.HTMLMessagesO.Warn()
+      printf(HTMLMessagesO.W_CAUGHTERR, v:exception)->HTMLMessagesO.Warn()
     finally
-      &selection = this.HTMLVariablesO.saveopts.selection
+      &selection = HTMLVariablesO.saveopts.selection
     endtry
 
     if b:htmlplugin.operator_insert
@@ -645,7 +654,7 @@ export class HTMLMap extends Util.HTMLUtil
     try
       execute $'keepjumps :{range}normal! =='
     catch
-      printf(this.HTMLMessagesO.E_INDENTEXCEPT, v:exception)->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_INDENTEXCEPT, v:exception)->HTMLMessagesO.Error()
     finally
       setcharpos('.', curpos)
     endtry
@@ -675,7 +684,7 @@ export class HTMLMap extends Util.HTMLUtil
     var column: number
 
     if ! b:htmlplugin.smarttags->has_key(newtag)
-      printf(this.HTMLMessagesO.E_NOSMART, Messages.HTMLMessages.F(), newtag)->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_NOSMART, Messages.HTMLMessages.F(), newtag)->HTMLMessagesO.Error()
       return ''
     endif
 
@@ -760,7 +769,7 @@ export class HTMLMap extends Util.HTMLUtil
       if template->expand()->filereadable()
         template->readfile()->this.TokenReplace(fnamemodify(template, ':p:h'))->append(0)
       else
-        printf(this.HTMLMessagesO.E_TEMPLATE, template)->this.HTMLMessagesO.Error()
+        printf(HTMLMessagesO.E_TEMPLATE, template)->HTMLMessagesO.Error()
         return false
       endif
     else
