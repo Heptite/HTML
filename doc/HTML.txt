@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2024 Aug 21
+		Last change: 2025 Feb 27
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -82,7 +82,7 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 	 <TABLE>
 	 </TABLE>
 <
-	See |g:htmlplugin.no_tab_mapping| if you do not want these mappings to
+	See |g:htmlplugin.tab_mapping| if you do not want these mappings to
 	be defined, in which case ;<Tab> will be used for the mappings
 	instead.
 
@@ -99,7 +99,7 @@ inside italicized text and you type ;it, it will insert </I><I> instead of
 				*i_;<S-Tab>* *i_;shift-tab* *i_;SHIFT-CTRL-I*
 				*n_;<S-Tab>* *n_;shift-tab* *n_;SHIFT-CTRL-I*
 ;<Tab>	To insert a hard tab (; then the tab key). If
-	|g:htmlplugin.no_tab_mapping| is set this mapping replaces the normal
+	|g:htmlplugin.tab_mapping| is set this mapping replaces the normal
 	|html-tab| mapping instead.  (See |g:htmlplugin.map_leader|) And
 	likewise, ;<S-Tab> (shift-tab) can be used.
 
@@ -138,33 +138,35 @@ these tags should never have existed.
 3. Customization Variables		*html-variables* *html-configuration*
 					*html-customization* *g:htmlplugin*
 
-You can set the g:htmlplugin global |Dictionary| variable to control the
-behavior of the plugin. It is recommended you set this variable in your
-|vimrc|, as some of the keys are only effective if they are set before the
-plugin loads.
+You can set the g:htmlplugin global |Dictionary| and b:htmlplugin buffer-local
+|Dictionary| variables to control the behavior of the plugin. It is
+recommended you set this variable in your |vimrc|, as some of the keys are
+only effective if they are set before the plugin loads.
 
-Note that you need to do ":let g:htmlplugin = {}" first or you will get an
-error, or you can just set everything at once in your |vimrc|, e.g.: >
+Note that you need to do ":let g:htmlplugin = {}" (or b:htmlplugin) first or
+you will get an error, or you can just set everything at once in your |vimrc|,
+e.g.: >
 	let g:htmlplugin = {
 		\	'author_name': 'John Smith',
 		\	'author_email': 'jsmith@example.com',
-		\	'do_xhtml_mappings': v:false,
+		\	'xhtml_mappings': v:false,
 		\	'tag_case': 'uppercase'
 		\}
 <
-Also note that in the following text, "nonzero" means anything besides "no",
-"false", "off", 0, or "" (empty value), case insensitive.
+Also note that in the following text, "truthy" means anything besides "no",
+|v:false|/"false", "off", 0, or "" (empty value), case insensitive.  This is
+different than Vim's |truthy| / |falsy| values.
 
-*g:htmlplugin.do_xhtml_mappings* *b:htmlplugin.do_xhtml_mappings*
-Set this variable to a nonzero value if you prefer XHTML compatible tags to be
-defined. Setting this forces |b:htmlplugin.tag_case| to "lowercase". This is
-automatic if you are already editing a file that Vim detects as XHTML. This
+*g:htmlplugin.xhtml_mappings* *b:htmlplugin.xhtml_mappings*
+Set this variable to a "truthy" value if you prefer XHTML compatible tags to
+be defined. Setting this forces |b:htmlplugin.tag_case| to "lowercase". This
+is automatic if you are already editing a file that Vim detects as XHTML. This
 variable must be set before HTML.vim is sourced for the current buffer. You
-can also set this on a per-buffer basis by using
-b:htmlplugin.do_xhtml_mappings instead.  e.g.: >
-	:let g:htmlplugin.do_xhtml_mappings = 'yes'
-(However, XHTML is out of date and this mode is not recommended, and is only
-supported for historical reasons.)
+can also set this on a per-buffer basis by using b:htmlplugin.xhtml_mappings
+instead.  e.g.: >
+	:let g:htmlplugin.xhtml_mappings = 'yes'
+(However, XHTML is out of date as of this writing and this mode is not
+recommended, and it is only supported for historical reasons.)
 
 *g:htmlplugin.tag_case* *b:htmlplugin.tag_case*
 This variable can be set to "l" / "lower" / "lowercase" or "u" / "upper" /
@@ -173,16 +175,16 @@ must be set before HTML.vim is sourced for the current buffer (i.e. before the
 buffer is loaded). The default is "lowercase". You can also set this
 globally by setting |g:htmlplugin.tag_case| or on a per-buffer basis by using
 |b:htmlplugin.tag_case| instead. This variable is ignored when editing XHTML
-files (see |g:htmlplugin.do_xhtml_mappings|). e.g: >
+files (see |g:htmlplugin.xhtml_mappings|). e.g: >
 	:let g:htmlplugin.tag_case = 'lowercase'
 
 *g:htmlplugin.tag_case_autodetect*
-Set this variable to a nonzero value if you want to automatically detect what
+Set this variable to a "truthy" value if you want to automatically detect what
 the value of |b:htmlplugin.tag_case| should be. This is done by examining the
 file for both upper and lower case tags (tag attributes are not examined). If
 only one type is found the tag case for the buffer is set to that value. This
-variable is ignored if you have set |g:htmlplugin.do_xhtml_mappings| or
-|b:htmlplugin.do_xhtml_mappings|. e.g.: >
+variable is ignored if you have set |g:htmlplugin.xhtml_mappings| or
+|b:htmlplugin.xhtml_mappings|. e.g.: >
 	:let g:htmlplugin.tag_case_autodetect = 'yes'
 
 *g:htmlplugin.map_leader*
@@ -200,12 +202,12 @@ you attempt to set this to the same value as |g:htmlplugin.map_leader| you
 will get an error. e.g.: >
 	:let g:htmlplugin.entity_map_leader = '\'
 
-*g:htmlplugin.no_map_override*
-Set this variable to a nonzero value if you do not want this plugin to
+*g:htmlplugin.map_override*
+Set this variable to a "falsy" value if you do not want this plugin to
 override mappings that already exist. When this variable is not set you will
 get a warning message when this plugin overrides a mapping. This variable
 must be set before HTML.vim is sourced. e.g.: >
-	:let g:htmlplugin.no_map_override = 'yes'
+	:let g:htmlplugin.map_override = 'yes'
 
 This only applies to the mappings defined internally to the plugin. If you
 call the |HTMLMapObject.Map()| function elsewhere you will still get a warning
@@ -228,27 +230,27 @@ call the |HTMLMapObject.Map()| function elsewhere the mapping will be defined
 even if it matches this list; this is useful if you wish to define custom
 variants of some of the plugin's mappings without getting warning messages.
 
-*g:htmlplugin.no_tab_mapping*
-Set this variable to a nonzero value if you do not want the tab key to be
+*g:htmlplugin.tab_mapping*
+Set this variable to a "falsy" value if you do not want the tab key to be
 mapped in normal, visual and insert mode. ;<Tab> will be used instead. See
 |html-tab| and |i_;tab|. This variable must be set before HTML.vim is sourced
 for the current buffer. e.g.: >
-	:let g:htmlplugin.no_tab_mapping = 'yes'
+	:let g:htmlplugin.tab_mapping = 'no'
 
 Note that you can suppress the defining of both <Tab> and ;<Tab> as a mapping
 by adding "\t" to |g:htmlplugin.no_maps| instead.
 
-*g:htmlplugin.no_toolbar*
-Set this variable to a nonzero value if you do not want this plugin to modify
+*g:htmlplugin.toolbar*
+Set this variable to a "falsy" value if you do not want this plugin to modify
 the Vim toolbar and add "T" to 'guioptions'. This variable must be set before
 HTML.vim is sourced. e.g.: >
-	:let g:htmlplugin.no_toolbar = 'yes'
+	:let g:htmlplugin.toolbar = 'no'
 
-*g:htmlplugin.no_menu*
-Set this variable to a nonzero value if you do not want the menu items to be
-defined at all. This implies that |g:htmlplugin.no_toolbar| is set as well.
+*g:htmlplugin.menu*
+Set this variable to a "falsy" value if you do not want the menu items to be
+defined at all. This implies that |g:htmlplugin.toolbar| is set as well.
 This variable must be set before HTML.vim is sourced. e.g.: >
-	:let g:htmlplugin.no_menu = 'yes'
+	:let g:htmlplugin.menu = 'no'
 
 *g:htmlplugin.toplevel_menu*
 Set this to the toplevel menu where you want the HTML menu to become a
@@ -486,9 +488,9 @@ The noted (with |n_;|) normal mode ;-mappings take a {motion} operator. These
 mappings function as if you had visually highlighted the text covered by the
 motion and invoked the corresponding visual mapping.
 
-If you are editing an XHTML file (see |g:htmlplugin.do_xhtml_mappings|) the
-tags will be compatible with XHTML. (However, XHTML is out of date and this
-mode is not recommended, and is only supported for historical reasons.)
+If you are editing an XHTML file (see |g:htmlplugin.xhtml_mappings|) the tags
+will be compatible with XHTML. (However, XHTML is out of date and this mode is
+not recommended, and is only supported for historical reasons.)
 
 Note that you can change the leader character for these mappings from ';' to
 another character of your preference. See |g:htmlplugin.map_leader|.
@@ -502,7 +504,7 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 <	at the top of the file. If the current buffer is XHTML, it will be >
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<	(See |g:htmlplugin.do_xhtml_mappings|)
+<	(See |g:htmlplugin.xhtml_mappings|)
 							*n_;s4* *i_;s4*
 ;s4	Does the same as |n_;4|, but the document type is strict rather than
 	transitional. (Note that these macros are meant for a transitional

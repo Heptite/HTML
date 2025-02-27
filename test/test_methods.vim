@@ -58,8 +58,8 @@ def Test_map_methods()
 	assert_equal(['<table style="border: solid #000000 2px; padding: 3px;">', '<thead>', '<tr>', '<th style="border: solid #000000 2px; padding: 3px;"></th>', '<th style="border: solid #000000 2px; padding: 3px;"></th>', '</tr>', '</thead>', '<tbody>', '<tr>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '</tr>', '<tr>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '</tr>', '</tbody>', '<tfoot>', '<tr>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '<td style="border: solid #000000 2px; padding: 3px;"></td>', '</tr>', '</tfoot>', '</table>'],
 		getline(1, '$'), 'Output of: GenerateTable(2, 2, 2, true, true)')
 	assert_equal(Map.MapCheckR.override, mapo.MapCheck(";ah", "i", true), 'MapCheck(";ah", "i", true)')
-	g:htmlplugin.no_map_override = true
-	assert_equal(Map.MapCheckR.nooverride, mapo.MapCheck(";ah", "i", true), 'g:htmlplugin.no_map_override = true; MapCheck(";ah", "i", true)')
+	g:htmlplugin.map_override = false
+	assert_equal(Map.MapCheckR.nooverride, mapo.MapCheck(";ah", "i", true), 'g:htmlplugin.map_override = false; MapCheck(";ah", "i", true)')
 	b:htmlplugin.no_maps = [";ah"]
 	assert_equal(Map.MapCheckR.suppressed, mapo.MapCheck(";ah", "i", true), 'b:htmlplugin.no_maps = [";ah"]; MapCheck(";ah", "i", true)')
 	assert_false(mapo.MappingsListAdd({";ah": "foobar"}, "i", true), 'MappingsListAdd({";ah": "foobar"}, "i", true)')

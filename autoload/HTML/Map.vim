@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: February 26, 2025
+# Last Change: February 27, 2025
 #
 # Requirements:
 #       Vim 9.1.509 or later
@@ -383,7 +383,7 @@ export class HTMLMap extends Util.HTMLUtil
       return false
     endif
 
-    if ! this.BoolVar('b:htmlplugin.do_xhtml_mappings')
+    if ! this.BoolVar('b:htmlplugin.xhtml_mappings')
       newarg = newarg->substitute(' \?/>', '>', 'g')
     endif
 
@@ -488,7 +488,7 @@ export class HTMLMap extends Util.HTMLUtil
               && b:htmlplugin.no_maps->match($'^\C\V{map}\$') >= 0) )
       return MapCheckR.suppressed
     elseif Variables.HTMLVariables.MODES->has_key(mode) && map->maparg(mode) != ''
-      if this.BoolVar('g:htmlplugin.no_map_override') && internal
+      if !this.BoolVar('g:htmlplugin.map_override') && internal
         return MapCheckR.nooverride
       else
         printf(HTMLMessagesO.W_MAPOVERRIDE, map, Variables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->HTMLMessagesO.Warn()

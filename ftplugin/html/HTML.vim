@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      February 26, 2025
+# Last Change:      February 27, 2025
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.509 or later
 #
@@ -128,6 +128,12 @@ var HTMLVariablesO: Variables.HTMLVariables =
 var HTMLUtilO: Util.HTMLUtil = Util.HTMLUtil.new()
 b:htmlplugin.HTMLUtilO = HTMLUtilO
 
+# Enable some features by default:
+HTMLUtilO.SetIfUnset('g:htmlplugin.map_override', v:true)
+HTMLUtilO.SetIfUnset('g:htmlplugin.menu', v:true)
+HTMLUtilO.SetIfUnset('g:htmlplugin.tab_mapping', v:true)
+HTMLUtilO.SetIfUnset('g:htmlplugin.toolbar', v:true)
+
 if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
   b:htmlplugin.did_mappings_init = true
 
@@ -199,11 +205,11 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
 
   # Detect whether to force uppper or lower case:  {{{2
   if &filetype ==? 'xhtml'
-      || HTMLUtilO.BoolVar('g:htmlplugin.do_xhtml_mappings')
-      || HTMLUtilO.BoolVar('b:htmlplugin.do_xhtml_mappings')
-    b:htmlplugin.do_xhtml_mappings = true
+      || HTMLUtilO.BoolVar('g:htmlplugin.xhtml_mappings')
+      || HTMLUtilO.BoolVar('b:htmlplugin.xhtml_mappings')
+    b:htmlplugin.xhtml_mappings = true
   else
-    b:htmlplugin.do_xhtml_mappings = false
+    b:htmlplugin.xhtml_mappings = false
 
     if HTMLUtilO.BoolVar('g:htmlplugin.tag_case_autodetect')
         && (line('$') != 1 || getline(1) != '')
@@ -223,7 +229,7 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
     endif
   endif
 
-  if HTMLUtilO.BoolVar('b:htmlplugin.do_xhtml_mappings')
+  if HTMLUtilO.BoolVar('b:htmlplugin.xhtml_mappings')
     b:htmlplugin.tag_case = 'lowercase'
   endif
 
@@ -231,7 +237,7 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
 
   # Template creation: {{{2
 
-  if HTMLUtilO.BoolVar('b:htmlplugin.do_xhtml_mappings')
+  if HTMLUtilO.BoolVar('b:htmlplugin.xhtml_mappings')
     b:htmlplugin.internal_template = Variables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([
         '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
         ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
@@ -277,7 +283,7 @@ HTMLMapO.Map('nnoremap', $'<lead>{g:htmlplugin.map_leader}', g:htmlplugin.map_le
 # Make it easy to insert a & (or whatever the entity leader is):
 HTMLMapO.Map('inoremap', $'<lead>{g:htmlplugin.entity_map_leader}', g:htmlplugin.entity_map_leader, {extra: false})
 
-if !HTMLUtilO.BoolVar('g:htmlplugin.no_tab_mapping')
+if HTMLUtilO.BoolVar('g:htmlplugin.tab_mapping')
   # Allow hard tabs to be used:
   HTMLMapO.Map('inoremap', '<lead><tab>', '<tab>', {extra: false})
   HTMLMapO.Map('nnoremap', '<lead><tab>', '<tab>')
@@ -313,7 +319,7 @@ endif
 # mappings here instead:
 
 #       SGML Doctype Command
-if HTMLUtilO.BoolVar('b:htmlplugin.do_xhtml_mappings')
+if HTMLUtilO.BoolVar('b:htmlplugin.xhtml_mappings')
   # Transitional XHTML (Looser):
   HTMLMapO.Map('nnoremap', '<lead>4', "<ScriptCmd>append(0, ['<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"', ' \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">'])<CR>")
   # Strict XHTML:
@@ -333,7 +339,7 @@ HTMLMapO.Map('imap', '<lead>5', $'\<C-O>{g:htmlplugin.map_leader}5')
 
 
 #       HTML
-if HTMLUtilO.BoolVar('b:htmlplugin.do_xhtml_mappings')
+if HTMLUtilO.BoolVar('b:htmlplugin.xhtml_mappings')
   HTMLMapO.Map('inoremap', '<lead>ht', '<html xmlns="http://www.w3.org/1999/xhtml"><CR></html>\<ESC>O')
   # Visual mapping:
   HTMLMapO.Map('vnoremap', '<lead>ht', '\<ESC>`>a\<CR></html>\<C-O>`<<html xmlns="http://www.w3.org/1999/xhtml">\<CR>\<ESC>', {reindent: 1})
@@ -569,7 +575,7 @@ if HTMLUtilO.BoolVar('g:htmlplugin.did_menus')
     HTMLGlueO.ReadTags(false, true)
     HTMLGlueO.ReadEntities(false, true)
   endif
-elseif HTMLUtilO.BoolVar('g:htmlplugin.no_menu')
+elseif !HTMLUtilO.BoolVar('g:htmlplugin.menu')
   # No menus were requested, so just define the tags and entities mappings:
   if !HTMLUtilO.BoolVar('b:htmlplugin.did_json')
     b:htmlplugin.did_json = true
@@ -583,7 +589,7 @@ else
     source $VIMRUNTIME/menu.vim
   endif
 
-  if !HTMLUtilO.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
+  if HTMLUtilO.BoolVar('g:htmlplugin.toolbar') && has('toolbar')
 
     # In the context of running ":gui" after starting the non-GUI, unfortunately
     # there's no way to make this work if the user has 'guioptions' set in their
@@ -805,7 +811,7 @@ else
     # }}}2
 
     g:htmlplugin.did_toolbar = true
-  endif  # !HTMLUtilO.BoolVar('g:htmlplugin.no_toolbar') && has('toolbar')
+  endif  # !HTMLUtilO.BoolVar('g:htmlplugin.toolbar') && has('toolbar')
 
   # Add to the PopUp menu:   {{{2
   HTMLMenuO.Menu('nnoremenu', '1.91', ['PopUp', 'Select Ta&g'],        'vat')
@@ -925,7 +931,7 @@ endif
 
 # ---- Finalize and Clean Up: ------------------------------------------- {{{1
 
-# Try to reduce support requests from users:  {{{
+# Try to reduce support requests from users:
 
 if !HTMLUtilO.BoolVar('g:htmlplugin.did_old_variable_check') &&  # {{{
     (exists('g:html_author_name') || exists('g:html_author_email')
@@ -961,8 +967,6 @@ if !HTMLUtilO.BoolVar('g:htmlplugin.did_plugin_warning_check')  # {{{
     endif
   endif
 endif  #}}}
-
-# }}}
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=4:comments=b\:#:commentstring=\ #\ %s:
