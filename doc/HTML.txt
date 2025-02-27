@@ -10,7 +10,7 @@
 This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim 9.1 or
 later to make editing HTML files easier. The original Copyright goes to Doug
 Renze, although his efforts have been heavily modified and extended in this
-implementation.  All the changes are Copyright © 1998 - 2024 Christian J.
+implementation.  All the changes are Copyright © 1998 - 2025 Christian J.
 Robinson. These macros and the supporting scripts are distributable under the
 terms of the GNU |GPL| version 3 or later.
 

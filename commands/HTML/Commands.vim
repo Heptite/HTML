@@ -7,12 +7,12 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: May 14, 2024
+# Last Change: February 27, 2025
 #
 # Requirements:
 #       Vim 9.1 or later
 #
-# Copyright © 1998-2024 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free

@@ -7,12 +7,12 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: September 11, 2024
+# Last Change: February 27, 2025
 #
 # Requirements:
 #       Vim 9.1.509 or later
 #
-# Copyright © 1998-2024 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -63,7 +63,7 @@ export class HTMLVariables
   static const AUTHOR: string    = 'Christian J. Robinson'
   static const EMAIL: string     = 'heptite+html' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
-  static const COPYRIGHT: string = 'Copyright © 1998-2024 under the terms of the GPL3'
+  static const COPYRIGHT: string = 'Copyright © 1998-2025 under the terms of the GPL3'
 
   static const VERSION: string   = '1.5.0.testing'
 

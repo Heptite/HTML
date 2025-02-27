@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: February 26, 2025
+# Last Change: February 27, 2025
 #
 # Currently supported browsers:
 # Unix:
@@ -59,7 +59,7 @@ endif
 # Requirements:
 #  * Vim 9.1.509 or later
 #
-# Copyright © 1998-2024 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
