@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901 || v:versionlong < 9010509
+if v:version < 901 || v:versionlong < 9011157
   finish
 endif
 
@@ -57,7 +57,7 @@ endif
 #    checked.
 #
 # Requirements:
-#  * Vim 9.1.509 or later
+#  * Vim 9.1.1157 or later
 #
 # Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
 #

@@ -1,8 +1,8 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901 || v:versionlong < 9010509
-  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 9.1.509'
+if v:version < 901 || v:versionlong < 9011157
+  echoerr 'The HTML macros plugin no longer supports Vim versions prior to 9.1.1157'
   sleep 3
   finish
 endif
@@ -11,9 +11,9 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      February 27, 2025
+# Last Change:      February 28, 2025
 # Original Concept: Doug Renze
-# Requirements:     Vim 9.1.509 or later
+# Requirements:     Vim 9.1.1157 or later
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
 # efforts have been modified in this implementation.  My changes and additions

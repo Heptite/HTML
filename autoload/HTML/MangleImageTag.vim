@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901 || v:versionlong < 9010509
+if v:version < 901 || v:versionlong < 9011157
   finish
 endif
 
@@ -10,7 +10,7 @@ endif
 # Last Change: February 27, 2025
 #
 # Requirements:
-#   Vim 9.1.509 or later
+#   Vim 9.1.1157 or later
 # Assumptions:
 #   The filename extension is correct for the image type
 #

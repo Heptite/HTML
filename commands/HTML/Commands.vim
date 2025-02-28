@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901 || v:versionlong < 9010509
+if v:version < 901 || v:versionlong < 9011157
   finish
 endif
 
