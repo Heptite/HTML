@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: February 27, 2025
+# Last Change: March 05, 2025
 #
 # Currently supported browsers:
 # Unix:
@@ -166,7 +166,6 @@ export class BrowserLauncher
       this.Browsers->extend(this.TextModeBrowsers)
 
     elseif HTMLUtilO.Has('win')
-
       # These applications _could_ be installed elsewhere, but there's no reliable
       # way to find them if they are, so just assume they would be in a standard
       # location:
@@ -203,11 +202,9 @@ export class BrowserLauncher
       endif
 
     else
-
       HTMLMessagesO.Warn('Your OS is not recognized, browser controls will not work.')
 
       this.Browsers = {}
-
     endif
   enddef # }}}
 
