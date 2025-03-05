@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: March 01, 2025
+# Last Change: March 04, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -69,7 +69,7 @@ export class HTMLGlue extends Util.HTMLUtil
   #  Boolean: False for an error, true otherwise
   def PluginControl(dowhat: string): bool
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
-      Util.HTMLUtil.HTMLMessagesO.Error(Util.HTMLUtil.HTMLMessagesO.E_NOSOURCED)
+      HTMLMessagesO.Error(HTMLMessagesO.E_NOSOURCED)
       return false
     endif
 
@@ -89,12 +89,12 @@ export class HTMLGlue extends Util.HTMLUtil
           HTMLMenuO.MenuControl(Menu.MenuControlA.disable)
         endif
       else
-        Util.HTMLUtil.HTMLMessagesO.Error(Util.HTMLUtil.HTMLMessagesO.E_DISABLED)
+        HTMLMessagesO.Error(HTMLMessagesO.E_DISABLED)
         return false
       endif
     elseif dowhat =~? '^\%(e\%(nable\)\?\|on\|true\|1\)$'
       if this.BoolVar('b:htmlplugin.did_mappings')
-        Util.HTMLUtil.HTMLMessagesO.Error(Util.HTMLUtil.HTMLMessagesO.E_ENABLED)
+        HTMLMessagesO.Error(HTMLMessagesO.E_ENABLED)
       else
         this.ReadEntities(false, true)
         this.ReadTags(false, true)
@@ -105,7 +105,7 @@ export class HTMLGlue extends Util.HTMLUtil
         HTMLMenuO.MenuControl(Menu.MenuControlA.enable)
       endif
     else
-      printf(Util.HTMLUtil.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->Util.HTMLUtil.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->HTMLMessagesO.Error()
       return false
     endif
 
@@ -128,13 +128,13 @@ export class HTMLGlue extends Util.HTMLUtil
     var json_data = this.ReadJsonFiles(file)
 
     if json_data == []
-      printf(Util.HTMLUtil.HTMLMessagesO.E_NOENTITY)
+      printf(HTMLMessagesO.E_NOENTITY)
       return false
     endif
 
     for json in json_data
       if json->len() != 4 || json[2]->type() != v:t_list
-        printf(Util.HTMLUtil.HTMLMessagesO.E_JSON, Messages.HTMLMessages.F(), file, json->string())->Util.HTMLUtil.HTMLMessagesO.Error()
+        printf(HTMLMessagesO.E_JSON, Messages.HTMLMessages.F(), file, json->string())->HTMLMessagesO.Error()
         rval = false
         continue
       endif
@@ -175,7 +175,7 @@ export class HTMLGlue extends Util.HTMLUtil
     var json_data = this.ReadJsonFiles(file)
 
     if json_data == []
-      printf(Util.HTMLUtil.HTMLMessagesO.E_NOTAG)
+      printf(HTMLMessagesO.E_NOTAG)
       return false
     endif
 
@@ -273,7 +273,7 @@ export class HTMLGlue extends Util.HTMLUtil
           # actually defined, don't set the menu items for this mapping either:
           if did_mappings == 0
             if maplhs != ''
-              Util.HTMLUtil.HTMLMessagesO.Warn($'No mapping(s) were defined for "{maplhs}".'
+              HTMLMessagesO.Warn($'No mapping(s) were defined for "{maplhs}".'
                 .. (domenu && json->has_key('menu') ? '' : ' Skipping menu item.'))
             endif
             continue
@@ -321,7 +321,7 @@ export class HTMLGlue extends Util.HTMLUtil
           endif
 
           if did_menus == 0
-              printf(Util.HTMLUtil.HTMLMessagesO.W_NOMENU, json.menu[1][-1])->Util.HTMLUtil.HTMLMessagesO.Warn()
+            printf(HTMLMessagesO.W_NOMENU, json.menu[1][-1])->HTMLMessagesO.Warn()
           endif
         endif
     endfor
