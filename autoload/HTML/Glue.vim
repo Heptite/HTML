@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: February 27, 2025
+# Last Change: March 04, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -37,8 +37,9 @@ import autoload './Util.vim'
 
 export class HTMLGlue extends Util.HTMLUtil
 
-  final HTMLMapO: Map.HTMLMap
-  final HTMLMenuO: Menu.HTMLMenu
+  static var HTMLMapO: Map.HTMLMap
+  static var HTMLMenuO: Menu.HTMLMenu
+  static var HTMLMessagesO: Messages.HTMLMessages
 
   def new() # {{{1
     # Even though this is done in the ftplugin file, this file can be imported
@@ -50,10 +51,11 @@ export class HTMLGlue extends Util.HTMLUtil
       b:htmlplugin = {}
     endif
 
-    this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = Variables.HTMLVariables.new()
-    this.HTMLMapO = Map.HTMLMap.new()
-    this.HTMLMenuO = Menu.HTMLMenu.new()
+    if HTMLMapO == null_object
+      HTMLMapO = Map.HTMLMap.new()
+      HTMLMenuO = Menu.HTMLMenu.new()
+      HTMLMessagesO = Messages.HTMLMessages.new()
+    endif
   enddef # }}}1
 
   # PluginControl()  {{{1
@@ -69,7 +71,7 @@ export class HTMLGlue extends Util.HTMLUtil
   #  Boolean: False for an error, true otherwise
   def PluginControl(dowhat: string): bool
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
-      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOSOURCED)
+      HTMLMessagesO.Error(HTMLMessagesO.E_NOSOURCED)
       return false
     endif
 
@@ -86,26 +88,26 @@ export class HTMLGlue extends Util.HTMLUtil
         unlet b:htmlplugin.did_json
 
         if this.BoolVar('g:htmlplugin.did_menus')
-          this.HTMLMenuO.MenuControl(Menu.MenuControlA.disable)
+          HTMLMenuO.MenuControl(Menu.MenuControlA.disable)
         endif
       else
-        this.HTMLMessagesO.Error(this.HTMLMessagesO.E_DISABLED)
+        HTMLMessagesO.Error(HTMLMessagesO.E_DISABLED)
         return false
       endif
     elseif dowhat =~? '^\%(e\%(nable\)\?\|on\|true\|1\)$'
       if this.BoolVar('b:htmlplugin.did_mappings')
-        this.HTMLMessagesO.Error(this.HTMLMessagesO.E_ENABLED)
+        HTMLMessagesO.Error(HTMLMessagesO.E_ENABLED)
       else
         this.ReadEntities(false, true)
         this.ReadTags(false, true)
         if b:htmlplugin->has_key('mappings')
-          this.HTMLMapO.CreateExtraMappings(b:htmlplugin.mappings)
+          HTMLMapO.CreateExtraMappings(b:htmlplugin.mappings)
         endif
         b:htmlplugin.did_mappings = true
-        this.HTMLMenuO.MenuControl(Menu.MenuControlA.enable)
+        HTMLMenuO.MenuControl(Menu.MenuControlA.enable)
       endif
     else
-      printf(this.HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->HTMLMessagesO.Error()
       return false
     endif
 
@@ -128,28 +130,28 @@ export class HTMLGlue extends Util.HTMLUtil
     var json_data = this.ReadJsonFiles(file)
 
     if json_data == []
-      printf(this.HTMLMessagesO.E_NOENTITY)
+      printf(HTMLMessagesO.E_NOENTITY)
       return false
     endif
 
     for json in json_data
       if json->len() != 4 || json[2]->type() != v:t_list
-        printf(this.HTMLMessagesO.E_JSON, Messages.HTMLMessages.F(), file, json->string())->this.HTMLMessagesO.Error()
+        printf(HTMLMessagesO.E_JSON, Messages.HTMLMessages.F(), file, json->string())->HTMLMessagesO.Error()
         rval = false
         continue
       endif
       if json[3] ==? '<nop>'
         if domenu
-          this.HTMLMenuO.Menu('menu', '-', json[2]->extendnew(['Character &Entities'], 0), '<nop>')
+          HTMLMenuO.Menu('menu', '-', json[2]->extendnew(['Character &Entities'], 0), '<nop>')
         endif
       else
         if maparg(g:htmlplugin.entity_map_leader .. json[0], 'i') != '' ||
-            !this.HTMLMapO.Map('inoremap', $'<elead>{json[0]}', json[1], {extra: false}, internal)
+            !HTMLMapO.Map('inoremap', $'<elead>{json[0]}', json[1], {extra: false}, internal)
           # Failed to map? No menu item should be defined either:
           continue
         endif
         if domenu
-          this.HTMLMenuO.EntityMenu(json[2], json[0], json[3])
+          HTMLMenuO.EntityMenu(json[2], json[0], json[3])
         endif
       endif
     endfor
@@ -175,7 +177,7 @@ export class HTMLGlue extends Util.HTMLUtil
     var json_data = this.ReadJsonFiles(file)
 
     if json_data == []
-      printf(this.HTMLMessagesO.E_NOTAG)
+      printf(HTMLMessagesO.E_NOTAG)
       return false
     endif
 
@@ -198,7 +200,7 @@ export class HTMLGlue extends Util.HTMLUtil
     for json in json_data
         if json->has_key('menu') && json.menu[2]->has_key('n')
             && json.menu[2].n[0] ==? '<nop>' && domenu
-          this.HTMLMenuO.Menu('menu', json.menu[0], json.menu[1], '<nop>')
+          HTMLMenuO.Menu('menu', json.menu[0], json.menu[1], '<nop>')
           continue
         endif
 
@@ -224,7 +226,7 @@ export class HTMLGlue extends Util.HTMLUtil
           if json.maps->has_key('i')
               && maparg((maplhs == '' ? $'<lead>{json.maps.i[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'i') == ''
-            if this.HTMLMapO.Map('inoremap',
+            if HTMLMapO.Map('inoremap',
                 (maplhs == '' ? $'<lead>{json.maps.i[0]}' : maplhs),
                 json.maps.i[1],
                 len(json.maps.i) >= 3 ? json.maps.i[2] : {},
@@ -236,7 +238,7 @@ export class HTMLGlue extends Util.HTMLUtil
           if json.maps->has_key('v')
               && maparg((maplhs == '' ? $'<lead>{json.maps.v[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'v') == ''
-            if this.HTMLMapO.Map('vnoremap',
+            if HTMLMapO.Map('vnoremap',
                 (maplhs == '' ? $'<lead>{json.maps.v[0]}' : maplhs),
                 json.maps.v[1],
                 len(json.maps.v) >= 3 ? json.maps.v[2] : {},
@@ -248,7 +250,7 @@ export class HTMLGlue extends Util.HTMLUtil
           if json.maps->has_key('n')
               && maparg((maplhs == '' ? $'<lead>{json.maps.n[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'n') == ''
-            if this.HTMLMapO.Map('nnoremap',
+            if HTMLMapO.Map('nnoremap',
                 (maplhs == '' ? $'<lead>{json.maps.n[0]}' : maplhs),
                 json.maps.n[1],
                 v:none,
@@ -260,7 +262,7 @@ export class HTMLGlue extends Util.HTMLUtil
           if json.maps->has_key('o')
               && maparg((maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs)->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'o') == ''
-            if this.HTMLMapO.Map('nnoremap',
+            if HTMLMapO.Map('nnoremap',
                 (maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs),
                 '',
                 json.maps.o[1],
@@ -273,7 +275,7 @@ export class HTMLGlue extends Util.HTMLUtil
           # actually defined, don't set the menu items for this mapping either:
           if did_mappings == 0
             if maplhs != ''
-              this.HTMLMessagesO.Warn($'No mapping(s) were defined for "{maplhs}".'
+              HTMLMessagesO.Warn($'No mapping(s) were defined for "{maplhs}".'
                 .. (domenu && json->has_key('menu') ? '' : ' Skipping menu item.'))
             endif
             continue
@@ -284,7 +286,7 @@ export class HTMLGlue extends Util.HTMLUtil
           var did_menus = 0
 
           if json.menu[2]->has_key('i')
-            this.HTMLMenuO.LeadMenu('imenu',
+            HTMLMenuO.LeadMenu('imenu',
               json.menu[0],
               json.menu[1],
               (menulhs == '' ? json.menu[2].i[0] : menulhs),
@@ -293,7 +295,7 @@ export class HTMLGlue extends Util.HTMLUtil
           endif
 
           if json.menu[2]->has_key('v')
-            this.HTMLMenuO.LeadMenu('vmenu',
+            HTMLMenuO.LeadMenu('vmenu',
               json.menu[0],
               json.menu[1],
               (menulhs == '' ? json.menu[2].v[0] : menulhs),
@@ -302,7 +304,7 @@ export class HTMLGlue extends Util.HTMLUtil
           endif
 
           if json.menu[2]->has_key('n')
-            this.HTMLMenuO.LeadMenu('nmenu',
+            HTMLMenuO.LeadMenu('nmenu',
               json.menu[0],
               json.menu[1],
               (menulhs == '' ? json.menu[2].n[0] : menulhs),
@@ -311,7 +313,7 @@ export class HTMLGlue extends Util.HTMLUtil
           endif
 
           if json.menu[2]->has_key('a')
-            this.HTMLMenuO.LeadMenu(
+            HTMLMenuO.LeadMenu(
               'amenu',
               json.menu[0],
               json.menu[1],
@@ -321,7 +323,7 @@ export class HTMLGlue extends Util.HTMLUtil
           endif
 
           if did_menus == 0
-              printf(this.HTMLMessagesO.W_NOMENU, json.menu[1][-1])->this.HTMLMessagesO.Warn()
+              printf(HTMLMessagesO.W_NOMENU, json.menu[1][-1])->HTMLMessagesO.Warn()
           endif
         endif
     endfor

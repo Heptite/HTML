@@ -7,7 +7,7 @@ endif
 
 # Menu functions for the HTML macros filetype plugin.
 #
-# Last Change: February 27, 2025
+# Last Change: March 04, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -42,8 +42,6 @@ endenum # }}}1
 export class HTMLMenu extends Util.HTMLUtil
 
   def new() # {{{
-    this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = Variables.HTMLVariables.new()
   enddef # }}}
 
   # ColorsMenu()  {{{1

@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: February 27, 2025
+# Last Change: March 04, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -53,12 +53,14 @@ endenum
 
 export class HTMLUtil
 
-  final HTMLMessagesO: Messages.HTMLMessages
-  final HTMLVariablesO: Variables.HTMLVariables
+  static var HTMLMessagesO: Messages.HTMLMessages
+  static var HTMLVariablesO: Variables.HTMLVariables
 
   def new() # {{{
-    this.HTMLMessagesO = Messages.HTMLMessages.new()
-    this.HTMLVariablesO = Variables.HTMLVariables.new()
+    if HTMLMessagesO == null_object
+      HTMLMessagesO = Messages.HTMLMessages.new()
+      HTMLVariablesO = Variables.HTMLVariables.new()
+    endif
   enddef # }}}
 
   # About()  {{{1
@@ -111,7 +113,7 @@ export class HTMLUtil
       return value != {}
     endif
 
-    printf(this.HTMLMessagesO.E_BOOLTYPE, Messages.HTMLMessages.F(), value->typename())->this.HTMLMessagesO.Error()
+    printf(HTMLMessagesO.E_BOOLTYPE, Messages.HTMLMessages.F(), value->typename())->HTMLMessagesO.Error()
     return false
   enddef
 
@@ -163,7 +165,7 @@ export class HTMLUtil
   #  None
   def ColorChooser(how: string = 'i'): void
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
-      this.HTMLMessagesO.Error(this.HTMLMessagesO.E_NOSOURCED)
+      HTMLMessagesO.Error(HTMLMessagesO.E_NOSOURCED)
       return
     endif
 
@@ -295,7 +297,7 @@ export class HTMLUtil
     elseif type(s) == v:t_string
       str = [s]
     else
-      printf(this.HTMLMessagesO.E_INVALIDTYPE, typename(str))->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_INVALIDTYPE, typename(str))->HTMLMessagesO.Error()
       return 0
     endif
 
@@ -311,7 +313,7 @@ export class HTMLUtil
     elseif case =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
       newstr = str->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g'))
     else
-      printf(this.HTMLMessagesO.W_INVALIDCASE, Messages.HTMLMessages.F(), case)->this.HTMLMessagesO.Warn()
+      printf(HTMLMessagesO.W_INVALIDCASE, Messages.HTMLMessages.F(), case)->HTMLMessagesO.Warn()
       newstr = str->this.ConvertCase('lowercase')
     endif
 
@@ -411,7 +413,7 @@ export class HTMLUtil
     var found: list<string> = file->findfile(path, -1)
 
     if len(found) <= 0
-      printf(this.HTMLMessagesO.E_NOTFOUND, file)->this.HTMLMessagesO.Warn()
+      printf(HTMLMessagesO.E_NOTFOUND, file)->HTMLMessagesO.Warn()
       return []
     endif
 
@@ -421,7 +423,7 @@ export class HTMLUtil
       if f->filereadable()
         contents->extend(f->readfile())
       else
-        printf(this.HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->this.HTMLMessagesO.Error()
+        printf(HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->HTMLMessagesO.Error()
       endif
 
       if ! all
@@ -526,14 +528,14 @@ export class HTMLUtil
     var variable = v
 
     if variable =~# '^l:'
-      printf(this.HTMLMessagesO.E_NOLOCALVAR, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_NOLOCALVAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return SetIfUnsetR.error
     elseif variable !~# '^[bgstvw]:'
       variable = $'g:{variable}'
     endif
 
     if args->len() == 0
-      printf(this.HTMLMessagesO.E_NARGS, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_NARGS, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return SetIfUnsetR.error
     elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict
         || type(args[0]) == v:t_number
@@ -627,7 +629,7 @@ export class HTMLUtil
       if g:htmlplugin->has_key('save_clipboard')
         &clipboard = g:htmlplugin.save_clipboard
       else
-        printf(this.HTMLMessagesO.E_NOCLIPBOARD, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+        printf(HTMLMessagesO.E_NOCLIPBOARD, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
         return false
       endif
     else
@@ -652,23 +654,23 @@ export class HTMLUtil
   def ToggleOptions(which: ToggleOptionsA)
     try
       if which == ToggleOptionsA.restore
-        if this.HTMLVariablesO.saveopts->has_key('formatoptions')
-            && this.HTMLVariablesO.saveopts.formatoptions != ''
-          &l:showmatch = this.HTMLVariablesO.saveopts.showmatch
-          &l:indentexpr = this.HTMLVariablesO.saveopts.indentexpr
-          &l:formatoptions = this.HTMLVariablesO.saveopts.formatoptions
+        if HTMLVariablesO.saveopts->has_key('formatoptions')
+            && HTMLVariablesO.saveopts.formatoptions != ''
+          &l:showmatch = HTMLVariablesO.saveopts.showmatch
+          &l:indentexpr = HTMLVariablesO.saveopts.indentexpr
+          &l:formatoptions = HTMLVariablesO.saveopts.formatoptions
         endif
 
         # Restore the last visual mode if it was changed:
-        if this.HTMLVariablesO.saveopts->get('visualmode', '') != ''
-          execute $'normal! gv{this.HTMLVariablesO.saveopts.visualmode}'
-          this.HTMLVariablesO.saveopts->remove('visualmode')
+        if HTMLVariablesO.saveopts->get('visualmode', '') != ''
+          execute $'normal! gv{HTMLVariablesO.saveopts.visualmode}'
+          HTMLVariablesO.saveopts->remove('visualmode')
         endif
       else
         if &l:formatoptions != ''
-          this.HTMLVariablesO.saveopts.showmatch = &l:showmatch
-          this.HTMLVariablesO.saveopts.indentexpr = &l:indentexpr
-          this.HTMLVariablesO.saveopts.formatoptions = &l:formatoptions
+          HTMLVariablesO.saveopts.showmatch = &l:showmatch
+          HTMLVariablesO.saveopts.indentexpr = &l:indentexpr
+          HTMLVariablesO.saveopts.formatoptions = &l:formatoptions
         endif
         &l:showmatch = false
         &l:indentexpr = ''
@@ -678,12 +680,12 @@ export class HTMLUtil
         # selections is handled properly (turn it into a character-wise
         # selection and exclude the leading indent):
         if visualmode() ==# 'V'
-          this.HTMLVariablesO.saveopts.visualmode = visualmode()
+          HTMLVariablesO.saveopts.visualmode = visualmode()
           execute "normal! \<c-\>\<c-n>`<^v`>"
         endif
       endif
     catch
-      printf(this.HTMLMessagesO.E_OPTEXCEPTION, v:exception)->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_OPTEXCEPTION, v:exception)->HTMLMessagesO.Error()
     endtry
   enddef
 
@@ -699,7 +701,7 @@ export class HTMLUtil
   #  String: The converted color
   def ToRGB(color: string, percent: bool = false): string
     if color !~ '^#\x\{6}$'
-      printf(this.HTMLMessagesO.E_COLOR, Messages.HTMLMessages.F(), color)->this.HTMLMessagesO.Error()
+      printf(HTMLMessagesO.E_COLOR, Messages.HTMLMessages.F(), color)->HTMLMessagesO.Error()
       return ''
     endif
 
@@ -743,7 +745,7 @@ export class HTMLUtil
       var char: string
 
       if c->strchars(1) != 1
-        printf(this.HTMLMessagesO.E_ONECHAR, Messages.HTMLMessages.F())->this.HTMLMessagesO.Error()
+        printf(HTMLMessagesO.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
         return c
       endif
 
