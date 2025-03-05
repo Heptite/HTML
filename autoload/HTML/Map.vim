@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: February 27, 2025
+# Last Change: March 01, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -52,14 +52,14 @@ export class HTMLMap extends Util.HTMLUtil
   static var HTMLMessagesO: Messages.HTMLMessages
   static var HTMLVariablesO: Variables.HTMLVariables
 
-  def new() # {{{1
+  def new()  # {{{1
     if HTMLMessagesO == null_object
       HTMLMessagesO = Messages.HTMLMessages.new()
       HTMLVariablesO = Variables.HTMLVariables.new()
     endif
   enddef
 
-  def newMap(this._mode, this._lhs, this._rhs, this._options) # {{{1
+  def newMap(this._mode, this._lhs, this._rhs, this._options)  # {{{1
     if strlen(this._mode) != 1 && this._mode !~# '^[iv]$'
       echoerr $'Mode is invalid: {this._mode}'
     endif
@@ -70,7 +70,7 @@ export class HTMLMap extends Util.HTMLUtil
     endif
   enddef
 
-  def newOpMap(this._lhs, this._options) # {{{1
+  def newOpMap(this._lhs, this._options)  # {{{1
     this._mode = 'n'
     this._rhs = this._lhs
 

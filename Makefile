@@ -218,4 +218,4 @@ force:
 
 #.IGNORE: test_methods test_maps
 
-# vim:ts=4:sw=0:fdm=expr:fdc=2:nu:
+# vim:tabstop=4:shiftwidth=0:foldmethod=expr:foldcolumn=2:number:

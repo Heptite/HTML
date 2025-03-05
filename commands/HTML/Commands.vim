@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: February 27, 2025
+# Last Change: March 01, 2025
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -55,7 +55,11 @@ if exists(':CC') != 2
   command! -buffer -bar -nargs=? CC HTMLUtilO.ColorChooser(<f-args>)
 endif
 
-command! -buffer -bar HTMLTemplate if HTMLMapO.Template() | startinsert | endif
+command! -buffer -bar HTMLTemplate {
+    if HTMLMapO.Template()
+      startinsert
+    endif
+  }
 command! -buffer -bar HTMLtemplate HTMLTemplate
 
 b:htmlplugin.did_commands = true
