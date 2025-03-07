@@ -162,10 +162,10 @@ ChangeLog.html: ChangeLog
 rsync scp:
 	@echo "Use 'make copy' instead, then use git to sync the website."
 
-copy:
+copy: all
 	rsync --verbose --archive --no-group --no-owner --times --rsh=ssh --stats --progress --exclude '.*.swp' \
 		doc HTML.html HTML.zip version ChangeLog ChangeLog.html \
-		toolbar-icons.png ~/www/website/assets/programming/
+		toolbar-icons.png ~/www/website/src/assets/programming/
 
 install: installed
 
