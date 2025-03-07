@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: March 06, 2025
+# Last Change: March 07, 2025
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -42,7 +42,7 @@ var HTMLMapO: Map.HTMLMap = Map.HTMLMap.new()
 var HTMLGlueO: Glue.HTMLGlue = Glue.HTMLGlue.new()
 
 def HTMLpluginComplete(A: string, C: string, P: number): list<string>
-  return ['disable', 'off', 'false', 'enable', 'on', 'true', 'about', 'template']->filter((idx, val) => val =~? A)
+  return ['disable', 'off', 'false', 'enable', 'on', 'true', 'about', 'template']->filter((idx, val) => val =~? $'^{A}')
 enddef
 
 command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTMLplugin HTMLGlueO.PluginControl(<f-args>)

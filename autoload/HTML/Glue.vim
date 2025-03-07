@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: March 06, 2025
+# Last Change: March 07, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -106,9 +106,9 @@ export class HTMLGlue extends Util.HTMLUtil
         b:htmlplugin.did_mappings = true
         HTMLMenuO.MenuControl(Menu.MenuControlA.enable)
       endif
-    elseif dowhat =~? '^about$'
+    elseif dowhat =~? '^a\%(bout)\?$'
       Util.HTMLUtil.About()
-    elseif dowhat =~? '^template$'
+    elseif dowhat =~? '^t\%(emplate)\?$'
       if HTMLMapO.Template()
         startinsert
       endif

@@ -153,12 +153,19 @@ ChangeLog.html: ChangeLog
 		-c 'w ChangeLog.html' -c 'qa!' ChangeLog
 	chmod a+r ChangeLog.html
 
-rsync scp: all
-	for d in ${pihome}/www/assets/programming/ ${pihome}/christian_j_robinson/src/assets/programming/; do \
+#rsync scp: all
+#	for d in ${pihome}/www/assets/programming/ ${pihome}/christian_j_robinson/src/assets/programming/; do \
+#	rsync --verbose --archive --no-group --no-owner --times --rsh=ssh --stats --progress --exclude '.*.swp' \
+#		doc HTML.html HTML.zip version ChangeLog ChangeLog.html toolbar-icons.png \
+#		vim-html-pixmaps.zip $$d; done
+
+rsync scp:
+	@echo "Use 'make copy' instead, then use git to sync the website."
+
+copy:
 	rsync --verbose --archive --no-group --no-owner --times --rsh=ssh --stats --progress --exclude '.*.swp' \
-		bitmaps autoload commands import json ftplugin doc HTML.html HTML.zip \
-		version ChangeLog ChangeLog.html toolbar-icons.png \
-		vim-html-pixmaps.zip $$d; done
+		doc HTML.html HTML.zip version ChangeLog ChangeLog.html \
+		toolbar-icons.png ~/www/website/assets/programming/
 
 install: installed
 
