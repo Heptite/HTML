@@ -5,9 +5,8 @@ bitmaps  := bitmaps
 allxpm   := $(wildcard $(bitmaps)/*.xpm)
 allbmp   := $(allxpm:.xpm=.bmp)
 alldoc   := $(wildcard doc/*.txt)
-#faq      := /cygdrive/r/www/assets/programming/faq.html
-pihome   := pi@christianrobinson.name:~
-faq      := $(HOME)/pihome/www/assets/programming/faq.html
+#pihome   := pi@christianrobinson.name:~
+faq      := $(HOME)/www/website/src/assets/programming/faq.html
 textfaq  := $(faq:%html=%)txt
 tmpdir   := $(shell mktemp -du $(TMPDIR)/make-tmp.XXXXXX)
 savecwd  := $(shell pwd)
@@ -186,11 +185,10 @@ installed: $(PLUGIN_FILES) $(alldoc) $(allxpm) $(allbmp) doc/tags
 	cp -f bitmaps/* ~/.vim/pack/cjr/start/HTML/bitmaps/
 	touch installed
 
-
 faq FAQ: $(textfaq)
 
 $(textfaq): $(faq)
-	w3m -T text/html -cols 79 -dump ${faq} | unix2dos > $(textfaq)
+	w3m -T text/html -cols 79 -O latin1 -dump ${faq} | unix2dos > $(textfaq)
 	chmod a+r ${textfaq}
 
 test tests: test_maps test_methods

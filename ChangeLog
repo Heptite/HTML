@@ -1,3 +1,348 @@
+Fri, 7 Mar 2025 15:24:48 -0700 Christian J. Robinson
+ * Forgot a dependency
+
+Fri, 7 Mar 2025 15:18:45 -0700 Christian J. Robinson
+ * Fix completion
+
+Thu, 6 Mar 2025 20:05:04 -0700 Christian J. Robinson
+ * Tweak :HTML commmand available arguments
+
+Wed, 5 Mar 2025 12:01:55 -0700 Christian J. Robinson
+ * "noclear" in the commands file to fix a reloading issue
+
+Tue, 4 Mar 2025 17:15:24 -0700 Christian J. Robinson
+ * ...
+
+Tue, 4 Mar 2025 17:09:31 -0700 Christian J. Robinson
+ * Move some more objects into static variables
+
+Fri, 28 Feb 2025 14:22:50 -0700 Christian J. Robinson
+ * update Vim version needed
+
+Thu, 27 Feb 2025 15:20:43 -0700 Christian J. Robinson
+ * 2024→2025
+
+Thu, 27 Feb 2025 15:05:26 -0700 Christian J. Robinson
+ * Change config variables to reduce "double negatives"
+
+Wed, 26 Feb 2025 20:42:44 -0700 Christian J. Robinson
+ * Don't repeatedly load classes when unnecessary
+
+Wed, 26 Feb 2025 16:13:21 -0700 Christian J. Robinson
+ * ColorChooser() was inserting erroneous spaces
+
+Sat, 1 Feb 2025 16:59:49 -0700 Christian J. Robinson
+ * Update version of Vim required and copyright
+
+Wed, 25 Dec 2024 09:46:18 -0700 Christian J. Robinson
+ * Small tweaks
+
+Mon, 23 Dec 2024 12:42:11 -0700 Christian J. Robinson
+ * Remove invalid entities
+
+Mon, 23 Dec 2024 12:42:11 -0700 Christian J. Robinson
+ * No longer escape in DoMap, remove invalid entities
+
+Sun, 25 Aug 2024 14:04:41 -0600 Christian J. Robinson
+ * Make GetFiletypeInfo() available
+
+Sat, 24 Aug 2024 14:50:35 -0600 Christian J. Robinson
+ * Minor tweaks
+
+Sat, 24 Aug 2024 10:22:08 -0600 Christian J. Robinson
+ * Small refactor, attempt to fix reindnet bug failed
+
+Thu, 22 Aug 2024 16:56:09 -0600 Christian J. Robinson
+ * Fix some problems with testing
+
+Wed, 21 Aug 2024 16:57:06 -0600 Christian J. Robinson
+ * More test improvements, more tests
+
+Wed, 21 Aug 2024 16:07:17 -0600 Christian J. Robinson
+ * Tweak tests and Makefile, squash some bugs
+
+Wed, 21 Aug 2024 10:17:09 -0600 Christian J. Robinson
+ * More tests, enhance Makefile, fix minor bugs and comments
+
+Tue, 20 Aug 2024 16:51:35 -0600 Christian J. Robinson
+ * Start testing methods -- uncovered some bugs in the process
+
+Tue, 20 Aug 2024 14:21:04 -0600 Christian J. Robinson
+ * Attempt to create a method to test interactive mappings
+
+Tue, 20 Aug 2024 12:49:40 -0600 Christian J. Robinson
+ * Continue creating tests, improve the test system
+
+Mon, 19 Aug 2024 10:49:18 -0600 Christian J. Robinson
+ * Add more maps to tests
+
+Mon, 19 Aug 2024 10:00:34 -0600 Christian J. Robinson
+ * Update test logic
+
+Mon, 19 Aug 2024 07:34:40 -0600 Christian J. Robinson
+ * Add more mappings to be tested
+
+Sun, 18 Aug 2024 17:51:08 -0600 Christian J. Robinson
+ * Add more mappings to the insert mode test
+
+Sun, 18 Aug 2024 15:22:42 -0600 Christian J. Robinson
+ * Prepare to update for test suite
+
+Sun, 18 Aug 2024 15:13:47 -0600 Christian J. Robinson
+ * Start adding a test suite
+
+Sat, 10 Aug 2024 19:29:38 -0600 Christian J. Robinson
+ * Manyally type some more variables
+
+Fri, 9 Aug 2024 13:20:32 -0600 Christian J. Robinson
+ * Declare variable types instead of letting them be inferred
+
+Fri, 9 Aug 2024 10:44:59 -0600 Christian J. Robinson
+ * More attempt to speed up autoloading
+
+Fri, 9 Aug 2024 10:41:27 -0600 Christian J. Robinson
+ * Hopefully speed up autoloading
+
+Thu, 8 Aug 2024 15:06:46 -0600 Christian J. Robinson
+ * Properly type the broswer variables
+
+Thu, 8 Aug 2024 13:19:03 -0600 Christian J. Robinson
+ * Make code mildly more readable by using better identifiers, etc.
+
+Tue, 6 Aug 2024 14:17:14 -0600 Christian J. Robinson
+ * Comments added, modified
+
+Tue, 6 Aug 2024 11:30:56 -0600 Christian J. Robinson
+ * Move Cap() to Util.vim
+
+Mon, 5 Aug 2024 18:36:14 -0600 Christian J. Robinson
+ * Use new interpolation more
+
+Thu, 1 Aug 2024 10:42:07 -0600 Christian J. Robinson
+ * A couple of bugs in the Mac sectin of the code
+
+Wed, 31 Jul 2024 18:00:16 -0600 Christian J. Robinson
+ * Simplify has() checking
+
+Wed, 31 Jul 2024 14:44:28 -0600 Christian J. Robinson
+ * Clean up building of the browser launcher command
+
+Wed, 31 Jul 2024 11:31:19 -0600 Christian J. Robinson
+ * Refactor Cap() so it can be used by other methods
+
+Wed, 31 Jul 2024 09:17:09 -0600 Christian J. Robinson
+ * Small regression crept in
+
+Wed, 31 Jul 2024 09:04:18 -0600 Christian J. Robinson
+ * More conversion of which ... to exepath()
+
+Wed, 31 Jul 2024 08:59:03 -0600 Christian J. Robinson
+ * Use exepath() instead of system('which ...') for speed
+
+Mon, 29 Jul 2024 17:36:28 -0600 Christian J. Robinson
+ * Minor tweak
+
+Mon, 29 Jul 2024 15:43:49 -0600 Christian J. Robinson
+ * Look for browsers in more places under WSL2
+
+Mon, 29 Jul 2024 15:04:55 -0600 Christian J. Robinson
+ * Iceweasel is no longer a thing
+
+Mon, 29 Jul 2024 14:45:48 -0600 Christian J. Robinson
+ * Comment tweaks
+
+Mon, 29 Jul 2024 09:34:24 -0600 Christian J. Robinson
+ * Second attempt to support BrowserLauncher in WSL2
+
+Sun, 28 Jul 2024 12:28:11 -0600 Christian J. Robinson
+ * First attempt to support launching browsers in WSL2
+
+Fri, 26 Jul 2024 09:28:28 -0600 Christian J. Robinson
+ * Update minimum required Vim patchlevel
+
+Mon, 22 Jul 2024 13:27:10 -0600 Christian J. Robinson
+ * Missing backslash broke a regex
+
+Tue, 2 Jul 2024 17:31:54 -0600 Christian J. Robinson
+ * Pattern tweak
+
+Sat, 29 Jun 2024 16:46:46 -0600 Christian J. Robinson
+ * Fix not being able to use ;& followed by an operator
+
+Thu, 27 Jun 2024 09:33:14 -0600 Christian J. Robinson
+ * Update modified date
+
+Thu, 27 Jun 2024 09:27:37 -0600 Christian J. Robinson
+ * Eliminate unnecessary variable
+
+Wed, 26 Jun 2024 08:52:55 -0600 Christian J. Robinson
+ * Move an if statement to a more sensible place
+
+Tue, 25 Jun 2024 18:45:28 -0600 Christian J. Robinson
+ * Clearer variable name
+
+Mon, 24 Jun 2024 19:57:17 -0600 Christian J. Robinson
+ * Fix inability to access enum
+
+Mon, 24 Jun 2024 15:45:04 -0600 Christian J. Robinson
+ * Try to make code make more sense.
+
+Sun, 23 Jun 2024 11:26:32 -0600 Christian J. Robinson
+ * Minor syntax and comment tweaks
+
+Thu, 20 Jun 2024 21:15:59 -0600 Christian J. Robinson
+ * Update the rest of the version checks
+
+Thu, 20 Jun 2024 20:31:37 -0600 Christian J. Robinson
+ * Update a few of the version checks, etc.
+
+Thu, 20 Jun 2024 20:29:33 -0600 Christian J. Robinson
+ * Start work on supporting translations
+
+Mon, 17 Jun 2024 20:33:22 -0600 Christian J. Robinson
+ * Inconsequentail edits
+
+Sat, 15 Jun 2024 12:15:05 -0600 Christian J. Robinson
+ * Remove unnecessary junk
+
+Sat, 15 Jun 2024 10:49:42 -0600 Christian J. Robinson
+ * Small refactor
+
+Fri, 14 Jun 2024 21:36:53 -0600 Christian J. Robinson
+ * Small source tweak
+
+Fri, 14 Jun 2024 19:53:13 -0600 Christian J. Robinson
+ * Avoid message when it could be confusing or irrelevant
+
+Tue, 11 Jun 2024 10:24:37 -0600 Christian J. Robinson
+ * Change text argument for menu control function to an enum
+
+Sun, 9 Jun 2024 19:12:19 -0600 Christian J. Robinson
+ * Minor future-profing, and tweak/refactor a little
+
+Tue, 4 Jun 2024 15:48:24 -0600 Christian J. Robinson
+ * Fix small bug handling author_email_encoded globally/buffer-local
+
+Sun, 2 Jun 2024 18:36:35 -0600 Christian J. Robinson
+ * Double quotes in a mapping could cause an error
+
+Sat, 1 Jun 2024 18:07:16 -0600 Christian J. Robinson
+ * TextmodeBrowsers → TextModeBrowsers
+
+Sat, 1 Jun 2024 17:26:10 -0600 Christian J. Robinson
+ * Fix foldcolumn
+
+Sun, 26 May 2024 13:12:35 -0600 Christian J. Robinson
+ * no longer necessary to save and restore options when inserting a template
+
+Tue, 21 May 2024 17:24:05 -0600 Christian J. Robinson
+ * minor tweaks
+
+Mon, 20 May 2024 18:36:31 -0600 Christian J. Robinson
+ * "normal!" -> "normal" in OpWrap so visual mappings can be triggered
+
+Mon, 20 May 2024 17:56:07 -0600 Christian J. Robinson
+ * try to make DoMap logic make more sense
+
+Mon, 20 May 2024 17:08:03 -0600 Christian J. Robinson
+ * don't trigger mappings when running some normal mode commands
+
+Sun, 19 May 2024 12:00:22 -0600 Christian J. Robinson
+ * don't ignore case in some string comparisons
+
+Sat, 18 May 2024 16:53:17 -0600 Christian J. Robinson
+ * more merging of duplicated code, some refactoring, and future-proofing
+
+Sat, 18 May 2024 14:24:32 -0600 Christian J. Robinson
+ * attempt to simplify/unify more code--currently broken
+
+Sat, 18 May 2024 11:17:01 -0600 Christian J. Robinson
+ * small tweaks
+
+Sat, 18 May 2024 01:07:40 -0600 Christian J. Robinson
+ * more refactoring to eliminate duplicate code
+
+Fri, 17 May 2024 15:30:30 -0600 Christian J. Robinson
+ * refactor to eliminate duplicate code
+
+Thu, 16 May 2024 18:56:15 -0600 Christian J. Robinson
+ * fix cursor positioning on three mappings
+
+Thu, 16 May 2024 18:39:52 -0600 Christian J. Robinson
+ * slight refactor
+
+Wed, 15 May 2024 20:44:18 -0600 Christian J. Robinson
+ * fix visual mapping regression
+
+Wed, 15 May 2024 14:25:12 -0600 Christian J. Robinson
+ * Use objects for mappings
+
+Tue, 14 May 2024 15:56:39 -0600 Christian J. Robinson
+ * tweaks
+
+Tue, 14 May 2024 11:55:41 -0600 Christian J. Robinson
+ * bug fixes
+
+Mon, 13 May 2024 14:31:35 -0600 Christian J. Robinson
+ * refactoring
+
+Sun, 12 May 2024 18:36:36 -0600 Christian J. Robinson
+ * ...
+
+Sun, 12 May 2024 18:18:50 -0600 Christian J. Robinson
+ * more sorting
+
+Sat, 11 May 2024 20:36:01 -0600 Christian J. Robinson
+ * Sort functions appropriately
+
+Fri, 10 May 2024 22:27:33 -0600 Christian J. Robinson
+ * Segregate functions
+
+Sat, 4 May 2024 15:20:47 -0600 Christian J. Robinson
+ * document new %htmlversion% token
+
+Mon, 29 Apr 2024 13:18:19 -0600 Christian J. Robinson
+ * more string interpolation
+
+Sun, 28 Apr 2024 16:40:55 -0600 Christian J. Robinson
+ * more string interpolation
+
+Sun, 28 Apr 2024 16:22:12 -0600 Christian J. Robinson
+ * more string interpolation
+
+Sun, 28 Apr 2024 12:15:50 -0600 Christian J. Robinson
+ * use interpolation instead of concatenation on some strings
+
+Sun, 21 Apr 2024 14:15:20 -0600 Christian J. Robinson
+ * move F() to Messages.vim
+
+Sun, 21 Apr 2024 12:20:06 -0600 Christian J. Robinson
+ * error message on unreadable entity table json file
+
+Sat, 20 Apr 2024 13:07:02 -0600 Christian J. Robinson
+ * No longer install a copy to Dropbox
+
+Sat, 20 Apr 2024 13:00:39 -0600 Christian J. Robinson
+ * allow Makefile to appear in the repository
+
+Sat, 20 Apr 2024 09:46:49 -0600 Christian J. Robinson
+ * Move entity translation table to a json file found online, making it more complete
+
+Wed, 17 Apr 2024 21:33:44 -0600 Christian J. Robinson
+ * Unnecessary "extends"
+
+Sat, 13 Apr 2024 15:22:08 -0600 Christian J. Robinson
+ * fix markdown
+
+Sat, 13 Apr 2024 15:18:57 -0600 Christian J. Robinson
+ * Tweaks, LICENSE.md added
+
+Wed, 10 Apr 2024 17:29:25 -0600 Christian J. Robinson
+ * Update README for Vim version required
+
+Tue, 9 Apr 2024 16:43:27 -0600 Christian J. Robinson
+ * Unstage some files
+
 Tue, 9 Apr 2024 16:23:24 -0600 Christian J. Robinson
  * Update version
 
