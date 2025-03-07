@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: March 05, 2025
+# Last Change: March 06, 2025
 #
 # Requirements:
 #       Vim 9.1 or later
@@ -29,25 +29,28 @@ endif
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
 
-if get(b:htmlplugin, 'did_commands', false) == true # {{{
+if get(b:htmlplugin, 'did_commands', false) # {{{1
   finish
 endif
 
+import autoload '../../autoload/HTML/Util.vim'
+import autoload '../../autoload/HTML/Map.vim'
+import autoload '../../autoload/HTML/Glue.vim'
 
-import autoload 'HTML/Util.vim'
-import autoload 'HTML/Map.vim'
-import autoload 'HTML/Glue.vim'
+var HTMLUtilO: Util.HTMLUtil = Util.HTMLUtil.new()
+var HTMLMapO: Map.HTMLMap = Map.HTMLMap.new()
+var HTMLGlueO: Glue.HTMLGlue = Glue.HTMLGlue.new()
 
-var HTMLUtilO = Util.HTMLUtil.new()
-var HTMLMapO = Map.HTMLMap.new()
-var HTMLGlueO = Glue.HTMLGlue.new()
+def HTMLpluginComplete(A: string, C: string, P: number): list<string>
+  return ['disable', 'off', 'false', 'enable', 'on', 'true', 'about', 'template']->filter((idx, val) => val =~? A)
+enddef
 
-command! -buffer -bar -nargs=1 HTMLplugin HTMLGlueO.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 HTMLPlugin HTMLGlueO.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 HTMLmappings HTMLGlueO.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 HTMLMappings HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTMLplugin HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTMLPlugin HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTMLmappings HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTMLMappings HTMLGlueO.PluginControl(<f-args>)
 if exists(':HTML') != 2
-  command! -buffer -bar -nargs=1 HTML HTMLGlueO.PluginControl(<f-args>)
+  command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTML HTMLGlueO.PluginControl(<f-args>)
 endif
 
 command! -buffer -bar -nargs=? ColorChooser HTMLUtilO.ColorChooser(<f-args>)
@@ -64,9 +67,8 @@ command! -buffer -bar HTMLtemplate HTMLTemplate
 
 b:htmlplugin.did_commands = true
 
-# }}}
 
-if get(g:htmlplugin, 'did_commands', false) == true # {{{
+if get(g:htmlplugin, 'did_commands', false) # {{{1
   finish
 endif
 

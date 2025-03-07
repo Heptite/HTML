@@ -741,16 +741,16 @@ export class HTMLUtil
     #  1 - Character: The character to encode
     # Return Value:
     #  String: The entity representing the character
-    def CharToEntity(c: string): string
+    def CharToEntity(char: string): string
       # Would be good to keep this but it's unlikely to be necessary, and
       # currently I can't access HTMLMessagesO in a lambda, so just leave it
       # commented out:
-      #if c->strchars(1) != 1
+      #if char->strchars(1) != 1
       #  printf(HTMLMessagesO.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
-      #  return c
+      #  return char
       #endif
 
-      return Variables.HTMLVariables.DictCharToEntities->get(c, printf('&#x%X;', c->char2nr()))
+      return Variables.HTMLVariables.DictCharToEntities->get(char, printf('&#x%X;', char->char2nr()))
     enddef  # }}}2
 
     # DecodeSymbol()  {{{2
