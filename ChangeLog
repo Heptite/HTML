@@ -1,3 +1,12 @@
+Fri, 7 Mar 2025 19:13:51 -0700 Christian J. Robinson
+ * Update version standalone file
+
+Fri, 7 Mar 2025 19:12:49 -0700 Christian J. Robinson
+ * Merge classes (testing) branch, update version
+
+Fri, 7 Mar 2025 16:08:20 -0700 Christian J. Robinson
+ * Small tweaks to make rules
+
 Fri, 7 Mar 2025 15:24:48 -0700 Christian J. Robinson
  * Forgot a dependency
 
