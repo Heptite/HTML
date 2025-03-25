@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: March 05, 2025
+# Last Change: March 25, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -498,17 +498,17 @@ export class HTMLUtil
     endif
   enddef
 
-  # ReadJsonFiles()  {{{1
+  # ReadJsonFile()  {{{1
   #
   #  Purpose:
-  #   Find JSON files in the runtimepath, or specified path and return their
+  #   Find JSON file in the runtimepath, or specified path and return their
   #   contents as a Vim list
   #  Arguments:
   #   1 - String: The filename to find and read
   #  Return Value:
   #   List - The JSON data as a Vim list, empty if there was a problem
-  def ReadJsonFiles(file: string, path: string = &runtimepath): list<any>
-    return file->this.FindAndRead(path, false, true)->join("\n")->json_decode()
+  def ReadJsonFile(file: string, path: string = &runtimepath): list<any>
+    return file->this.FindAndRead(path, false, false)->join("\n")->json_decode()
   enddef
 
   # SetIfUnset()  {{{1

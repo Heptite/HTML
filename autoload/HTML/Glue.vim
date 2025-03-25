@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: March 07, 2025
+# Last Change: March 25, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -133,7 +133,7 @@ export class HTMLGlue extends Util.HTMLUtil
   #   Boolean - Whether the json file was successfully read in without error
   def ReadEntities(domenu: bool = true, internal: bool = false, file: string = Variables.HTMLVariables.ENTITIES_FILE): bool
     var rval = true
-    var json_data = this.ReadJsonFiles(file)
+    var json_data = this.ReadJsonFile(file)
 
     if json_data == []
       printf(HTMLMessagesO.E_NOENTITY)
@@ -180,7 +180,7 @@ export class HTMLGlue extends Util.HTMLUtil
     var maplhs: string
     var menulhs: string
     var rval = true
-    var json_data = this.ReadJsonFiles(file)
+    var json_data = this.ReadJsonFile(file)
 
     if json_data == []
       printf(HTMLMessagesO.E_NOTAG)
@@ -198,6 +198,9 @@ export class HTMLGlue extends Util.HTMLUtil
     #               o = When not inside (outside) of an equivalent tag
     #  insert     - Only for the visual mappings; behave slightly
     #               differently in visual mappings if this is set to true
+    #  expr       - true/false
+    #               Whether to interpret value as an expression and uses
+    #               its result as the RHS keystrokes.
     #  value      - The keystrokes to execute
     if !b:htmlplugin->has_key('smarttags')
       b:htmlplugin.smarttags = {}

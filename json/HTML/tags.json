@@ -2201,8 +2201,8 @@
 		"lhs": "cs",
 
 		"maps": {
-			"i": ["", "<[{STYLE TYPE}]=\"text/css\">\\<CR><!--\\<CR>-->\\<CR></[{STYLE}]>\\<ESC>kO"],
-			"v": ["", "\\<ESC>`>a\\<CR> -->\\<CR></[{STYLE}]>\\<C-O>`<<[{STYLE TYPE}]=\"text/css\">\\<CR><!--\\<CR>\\<ESC>", {"reindent": 1}],
+			"i": ["", "<[{STYLE TYPE}]=\"text/css\">\\<CR></[{STYLE}]>\\<ESC>O"],
+			"v": ["", "\\<ESC>`>a\\<CR></[{STYLE}]>\\<C-O>`<<[{STYLE TYPE}]=\"text/css\">\\<CR>\\<ESC>", {"reindent": 1}],
 			"o": ["", {"insert": false}]
 		},
 

@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2025 Feb 28
+		Last change: 2025 Mar 24
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -343,7 +343,7 @@ Token:			Variable: 			Description: ~
 Special tokens: ~
 %date%						*%date%*
 This is replaced with the output of strftime("%B %d, %Y")  (e.g.: March 16,
-2004). You can send custom fields to the |strftime()| call by embedding !...
+2025). You can send custom fields to the |strftime()| call by embedding !...
 (rather than %...) notation before the second "%" in the token. e.g.: >
 	%date!m/!d/!Y !l:!M !p !Z%
 Would produce something like: >
