@@ -284,8 +284,8 @@ export class HTMLGlue extends Util.HTMLUtil
           # actually defined, don't set the menu items for this mapping either:
           if did_mappings == 0
             if maplhs != ''
-              HTMLMessagesO.Warn($'No mapping(s) were defined for "{maplhs}".'
-                .. (domenu && json->has_key('menu') ? '' : ' Skipping menu item.'))
+              HTMLMessagesO.Warn(printf(HTMLMessagesO.W_NOMAPDEFINED, maplhs,
+                domenu && json->has_key('menu') ? '' : ' Skipping menu item.'))
             endif
             continue
           endif
