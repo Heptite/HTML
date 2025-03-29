@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: March 25, 2025
+# Last Change: March 28, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -40,7 +40,7 @@ export class HTMLVariables
       HTMLMessagesO = Messages.HTMLMessages.new()
     endif
 
-    if empty(DictCharToEntities) == 1
+    if empty(CharToEntities) == 1
       var json_files: list<string> = ENTITY_TABLE_FILE->findfile(&runtimepath, -1)
 
       if json_files->len() == 0
@@ -52,8 +52,8 @@ export class HTMLVariables
         if f->filereadable()
           var entities: dict<dict<any>> = f->readfile()->join("\n")->json_decode()
           for key: string in entities->keys()
-            DictEntitiesToChar[key] = entities[key].characters
-            DictCharToEntities[entities[key].characters] = key
+            EntitiesToChar[key] = entities[key].characters
+            CharToEntities[entities[key].characters] = key
           endfor
         else
           printf(HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->HTMLMessagesO.Error()
@@ -67,7 +67,7 @@ export class HTMLVariables
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
   static const COPYRIGHT: string = 'Copyright © 1998-2025 under the terms of the GPL3'
 
-  static const VERSION: string   = '1.5.0'
+  static const VERSION: string   = '1.5.1'
 
   var saveopts: dict<any> = {}
 
@@ -131,8 +131,8 @@ export class HTMLVariables
     '</[{HTML}]>'
   ]  # }}}
 
-  static var DictEntitiesToChar: dict<string> = {}
-  static var DictCharToEntities: dict<string> = {}
+  static var EntitiesToChar: dict<string> = {}
+  static var CharToEntities: dict<string> = {}
 
   static const MODES: dict<string> = {  # {{{
     n: 'normal',

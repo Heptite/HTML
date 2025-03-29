@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: March 25, 2025
+# Last Change: March 28, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -750,7 +750,7 @@ export class HTMLUtil
       #  return char
       #endif
 
-      return Variables.HTMLVariables.DictCharToEntities->get(char, printf('&#x%X;', char->char2nr()))
+      return Variables.HTMLVariables.CharToEntities->get(char, printf('&#x%X;', char->char2nr()))
     enddef  # }}}2
 
     # DecodeSymbol()  {{{2
@@ -775,8 +775,8 @@ export class HTMLUtil
       def EntityToChar(entity: string): string
         var char: string
 
-        if Variables.HTMLVariables.DictEntitiesToChar->has_key(entity)
-          char = Variables.HTMLVariables.DictEntitiesToChar[entity]
+        if Variables.HTMLVariables.EntitiesToChar->has_key(entity)
+          char = Variables.HTMLVariables.EntitiesToChar[entity]
         elseif entity =~ '^&#\%(x\x\+\);$'
           char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
         elseif entity =~ '^&#\%(\d\+\);$'

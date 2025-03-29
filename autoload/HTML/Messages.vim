@@ -7,7 +7,7 @@ endif
 
 # Messaging functions for the HTML macros filetype plugin.
 #
-# Last Change: March 25, 2025
+# Last Change: March 27, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -94,6 +94,7 @@ export class HTMLMessages
   const W_NOMENU       = gettext("No menu item was defined for \"%s\".")
   const W_UNSAVED      = gettext("Warning: The current buffer has unsaved modifications.")
   const W_NOMAPDEFINED = gettext('No mapping(s) were defined for "%s".%s')
+  const W_SKIPPEDMENU  = gettext(' Skipping menu item.')
   # }}}1
 
   def Warn(message: any): void  # {{{1
