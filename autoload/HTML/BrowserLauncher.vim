@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: March 05, 2025
+# Last Change: May 11, 2025
 #
 # Currently supported browsers:
 # Unix:
@@ -135,33 +135,35 @@ export class BrowserLauncher
       this.Browsers->extend(this.TextModeBrowsers)
     elseif (has('unix') == 1) && (has('win32unix') == 0)
 
-      this.Browsers.firefox = ['firefox',
+      var Browsers: dict<list<any>>
+      Browsers.firefox = ['firefox',
         '', '', '--new-tab', '--new-window']
-      this.Browsers.brave   = [['brave-browser', 'brave'],
+      Browsers.brave   = [['brave-browser', 'brave'],
         '', '', '',          '--new-window']
-      this.Browsers.chrome  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
+      Browsers.chrome  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
         '', '', '',          '--new-window']
-      this.Browsers.opera   = ['opera',
+      Browsers.opera   = ['opera',
         '', '', '',          '--new-window']
-      this.Browsers.default = ['xdg-open',
+      Browsers.default = ['xdg-open',
         '', '', '',          '']
 
       var temppath: string
-      for tempkey in this.Browsers->keys()
-        for tempname in (type(this.Browsers[tempkey][0]) == v:t_list ? this.Browsers[tempkey][0] : [this.Browsers[tempkey][0]])
+      for tempkey in Browsers->keys()
+        for tempname in (type(Browsers[tempkey][0]) == v:t_list ? Browsers[tempkey][0] : [Browsers[tempkey][0]])
           temppath = tempname->exepath()
           if temppath != ''
-            this.Browsers[tempkey][0] = tempname
-            this.Browsers[tempkey][1] = temppath
+            Browsers[tempkey][0] = tempname
+            Browsers[tempkey][1] = temppath
             break
           endif
         endfor
 
         if temppath == ''
-          this.Browsers->remove(tempkey)
+          Browsers->remove(tempkey)
         endif
       endfor
 
+      this.Browsers = <dict<list<string>>>Browsers
       this.TextModeBrowsers = this.FindTextModeBrowsers()
       this.Browsers->extend(this.TextModeBrowsers)
 
