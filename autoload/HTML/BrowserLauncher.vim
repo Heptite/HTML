@@ -163,7 +163,10 @@ export class BrowserLauncher
         endif
       endfor
 
-      this.Browsers = <dict<list<string>>>Browsers
+      for tmpkey in Browsers->keys()
+        this.Browsers[tmpkey] = Browsers[tmpkey]
+      endfor
+
       this.TextModeBrowsers = this.FindTextModeBrowsers()
       this.Browsers->extend(this.TextModeBrowsers)
 
