@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      February 28, 2025
+# Last Change:      October 25, 2025
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.1.1157 or later
 #
@@ -238,29 +238,29 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
   # Template creation: {{{2
 
   if HTMLUtilO.BoolVar('b:htmlplugin.xhtml_mappings')
-    b:htmlplugin.internal_template = Variables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([
-        '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
-        ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
-        '<html xmlns="http://www.w3.org/1999/xhtml">'
-      ], 0)
+    b:htmlplugin.internal_template = (
+      '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"',
+      ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
+      '<html xmlns="http://www.w3.org/1999/xhtml">'
+    ) + Variables.HTMLVariables.INTERNAL_TEMPLATE
 
     b:htmlplugin.internal_template =
       HTMLUtilO.ConvertCase(b:htmlplugin.internal_template)
   else
-    b:htmlplugin.internal_template = Variables.HTMLVariables.INTERNAL_TEMPLATE->extendnew([
+    b:htmlplugin.internal_template = (
         '<!DOCTYPE html>',
         '<[{HTML}]>'
-      ], 0)
+      ) + Variables.HTMLVariables.INTERNAL_TEMPLATE
 
     b:htmlplugin.internal_template =
       HTMLUtilO.ConvertCase(b:htmlplugin.internal_template)
 
     b:htmlplugin.internal_template =
-      b:htmlplugin.internal_template->mapnew(
+      b:htmlplugin.internal_template->tuple2list()->mapnew(
           (_, line) => {
             return line->substitute(' />', '>', 'g')
           }
-        )
+        )->list2tuple()
   endif
 
   # }}}2

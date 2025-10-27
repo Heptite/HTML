@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: March 01, 2025
+# Last Change: October 25, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -773,7 +773,7 @@ export class HTMLMap extends Util.HTMLUtil
         return false
       endif
     else
-      b:htmlplugin.internal_template->this.TokenReplace()->append(0)
+      b:htmlplugin.internal_template->tuple2list()->this.TokenReplace()->append(0)
     endif
 
     # Special case, can't be done in TokenReplace():

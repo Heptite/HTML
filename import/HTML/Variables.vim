@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: March 28, 2025
+# Last Change: October 27, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -63,11 +63,11 @@ export class HTMLVariables
   enddef # }}}
 
   static const AUTHOR: string    = 'Christian J. Robinson'
-  static const EMAIL: string     = 'heptite+html' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
+  static const EMAIL: string     = 'heptite' .. "\x2B" .. 'html' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
   static const COPYRIGHT: string = 'Copyright © 1998-2025 under the terms of the GPL3'
 
-  static const VERSION: string   = '1.5.1'
+  static const VERSION: string   = '1.5.3'
 
   var saveopts: dict<any> = {}
 
@@ -89,7 +89,7 @@ export class HTMLVariables
     vlinkcolor:  'vlinkcolor',
   } # }}}
 
-  static const INTERNAL_TEMPLATE: tuple<...list<string>> = [  # {{{
+  static const INTERNAL_TEMPLATE: tuple<...list<string>> = (  # {{{
     # Don't insert the start of the <html> tag here, since logic in the main
     # plugin file adds it depending on the filetype.
     ' <[{HEAD}]>',
@@ -98,7 +98,7 @@ export class HTMLVariables
     '',
     '  <[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=%charset%" />',
     '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% (Vi IMproved editor; http://www.vim.org/) with HTML Editing Macros '
-      .. $'%htmlversion% ({HTMLVariables.HOMEPAGE})" />',
+    .. $'%htmlversion% ({HTMLVariables.HOMEPAGE})" />',
     '  <[{META NAME}]="Author" [{CONTENT}]="%authorname%" />',
     '  <[{META NAME}]="Copyright" [{CONTENT}]="Copyright (C) %date% %authorname%" />',
     '  <[{LINK REL}]="made" [{HREF}]="mailto:%authoremail%" />',
@@ -128,8 +128,7 @@ export class HTMLVariables
     '   <[{A HREF}]="mailto:%authoremail%">%authorname% &lt;%authoremail%&gt;</[{A}]>',
     '  </[{ADDRESS}]>',
     ' </[{BODY}]>',
-    '</[{HTML}]>'
-  ]  # }}}
+    '</[{HTML}]>' )  # }}}
 
   static var EntitiesToChar: dict<string> = {}
   static var CharToEntities: dict<string> = {}

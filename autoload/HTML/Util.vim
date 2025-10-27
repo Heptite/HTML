@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: March 28, 2025
+# Last Change: October 25, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -296,6 +296,8 @@ export class HTMLUtil
       str = s
     elseif type(s) == v:t_string
       str = [s]
+    elseif type(s) == v:t_tuple
+      str = s->tuple2list()
     else
       printf(HTMLMessagesO.E_INVALIDTYPE, typename(str))->HTMLMessagesO.Error()
       return 0
@@ -319,6 +321,8 @@ export class HTMLUtil
 
     if type(s) == v:t_string
       return newstr[0]
+    elseif type(s) == v:t_tuple
+      return newstr->list2tuple()
     else
       return newstr
     endif
@@ -576,6 +580,10 @@ export class HTMLUtil
   # Return Value:
   #  String or List: The new text
   def TokenReplace(text: list<string>, path: string = ''): list<string>
+    if type(text) != v:t_tuple && typename(text) != 'list<string>'
+      printf(HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), text)->HTMLMessagesO.Error()
+    endif
+
     var newpath: string
     if path == ''
       newpath = expand('%:p:h')

@@ -5,6 +5,7 @@ bitmaps  := bitmaps
 allxpm   := $(wildcard $(bitmaps)/*.xpm)
 allbmp   := $(allxpm:.xpm=.bmp)
 alldoc   := $(wildcard doc/*.txt)
+alllang  := $(wildcard lang/*)
 #pihome   := pi@christianrobinson.name:~
 faq      := $(HOME)/www/website/src/assets/programming/faq.html
 textfaq  := $(faq:%html=%)txt
@@ -58,12 +59,13 @@ debug:
 	@echo "\$${vim2html}      = ${vim2html}"
 	@echo "\$$(PLUGIN_FILES)  = $(PLUGIN_FILES)"
 	@echo "\$$(alldoc)        = $(alldoc)"
+	@echo "\$$(alllang)       = $(alllang)"
 
 all: ChangeLog ChangeLog.html HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
 
 push: pushed
 
-pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) ChangeLog README.md version
+pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) ChangeLog README.md version
 	git add .
 	git commit
 	git push
@@ -76,11 +78,12 @@ version: import/HTML/Variables.vim
 
 zip html.zip: HTML.zip
 
-HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) doc/tags
+HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) doc/tags
 	rm -f HTML.zip
 	mkdir -p ${tmpdir}/pack/cjr/start/HTML/bitmaps \
 		${tmpdir}/pack/cjr/start/HTML/ftplugin/html \
 		${tmpdir}/pack/cjr/start/HTML/doc \
+		${tmpdir}/pack/cjr/start/HTML/lang \
 		${tmpdir}/pack/cjr/start/HTML/autoload/HTML \
 		${tmpdir}/pack/cjr/start/HTML/commands/HTML \
 		${tmpdir}/pack/cjr/start/HTML/import/HTML \
@@ -92,6 +95,7 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) doc/tags
 	cp json/HTML/*.json ${tmpdir}/pack/cjr/start/HTML/json/HTML/
 	cp autoload/HTML/*.vim ${tmpdir}/pack/cjr/start/HTML/autoload/HTML/
 	cp doc/tags doc/gpl-3.0.html ${alldoc} ${tmpdir}/pack/cjr/start/HTML/doc/
+	cp ${alllang} ${tmpdir}/pack/cjr/start/HTML/lang/
 	chmod -R a+rX ${tmpdir}
 	cd ${tmpdir}; zip -9mr ${savecwd}/HTML.zip *
 	rmdir ${tmpdir}
@@ -132,7 +136,7 @@ vim-html-pixmaps.zip: $(allxpm) $(allbmp)
 
 changelog: ChangeLog
 
-ChangeLog: $(PLUGIN_FILES) ChangeLog-base pushed
+ChangeLog: ChangeLog-base pushed
 	rm -f ChangeLog
 	git log --no-merges --format=%aD\ %an%n\ \*\ %B > ChangeLog
 	cat ChangeLog-base >> ChangeLog
@@ -168,9 +172,10 @@ copy: all
 
 install: installed
 
-installed: $(PLUGIN_FILES) $(alldoc) $(allxpm) $(allbmp) doc/tags
+installed: $(PLUGIN_FILES) $(alldoc) $(alllang) $(allxpm) $(allbmp) doc/tags
 	mkdir -p ~/.vim/pack/cjr/start/HTML/ftplugin/html/ \
 		~/.vim/pack/cjr/start/HTML/doc/ \
+		~/.vim/pack/cjr/start/HTML/lang \
 		~/.vim/pack/cjr/start/HTML/import/HTML/ \
 		~/.vim/pack/cjr/start/HTML/commands/HTML/ \
 		~/.vim/pack/cjr/start/HTML/json/HTML/ \
@@ -182,6 +187,7 @@ installed: $(PLUGIN_FILES) $(alldoc) $(allxpm) $(allbmp) doc/tags
 	cp -f json/HTML/*.json ~/.vim/pack/cjr/start/HTML/json/HTML/
 	cp -f autoload/HTML/*.vim ~/.vim/pack/cjr/start/HTML/autoload/HTML/
 	cp -f doc/tags doc/gpl-3.0.html ${alldoc} ~/.vim/pack/cjr/start/HTML/doc/
+	cp -f ${alllang} ~/.vim/pack/cjr/start/HTML/lang/
 	cp -f bitmaps/* ~/.vim/pack/cjr/start/HTML/bitmaps/
 	touch installed
 

@@ -1,3 +1,24 @@
+Sun, 11 May 2025 15:02:45 -0600 Christian J. Robinson
+ * ...
+
+Sun, 11 May 2025 14:44:14 -0600 Christian J. Robinson
+ * Another attempt to properly assign Browsers
+
+Sun, 11 May 2025 10:00:41 -0600 Christian J. Robinson
+ * Fix misuse of Browsers variable, causing an error
+
+Sat, 29 Mar 2025 09:24:42 -0600 Christian J. Robinson
+ * Variable names needed to be tweaked
+
+Wed, 26 Mar 2025 08:29:06 -0600 Christian J. Robinson
+ * Move error into Messages
+
+Tue, 25 Mar 2025 13:41:40 -0600 Christian J. Robinson
+ * Comments no longer needed in CSS. Read multiple JSON files logic broken.
+
+Fri, 7 Mar 2025 19:27:39 -0700 Christian J. Robinson
+ * Update Vim version requirement in README
+
 Fri, 7 Mar 2025 19:13:51 -0700 Christian J. Robinson
  * Update version standalone file
 
