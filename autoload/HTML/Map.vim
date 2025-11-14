@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: October 25, 2025
+# Last Change: November 13, 2025
 #
 # Requirements:
 #       Vim 9.1.1157 or later
@@ -155,7 +155,8 @@ export class HTMLMap extends Util.HTMLUtil
 
       if opts->has_key('reindent') && opts.reindent >= 0
         #this.ReIndent(line('v'), line('.'), opts.reindent)
-        this.ReIndent(line("'<"), line("'>"), opts.reindent)
+        this.ReIndent(getpos('v')[1], getpos('.')[1], opts.reindent)
+        #this.ReIndent(line("'<"), line("'>"), opts.reindent)
       endif
 
       if opts->get('insert', false)

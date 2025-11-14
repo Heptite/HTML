@@ -32,8 +32,8 @@ def Test_util_methods()
 	assert_true(util.Has("eval"), 'Has("eval")')
 	assert_false(util.Has("nonexistent"), 'Has("nonexistent")')
 	assert_true(util.IsSet("g:tmp"), 'IsSet("g:tmp")')
-	assert_equal(['one', 'two', 'three', 'four'], util.ReadJsonFiles("example.json", "."),
-		'ReadJsonFiles("example.json", ".")')
+	assert_equal(['one', 'two', 'three', 'four'], util.ReadJsonFile("example.json", "."),
+		'ReadJsonFile("example.json", ".")')
 	assert_equal(Util.SetIfUnsetR.exists, util.SetIfUnset("g:tmp", "foo bar baz"),
 		'SetIfUnset("g:tmp", "foo bar baz")')
 	assert_equal(Util.SetIfUnsetR.success, util.SetIfUnset("g:tmp2", "foo bar baz"),
