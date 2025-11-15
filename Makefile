@@ -66,9 +66,9 @@ all: ChangeLog ChangeLog.html HTML.html HTML.zip bitmaps vim-html-pixmaps.zip to
 push: pushed
 
 pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) ChangeLog README.md version
-	git add .
-	git commit
-	git push
+	-git add .
+	-git commit
+	-git push
 	touch pushed
 
 version: import/HTML/Variables.vim
@@ -136,7 +136,7 @@ vim-html-pixmaps.zip: $(allxpm) $(allbmp)
 
 changelog: ChangeLog
 
-ChangeLog: ChangeLog-base pushed
+ChangeLog: ChangeLog-base
 	rm -f ChangeLog
 	git log --no-merges --format=%aD\ %an%n\ \*\ %B > ChangeLog
 	cat ChangeLog-base >> ChangeLog
