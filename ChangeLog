@@ -1,3 +1,18 @@
+Fri, 14 Nov 2025 17:59:07 -0700 Christian J. Robinson
+ * Fix rules
+
+Fri, 14 Nov 2025 17:47:16 -0700 Christian J. Robinson
+ * ...
+
+Fri, 14 Nov 2025 17:45:15 -0700 Christian J. Robinson
+ * Update version
+
+Fri, 14 Nov 2025 17:24:29 -0700 Christian J. Robinson
+ * Finally found a workaround for Vim not setting '< and '> correctly
+
+Thu, 13 Nov 2025 17:55:39 -0700 Christian J. Robinson
+ * Tweaks
+
 Mon, 27 Oct 2025 16:10:04 -0600 Christian J. Robinson
  * ...
 
