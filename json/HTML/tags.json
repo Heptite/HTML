@@ -570,7 +570,7 @@
 
 		"maps": {
 			"i": ["", "<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR></[{FIELDSET}]>\\<ESC>k$F<i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{FIELDSET}]>\\<C-O>`<<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR>\\<ESC>`<j$F<i", {"reindent": 2, "insert": true}],
+			"v": ["", "\\<ESC>`>a\\<CR></[{FIELDSET}]>\\<C-O>`<<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR>\\<ESC>k$F<a", {"reindent": 2, "insert": true}],
 			"o": ["", {"insert": true}]
 		},
 
