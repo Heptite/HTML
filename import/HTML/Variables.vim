@@ -1,16 +1,16 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901 || v:versionlong < 9011157
+if v:version < 902
   finish
 endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: November 16, 2025
+# Last Change: May 18, 2026
 #
 # Requirements:
-#       Vim 9.1.1157 or later
+#       Vim 9.2 or later
 #
 # Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
@@ -67,7 +67,7 @@ export class HTMLVariables
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
   static const COPYRIGHT: string = 'Copyright © 1998-2025 under the terms of the GPL3'
 
-  static const VERSION: string   = '1.6.1'
+  static const VERSION: string   = '1.6.3'
 
   var saveopts: dict<any> = {}
 

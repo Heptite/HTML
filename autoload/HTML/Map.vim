@@ -1,16 +1,16 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901 || v:versionlong < 9011157
+if v:version < 902
   finish
 endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: November 14, 2025
+# Last Change: May 18, 2026
 #
 # Requirements:
-#       Vim 9.1.1157 or later
+#       Vim 9.2 or later
 #
 # Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
@@ -142,6 +142,7 @@ export class HTMLMap extends Util.HTMLUtil
     elseif mode ==# 'i' || mode ==# 'n'
       return evalstr
     elseif mode ==# 'v'
+      # Get visual mode information before the mapping is run:
       var startline = getpos('v')[1]
       var endline = getpos('.')[1]
 
@@ -157,10 +158,7 @@ export class HTMLMap extends Util.HTMLUtil
       this.ToggleOptions(Util.ToggleOptionsA.restore)
 
       if opts->has_key('reindent') && opts.reindent >= 0
-        #this.ReIndent(line('v'), line('.'), opts.reindent)
-        #this.ReIndent(getpos('v')[1], getpos('.')[1], opts.reindent)
         this.ReIndent(startline, endline, opts.reindent)
-        #this.ReIndent(line("'<"), line("'>"), opts.reindent)
       endif
 
       if opts->get('insert', false)
