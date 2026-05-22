@@ -12,7 +12,7 @@ my $script_id = 453;
 my $mech = WWW::Mechanize->new(autocheck => 1);
 my $dirname = dirname($0);
 
-sub GetPassword() {
+sub GetCredentials() {
 	my @credentials;
 	my $passfile = "$ENV{HOME}/.vimonline_credentials"; # line 1: username, line 2: password
 	my $pass = FileHandle->new($passfile, 'r') or die "Can't open credential file: $passfile\n";
@@ -25,7 +25,7 @@ sub GetPassword() {
 	return @credentials;
 }
 
-sub GetRequiredVersion() {
+sub GetRequiredVimVersion() {
 	my $pluginfile = "$dirname/ftplugin/html/HTML.vim";
 	my $plugin = FileHandle->new($pluginfile, 'r') or die "Can't open plugin file: $pluginfile\n";
 	my $line;
@@ -35,13 +35,16 @@ sub GetRequiredVersion() {
 		if ($line =~ m/^if v:version < ([0-9]+)$/) {
 			$plugin->close;
 			return int($1 / 100) . '.' . ($1 % 100);
+		} elsif ($line =~ m/^if v:version < ([0-9]+) \|\| v:versionlong < ([0-9]+)$/) {
+			$plugin->close;
+			return int($1 / 100) . '.' . ($1 % 100) . '.' . ($2 % 10000);
 		}
 	}
 
 	return '';
 }
 
-sub GetVersion() {
+sub GetPluginVersion() {
 	my $versionfile = "$dirname/version";
 	my $version;
 	my $ver = FileHandle->new($versionfile, 'r') or die "Can't open version file: $versionfile\n";
@@ -60,15 +63,16 @@ sub GetComment() {
 }
 
 my $archive = "$dirname/HTML.zip";
-my $script_version = GetVersion();
+my $script_version = GetPluginVersion();
 my $version_comment = GetComment();
 
 die "Must provide a comment\n" unless $version_comment;
 
-my @user_credentials = GetPassword();
-my $vim_version_required = GetRequiredVersion();
+my $vim_version_required = GetRequiredVimVersion();
 
-die "Can't obtain minumum required version of Vim" unless $vim_version_required;
+die "Can't obtain minumum required version of Vim?\n" unless $vim_version_required;
+
+my @user_credentials = GetCredentials();
 
 die "Credential file must be two lines\n" unless scalar @user_credentials == 2;
 
@@ -98,4 +102,4 @@ $mech->field(script_version => $script_version);
 $mech->field(version_comment => $version_comment);
 $mech->click_button(value => 'upload');
 
-print "Uploaded\n";
+print "Uploaded version $script_version\n";
