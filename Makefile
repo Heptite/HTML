@@ -33,11 +33,12 @@ Choose a specific target:
 
   "all" will do all of the above.
   "debug" will show some debugging info.
-  "scp" will rsync all the files to the webserver.
+  "copy" will copy the files to the local website repository.
   "push" will commit the changes and push them to git.
   "install" will put some, but not all of the files
             in the appropriate locations on the local
             machine, for testing.
+  "upload" will send the script archive (zip) to Vim Online
   "test" will test (some of) the plugin's functionality
 EOF
 endef
@@ -169,6 +170,9 @@ copy: all
 	rsync --verbose --archive --no-group --no-owner --times --rsh=ssh --stats --progress --exclude '.*.swp' \
 		doc HTML.html HTML.zip version ChangeLog ChangeLog.html \
 		toolbar-icons.png ~/www/website/src/assets/programming/
+
+upload: HTML.zip version
+	./upload
 
 install: installed
 

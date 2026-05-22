@@ -1,16 +1,16 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901 || v:versionlong < 9011157
+if v:version < 902
   finish
 endif
 
 # Menu functions for the HTML macros filetype plugin.
 #
-# Last Change: March 04, 2025
+# Last Change: May 18, 2026
 #
 # Requirements:
-#       Vim 9.1.1157 or later
+#       Vim 9.2 or later
 #
 # Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
 #

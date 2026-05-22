@@ -1,16 +1,16 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 901 || v:versionlong < 9011157
+if v:version < 902
   finish
 endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: October 25, 2025
+# Last Change: May 18, 2026
 #
 # Requirements:
-#       Vim 9.1.1157 or later
+#       Vim 9.2 or later
 #
 # Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
@@ -381,18 +381,19 @@ export class HTMLUtil
   # Return Value:
   #  List: Matching files
   static def FilesWithMatch(files: list<string>, pat: string, max: number = -1): list<string>
-    var inc: number
     var matched: list<string> = []
+    var lines: list<string>
 
     for file in files
-      inc = 0
-      for line in file->readfile()
+      if max > 0
+        lines = file->readfile('', max)
+      else
+        lines = file->readfile()
+      endif
+
+      for line in lines
         if line =~ pat
           matched->add(file->fnamemodify(':p'))
-          break
-        endif
-        ++inc
-        if max > 0 && inc >= max
           break
         endif
       endfor
@@ -475,7 +476,7 @@ export class HTMLUtil
   #  Boolean - Whether the test is true or not
   def Has(feat: string): bool
     if feat ==? 'WSL2'
-      return filereadable('/proc/version') && readfile('/proc/version')[0] =~# 'WSL2'
+      return filereadable('/proc/version') && readfile('/proc/version', '', 1)[0] =~# 'WSL2'
     elseif feat ==? 'win'
       #return has('win32') == 1 || has('win64') == 1 || has('win32unix') == 1
       return (has('win32') == 1) || (has('win32unix') == 1)
