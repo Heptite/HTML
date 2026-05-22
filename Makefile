@@ -1,4 +1,4 @@
-VIM      ?= $(shell zsh -c 'whence vim9 || whence vim')
+VIM      ?= $(shell command -v vim)
 VIM      := $(or $(VIM),false)
 TMPDIR   ?= /tmp
 bitmaps  := bitmaps
@@ -6,12 +6,11 @@ allxpm   := $(wildcard $(bitmaps)/*.xpm)
 allbmp   := $(allxpm:.xpm=.bmp)
 alldoc   := $(wildcard doc/*.txt)
 alllang  := $(wildcard lang/*)
-#pihome   := pi@christianrobinson.name:~
 faq      := $(HOME)/www/website/src/assets/programming/faq.html
 textfaq  := $(faq:%html=%)txt
 tmpdir   := $(shell mktemp -du $(TMPDIR)/make-tmp.XXXXXX)
 savecwd  := $(shell pwd)
-vim2html := $(shell find $(HOME)/share/vim -name vim2html.pl | tail -1)
+vim2html := $(shell find $(HOME)/share/vim /usr/share/vim -name vim2html.pl 2>/dev/null | tail -1)
 vim2html := $(or $(vim2html),false)
 
 PLUGIN_FILES = ftplugin/html/HTML.vim autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim autoload/HTML/Messages.vim autoload/HTML/Glue.vim autoload/HTML/Menu.vim autoload/HTML/Map.vim autoload/HTML/Util.vim commands/HTML/Commands.vim import/HTML/Variables.vim json/HTML/entities.json json/HTML/tags.json json/HTML/entitytable.json
@@ -156,12 +155,6 @@ ChangeLog.html: ChangeLog
 		-c '%s/^<style>$$/<meta name="viewport" content="width=device-width, initial-scale=1.0">\r<style>/' \
 		-c 'w ChangeLog.html' -c 'qa!' ChangeLog
 	chmod a+r ChangeLog.html
-
-#rsync scp: all
-#	for d in ${pihome}/www/assets/programming/ ${pihome}/christian_j_robinson/src/assets/programming/; do \
-#	rsync --verbose --archive --no-group --no-owner --times --rsh=ssh --stats --progress --exclude '.*.swp' \
-#		doc HTML.html HTML.zip version ChangeLog ChangeLog.html toolbar-icons.png \
-#		vim-html-pixmaps.zip $$d; done
 
 rsync scp:
 	@echo "Use 'make copy' instead, then use git to sync the website."
