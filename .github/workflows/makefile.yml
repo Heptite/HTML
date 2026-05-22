@@ -17,6 +17,7 @@ jobs:
     - uses: rhysd/action-setup-vim@v1
       with:
         version: nightly
+        configure-args: --with-features=huge
 
     - name: Install ImageMagick
       run: sudo apt-get install imagemagick
@@ -25,7 +26,7 @@ jobs:
       run: make zip
 
     - name: Run tests
-      run: make test
+      run: make -k test
 
     - name: Upload test failures
       if: failure()
