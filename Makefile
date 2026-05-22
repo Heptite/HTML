@@ -124,8 +124,8 @@ montage toolbar-icons: toolbar-icons.png
 
 toolbar-icons.png: ${bitmaps}/*
 	montage -geometry '50x30>' -tile 8x4 -borderwidth 2 \
-		$(shell zsh -c 'for i in ${bitmaps}/*.xpm; \
-		do; echo -label $${$${i%.xpm}##*/} $$i; done') \
+		$(shell for i in ${bitmaps}/*.xpm; \
+		do echo -label `basename -s.xpm $$i` $$i; done) \
 		toolbar-icons.png
 	chmod a+r toolbar-icons.png
 
@@ -199,7 +199,7 @@ test tests: test_maps test_methods
 test_methods: force
 	@sh -c "cd test; \
 		echo -n TESTING METHODS...; \
-		vim -u ./test_methods.vim -U NONE --noplugin > /dev/null 2>&1 ; \
+		${VIM} -u ./test_methods.vim -U NONE --noplugin > /dev/null 2>&1 ; \
 		if test -f ./Xresult; \
 		then \
 			mv ./Xresult test_methods_results.log; \
@@ -212,7 +212,7 @@ test_methods: force
 test_maps: force
 	@sh -c "cd test; \
 		echo -n TESTING MAPPINGS...; \
-		vim -u ./test_maps.vim -U NONE --noplugin > /dev/null 2>&1 ; \
+		${VIM} -u ./test_maps.vim -U NONE --noplugin > /dev/null 2>&1 ; \
 		if test -f ./Xresult; \
 		then \
 			mv ./Xresult test_maps_results.log; \

@@ -12,7 +12,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
+
+    - uses: rhysd/action-setup-vim@v1
+      with:
+        version: v9.2.0
+
+    - name: Create archive
+      run: make zip
 
     - name: Run tests
       run: make test
