@@ -16,7 +16,7 @@ jobs:
 
     - uses: rhysd/action-setup-vim@v1
       with:
-        version: v9.2.0
+        version: v9.2.0000
 
     - name: Create archive
       run: make zip
