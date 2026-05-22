@@ -171,7 +171,7 @@ copy: all
 		doc HTML.html HTML.zip version ChangeLog ChangeLog.html \
 		toolbar-icons.png ~/www/website/src/assets/programming/
 
-upload: HTML.zip
+upload: HTML.zip version
 	./upload
 
 install: installed
