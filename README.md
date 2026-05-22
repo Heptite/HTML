@@ -47,7 +47,8 @@ git clone https://github.com/Heptite/HTML.git
 
 ### Windows
 
-Press Windows+R and type in "cmd" and in that window run these commands:
+Press `Windows+R`, type in "`cmd`" and press `Enter`.  In that window run these
+commands:
 
 ```
 mkdir %USERPROFILE%\vimfiles\pack\cjr\start
