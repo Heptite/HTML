@@ -9,6 +9,8 @@ use File::Basename;
 
 my $script_id = 453;
 
+print "Initializing...\n";
+
 my $mech = WWW::Mechanize->new(autocheck => 1);
 my $dirname = dirname($0);
 
@@ -32,6 +34,7 @@ sub GetRequiredVimVersion() {
 
 	while ($line = <$plugin>) {
 		chomp($line);
+
 		if ($line =~ m/^if v:version < ([0-9]+)$/) {
 			$plugin->close;
 			return int($1 / 100) . '.' . ($1 % 100);

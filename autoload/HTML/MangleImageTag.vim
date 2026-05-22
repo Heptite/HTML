@@ -14,7 +14,7 @@ endif
 # Assumptions:
 #   The filename extension is correct for the image type
 #
-# Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2026 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # Based on "mangleImageTag" by Devin Weaver <ktohg(at)tritarget(dot)com>
 #
