@@ -25,6 +25,9 @@ jobs:
     - name: Run tests
       run: make test
 
-    - uses: actions/upload-artifact@v7
+    - name: Upload test failures
+      if: failure()
+      uses: actions/upload-artifact@v3
       with:
-        path: test/*.log
+        name: test-logs
+        path: test/test_*_results.log
