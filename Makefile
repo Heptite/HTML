@@ -122,7 +122,7 @@ bitmaps pixmaps vim-html-pixmaps: $(allxpm) $(allbmp)
 
 montage toolbar-icons: toolbar-icons.png
 
-toolbar-icons.png: ${bitmaps}/*
+toolbar-icons.png: $(allxpm)
 	montage -geometry '50x30>' -tile 8x4 -borderwidth 2 \
 		$(shell for i in ${bitmaps}/*.xpm; \
 		do echo -label `basename -s.xpm $$i` $$i; done) \
@@ -209,7 +209,7 @@ test_methods: force
 			echo PASSED; \
 		fi"
 
-test_maps: force
+test_maps: toolbar-icons.png force
 	@sh -c "cd test; \
 		echo -n TESTING MAPPINGS...; \
 		${VIM} -u ./test_maps.vim -U NONE --noplugin > /dev/null 2>&1 ; \
