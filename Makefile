@@ -15,7 +15,7 @@ vim2html := $(or $(vim2html),false)
 
 PLUGIN_FILES = ftplugin/html/HTML.vim autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim autoload/HTML/Messages.vim autoload/HTML/Glue.vim autoload/HTML/Menu.vim autoload/HTML/Map.vim autoload/HTML/Util.vim commands/HTML/Commands.vim import/HTML/Variables.vim json/HTML/entities.json json/HTML/tags.json json/HTML/entitytable.json
 
-.PHONY : default debug all force html.zip html.html bitmaps pixmaps changelog push
+.PHONY : default debug all force html.zip html.html bitmaps pixmaps push
 
 define _helptext
 cat <<'EOF'
@@ -24,7 +24,6 @@ Choose a specific target:
   bitmaps, pixmaps, or vim-html-pixmaps
   vim-html-pixmaps.zip
   montage, toolbar-icons, or toolbar-icons.png
-  ChangeLog, ChangeLog.html
   tags
   HTML.html or html
   version
@@ -61,11 +60,11 @@ debug:
 	@echo "\$$(alldoc)        = $(alldoc)"
 	@echo "\$$(alllang)       = $(alllang)"
 
-all: ChangeLog ChangeLog.html HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
+all: HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
 
 push: pushed
 
-pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) ChangeLog README.md version
+pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) README.md version
 	-git add .
 	-git commit
 	-git push
@@ -134,34 +133,12 @@ vim-html-pixmaps.zip: $(allxpm) $(allbmp)
 	zip -9j vim-html-pixmaps.zip ${bitmaps}/*
 	chmod a+r vim-html-pixmaps.zip
 
-changelog: ChangeLog
-
-ChangeLog: ChangeLog-base
-	rm -f ChangeLog
-	git log --no-merges --format=%aD\ %an%n\ \*\ %B > ChangeLog
-	cat ChangeLog-base >> ChangeLog
-	chmod a+r ChangeLog
-
-changelog.html: ChangeLog.html
-
-ChangeLog.html: ChangeLog
-	rm -f ChangeLog.html
-	${VIM} -gf --noplugin -c 'if has("gui_running") | stop | endif' \
-		-c 'highlight Normal guibg=white | highlight Constant guibg=white' \
-		-c 'highlight link changelogError ignore' \
-		-c 'autocmd FileType html syntax clear' \
-		-c 'runtime syntax/2html.vim' \
-		-c '%s/^<title>.*ChangeLog.html/<title>ChangeLog/' \
-		-c '%s/^<style>$$/<meta name="viewport" content="width=device-width, initial-scale=1.0">\r<style>/' \
-		-c 'w ChangeLog.html' -c 'qa!' ChangeLog
-	chmod a+r ChangeLog.html
-
 rsync scp:
 	@echo "Use 'make copy' instead, then use git to sync the website."
 
 copy: all
 	rsync --verbose --archive --no-group --no-owner --times --rsh=ssh --stats --progress --exclude '.*.swp' \
-		doc HTML.html HTML.zip version ChangeLog ChangeLog.html \
+		doc HTML.html HTML.zip version \
 		toolbar-icons.png ~/www/website/src/assets/programming/
 
 upload: HTML.zip version
