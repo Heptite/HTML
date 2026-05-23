@@ -198,6 +198,7 @@ test tests: test_maps test_methods
 
 test_methods: force
 	@sh -c "cd test; \
+		rm -f test_methods_results.log; \
 		echo -n TESTING METHODS...; \
 		${VIM} -u ./test_methods.vim -U NONE --noplugin > /dev/null 2>&1 ; \
 		if test -f ./Xresult; \
@@ -211,6 +212,7 @@ test_methods: force
 
 test_maps: toolbar-icons.png force
 	@sh -c "cd test; \
+		rm -f test_maps_results.log; \
 		echo -n TESTING MAPPINGS...; \
 		${VIM} -u ./test_maps.vim -U NONE --noplugin > /dev/null 2>&1 ; \
 		if test -f ./Xresult; \
