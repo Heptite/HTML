@@ -1,4 +1,4 @@
-VIM      ?= $(shell zsh -c 'whence vim9 || whence vim')
+VIM      ?= $(shell command -v vim)
 VIM      := $(or $(VIM),false)
 TMPDIR   ?= /tmp
 bitmaps  := bitmaps
@@ -6,17 +6,16 @@ allxpm   := $(wildcard $(bitmaps)/*.xpm)
 allbmp   := $(allxpm:.xpm=.bmp)
 alldoc   := $(wildcard doc/*.txt)
 alllang  := $(wildcard lang/*)
-#pihome   := pi@christianrobinson.name:~
 faq      := $(HOME)/www/website/src/assets/programming/faq.html
 textfaq  := $(faq:%html=%)txt
 tmpdir   := $(shell mktemp -du $(TMPDIR)/make-tmp.XXXXXX)
 savecwd  := $(shell pwd)
-vim2html := $(shell find $(HOME)/share/vim -name vim2html.pl | tail -1)
+vim2html := $(shell find $(HOME)/share/vim /usr/share/vim -name vim2html.pl 2>/dev/null | tail -1)
 vim2html := $(or $(vim2html),false)
 
 PLUGIN_FILES = ftplugin/html/HTML.vim autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim autoload/HTML/Messages.vim autoload/HTML/Glue.vim autoload/HTML/Menu.vim autoload/HTML/Map.vim autoload/HTML/Util.vim commands/HTML/Commands.vim import/HTML/Variables.vim json/HTML/entities.json json/HTML/tags.json json/HTML/entitytable.json
 
-.PHONY : default debug all force html.zip html.html bitmaps pixmaps changelog push
+.PHONY : default debug all force html.zip html.html bitmaps pixmaps push
 
 define _helptext
 cat <<'EOF'
@@ -25,7 +24,6 @@ Choose a specific target:
   bitmaps, pixmaps, or vim-html-pixmaps
   vim-html-pixmaps.zip
   montage, toolbar-icons, or toolbar-icons.png
-  ChangeLog, ChangeLog.html
   tags
   HTML.html or html
   version
@@ -62,11 +60,11 @@ debug:
 	@echo "\$$(alldoc)        = $(alldoc)"
 	@echo "\$$(alllang)       = $(alllang)"
 
-all: ChangeLog ChangeLog.html HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
+all: HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
 
 push: pushed
 
-pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) ChangeLog README.md version
+pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) README.md version
 	-git add .
 	-git commit
 	-git push
@@ -123,10 +121,10 @@ bitmaps pixmaps vim-html-pixmaps: $(allxpm) $(allbmp)
 
 montage toolbar-icons: toolbar-icons.png
 
-toolbar-icons.png: ${bitmaps}/*
+toolbar-icons.png: $(allxpm)
 	montage -geometry '50x30>' -tile 8x4 -borderwidth 2 \
-		$(shell zsh -c 'for i in ${bitmaps}/*.xpm; \
-		do; echo -label $${$${i%.xpm}##*/} $$i; done') \
+		$(shell for i in ${bitmaps}/*.xpm; \
+		do echo -label `basename -s.xpm $$i` $$i; done) \
 		toolbar-icons.png
 	chmod a+r toolbar-icons.png
 
@@ -135,40 +133,12 @@ vim-html-pixmaps.zip: $(allxpm) $(allbmp)
 	zip -9j vim-html-pixmaps.zip ${bitmaps}/*
 	chmod a+r vim-html-pixmaps.zip
 
-changelog: ChangeLog
-
-ChangeLog: ChangeLog-base
-	rm -f ChangeLog
-	git log --no-merges --format=%aD\ %an%n\ \*\ %B > ChangeLog
-	cat ChangeLog-base >> ChangeLog
-	chmod a+r ChangeLog
-
-changelog.html: ChangeLog.html
-
-ChangeLog.html: ChangeLog
-	rm -f ChangeLog.html
-	${VIM} -gf --noplugin -c 'if has("gui_running") | stop | endif' \
-		-c 'highlight Normal guibg=white | highlight Constant guibg=white' \
-		-c 'highlight link changelogError ignore' \
-		-c 'autocmd FileType html syntax clear' \
-		-c 'runtime syntax/2html.vim' \
-		-c '%s/^<title>.*ChangeLog.html/<title>ChangeLog/' \
-		-c '%s/^<style>$$/<meta name="viewport" content="width=device-width, initial-scale=1.0">\r<style>/' \
-		-c 'w ChangeLog.html' -c 'qa!' ChangeLog
-	chmod a+r ChangeLog.html
-
-#rsync scp: all
-#	for d in ${pihome}/www/assets/programming/ ${pihome}/christian_j_robinson/src/assets/programming/; do \
-#	rsync --verbose --archive --no-group --no-owner --times --rsh=ssh --stats --progress --exclude '.*.swp' \
-#		doc HTML.html HTML.zip version ChangeLog ChangeLog.html toolbar-icons.png \
-#		vim-html-pixmaps.zip $$d; done
-
 rsync scp:
 	@echo "Use 'make copy' instead, then use git to sync the website."
 
 copy: all
 	rsync --verbose --archive --no-group --no-owner --times --rsh=ssh --stats --progress --exclude '.*.swp' \
-		doc HTML.html HTML.zip version ChangeLog ChangeLog.html \
+		doc HTML.html HTML.zip version \
 		toolbar-icons.png ~/www/website/src/assets/programming/
 
 upload: HTML.zip version
@@ -205,8 +175,9 @@ test tests: test_maps test_methods
 
 test_methods: force
 	@sh -c "cd test; \
+		rm -f test_methods_results.log; \
 		echo -n TESTING METHODS...; \
-		vim -u ./test_methods.vim -U NONE --noplugin > /dev/null 2>&1 ; \
+		${VIM} -u ./test_methods.vim -U NONE --noplugin > /dev/null 2>&1 ; \
 		if test -f ./Xresult; \
 		then \
 			mv ./Xresult test_methods_results.log; \
@@ -216,10 +187,11 @@ test_methods: force
 			echo PASSED; \
 		fi"
 
-test_maps: force
+test_maps: toolbar-icons.png force
 	@sh -c "cd test; \
+		rm -f test_maps_results.log; \
 		echo -n TESTING MAPPINGS...; \
-		vim -u ./test_maps.vim -U NONE --noplugin > /dev/null 2>&1 ; \
+		${VIM} -u ./test_maps.vim -U NONE --noplugin > /dev/null 2>&1 ; \
 		if test -f ./Xresult; \
 		then \
 			mv ./Xresult test_maps_results.log; \

@@ -1,0 +1,39 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - uses: rhysd/action-setup-vim@v1
+      with:
+        version: nightly
+        configure-args: --with-features=huge
+
+    - name: Install ImageMagick
+      run: sudo apt-get install imagemagick
+
+    - name: Create archive
+      run: make zip
+
+    - name: Run tests
+      run: make -k test
+
+    - name: Upload test failures
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-logs
+        path: test/test_*_results.log

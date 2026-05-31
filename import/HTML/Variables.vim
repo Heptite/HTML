@@ -12,7 +12,7 @@ endif
 # Requirements:
 #       Vim 9.2 or later
 #
-# Copyright © 1998-2025 Christian J. Robinson <heptite(at)gmail(dot)com>
+# Copyright © 1998-2026 Christian J. Robinson <heptite(at)gmail(dot)com>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -65,7 +65,7 @@ export class HTMLVariables
   static const AUTHOR: string    = 'Christian J. Robinson'
   static const EMAIL: string     = 'heptite' .. "\x2B" .. 'html' .. "\x40" .. 'gmail' .. "\x2E"  .. 'com'
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
-  static const COPYRIGHT: string = 'Copyright © 1998-2025 under the terms of the GPL3'
+  static const COPYRIGHT: string = 'Copyright © 1998-2026 under the terms of the GPL3'
 
   static const VERSION: string   = '1.6.3'
 
