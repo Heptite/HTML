@@ -9,7 +9,7 @@ endif
 
 # ---- Author & Copyright: ---------------------------------------------- {{{1
 #
-# Author:           Christian J. Robinson <heptite(at)gmail(dot)com>
+# Author:           Christian J. Robinson <heptite(at)proton(dot)me>
 # URL:              https://christianrobinson.name/HTML/
 # Last Change:      May 18, 2026
 # Original Concept: Doug Renze
