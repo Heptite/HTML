@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2025 Mar 24
+		Last change: 2026 Jun 04
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -325,7 +325,7 @@ these should be left unset.
 					*html-template-tokens* *html-tokens*
 
 When you define a template file with the |g:htmlplugin.template| or
-|b:htmlplugin.template| variable, special tokens within the template will
+|b:htmlplugin.template| variable, tokens within the template will
 automatically replaced with their corresponding variable value:
 
 Token:			Variable: 			Description: ~
@@ -340,7 +340,8 @@ Token:			Variable: 			Description: ~
 *%alinkcolor%*		|b:htmlplugin.alinkcolor|	Mouse hover link color
 *%vlinkcolor%*		|b:htmlplugin.vlinkcolor|	Visited link color
 
-Special tokens: ~
+Dynamic tokens:
+
 %date%						*%date%*
 This is replaced with the output of strftime("%B %d, %Y")  (e.g.: March 16,
 2025). You can send custom fields to the |strftime()| call by embedding !...

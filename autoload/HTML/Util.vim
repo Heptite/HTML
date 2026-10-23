@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: May 18, 2026
+# Last Change: October 23, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -47,9 +47,7 @@ endenum
 export enum ToggleOptionsA # {{{1
   save,
   restore
-endenum
-
-# }}}1
+endenum # }}}1
 
 export class HTMLUtil
 

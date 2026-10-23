@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: May 18, 2026
+# Last Change: October 23, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -118,8 +118,11 @@ export class HTMLMap extends Util.HTMLUtil
     var mode = this._mode
     var lhs = this._lhs
     var rhs = this._rhs
-       ->substitute('\c\\<[a-z0-9_-]\+>', '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
-       ->this.ConvertCase()
+       ->substitute(
+         '\\\(<[a-zA-Z0-9_-]\+>\)',
+         '\=Variables.HTMLVariables.MAP_ESCAPES->get(submatch(1)->toupper(), submatch(1))',
+         'g'
+       )->this.ConvertCase()
     var opts = this._options
 
     if opts->get('expr', false)

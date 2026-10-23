@@ -5,7 +5,7 @@
 		"lhs": "&",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'e')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'e')<CR><ESC>", {"extra": false}],
 			"o": ["", {"insert": false}]
 		},
 
@@ -18,7 +18,7 @@
 		"lhs": "*",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'x')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'x')<CR><ESC>", {"extra": false}],
 			"o": ["", {"insert": false}]
 		},
 
@@ -31,7 +31,7 @@
 		"lhs": "%",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", '%')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", '%')<CR><ESC>", {"extra": false}],
 			"o": ["", {"insert": false}]
 		},
 
@@ -44,7 +44,7 @@
 		"lhs": "^",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'd')<CR><Esc>", {"extra": false}],
+			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'd')<CR><ESC>", {"extra": false}],
 			"o": ["", {"insert": false}]
 		},
 
@@ -626,7 +626,7 @@
 
 		"maps": {
 			"i": ["", "<[{INPUT TYPE=\"DATE\" NAME}]=\"\" />\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"DATE\" NAME}]=\"\\<Esc>", {}],
+			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"DATE\" NAME}]=\"\\<ESC>", {}],
 			"o": ["", {"insert": false}]
 		},
 
@@ -1177,7 +1177,7 @@
 		"smarttag": {
 			"p": {
 				"i": {
-					"o": "<[{P}]>\\<CR></[{P}]>\\<Esc>O",
+					"o": "<[{P}]>\\<CR></[{P}]>\\<ESC>O",
 					"c": "</[{P}]>\\<CR>\\<CR><[{P}]>\\<CR>"
 				},
 				"v": {
@@ -1211,7 +1211,7 @@
 		"smarttag": {
 			"pre": {
 				"i": {
-					"o": "<[{PRE}]>\\<CR></[{PRE}]>\\<Esc>O",
+					"o": "<[{PRE}]>\\<CR></[{PRE}]>\\<ESC>O",
 					"c": "</[{PRE}]>\\<CR>\\<CR><[{PRE}]>\\<CR>"
 				},
 				"v": {
@@ -1497,7 +1497,7 @@
 		"smarttag": {
 			"figure": {
 				"i": {
-					"o": "<[{FIGURE}]>\\<CR></[{FIGURE}]>\\<Esc>O",
+					"o": "<[{FIGURE}]>\\<CR></[{FIGURE}]>\\<ESC>O",
 					"c": "</[{FIGURE}]>\\<CR>\\<CR><[{FIGURE}]>\\<CR>"
 				},
 				"v": {
@@ -1855,7 +1855,7 @@
 		"smarttag": {
 			"blockquote": {
 				"i": {
-					"o": "<[{BLOCKQUOTE}]>\\<CR></[{BLOCKQUOTE}]>\\<Esc>O",
+					"o": "<[{BLOCKQUOTE}]>\\<CR></[{BLOCKQUOTE}]>\\<ESC>O",
 					"c": "</[{BLOCKQUOTE}]>\\<CR>\\<CR><[{BLOCKQUOTE}]>\\<CR>"
 				},
 				"v": {

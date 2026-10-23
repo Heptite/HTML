@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: May 18, 2026
+# Last Change: October 23, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -223,8 +223,11 @@ export class HTMLGlue extends Util.HTMLUtil
 
         if json->has_key('smarttag')
           # Translate \<...> strings to their corresponding actual value:
-          var smarttag = json.smarttag->string()->substitute('\c\\<[a-z0-9_-]\+>',
-              '\=eval(''"'' .. submatch(0) .. ''"'')', 'g')
+          var smarttag = json.smarttag->string()->substitute(
+            '\\\(<[a-zA-Z0-9_-]\+>\)',
+            '\=Variables.HTMLVariables.MAP_ESCAPES->get(submatch(1)->toupper(), submatch(1))',
+            'g'
+          )
 
           b:htmlplugin.smarttags->extend(smarttag->eval())
         endif
