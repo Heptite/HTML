@@ -23,10 +23,10 @@ jobs:
         configure-args: --with-features=huge
 
     - name: update apt
-      run: apt-get update
-      
-    - name: Install ImageMagick
-      run: sudo apt-get install imagemagick
+      run: sudo apt-get update
+
+    - name: Install GraphicsMagick
+      run: sudo apt-get install graphicsmagick
 
     - name: Create archive
       run: make zip
