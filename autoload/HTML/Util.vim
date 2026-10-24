@@ -131,7 +131,7 @@ export class HTMLUtil
     var variable = v
 
     if variable !~ '^[bgstvw]:'
-      variable = 'g:{variable}'
+      variable = $'g:{variable}'
     endif
 
     if variable->this.IsSet()
