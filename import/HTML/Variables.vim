@@ -65,9 +65,9 @@ export class HTMLVariables
   static const AUTHOR: string    = 'Christian J. Robinson'
   static const EMAIL: string     = 'heptite' .. "\x2B" .. 'html' .. "\x40" .. 'proton' .. "\x2E"  .. 'me'
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
-  static const COPYRIGHT: string = 'Copyright © 1998-2026 under the terms of the GPL3'
+  static const COPYRIGHT: string = $'Copyright © 1998-{strftime("%Y")} under the terms of the GPL3'
 
-  static const VERSION: string   = '1.6.4'
+  static const VERSION: string   = '1.6.5'
 
   static const MAP_ESCAPES: dict<string> = {
     '<CR>':   "\<CR>",   '<ESC>':    "\<ESC>",

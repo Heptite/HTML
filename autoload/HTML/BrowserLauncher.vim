@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: May 18, 2026
+# Last Change: October 24, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -618,6 +618,24 @@ export class BrowserLauncher
 
   # }}}1
 
+  def _RegistrySearch(name: string, executable: string): string # {{{
+    var output: list<string>
+
+    output = systemlist(['reg', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg', 'query', 'HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+
+    for line in output
+      if line =~# '^\s*InstallLocation\>'
+        var path = substitute(trim(line), '^\s*InstallLocation\s\+REG_SZ\s\+', '', '')
+        path = findfile(executable, path)
+        if executable(path)
+          return path
+        endif
+      endif
+    endfor
+
+    return ''
+  enddef # }}}
 endclass
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
