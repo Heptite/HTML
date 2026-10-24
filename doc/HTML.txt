@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2026 Jun 04
+		Last change: 2026 Oct 23
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -157,7 +157,7 @@ Also note that in the following text, "truthy" means anything besides "no",
 |v:false|/"false", "off", 0, or "" (empty value), case insensitive.  This is
 different than Vim's |truthy| / |falsy| values.
 
-*g:htmlplugin.xhtml_mappings* *b:htmlplugin.xhtml_mappings*
+*g:htmlplugin.xhtml_mappings* *b:htmlplugin.xhtml_mappings* (default no)
 Set this variable to a "truthy" value if you prefer XHTML compatible tags to
 be defined. Setting this forces |b:htmlplugin.tag_case| to "lowercase". This
 is automatic if you are already editing a file that Vim detects as XHTML. This
@@ -168,7 +168,7 @@ instead.  e.g.: >
 (However, XHTML is out of date as of this writing and this mode is not
 recommended, and it is only supported for historical reasons.)
 
-*g:htmlplugin.tag_case* *b:htmlplugin.tag_case*
+*g:htmlplugin.tag_case* *b:htmlplugin.tag_case* (default lowercase)
 This variable can be set to "l" / "lower" / "lowercase" or "u" / "upper" /
 "uppercase" to determine the case of the text in the HTML tags. This variable
 must be set before HTML.vim is sourced for the current buffer (i.e. before the
@@ -178,7 +178,7 @@ globally by setting |g:htmlplugin.tag_case| or on a per-buffer basis by using
 files (see |g:htmlplugin.xhtml_mappings|). e.g: >
 	:let g:htmlplugin.tag_case = 'lowercase'
 
-*g:htmlplugin.tag_case_autodetect*
+*g:htmlplugin.tag_case_autodetect* (default no)
 Set this variable to a "truthy" value if you want to automatically detect what
 the value of |b:htmlplugin.tag_case| should be. This is done by examining the
 file for both upper and lower case tags (tag attributes are not examined). If
@@ -187,14 +187,14 @@ variable is ignored if you have set |g:htmlplugin.xhtml_mappings| or
 |b:htmlplugin.xhtml_mappings|. e.g.: >
 	:let g:htmlplugin.tag_case_autodetect = 'yes'
 
-*g:htmlplugin.map_leader*
+*g:htmlplugin.map_leader* (default ;)
 This variable can be set to the character you want for the leader of the
 mappings defined under |html-tags|, the default being ";". This variable must
 be set before HTML.vim is sourced. You can set this to your |mapleader| or
 |maplocalleader|. e.g.: >
 	:let g:htmlplugin.map_leader = g:maplocalleader
 
-*g:htmlplugin.entity_map_leader*
+*g:htmlplugin.entity_map_leader* (default &)
 This variable can be set to the character you want for the leader of the
 character entity insert mode mappings defined under |character-entities|, the
 default being "&". This variable must be set before HTML.vim is sourced. If
@@ -202,19 +202,19 @@ you attempt to set this to the same value as |g:htmlplugin.map_leader| you
 will get an error. e.g.: >
 	:let g:htmlplugin.entity_map_leader = '\'
 
-*g:htmlplugin.map_override*
+*g:htmlplugin.map_override* (default yes)
 Set this variable to a "falsy" value if you do not want this plugin to
 override mappings that already exist. When this variable is not set you will
 get a warning message when this plugin overrides a mapping. This variable
 must be set before HTML.vim is sourced. e.g.: >
-	:let g:htmlplugin.map_override = 'yes'
+	:let g:htmlplugin.map_override = 'no
 
 This only applies to the mappings defined internally to the plugin. If you
 call the |HTMLMapObject.Map()| function elsewhere you will still get a warning
 message when there is an already existing mapping and the mapping will still
 be overridden.
 
-*g:htmlplugin.no_maps* *b:htmlplugin.no_maps*
+*g:htmlplugin.no_maps* *b:htmlplugin.no_maps* (default empty)
 Set this variable to a |List| to match against mappings. If a mapping to be
 defined matches one of the items in the list it will not be defined.  You can
 also set this on a per-buffer basis by using b:htmlplugin.no_maps instead.
@@ -230,7 +230,7 @@ call the |HTMLMapObject.Map()| function elsewhere the mapping will be defined
 even if it matches this list; this is useful if you wish to define custom
 variants of some of the plugin's mappings without getting warning messages.
 
-*g:htmlplugin.tab_mapping*
+*g:htmlplugin.tab_mapping* (default yes)
 Set this variable to a "falsy" value if you do not want the tab key to be
 mapped in normal, visual and insert mode. ;<Tab> will be used instead. See
 |html-tab| and |i_;tab|. This variable must be set before HTML.vim is sourced
@@ -240,32 +240,34 @@ for the current buffer. e.g.: >
 Note that you can suppress the defining of both <Tab> and ;<Tab> as a mapping
 by adding "\t" to |g:htmlplugin.no_maps| instead.
 
-*g:htmlplugin.toolbar*
+*g:htmlplugin.toolbar* (default yes)
 Set this variable to a "falsy" value if you do not want this plugin to modify
 the Vim toolbar and add "T" to 'guioptions'. This variable must be set before
 HTML.vim is sourced. e.g.: >
 	:let g:htmlplugin.toolbar = 'no'
 
-*g:htmlplugin.menu*
+*g:htmlplugin.menu* (default yes)
 Set this variable to a "falsy" value if you do not want the menu items to be
 defined at all. This implies that |g:htmlplugin.toolbar| is set as well.
 This variable must be set before HTML.vim is sourced. e.g.: >
 	:let g:htmlplugin.menu = 'no'
 
-*g:htmlplugin.toplevel_menu*
+*g:htmlplugin.toplevel_menu* (default [])
 Set this to the toplevel menu where you want the HTML menu to become a
 submenu. The value must be a |List|, must be set before the first time the
 script is sourced, and there is no way to override the "HTML" menu name.
 e.g.: >
 	:let g:htmlplugin.toplevel_menu = ['Plugin']
 
-*g:htmlplugin.toplevel_menu_priority*
+*g:htmlplugin.toplevel_menu_priority* (default -1)
 Set this to the priority (position) you want for the toplevel HTML menu.  If
 you placed the HTML menu in a submenu, it affects the HTML's menu within that
 submenu position.  The value must be a positive |Number|, and must be set
 before the first time the script is sourced, e.g., make the menu appear before
 all others: >
 	:let g:htmlplugin.toplevel_menu_priority = 1
+
+A negative value places the menu after all others except the Help menu.
 
 *g:htmlplugin.template* *b:htmlplugin.template*
 Set this variable to the location of your template file to be used by the
@@ -276,7 +278,7 @@ used.
 See |html-template-tokens| for special tokens you can use within the template.
 
 *g:htmlplugin.author_name* *b:htmlplugin.author_name*
-*g:htmlplugin.author_email* *b:htmlplugin.author_email*
+*g:htmlplugin.author_email* *b:htmlplugin.author_email* (defaults empty)
 Within the internal template, |b:htmlplugin.author_name| is inserted inside >
 	<META NAME="Author" CONTENT="...">
 <|b:htmlplugin.author_email| is converted to |b:htmlplugin.authoremail_encoded|
@@ -292,6 +294,8 @@ internal template.
 The default for these variables are empty strings.
 
 *g:htmlplugin.author_email_encoded* *b:htmlplugin.author_email_encoded*
+(default empty)
+
 This variable will be set using |HTMLUtilObject.TranscodeString()| if your
 |g:htmlplugin.author_email| variable is set. (Do not set this variable
 yourself, it will be overwritten when the template macro is used.)
@@ -311,12 +315,12 @@ These control the CSS in the internal template and can also be used as
 	:let g:htmlplugin.alinkcolor  = '#FF0000'
 	:let g:htmlplugin.vlinkcolor  = '#990066'
 
-*g:htmlplugin.default_charset*
-This defaults to "UTF-8" and is the value used if a character set can not be
-detected by the 'fileencoding' or 'encoding' options. See |i_;ct| and
-|html-tokens| for how this is used. (Also see |html-author-notes|)
+*g:htmlplugin.default_charset* (default UTF-8)
+This is the value used if a character set can not be detected by the
+'fileencoding' or 'encoding' options. See |i_;ct| and |html-tokens| for how
+this is used. (Also see |html-author-notes|)
 
-*g:htmlplugin.charset* *b:htmlplugin.charset*
+*g:htmlplugin.charset* *b:htmlplugin.charset* (default empty)
 If either of these variables are set it completely overrides the Content-Type
 charset detection for the |i_;ct| mapping and in the |html-tokens|. Normally
 these should be left unset.
