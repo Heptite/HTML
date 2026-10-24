@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: May 18, 2026
+# Last Change: October 24, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -171,39 +171,62 @@ export class BrowserLauncher
       this.Browsers->extend(this.TextModeBrowsers)
 
     elseif HTMLUtilO.Has('win')
+      var tmppath: string
+
       # These applications _could_ be installed elsewhere, but there's no reliable
       # way to find them if they are, so just assume they would be in a standard
       # location:
       if filereadable('C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe')
           || filereadable('C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe')
         this.Browsers.brave = ['brave', '', '', '', '--new-window']
+      else
+        tmppath = this._RegistrySearch('Brave', 'brave.exe')
+        if tmppath != ''
+          this.Browsers.brave = [tmppath, '', '', '', '--new-window']
+        endif
       endif
       if filereadable('C:\Program Files\Mozilla Firefox\firefox.exe')
           || filereadable('C:\Program Files (x86)\Mozilla Firefox\firefox.exe')
         this.Browsers.firefox = ['firefox', '', '', '--new-tab', '--new-window']
+      else
+        tmppath = this._RegistrySearch('Firefox', 'firefox.exe')
+        if tmppath != ''
+          this.Browsers.firefox = [tmppath, '', '', '', '--new-window']
+        endif
       endif
       if filereadable('C:\Program Files\Google\Chrome\Application\chrome.exe')
           || filereadable('C:\Program Files (x86)\Google\Chrome\Application\chrome.exe')
         this.Browsers.chrome = ['chrome', '', '', '', '--new-window']
+      else
+        tmppath = this._RegistrySearch('Chrome', 'chrome.exe')
+        if tmppath != ''
+          this.Browsers.chrome = [tmppath, '', '', '', '--new-window']
+        endif
       endif
-      if filereadable('C:\Program Files\Opera\launcher.exe')
-          || filereadable('C:\Program Files (x86)\Opera\launcher.exe')
+      if filereadable('C:\Program Files\Opera\opera.exe')
+          || filereadable('C:\Program Files (x86)\Opera\opera.exe')
         this.Browsers.opera = ['opera', '', '', '', '--new-window']
+      else
+        tmppath = this._RegistrySearch('Opera', 'opera.exe')
+        if tmppath != ''
+          this.Browsers.opera = [tmppath, '', '', '', '--new-window']
+        endif
       endif
       if filereadable('C:\Program Files\Microsoft\Edge\Application\msedge.exe')
           || filereadable('C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe')
         this.Browsers.edge = ['msedge', '', '', '', '--new-window']
+      else
+        tmppath = this._RegistrySearch('Edge', 'msedge.exe')
+        if tmppath != ''
+          this.Browsers.edge = [tmppath, '', '', '', '--new-window']
+        endif
       endif
 
-      # Odd quoting needed for "start":
-      this.Browsers.default = ['"RunDll32.exe shell32.dll,ShellExec_RunDLL"', '', '', '', '']
+      this.Browsers.default = ['start', '', '', '', '']
 
       if has('win32unix') == 1
         this.TextModeBrowsers = this.FindTextModeBrowsers()
         this.Browsers->extend(this.TextModeBrowsers)
-
-        # Different quoting required for "cygstart":
-        this.Browsers.default = ['RunDll32.exe shell32.dll,ShellExec_RunDLL', '', '', '', '']
       endif
 
     else
@@ -476,8 +499,8 @@ export class BrowserLauncher
   def UnixWindowsLaunch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool
     var which = browser
     var donew = new
-    var command: string
-    var output: string
+    var command: list<string> = []
+    var output: string = ''
     var file: string
 
     if !this.UnixWindowsBrowserExists(which)
@@ -500,11 +523,11 @@ export class BrowserLauncher
       # translate the file path to a Windows native path for later use,
       # otherwise just add the file:// prefix:
       if has('win32unix') == 1 && match(this.TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
-        file = 'file://' .. system('cygpath -w ' .. expand('%:p')->shellescape())->trim()
+        file = 'file://' .. system('cygpath -w ' .. expand('%:p'))->trim()
       elseif HTMLUtilO.Has('WSL2')
           && match(this.TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         # No double slash here, please:
-        file = 'file:/' .. system('wslpath -w ' .. expand('%:p')->shellescape())->trim()
+        file = 'file:/' .. system('wslpath -w ' .. expand('%:p'))->trim()
       else
         file = 'file://' .. expand('%:p')
       endif
@@ -532,8 +555,14 @@ export class BrowserLauncher
 
       if has('gui_running') == 1 || donew != Behavior.default
         if $DISPLAY != '' && xterm != '' && donew == Behavior.newwindow
-          command = xterm .. ' -T ' .. this.Browsers[which][0] .. ' -e '
-            .. this.Browsers[which][1] .. ' ' .. file->shellescape() .. ' &'
+          command = [
+            xterm,
+            '-T',
+            this.Browsers[which][0],
+            ' -e ',
+            this.Browsers[which][1],
+            file
+          ]
         elseif exists_compiled(':terminal') == 2
           execute 'terminal ++close ' .. this.Browsers[which][1] .. ' ' .. file
           return true
@@ -561,21 +590,40 @@ export class BrowserLauncher
 
     # If we haven't already defined a command, we are going to use a GUI
     # browser:
-    if command == ''
+    if command == []
 
       if donew == Behavior.newtab
         HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this.Browsers[which][0])} tab...')
         if HTMLUtilO.Has('win')
-          command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][3]}'
+          command = [
+            'start',
+            this.Browsers[which][0],
+            file,
+            this.Browsers[which][3]
+          ]
         else
-          command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][3]} &"'
+          command = [
+            'nohup',
+            this.Browsers[which][1],
+            file,
+            this.Browsers[which][3]
+          ]
         endif
       elseif donew != Behavior.default
         HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this.Browsers[which][0])} window...')
         if HTMLUtilO.Has('win')
-          command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][4]}'
+          command = [
+            this.Browsers[which][0],
+            file,
+            this.Browsers[which][4]
+          ]
         else
-          command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][4]} &"'
+          command = [
+            'nohup', 
+            this.Browsers[which][1],
+            file,
+            this.Browsers[which][4]
+          ]
         endif
       else
         if which == 'default'
@@ -585,25 +633,44 @@ export class BrowserLauncher
         endif
 
         if HTMLUtilO.Has('win')
-          command = $'start {this.Browsers[which][0]} {file->shellescape()} {this.Browsers[which][2]}'
+          command = [
+            this.Browsers[which][0],
+            file,
+            this.Browsers[which][2]
+          ]
         else
-          command = $'sh -c "trap '''' HUP; {this.Browsers[which][1]->shellescape()} {file->shellescape()} {this.Browsers[which][2]} &"'
+          command = [
+            'nohup',
+            this.Browsers[which][1],
+            file,
+            this.Browsers[which][2]
+          ]
         endif
       endif
     endif
 
-    if command != ''
+    if command != []
 
-      if has('win32unix') == 1
-        command = command->substitute('^start', 'cygstart', '')
-        if which == 'default'
-          command = command->substitute('file://', '', '')
-        endif
+      if has('win32unix') == 1 && which == 'default'
+        map(command, (_, val) => substitute(val, '^file://', '', ''))
       endif
 
-      output = system(command)
+      var job_id: job
+      var status: string
 
-      if v:shell_error
+      if command[0] == 'start'
+        # job_start() on the 'start' command is odd and won't work here
+        output = system(command)
+      else
+        job_id = job_start(command)
+        status = job_status(job_id)
+      endif
+      
+
+      if status == 'fail'
+        printf(HTMLMessagesO.E_COMMAND, command)->HTMLMessagesO.Error()
+        return false
+      elseif v:shell_error
         printf(HTMLMessagesO.E_COMMAND, command)->HTMLMessagesO.Error()
         HTMLMessagesO.Error(output)
         return false
@@ -618,6 +685,24 @@ export class BrowserLauncher
 
   # }}}1
 
+  def _RegistrySearch(name: string, executable: string): string # {{{
+    var output: list<string>
+
+    output = systemlist(['reg', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg', 'query', 'HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+
+    for line in output
+      if line =~# '^\s*InstallLocation\>'
+        var path = substitute(trim(line), '^InstallLocation\s\+REG_SZ\s\+', '', '')
+        path = findfile(executable, escape(path, ' ') .. '\**')
+        if executable(path)
+          return path
+        endif
+      endif
+    endfor
+
+    return ''
+  enddef # }}}
 endclass
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
