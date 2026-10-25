@@ -494,11 +494,11 @@ export class BrowserLauncher
       # translate the file path to a Windows native path for later use,
       # otherwise just add the file:// prefix:
       if has('win32unix') == 1 && match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
-        file = 'file://' .. system('cygpath -w ' .. expand('%:p'))->trim()
+        file = 'file://' .. system(['cygpath', '-w', expand('%:p')])->trim()
       elseif HTMLUtilO.Has('WSL2')
           && match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         # No double slash here, please:
-        file = 'file:/' .. system('wslpath -w ' .. expand('%:p'))->trim()
+        file = 'file:/' .. system(['wslpath', '-w', expand('%:p')])->trim()
       else
         file = 'file://' .. expand('%:p')
       endif
@@ -622,15 +622,13 @@ export class BrowserLauncher
     if command != []
 
       if command[0] == ''
-        command->remove(0)
-      endif
-
-      if which == 'default'
         map(command, (_, val) => substitute(val, '^file://', '', ''))
+        command = ['RunDll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
       endif
 
       var job_id = job_start(command, {
         drop: 'auto',
+        stoponexit: '',
         exit_cb: (_, exitstatus: number) => {
           if exitstatus > 0
             b:htmlplugin.HTMLMessagesO.Error($'Job exited abmormally: {exitstatus}')
@@ -663,7 +661,11 @@ export class BrowserLauncher
   def _RegistrySearch(name: string, executable: string): string # {{{
     var output: list<string>
 
-    output = systemlist(['reg', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    # First look in the USer's personal installs:
+    output = systemlist(['reg', 'query', 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg', 'query', 'HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    # Then look in the system-wide installs:
+    output += systemlist(['reg', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
     output += systemlist(['reg', 'query', 'HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
 
     for line in output
