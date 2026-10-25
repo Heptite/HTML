@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: October 24, 2026
+# Last Change: October 25, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -47,17 +47,17 @@ endif
 #  - Defaulting to Lynx/w3m/Links if the the GUI isn't available on Unix may
 #    be undesirable.
 #
-# BUGS:
-#  * On Unix, since the commands to start the browsers are run in the
-#    backgorund when possible there's no way to actually get v:shell_error,
-#    so execution errors aren't actually seen.
+#  - Make a way to invoke browsers installed under WSL2 if they're there,
+#    instead of just the "native" Windows binaries.
 #
-#  * On Windows (and WSL2/Cygwin) there's no reliable way to detect which
-#    browsers are installed so only the most common install locations are
-#    checked.
+#  - No way to view error output of GUI browsers.
+#
+# BUGS:
 #
 # Requirements:
-#  * Vim 9.2 or later
+#
+#  - Vim 9.2 or later
+#  - At least one supported browser must be installed
 #
 # Copyright © 1998-2026 Christian J. Robinson <heptite(at)proton(dot)me>
 #
@@ -103,38 +103,6 @@ export class BrowserLauncher
 
     if HTMLUtilO.Has('mac')
       return
-    elseif HTMLUtilO.Has('WSL2')
-      # These applications _could_ be installed elsewhere, but there's no reliable
-      # way to find them if they are, so just assume they would be in a standard
-      # location:
-      if filereadable('/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe')
-        this._Browsers.brave = ['brave', '/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '--new-window']
-      elseif filereadable('/mnt/c/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe')
-        this._Browsers.brave = ['brave', '/mnt/c/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '--new-window']
-      endif
-      if filereadable('/mnt/c/Program Files/Mozilla Firefox/firefox.exe')
-        this._Browsers.firefox = ['firefox', '/mnt/c/Program Files/Mozilla Firefox/firefox.exe', '', '--new-tab', '--new-window']
-      elseif filereadable('/mnt/c/Program Files (x86)/Mozilla Firefox/firefox.exe')
-        this._Browsers.firefox = ['firefox', '/mnt/c/Program Files (x86)/Mozilla Firefox/firefox.exe', '', '--new-tab', '--new-window']
-      endif
-      if filereadable('/mnt/c/Program Files/Google/Chrome/Application/chrome.exe')
-        this._Browsers.chrome = ['chrome', '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '', '', '--new-window']
-      elseif filereadable('/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe')
-        this._Browsers.chrome = ['chrome', '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe', '', '', '--new-window']
-      endif
-      if filereadable('/mnt/c/Program Files/Opera/launcher.exe')
-        this._Browsers.opera = ['opera', '/mnt/c/Program Files/Opera/launcher.exe', '', '', '--new-window']
-      elseif filereadable('/mnt/c/Program Files (x86)/Opera/launcher.exe')
-        this._Browsers.opera = ['opera', '/mnt/c/Program Files (x86)/Opera/launcher.exe', '', '', '--new-window']
-      endif
-      if filereadable('/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe')
-        this._Browsers.edge = ['msedge', '/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe', '', '', '--new-window']
-      elseif filereadable('/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe')
-        this._Browsers.edge = ['msedge', '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '', '', '--new-window']
-      endif
-
-      this._TextModeBrowsers = this._Find_TextModeBrowsers()
-      this._Browsers->extend(this._TextModeBrowsers)
     elseif (has('unix') == 1) && (has('win32unix') == 0)
 
       var _Browsers: dict<list<any>>
@@ -168,10 +136,10 @@ export class BrowserLauncher
         this._Browsers[tmpkey] = _Browsers[tmpkey]
       endfor
 
-      this._TextModeBrowsers = this._Find_TextModeBrowsers()
+      this._TextModeBrowsers = this._FindTextModeBrowsers()
       this._Browsers->extend(this._TextModeBrowsers)
 
-    elseif HTMLUtilO.Has('win')
+    elseif HTMLUtilO.Has('win') || HTMLUtilO.Has('WSL2')
       temppath = this._RegistrySearch('Brave', 'brave.exe')
       if temppath != ''
         this._Browsers.brave = ['brave', temppath, '', '', '--new-window']
@@ -195,8 +163,8 @@ export class BrowserLauncher
 
       this._Browsers.default = ['', '', '', '', '']
 
-      if has('win32unix') == 1
-        this._TextModeBrowsers = this._Find_TextModeBrowsers()
+      if has('win32unix') == 1 || HTMLUtilO.Has('WSL2')
+        this._TextModeBrowsers = this._FindTextModeBrowsers()
         this._Browsers->extend(this._TextModeBrowsers)
       endif
 
@@ -232,7 +200,7 @@ export class BrowserLauncher
   #  The list of browsers to search for
   # Return value:
   #  A list of browsers that were found, in list<list<string>> format
-  def _Find_TextModeBrowsers(browserlist: dict<list<string>> = this._TextModeBrowsers): dict<list<string>>
+  def _FindTextModeBrowsers(browserlist: dict<list<string>> = this._TextModeBrowsers): dict<list<string>>
     var browsers: dict<list<string>>
 
     browsers = browserlist->mapnew(
@@ -468,11 +436,10 @@ export class BrowserLauncher
   #  false - Failure (No browser was launched/controlled.)
   #  true  - Success (A browser was launched/controlled.)
   def _UnixWindowsLaunch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool
-    var which = browser
-    var donew = new
+    var which:   string       = browser
+    var donew:   Behavior     = new
     var command: list<string> = []
-    var output: string = ''
-    var file: string
+    var file:    string
 
     if !this._UnixWindowsBrowserExists(which)
       printf(HTMLMessagesO.E_UNKNOWN, which)->HTMLMessagesO.Error()
@@ -628,7 +595,10 @@ export class BrowserLauncher
         HTMLMessagesO.Error(HTMLMessagesO.E_NOCOMMAND)
       endif
 
-      var job_id = job_start(command, {
+      # Strip out useless command arguments:
+      command->filter((_, v: string) => !empty(v))
+
+      var job_id: job = job_start(command, {
         drop: 'auto',
         stoponexit: '',
         exit_cb: (_, exitstatus: number) => {
@@ -640,14 +610,9 @@ export class BrowserLauncher
         #  b:htmlplugin.HTMLMessagesO.Error($'Error message from sub-process: {msg}')
         #},
       })
-      var status = job_status(job_id)
 
-      if status == 'fail'
+      if  job_status(job_id) == 'fail'
         printf(HTMLMessagesO.E_COMMAND, command)->HTMLMessagesO.Error()
-        return false
-      elseif v:shell_error != 0
-        printf(HTMLMessagesO.E_COMMAND, command)->HTMLMessagesO.Error()
-        HTMLMessagesO.Error(output)
         return false
       endif
 
@@ -664,17 +629,20 @@ export class BrowserLauncher
     var output: list<string>
 
     # First look in the USer's personal installs:
-    output = systemlist(['reg', 'query', 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-    output += systemlist(['reg', 'query', 'HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output = systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
     # Then look in the system-wide installs:
-    output += systemlist(['reg', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-    output += systemlist(['reg', 'query', 'HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
 
     for line in output
       if line =~# '^\s*InstallLocation\>'
         var path = substitute(trim(line), '^InstallLocation\s\+REG_SZ\s\+', '', '')
         if has('win32unix')
           path = trim(system(['cygpath', path]))
+          path = findfile(executable, escape(path, ' ') .. '/**')
+        elseif HTMLUtilO.Has('WSL2')
+          path = trim(system(['wslpath', path]))
           path = findfile(executable, escape(path, ' ') .. '/**')
         else
           path = findfile(executable, escape(path, ' ') .. '\**')
