@@ -531,36 +531,18 @@ export class BrowserLauncher
 
       if donew == Behavior.newtab
         HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which][0])} tab...')
-        if has('win32')
-          command = [
-            this._Browsers[which][1],
-            file,
-            this._Browsers[which][3]
-          ]
-        else
-          command = [
-            'nohup',
-            this._Browsers[which][1],
-            file,
-            this._Browsers[which][3]
-          ]
-        endif
+        command = [
+          this._Browsers[which][1],
+          file,
+          this._Browsers[which][3]
+        ]
       elseif donew != Behavior.default
         HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which][0])} window...')
-        if has('win32')
-          command = [
-            this._Browsers[which][1],
-            file,
-            this._Browsers[which][4]
-          ]
-        else
-          command = [
-            'nohup', 
-            this._Browsers[which][1],
-            file,
-            this._Browsers[which][4]
-          ]
-        endif
+        command = [
+          this._Browsers[which][1],
+          file,
+          this._Browsers[which][4]
+        ]
       else
         if which == 'default'
           HTMLMessagesO.Message('Invoking system default browser...')
@@ -568,20 +550,11 @@ export class BrowserLauncher
           HTMLMessagesO.Message($'Invoking {HTMLUtilO.Cap(this._Browsers[which][0])}...')
         endif
 
-        if HTMLUtilO.Has('win')
-          command = [
-            this._Browsers[which][1],
-            file,
-            this._Browsers[which][2]
-          ]
-        else
-          command = [
-            'nohup',
-            this._Browsers[which][1],
-            file,
-            this._Browsers[which][2]
-          ]
-        endif
+        command = [
+          this._Browsers[which][1],
+          file,
+          this._Browsers[which][2]
+        ]
       endif
     endif
 
@@ -599,6 +572,10 @@ export class BrowserLauncher
 
       # Strip out useless command arguments:
       command->filter((_, v: string) => !empty(v))
+
+      if has('unix') == 1
+        command = ['nohup'] + command
+      endif
 
       var job_id: job = job_start(command, {
         drop: 'auto',
@@ -640,7 +617,7 @@ export class BrowserLauncher
     for line in output
       if line =~# '^\s*InstallLocation\>'
         var path = substitute(trim(line), '^InstallLocation\s\+REG_SZ\s\+', '', '')
-        if has('win32unix')
+        if has('win32unix') == 1
           path = trim(system(['cygpath', path]))
           path = findfile(executable, escape(path, ' ') .. '/**')
         elseif HTMLUtilO.Has('WSL2')
