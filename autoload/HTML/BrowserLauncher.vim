@@ -103,7 +103,7 @@ export class BrowserLauncher
 
     if HTMLUtilO.Has('mac')
       return
-    elseif (has('unix') == 1) && (has('win32unix') == 0)
+    elseif has('unix') == 1 && has('win32unix') == 0 && !HTMLUtilO.Has('WSL2')
 
       var _Browsers: dict<list<any>>
       _Browsers.firefox = ['firefox',
@@ -588,9 +588,9 @@ export class BrowserLauncher
 
     if command != []
 
-      if command[0] == '' && HTMLUtilO.Has('win')
+      if command[0] == '' && (HTMLUtilO.Has('win') || HTMLUtilO.Has('WSL2'))
         map(command, (_, val) => substitute(val, '^file://', '', ''))
-        command = ['RunDll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
+        command = ['rundll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
       else
         HTMLMessagesO.Error(HTMLMessagesO.E_NOCOMMAND)
       endif
