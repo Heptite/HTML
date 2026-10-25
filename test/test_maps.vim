@@ -191,7 +191,7 @@ def Test_normal_mode_mappings(...which: list<string>)
 		';va': ['<var>test text</var>'],
 		';fm': ['<form action="">', 'test text', '</form>'],
 		# Flaky due to a bug in vim?
-		#';fd': ['<fieldset>', '<legend></legend>', 'test text', '</fieldset>'],
+		';fd': ['<fieldset>', '<legend></legend>', 'test text', '</fieldset>'],
 		';bu': ['<input type="button" name="" value="test text">'],
 		';ch': ['<input type="checkbox" name="" value="test text">'],
 		';da': ['<input list="test text">', '<datalist id="test text">', '', '</datalist>', '</input>'],
@@ -238,7 +238,7 @@ def Test_normal_mode_mappings(...which: list<string>)
 		';vi': ['<video width="" height="" controls>', '<source src="" type="">', 'test text', '</video>'],
 		';cv': ['<canvas width="" height="">test text</canvas>'],
 		# Flaky due to a bug in vim?
-		#';ds': ['<details>', '<summary></summary>', 'test text', '</details>'],
+		';ds': ['<details>', '<summary></summary>', 'test text', '</details>'],
 		';eb': ['<embed type="" src="test text" width="" height="">'],
 		';fg': ['<figure>', 'test text', '</figure>'],
 		';fp': ['<figcaption>test text</figcaption>'],

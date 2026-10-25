@@ -570,8 +570,8 @@
 
 		"maps": {
 			"i": ["", "<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR></[{FIELDSET}]>\\<ESC>k$F<i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{FIELDSET}]>\\<C-O>`<<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR>\\<ESC>k$F<i", {"reindent": 2, "insert": true}],
-			"o": ["", {"insert": true}]
+			"v": ["", "\\<ESC>`>a\\<CR></[{FIELDSET}]>\\<C-O>`<<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR>\\<ESC>k$F<", {"reindent": 2, "insert": false}],
+			"o": ["", {"insert": false}]
 		},
 
 		"menu": ["-", ["F&orms", "FIELDSET"], {
@@ -1458,8 +1458,8 @@
 
 		"maps": {
 			"i": ["", "<[{DETAILS}]>\\<CR><[{SUMMARY}]></[{SUMMARY}]>\\<CR><[{P}]>\\<CR></[{P}]>\\<CR></[{DETAILS}]>\\<ESC>3k$F<i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{DETAILS}]>\\<C-O>`<<[{DETAILS}]>\\<CR><[{SUMMARY></SUMMARY}]>\\<CR>\\<ESC>k$F<a", {"insert": true, "reindent": 2}],
-			"o": ["", {"insert": true}]
+			"v": ["", "\\<ESC>`>a\\<CR></[{DETAILS}]>\\<C-O>`<<[{DETAILS}]>\\<CR><[{SUMMARY></SUMMARY}]>\\<CR>\\<ESC>k$F<a", {"insert": false, "reindent": 2}],
+			"o": ["", {"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&DETAILS with SUMMARY"], {

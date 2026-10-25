@@ -1,0 +1,27 @@
+{
+  "name": "html",
+  "version": "1.0.0",
+  "description": "Note that this plugin requires Vim 9.2 or later; nightly builds are available for Windows at: <https://github.com/vim/vim-win32-installer/releases> Or semi-frequent builds are available for Windows at: <https://tuxproject.de/projects/vim/>",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Heptite/HTML.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Heptite/HTML/issues"
+  },
+  "homepage": "https://github.com/Heptite/HTML#readme",
+  "devDependencies": {
+    "@eslint/json": "^2.1.1",
+    "eslint": "^10.13.0"
+  }
+}
