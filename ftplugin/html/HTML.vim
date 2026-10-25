@@ -11,7 +11,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)proton(dot)me>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      May 18, 2026
+# Last Change:      October 24, 2026
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.2 or later
 #
@@ -119,7 +119,7 @@ var HTMLMenuO: Menu.HTMLMenu = Menu.HTMLMenu.new()
 # ...
 var HTMLMessagesO: Messages.HTMLMessages =
   Messages.HTMLMessages.new()
-#b:htmlplugin.HTMLMessagesO = HTMLMessagesO
+b:htmlplugin.HTMLMessagesO = HTMLMessagesO
 # ...
 var HTMLVariablesO: Variables.HTMLVariables =
   Variables.HTMLVariables.new()

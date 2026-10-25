@@ -35,7 +35,7 @@ endif
 #  - Edge     (remote [new window / new tab] / launch)
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
-#  - Plus lynx, w3m, and links on Cygwin if they can be found.
+#  - Plus lynx, w3m, and links text-mode browsers if they can be found.
 #  - Default
 #
 # TODO:
@@ -87,13 +87,15 @@ endenum # }}}1
 
 export class BrowserLauncher
 
-  var Browsers: dict<list<string>>
-  var TextModeBrowsers: dict<list<string>> = {lynx: [], w3m: [], links: []}
-  var MacBrowsersExist: list<string> = ['default']
+  var _Browsers: dict<list<string>>
+  var _TextModeBrowsers: dict<list<string>> = {lynx: [], w3m: [], links: []}
+  var _MacBrowsersExist: list<string> = ['default']
   static var HTMLMessagesO: Messages.HTMLMessages
   static var HTMLUtilO: Util.HTMLUtil
 
   def new() # {{{
+    var temppath: string
+
     if HTMLMessagesO == null_object
       HTMLMessagesO = Messages.HTMLMessages.new()
       HTMLUtilO = Util.HTMLUtil.new()
@@ -106,162 +108,131 @@ export class BrowserLauncher
       # way to find them if they are, so just assume they would be in a standard
       # location:
       if filereadable('/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe')
-        this.Browsers.brave = ['brave', '/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '--new-window']
+        this._Browsers.brave = ['brave', '/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '--new-window']
       elseif filereadable('/mnt/c/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe')
-        this.Browsers.brave = ['brave', '/mnt/c/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '--new-window']
+        this._Browsers.brave = ['brave', '/mnt/c/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe', '', '', '--new-window']
       endif
       if filereadable('/mnt/c/Program Files/Mozilla Firefox/firefox.exe')
-        this.Browsers.firefox = ['firefox', '/mnt/c/Program Files/Mozilla Firefox/firefox.exe', '', '--new-tab', '--new-window']
+        this._Browsers.firefox = ['firefox', '/mnt/c/Program Files/Mozilla Firefox/firefox.exe', '', '--new-tab', '--new-window']
       elseif filereadable('/mnt/c/Program Files (x86)/Mozilla Firefox/firefox.exe')
-        this.Browsers.firefox = ['firefox', '/mnt/c/Program Files (x86)/Mozilla Firefox/firefox.exe', '', '--new-tab', '--new-window']
+        this._Browsers.firefox = ['firefox', '/mnt/c/Program Files (x86)/Mozilla Firefox/firefox.exe', '', '--new-tab', '--new-window']
       endif
       if filereadable('/mnt/c/Program Files/Google/Chrome/Application/chrome.exe')
-        this.Browsers.chrome = ['chrome', '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '', '', '--new-window']
+        this._Browsers.chrome = ['chrome', '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '', '', '--new-window']
       elseif filereadable('/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe')
-        this.Browsers.chrome = ['chrome', '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe', '', '', '--new-window']
+        this._Browsers.chrome = ['chrome', '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe', '', '', '--new-window']
       endif
       if filereadable('/mnt/c/Program Files/Opera/launcher.exe')
-        this.Browsers.opera = ['opera', '/mnt/c/Program Files/Opera/launcher.exe', '', '', '--new-window']
+        this._Browsers.opera = ['opera', '/mnt/c/Program Files/Opera/launcher.exe', '', '', '--new-window']
       elseif filereadable('/mnt/c/Program Files (x86)/Opera/launcher.exe')
-        this.Browsers.opera = ['opera', '/mnt/c/Program Files (x86)/Opera/launcher.exe', '', '', '--new-window']
+        this._Browsers.opera = ['opera', '/mnt/c/Program Files (x86)/Opera/launcher.exe', '', '', '--new-window']
       endif
       if filereadable('/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe')
-        this.Browsers.edge = ['msedge', '/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe', '', '', '--new-window']
+        this._Browsers.edge = ['msedge', '/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe', '', '', '--new-window']
       elseif filereadable('/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe')
-        this.Browsers.edge = ['msedge', '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '', '', '--new-window']
+        this._Browsers.edge = ['msedge', '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '', '', '--new-window']
       endif
 
-      this.TextModeBrowsers = this.FindTextModeBrowsers()
-      this.Browsers->extend(this.TextModeBrowsers)
+      this._TextModeBrowsers = this._Find_TextModeBrowsers()
+      this._Browsers->extend(this._TextModeBrowsers)
     elseif (has('unix') == 1) && (has('win32unix') == 0)
 
-      var Browsers: dict<list<any>>
-      Browsers.firefox = ['firefox',
+      var _Browsers: dict<list<any>>
+      _Browsers.firefox = ['firefox',
         '', '', '--new-tab', '--new-window']
-      Browsers.brave   = [['brave-browser', 'brave'],
+      _Browsers.brave   = [['brave-browser', 'brave'],
         '', '', '',          '--new-window']
-      Browsers.chrome  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
+      _Browsers.chrome  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
         '', '', '',          '--new-window']
-      Browsers.opera   = ['opera',
+      _Browsers.opera   = ['opera',
         '', '', '',          '--new-window']
-      Browsers.default = ['xdg-open',
+      _Browsers.default = ['xdg-open',
         '', '', '',          '']
 
-      var temppath: string
-      for tempkey in Browsers->keys()
-        for tempname in (type(Browsers[tempkey][0]) == v:t_list ? Browsers[tempkey][0] : [Browsers[tempkey][0]])
+      for tempkey in _Browsers->keys()
+        for tempname in (type(_Browsers[tempkey][0]) == v:t_list ? _Browsers[tempkey][0] : [_Browsers[tempkey][0]])
           temppath = tempname->exepath()
           if temppath != ''
-            Browsers[tempkey][0] = tempname
-            Browsers[tempkey][1] = temppath
+            _Browsers[tempkey][0] = tempname
+            _Browsers[tempkey][1] = temppath
             break
           endif
         endfor
 
         if temppath == ''
-          Browsers->remove(tempkey)
+          _Browsers->remove(tempkey)
         endif
       endfor
 
-      for tmpkey in Browsers->keys()
-        this.Browsers[tmpkey] = Browsers[tmpkey]
+      for tmpkey in _Browsers->keys()
+        this._Browsers[tmpkey] = _Browsers[tmpkey]
       endfor
 
-      this.TextModeBrowsers = this.FindTextModeBrowsers()
-      this.Browsers->extend(this.TextModeBrowsers)
+      this._TextModeBrowsers = this._Find_TextModeBrowsers()
+      this._Browsers->extend(this._TextModeBrowsers)
 
     elseif HTMLUtilO.Has('win')
-      var tmppath: string
-
-      # These applications _could_ be installed elsewhere, but there's no reliable
-      # way to find them if they are, so just assume they would be in a standard
-      # location:
-      if filereadable('C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe')
-          || filereadable('C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe')
-        this.Browsers.brave = ['brave', '', '', '', '--new-window']
-      else
-        tmppath = this._RegistrySearch('Brave', 'brave.exe')
-        if tmppath != ''
-          this.Browsers.brave = [tmppath, '', '', '', '--new-window']
-        endif
+      temppath = this._RegistrySearch('Brave', 'brave.exe')
+      if temppath != ''
+        this._Browsers.brave = ['brave', temppath, '', '', '--new-window']
       endif
-      if filereadable('C:\Program Files\Mozilla Firefox\firefox.exe')
-          || filereadable('C:\Program Files (x86)\Mozilla Firefox\firefox.exe')
-        this.Browsers.firefox = ['firefox', '', '', '--new-tab', '--new-window']
-      else
-        tmppath = this._RegistrySearch('Firefox', 'firefox.exe')
-        if tmppath != ''
-          this.Browsers.firefox = [tmppath, '', '', '', '--new-window']
-        endif
+      temppath = this._RegistrySearch('Firefox', 'firefox.exe')
+      if temppath != ''
+        this._Browsers.firefox = ['firefox', temppath, '', '', '--new-window']
       endif
-      if filereadable('C:\Program Files\Google\Chrome\Application\chrome.exe')
-          || filereadable('C:\Program Files (x86)\Google\Chrome\Application\chrome.exe')
-        this.Browsers.chrome = ['chrome', '', '', '', '--new-window']
-      else
-        tmppath = this._RegistrySearch('Chrome', 'chrome.exe')
-        if tmppath != ''
-          this.Browsers.chrome = [tmppath, '', '', '', '--new-window']
-        endif
+      temppath = this._RegistrySearch('Chrome', 'chrome.exe')
+      if temppath != ''
+        this._Browsers.chrome = ['chrome', temppath, '', '', '--new-window']
       endif
-      if filereadable('C:\Program Files\Opera\opera.exe')
-          || filereadable('C:\Program Files (x86)\Opera\opera.exe')
-        this.Browsers.opera = ['opera', '', '', '', '--new-window']
-      else
-        tmppath = this._RegistrySearch('Opera', 'opera.exe')
-        if tmppath != ''
-          this.Browsers.opera = [tmppath, '', '', '', '--new-window']
-        endif
+      temppath = this._RegistrySearch('Opera', 'opera.exe')
+      if temppath != ''
+        this._Browsers.opera = ['opera', temppath, '', '', '--new-window']
       endif
-      if filereadable('C:\Program Files\Microsoft\Edge\Application\msedge.exe')
-          || filereadable('C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe')
-        this.Browsers.edge = ['msedge', '', '', '', '--new-window']
-      else
-        tmppath = this._RegistrySearch('Edge', 'msedge.exe')
-        if tmppath != ''
-          this.Browsers.edge = [tmppath, '', '', '', '--new-window']
-        endif
+      temppath = this._RegistrySearch('Edge', 'msedge.exe')
+      if temppath != ''
+        this._Browsers.edge = ['msedge', temppath, '', '', '--new-window']
       endif
 
-      this.Browsers.default = ['start', '', '', '', '']
+      this._Browsers.default = ['', '', '', '', '']
 
       if has('win32unix') == 1
-        this.TextModeBrowsers = this.FindTextModeBrowsers()
-        this.Browsers->extend(this.TextModeBrowsers)
+        this._TextModeBrowsers = this._Find_TextModeBrowsers()
+        this._Browsers->extend(this._TextModeBrowsers)
       endif
 
     else
       HTMLMessagesO.Warn('Your OS is not recognized, browser controls will not work.')
 
-      this.Browsers = {}
+      this._Browsers = {}
     endif
   enddef # }}}
 
   def BrowserExists(browser: string = ''): any  # {{{1
     if HTMLUtilO.Has('mac')
-      return this.MacBrowserExists(browser)
+      return this._MacBrowserExists(browser)
     else
-      return this.UnixWindowsBrowserExists(browser)
+      return this._UnixWindowsBrowserExists(browser)
     endif
   enddef
 
   def Launch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool  # {{{1
     if HTMLUtilO.Has('mac')
-      return this.MacLaunch(browser, new, url)
+      return this._MacLaunch(browser, new, url)
     else
-      return this.UnixWindowsLaunch(browser, new, url)
+      return this._UnixWindowsLaunch(browser, new, url)
     endif
   enddef  # }}}1
 
-  # FindTextModeBrowsers() {{{1
+  # _Find_TextModeBrowsers() {{{1
   #
-  # Remove browsers from TextModeBrowsers that aren't found, and add to
-  # Browsers dictionary of textmode browsers that are found.
+  # Remove browsers from _TextModeBrowsers that aren't found, and add to
+  # _Browsers dictionary of textmode browsers that are found.
   #
   # Args:
   #  The list of browsers to search for
   # Return value:
   #  A list of browsers that were found, in list<list<string>> format
-  def FindTextModeBrowsers(browserlist: dict<list<string>> = this.TextModeBrowsers): dict<list<string>>
+  def _Find_TextModeBrowsers(browserlist: dict<list<string>> = this._TextModeBrowsers): dict<list<string>>
     var browsers: dict<list<string>>
 
     browsers = browserlist->mapnew(
@@ -281,18 +252,18 @@ export class BrowserLauncher
     return browsers
   enddef # }}}1
 
-  def UseAppleScript(): bool # {{{1
+  def _UseAppleScript(): bool # {{{1
     return system('/usr/bin/osascript -e '
       .. "'tell application \"System Events\" to set UI_enabled "
       .. "to UI elements enabled' 2>/dev/null")->trim() ==? 'true' ? true : false
   enddef
 
-  def MacBrowserExists(app: string = ''): any # {{{1
+  def _MacBrowserExists(app: string = ''): any # {{{1
     if app == ''
-      return this.MacBrowsersExist
+      return this._MacBrowsersExist
     endif
 
-    if match(this.MacBrowsersExist, $'^\c\V{app}\$')
+    if match(this._MacBrowsersExist, $'^\c\V{app}\$')
       return true
     else
       system("/usr/bin/osascript -e 'get id of application \"" .. app->escape("\"'\\") .. "\"'")
@@ -300,12 +271,12 @@ export class BrowserLauncher
         return false
       endif
 
-      this.MacBrowsersExist->add(app->tolower())->sort()->uniq()
+      this._MacBrowsersExist->add(app->tolower())->sort()->uniq()
       return true
     endif
   enddef
 
-  def MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool  # {{{1
+  def _MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool  # {{{1
     var file: string
     var torn: string
     var script: string
@@ -313,7 +284,7 @@ export class BrowserLauncher
     var use_AS: bool
     var as_msg: string
 
-    if (!this.MacBrowserExists(app) && app !=? 'default')
+    if (!this._MacBrowserExists(app) && app !=? 'default')
       printf(HTMLMessagesO.E_NOAPP, app)->HTMLMessagesO.Error()
       return false
     endif
@@ -331,7 +302,7 @@ export class BrowserLauncher
     endif
 
     # Can we open new tabs and windows?
-    use_AS = this.UseAppleScript()
+    use_AS = this._UseAppleScript()
 
     # Why we can't open new tabs and windows:
     as_msg = "The feature that allows the opening of new browser windows\n"
@@ -462,22 +433,22 @@ export class BrowserLauncher
     return v:shell_error == 0 ? true : false
   enddef # }}}
 
-  # UnixWindowsBrowserExists() {{{1
+  # _UnixWindowsBrowserExists() {{{1
   #
   # Usage:
   #  UnixWindowsBrowserExists([browser])
   # Return value:
   #  With an argument: True or False - Whether the browser was found (exists)
   #  Without an argument: list - The names of the browsers that were found
-  def UnixWindowsBrowserExists(browser: string = ''): any
+  def _UnixWindowsBrowserExists(browser: string = ''): any
     if browser == ''
-      return this.Browsers->keys()->sort()
+      return this._Browsers->keys()->sort()
     else
-      return this.Browsers->has_key(browser) ? true : false
+      return this._Browsers->has_key(browser) ? true : false
     endif
   enddef
 
-  # UnixWindowsLaunch() {{{1
+  # _UnixWindowsLaunch() {{{1
   #
   # Usage:
   #  UnixWindowsLaunch({...}, [{0/1/2}], [url])
@@ -496,14 +467,14 @@ export class BrowserLauncher
   # Return value:
   #  false - Failure (No browser was launched/controlled.)
   #  true  - Success (A browser was launched/controlled.)
-  def UnixWindowsLaunch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool
+  def _UnixWindowsLaunch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool
     var which = browser
     var donew = new
     var command: list<string> = []
     var output: string = ''
     var file: string
 
-    if !this.UnixWindowsBrowserExists(which)
+    if !this._UnixWindowsBrowserExists(which)
       printf(HTMLMessagesO.E_UNKNOWN, which)->HTMLMessagesO.Error()
       return false
     endif
@@ -522,10 +493,10 @@ export class BrowserLauncher
       # If we're on Cygwin or WSL2 and not using a text mode browser,
       # translate the file path to a Windows native path for later use,
       # otherwise just add the file:// prefix:
-      if has('win32unix') == 1 && match(this.TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
+      if has('win32unix') == 1 && match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         file = 'file://' .. system('cygpath -w ' .. expand('%:p'))->trim()
       elseif HTMLUtilO.Has('WSL2')
-          && match(this.TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
+          && match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         # No double slash here, please:
         file = 'file:/' .. system('wslpath -w ' .. expand('%:p'))->trim()
       else
@@ -537,19 +508,19 @@ export class BrowserLauncher
     endif
 
     if has('unix') == 1 && $DISPLAY == ''
-        && match(this.TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
+        && match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         && has('win32unix') == 0
-      if this.TextModeBrowsers->keys() == []
+      if this._TextModeBrowsers->keys() == []
         HTMLMessagesO.Error(HTMLMessagesO.E_DISPLAY)
         return false
       else
-        which = this.TextModeBrowsers->keys()[0]
+        which = this._TextModeBrowsers->keys()[0]
       endif
     endif
 
     # Have to handle the textmode browsers different than the GUI browsers:
-    if match(this.TextModeBrowsers->keys(), $'^\c\V{which}\$') >= 0
-      HTMLMessagesO.Message('Launching ' .. this.Browsers[which][0] .. '...')
+    if match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') >= 0
+      HTMLMessagesO.Message('Launching ' .. this._Browsers[which][0] .. '...')
 
       var xterm = exepath('xterm')
 
@@ -558,29 +529,29 @@ export class BrowserLauncher
           command = [
             xterm,
             '-T',
-            this.Browsers[which][0],
+            this._Browsers[which][0],
             ' -e ',
-            this.Browsers[which][1],
+            this._Browsers[which][1],
             file
           ]
         elseif exists_compiled(':terminal') == 2
-          execute 'terminal ++close ' .. this.Browsers[which][1] .. ' ' .. file
+          execute 'terminal ++close ' .. this._Browsers[which][1] .. ' ' .. file
           return true
         else
           if donew == Behavior.newwindow
-            HTMLMessagesO.Error(printf(HTMLMessagesO.E_XTERM, this.Browsers[which][0]))
+            HTMLMessagesO.Error(printf(HTMLMessagesO.E_XTERM, this._Browsers[which][0]))
           else
-            HTMLMessagesO.Error(printf(HTMLMessagesO.E_TERM, this.Browsers[which][0]))
+            HTMLMessagesO.Error(printf(HTMLMessagesO.E_TERM, this._Browsers[which][0]))
           endif
 
           return false
         endif
       else
         sleep 1
-        execute '!' .. this.Browsers[which][1] .. ' ' .. file->shellescape()
+        execute '!' .. this._Browsers[which][1] .. ' ' .. file->shellescape()
 
         if v:shell_error
-          printf(HTMLMessagesO.E_LAUNCH, this.Browsers[which][0])->HTMLMessagesO.Error()
+          printf(HTMLMessagesO.E_LAUNCH, this._Browsers[which][0])->HTMLMessagesO.Error()
           return false
         endif
 
@@ -593,57 +564,56 @@ export class BrowserLauncher
     if command == []
 
       if donew == Behavior.newtab
-        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this.Browsers[which][0])} tab...')
-        if HTMLUtilO.Has('win')
+        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which][0])} tab...')
+        if has('win32')
           command = [
-            'start',
-            this.Browsers[which][0],
+            this._Browsers[which][1],
             file,
-            this.Browsers[which][3]
+            this._Browsers[which][3]
           ]
         else
           command = [
             'nohup',
-            this.Browsers[which][1],
+            this._Browsers[which][1],
             file,
-            this.Browsers[which][3]
+            this._Browsers[which][3]
           ]
         endif
       elseif donew != Behavior.default
-        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this.Browsers[which][0])} window...')
-        if HTMLUtilO.Has('win')
+        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which][0])} window...')
+        if has('win32')
           command = [
-            this.Browsers[which][0],
+            this._Browsers[which][1],
             file,
-            this.Browsers[which][4]
+            this._Browsers[which][4]
           ]
         else
           command = [
             'nohup', 
-            this.Browsers[which][1],
+            this._Browsers[which][1],
             file,
-            this.Browsers[which][4]
+            this._Browsers[which][4]
           ]
         endif
       else
         if which == 'default'
           HTMLMessagesO.Message('Invoking system default browser...')
         else
-          HTMLMessagesO.Message($'Invoking {HTMLUtilO.Cap(this.Browsers[which][0])}...')
+          HTMLMessagesO.Message($'Invoking {HTMLUtilO.Cap(this._Browsers[which][0])}...')
         endif
 
         if HTMLUtilO.Has('win')
           command = [
-            this.Browsers[which][0],
+            this._Browsers[which][1],
             file,
-            this.Browsers[which][2]
+            this._Browsers[which][2]
           ]
         else
           command = [
             'nohup',
-            this.Browsers[which][1],
+            this._Browsers[which][1],
             file,
-            this.Browsers[which][2]
+            this._Browsers[which][2]
           ]
         endif
       endif
@@ -651,26 +621,31 @@ export class BrowserLauncher
 
     if command != []
 
-      if has('win32unix') == 1 && which == 'default'
+      if command[0] == ''
+        command->remove(0)
+      endif
+
+      if which == 'default'
         map(command, (_, val) => substitute(val, '^file://', '', ''))
       endif
 
-      var job_id: job
-      var status: string
-
-      if command[0] == 'start'
-        # job_start() on the 'start' command is odd and won't work here
-        output = system(command)
-      else
-        job_id = job_start(command)
-        status = job_status(job_id)
-      endif
-      
+      var job_id = job_start(command, {
+        drop: 'auto',
+        exit_cb: (_, exitstatus: number) => {
+          if exitstatus > 0
+            b:htmlplugin.HTMLMessagesO.Error($'Job exited abmormally: {exitstatus}')
+          endif
+        },
+        #err_cb: (_, msg: string) => {
+        #  b:htmlplugin.HTMLMessagesO.Error($'Error message from sub-process: {msg}')
+        #},
+      })
+      var status = job_status(job_id)
 
       if status == 'fail'
         printf(HTMLMessagesO.E_COMMAND, command)->HTMLMessagesO.Error()
         return false
-      elseif v:shell_error
+      elseif v:shell_error != 0
         printf(HTMLMessagesO.E_COMMAND, command)->HTMLMessagesO.Error()
         HTMLMessagesO.Error(output)
         return false
@@ -694,7 +669,12 @@ export class BrowserLauncher
     for line in output
       if line =~# '^\s*InstallLocation\>'
         var path = substitute(trim(line), '^InstallLocation\s\+REG_SZ\s\+', '', '')
-        path = findfile(executable, escape(path, ' ') .. '\**')
+        if has('win32unix')
+          path = trim(system(['cygpath', path]))
+          path = findfile(executable, escape(path, ' ') .. '/**')
+        else
+          path = findfile(executable, escape(path, ' ') .. '\**')
+        endif
         if executable(path)
           return path
         endif
