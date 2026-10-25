@@ -7,7 +7,7 @@ endif
 
 # Messaging functions for the HTML macros filetype plugin.
 #
-# Last Change: May 18, 2026
+# Last Change: October 24, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -62,6 +62,7 @@ export class HTMLMessages
   const E_NARGS        = gettext("E119: Not enough arguments for %s", 'CJRHTML')
   const E_NOAPP        = gettext("%s not found.", 'CJRHTML')
   const E_NOCLIPBOARD  = gettext("%s Somehow the htmlplugin.save_clipboard global variable did not get set.", 'CJRHTML')
+  const E_NOCOMMAND: string    = gettext("No command found.", 'CJRHTML')
   const E_NOEMAPLEAD   = gettext($"%s g:htmlplugin.entity_map_leader is not set! {E_NOMAP}", 'CJRHTML')
   const E_NOENTITY     = gettext("No entity mappings or menus have been defined.", 'CJRHTML')
   const E_NOFILE       = gettext("No file is associated with the current buffer and no URL was specified.", 'CJRHTML')
@@ -127,8 +128,9 @@ export class HTMLMessages
     elseif typename(message) == 'list<string>'
       m = message
     else
-      echoerr printf(this.E_INVALIDTYPE, typename(message))
-      return
+      #echoerr printf(this.E_INVALIDTYPE, typename(message))
+      #return
+      throw printf(this.E_INVALIDTYPE, typename(message))
     endif
 
     for s in m

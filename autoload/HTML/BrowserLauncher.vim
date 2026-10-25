@@ -621,9 +621,11 @@ export class BrowserLauncher
 
     if command != []
 
-      if command[0] == ''
+      if command[0] == '' && HTMLUtilO.Has('win')
         map(command, (_, val) => substitute(val, '^file://', '', ''))
         command = ['RunDll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
+      else
+        HTMLMessagesO.Error(HTMLMessagesO.E_NOCOMMAND)
       endif
 
       var job_id = job_start(command, {
