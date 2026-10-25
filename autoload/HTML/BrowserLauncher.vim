@@ -464,8 +464,7 @@ export class BrowserLauncher
         file = 'file://' .. system(['cygpath', '-w', expand('%:p')])->trim()
       elseif HTMLUtilO.Has('WSL2')
           && match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
-        # No double slash here, please:
-        file = 'file:/' .. system(['wslpath', '-w', expand('%:p')])->trim()
+        file = 'file://' .. system(['wslpath', '-w', expand('%:p')])->trim()
       else
         file = 'file://' .. expand('%:p')
       endif
@@ -588,11 +587,14 @@ export class BrowserLauncher
 
     if command != []
 
-      if command[0] == '' && (HTMLUtilO.Has('win') || HTMLUtilO.Has('WSL2'))
-        map(command, (_, val) => substitute(val, '^file://', '', ''))
-        command = ['rundll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
-      else
-        HTMLMessagesO.Error(HTMLMessagesO.E_NOCOMMAND)
+      if command[0] == ''
+        if HTMLUtilO.Has('win') || HTMLUtilO.Has('WSL2')
+          map(command, (_, val) => substitute(val, '^file://', '', ''))
+          command = ['rundll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
+        else
+          HTMLMessagesO.Error(HTMLMessagesO.E_NOCOMMAND)
+          return false
+        endif
       endif
 
       # Strip out useless command arguments:
