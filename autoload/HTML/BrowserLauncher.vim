@@ -58,6 +58,7 @@ endif
 #
 #  - Vim 9.2 or later
 #  - At least one supported browser must be installed
+#  - xdg-open should be installed for Unix for default browser behavior
 #
 # Copyright © 1998-2026 Christian J. Robinson <heptite(at)proton(dot)me>
 #
@@ -103,7 +104,7 @@ export class BrowserLauncher
 
     if HTMLUtilO.Has('mac')
       return
-    elseif has('unix') == 1 && has('win32unix') == 0 && !HTMLUtilO.Has('WSL2')
+    elseif (! (HTMLUtilO.Has('WSL2') || has('win32unix') == 1)) && has('unix') == 1
 
       var _Browsers: dict<list<any>>
       _Browsers.firefox = ['firefox',
@@ -117,7 +118,7 @@ export class BrowserLauncher
       _Browsers.default = ['xdg-open',
         '', '', '',          '']
 
-      for tempkey in _Browsers->keys()
+      for tempkey: string in _Browsers->keys()
         for tempname in (type(_Browsers[tempkey][0]) == v:t_list ? _Browsers[tempkey][0] : [_Browsers[tempkey][0]])
           temppath = tempname->exepath()
           if temppath != ''
@@ -139,7 +140,7 @@ export class BrowserLauncher
       this._TextModeBrowsers = this._FindTextModeBrowsers()
       this._Browsers->extend(this._TextModeBrowsers)
 
-    elseif HTMLUtilO.Has('win') || HTMLUtilO.Has('WSL2')
+    elseif HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
       temppath = this._RegistrySearch('Brave', 'brave.exe')
       if temppath != ''
         this._Browsers.brave = ['brave', temppath, '', '', '--new-window']
@@ -163,7 +164,7 @@ export class BrowserLauncher
 
       this._Browsers.default = ['', '', '', '', '']
 
-      if has('win32unix') == 1 || HTMLUtilO.Has('WSL2')
+      if HTMLUtilO.Has('WSL2') || has('win32unix') == 1
         this._TextModeBrowsers = this._FindTextModeBrowsers()
         this._Browsers->extend(this._TextModeBrowsers)
       endif
@@ -561,7 +562,7 @@ export class BrowserLauncher
     if command != []
 
       if command[0] == ''
-        if HTMLUtilO.Has('win') || HTMLUtilO.Has('WSL2')
+        if HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
           map(command, (_, val) => substitute(val, '^file://', '', ''))
           command = ['rundll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
         else

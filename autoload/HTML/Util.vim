@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: October 23, 2026
+# Last Change: October 25, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -53,11 +53,13 @@ export class HTMLUtil
 
   static var HTMLMessagesO: Messages.HTMLMessages
   static var HTMLVariablesO: Variables.HTMLVariables
+  static var _WSL2: bool
 
   def new() # {{{
     if HTMLMessagesO == null_object
       HTMLMessagesO = Messages.HTMLMessages.new()
       HTMLVariablesO = Variables.HTMLVariables.new()
+      _WSL2 = filereadable('/proc/version') && readfile('/proc/version', '', 1)[0] =~# 'WSL2'
     endif
   enddef # }}}
 
@@ -70,7 +72,7 @@ export class HTMLUtil
   # Return Value:
   #  None
   static def About(): void
-    var message = "HTML/XHTML Editing Macros and Menus Plugin\n"
+    var message: string = "HTML/XHTML Editing Macros and Menus Plugin\n"
       .. $"Version: {Variables.HTMLVariables.VERSION}"
       .. $"\nWritten by: {Variables.HTMLVariables.AUTHOR}"
       .. $" <{Variables.HTMLVariables.EMAIL}>\n"
@@ -474,9 +476,8 @@ export class HTMLUtil
   #  Boolean - Whether the test is true or not
   def Has(feat: string): bool
     if feat ==? 'WSL2'
-      return filereadable('/proc/version') && readfile('/proc/version', '', 1)[0] =~# 'WSL2'
+      return _WSL2
     elseif feat ==? 'win'
-      #return has('win32') == 1 || has('win64') == 1 || has('win32unix') == 1
       return (has('win32') == 1) || (has('win32unix') == 1)
     elseif feat ==? 'mac'
       return (has('mac') == 1) || (has('macunix') == 1)
