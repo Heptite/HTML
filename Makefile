@@ -168,7 +168,7 @@ installed: $(PLUGIN_FILES) $(alldoc) $(alllang) $(allxpm) $(allbmp) doc/tags
 faq FAQ: $(textfaq)
 
 $(textfaq): $(faq)
-	w3m -T text/html -cols 79 -O latin1 -dump ${faq} | unix2dos > $(textfaq)
+	w3m -T text/html -cols 79 -I UTF8 -O UTF8 -dump ${faq} | unix2dos > $(textfaq)
 	chmod a+r ${textfaq}
 
 test tests: test_maps test_methods
