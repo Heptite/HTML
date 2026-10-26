@@ -132,6 +132,7 @@ html-dl	HTML.txt	/*html-dl*
 html-doctype	HTML.txt	/*html-doctype*
 html-dt	HTML.txt	/*html-dt*
 html-edge-browser	HTML.txt	/*html-edge-browser*
+html-elinks-browser	HTML.txt	/*html-elinks-browser*
 html-embed	HTML.txt	/*html-embed*
 html-emphasize	HTML.txt	/*html-emphasize*
 html-figure	HTML.txt	/*html-figure*
@@ -741,6 +742,7 @@ n_;dv	HTML.txt	/*n_;dv*
 n_;eb	HTML.txt	/*n_;eb*
 n_;ec	HTML.txt	/*n_;ec*
 n_;ed	HTML.txt	/*n_;ed*
+n_;el	HTML.txt	/*n_;el*
 n_;em	HTML.txt	/*n_;em*
 n_;ev	HTML.txt	/*n_;ev*
 n_;fc	HTML.txt	/*n_;fc*
@@ -792,6 +794,7 @@ n_;ms	HTML.txt	/*n_;ms*
 n_;mt	HTML.txt	/*n_;mt*
 n_;na	HTML.txt	/*n_;na*
 n_;ned	HTML.txt	/*n_;ned*
+n_;nel	HTML.txt	/*n_;nel*
 n_;nff	HTML.txt	/*n_;nff*
 n_;ngc	HTML.txt	/*n_;ngc*
 n_;nl2	HTML.txt	/*n_;nl2*
@@ -840,6 +843,7 @@ n_;tb	HTML.txt	/*n_;tb*
 n_;td	HTML.txt	/*n_;td*
 n_;te	HTML.txt	/*n_;te*
 n_;ted	HTML.txt	/*n_;ted*
+n_;tel	HTML.txt	/*n_;tel*
 n_;tf	HTML.txt	/*n_;tf*
 n_;tff	HTML.txt	/*n_;tff*
 n_;tgc	HTML.txt	/*n_;tgc*
