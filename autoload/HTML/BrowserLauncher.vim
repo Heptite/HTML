@@ -88,77 +88,76 @@ endenum # }}}1
 
 export class BrowserLauncher
 
-  var _Browsers: dict<list<string>>
-  var _TextModeBrowsers: dict<list<string>> = {lynx: [], w3m: [], links: []}
+  const _Browsers: dict<list<string>> = {}
+  const _TextModeBrowsers: dict<list<string>> = {lynx: [], w3m: [], links: []}
   var _MacBrowsersExist: list<string> = ['default']
   static var HTMLMessagesO: Messages.HTMLMessages
   static var HTMLUtilO: Util.HTMLUtil
 
   def new() # {{{
     var temppath: string
+    var Browserstmp: dict<list<any>>
 
     if HTMLMessagesO == null_object
       HTMLMessagesO = Messages.HTMLMessages.new()
       HTMLUtilO = Util.HTMLUtil.new()
     endif
 
-    if HTMLUtilO.Has('mac')
+    if HTMLUtilO.Has('mac') || this._Browsers != {}
       return
     elseif (! (HTMLUtilO.Has('WSL2') || has('win32unix') == 1)) && has('unix') == 1
-      var _Browserstmp: dict<list<any>>
-      _Browserstmp.firefox = ['firefox',
+      Browserstmp.firefox = ['firefox',
         '', '', '--new-tab', '--new-window']
-      _Browserstmp.brave   = [['brave-browser', 'brave'],
+      Browserstmp.brave   = [['brave-browser', 'brave'],
         '', '', '',          '--new-window']
-      _Browserstmp.chrome  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
+      Browserstmp.chrome  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
         '', '', '',          '--new-window']
-      _Browserstmp.opera   = ['opera',
+      Browserstmp.opera   = ['opera',
         '', '', '',          '--new-window']
-      _Browserstmp.default = ['xdg-open',
+      Browserstmp.default = ['xdg-open',
         '', '', '',          '']
 
-      for tempkey: string in _Browserstmp->keys()
-        for tempname in (type(_Browserstmp[tempkey][0]) == v:t_list ? _Browserstmp[tempkey][0] : [_Browserstmp[tempkey][0]])
+      for tempkey: string in Browserstmp->keys()
+        for tempname in (type(Browserstmp[tempkey][0]) == v:t_list ? Browserstmp[tempkey][0] : [Browserstmp[tempkey][0]])
           temppath = tempname->exepath()
           if temppath != ''
-            _Browserstmp[tempkey][0] = tempname
-            _Browserstmp[tempkey][1] = temppath
+            Browserstmp[tempkey][0] = tempname
+            Browserstmp[tempkey][1] = temppath
             break
           endif
         endfor
 
         if temppath == ''
-          _Browserstmp->remove(tempkey)
+          Browserstmp->remove(tempkey)
         endif
       endfor
 
-      for tmpkey: string in _Browserstmp->keys()
-        this._Browsers[tmpkey] = _Browserstmp[tmpkey]
+      for tmpkey: string in Browserstmp->keys()
+        this._Browsers[tmpkey] = Browserstmp[tmpkey]
       endfor
 
       this._TextModeBrowsers = this._FindTextModeBrowsers()
       this._Browsers->extend(this._TextModeBrowsers)
 
     elseif HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
-      var _Browserstmp: dict<list<any>>
-      _Browserstmp.brave   = ['Brave',   'brave.exe',   '', '',          '--new-window']
-      _Browserstmp.firefox = ['Firefox', 'firefox.exe', '', '--new-tab', '--new-window']
-      _Browserstmp.chrome  = ['Chrome',  'chrome.exe',  '', '',          '--new-window']
-      _Browserstmp.opera   = ['Opera',   'opera.exe',   '', '',          '--new-window']
-      _Browserstmp.edge    = ['Edge',    'msedge.exe',  '', '',          '--new-window']
+      Browserstmp.brave   = ['Brave',   'brave.exe',   '', '',          '--new-window']
+      Browserstmp.firefox = ['Firefox', 'firefox.exe', '', '--new-tab', '--new-window']
+      Browserstmp.chrome  = ['Chrome',  'chrome.exe',  '', '',          '--new-window']
+      Browserstmp.opera   = ['Opera',   'opera.exe',   '', '',          '--new-window']
+      Browserstmp.edge    = ['Edge',    'msedge.exe',  '', '',          '--new-window']
 
-      for tempkey: string in _Browserstmp->keys()
-        temppath = this._RegistrySearch(_Browserstmp[tempkey][0], _Browserstmp[tempkey][1])
+      for tempkey: string in Browserstmp->keys()
+        temppath = this._RegistrySearch(Browserstmp[tempkey][0], Browserstmp[tempkey][1])
         if temppath != ''
-          _Browserstmp[tempkey][0] = fnamemodify(_Browserstmp[tempkey][1], ':r')
-          _Browserstmp[tempkey][1] = temppath
+          Browserstmp[tempkey][0] = fnamemodify(Browserstmp[tempkey][1], ':r')
+          Browserstmp[tempkey][1] = temppath
         else
-          _Browserstmp->remove(tempkey)
+          Browserstmp->remove(tempkey)
         endif
       endfor
 
-      for tmpkey: string in _Browserstmp->keys()
-        this._Browsers[tmpkey] = _Browserstmp[tmpkey]
+      for tmpkey: string in Browserstmp->keys()
+        this._Browsers[tmpkey] = Browserstmp[tmpkey]
       endfor
 
       this._Browsers.default = ['', '', '', '', '']

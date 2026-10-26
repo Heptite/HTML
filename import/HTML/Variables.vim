@@ -33,41 +33,24 @@ import autoload '../../autoload/HTML/Messages.vim'
 
 export class HTMLVariables
 
-  static var HTMLMessagesO: Messages.HTMLMessages
-
-  def new() # {{{
-    if HTMLMessagesO == null_object
-      HTMLMessagesO = Messages.HTMLMessages.new()
-    endif
-
-    if empty(CharToEntities) == 1
-      var json_files: list<string> = ENTITY_TABLE_FILE->findfile(&runtimepath, -1)
-
-      if json_files->len() == 0
-        printf(HTMLMessagesO.E_NOTFOUND, ENTITY_TABLE_FILE)->HTMLMessagesO.Error()
-        return
-      endif
-
-      for f: string in json_files
-        if f->filereadable()
-          var entities: dict<dict<any>> = f->readfile()->join("\n")->json_decode()
-          for key: string in entities->keys()
-            EntitiesToChar[key] = entities[key].characters
-            CharToEntities[entities[key].characters] = key
-          endfor
-        else
-          printf(HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->HTMLMessagesO.Error()
-        endif
-      endfor
-    endif
-  enddef # }}}
-
   static const AUTHOR: string    = 'Christian J. Robinson'
   static const EMAIL: string     = 'heptite' .. "\x2B" .. 'html' .. "\x40" .. 'proton' .. "\x2E"  .. 'me'
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
   static const COPYRIGHT: string = $'Copyright © 1998-{strftime("%Y")} under the terms of the GPL3'
 
-  static const VERSION: string   = '1.7.0'
+  static const VERSION: string   = '1.7.1'
+
+  static var HTMLMessagesO: Messages.HTMLMessages
+
+  static var EntitiesToChar: dict<string> = {}
+  static var CharToEntities: dict<string> = {}
+
+  static const MENU_NAME: string = 'HTM&L'
+
+  static const TAGS_FILE: string         = 'json/HTML/tags.json'
+  static const ENTITIES_FILE: string     = 'json/HTML/entities.json'
+  # https://dev.w3.org/html5/html-author/charref
+  static const ENTITY_TABLE_FILE: string = 'json/HTML/entitytable.json'
 
   static const MAP_ESCAPES: dict<string> = {
     '<CR>':   "\<CR>",   '<ESC>':    "\<ESC>",
@@ -79,13 +62,6 @@ export class HTMLVariables
   }
 
   var saveopts: dict<any> = {}
-
-  static const MENU_NAME: string = 'HTM&L'
-
-  static const TAGS_FILE: string         = 'json/HTML/tags.json'
-  static const ENTITIES_FILE: string     = 'json/HTML/entities.json'
-  # https://dev.w3.org/html5/html-author/charref
-  static const ENTITY_TABLE_FILE: string = 'json/HTML/entitytable.json'
 
   static const TEMPLATE_TOKENS: dict<string> = { # {{{
     authorname:  'author_name',
@@ -138,9 +114,6 @@ export class HTMLVariables
     '  </[{ADDRESS}]>',
     ' </[{BODY}]>',
     '</[{HTML}]>' )  # }}}
-
-  static var EntitiesToChar: dict<string> = {}
-  static var CharToEntities: dict<string> = {}
 
   static const MODES: dict<string> = {  # {{{
     n: 'normal',
@@ -570,6 +543,33 @@ export class HTMLVariables
     ['', '#330033'],
     ['', '#330000'],
   ]   # }}}
+
+  def new() # {{{
+    if HTMLMessagesO == null_object
+      HTMLMessagesO = Messages.HTMLMessages.new()
+    endif
+
+    if empty(CharToEntities) == 1
+      var json_files: list<string> = ENTITY_TABLE_FILE->findfile(&runtimepath, -1)
+
+      if json_files->len() == 0
+        printf(HTMLMessagesO.E_NOTFOUND, ENTITY_TABLE_FILE)->HTMLMessagesO.Error()
+        return
+      endif
+
+      for f: string in json_files
+        if f->filereadable()
+          var entities: dict<dict<any>> = f->readfile()->join("\n")->json_decode()
+          for key: string in entities->keys()
+            EntitiesToChar[key] = entities[key].characters
+            CharToEntities[entities[key].characters] = key
+          endfor
+        else
+          printf(HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->HTMLMessagesO.Error()
+        endif
+      endfor
+    endif
+  enddef # }}}
 
 endclass
 
