@@ -88,7 +88,7 @@ export class HTMLGlue extends Util.HTMLUtil
         unlet b:htmlplugin.did_json
 
         if this.BoolVar('g:htmlplugin.did_menus')
-          HTMLMenuO.MenuControl(Menu.MenuControlA.disable)
+          HTMLMenuO.Control(Menu.ControlA.disable)
         endif
       else
         HTMLMessagesO.Error(HTMLMessagesO.E_DISABLED)
@@ -104,7 +104,7 @@ export class HTMLGlue extends Util.HTMLUtil
           HTMLMapO.CreateExtraMappings(b:htmlplugin.mappings)
         endif
         b:htmlplugin.did_mappings = true
-        HTMLMenuO.MenuControl(Menu.MenuControlA.enable)
+        HTMLMenuO.Control(Menu.ControlA.enable)
       endif
     elseif dowhat =~? '^a\%(bout\)\?$'
       Util.HTMLUtil.About()

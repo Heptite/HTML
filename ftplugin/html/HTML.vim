@@ -189,7 +189,7 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
 
   if !g:htmlplugin->has_key('toplevel_menu_escaped')
     g:htmlplugin.toplevel_menu_escaped =
-      HTMLMenuO.MenuJoin(g:htmlplugin.toplevel_menu->add(Variables.HTMLVariables.MENU_NAME))
+      HTMLMenuO.Join(g:htmlplugin.toplevel_menu->add(Variables.HTMLVariables.MENU_NAME))
     lockvar g:htmlplugin.toplevel_menu
     lockvar g:htmlplugin.toplevel_menu_escaped
   endif
@@ -610,7 +610,7 @@ endif # !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings')
 # ---- ToolBar Buttons and Menu Items: ---------------------------------- {{{1
 
 if HTMLUtilO.BoolVar('g:htmlplugin.did_menus')
-  HTMLMenuO.MenuControl()
+  HTMLMenuO.Control()
   if !HTMLUtilO.BoolVar('b:htmlplugin.did_json')
     # Already did the menus but the tags and entities mappings need to be
     # defined for this new buffer:
@@ -874,7 +874,7 @@ else
   augroup HTMLmenu
     au!
     autocmd BufEnter,WinEnter * {
-        HTMLMenuO.MenuControl()
+        HTMLMenuO.Control()
         HTMLMenuO.ToggleClipboard()
       }
   augroup END

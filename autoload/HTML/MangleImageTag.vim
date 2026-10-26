@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag.Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: May 18, 2026
+# Last Change: October 26, 2026
 #
 # Requirements:
 #   Vim 9.2 or later
@@ -72,13 +72,13 @@ export class MangleImageTag
     if line[col] == '<'
       tagstart = col
     else
-      var tmp = line->strpart(0, col)
+      var tmp: string = line->strpart(0, col)
       tagstart = tmp->strridx('<')
     endif
-    var savestart = line->strpart(0, tagstart)
-    var tag = line->strpart(tagstart)
-    var tagend = tag->stridx('>') + 1
-    var saveend = tag->strpart(tagend)
+    var savestart: string = line->strpart(0, tagstart)
+    var tag: string = line->strpart(tagstart)
+    var tagend: number = tag->stridx('>') + 1
+    var saveend: string = tag->strpart(tagend)
     tag = tag->strpart(0, tagend)
 
     if tag[0] != '<' || col > strlen(savestart .. tag) - 1
@@ -112,7 +112,7 @@ export class MangleImageTag
       endif
     endif
 
-    var size = this.ImageSize(src)
+    var size: list<number> = this.ImageSize(src)
     if size->len() != 2
       return false
     endif
@@ -161,28 +161,28 @@ export class MangleImageTag
     buf = file->readblob()->blob2list()
 
     if ext == 'png'
-      size = buf->this._SizePng()
+      size = this._SizePng(buf)
     elseif ext == 'gif'
-      size = buf->this._SizeGif()
+      size = this._SizeGif(buf)
     elseif ext == 'jpg' || ext == 'jpeg'
-      size = buf->this._SizeJpeg()
+      size = this._SizeJpeg(buf)
     elseif ext == 'tif' || ext == 'tiff'
-      size = buf->this._SizeTiff()
+      size = this._SizeTiff(buf)
     elseif ext == 'webp'
-      size = buf->this._SizeWebP()
+      size = this._SizeWebP(buf)
     endif
 
     return size
   enddef
 
   def _SizeGif(buf: list<number>): list<number>  # {{{1
-    var i = 0
-    var len = buf->len()
+    var i: number = 0
+    var len: number = buf->len()
 
     while i < len
       if buf[i : i + 9]->join(' ') =~ '^71 73 70\%( \d\+\)\{7}'
-        var width = buf[i + 6 : i + 7]->reverse()->this._Vec()
-        var height = buf[i + 8 : i + 9]->reverse()->this._Vec()
+        var width: number = buf[i + 6 : i + 7]->reverse()->this._Vec()
+        var height: number = buf[i + 8 : i + 9]->reverse()->this._Vec()
 
         return [width, height]
       endif
@@ -196,13 +196,13 @@ export class MangleImageTag
   enddef
 
   def _SizeJpeg(buf: list<number>): list<number>  # {{{1
-    var i = 0
-    var len = buf->len()
+    var i: number = 0
+    var len: number = buf->len()
 
     while i < len
       if buf[i : i + 8]->join(' ') =~ '^255 192\%( \d\+\)\{7}'
-        var height = buf[i + 5 : i + 6]->this._Vec()
-        var width = buf[i + 7 : i + 8]->this._Vec()
+        var height: number = buf[i + 5 : i + 6]->this._Vec()
+        var width: number = buf[i + 7 : i + 8]->this._Vec()
 
         return [width, height]
       endif
@@ -216,13 +216,13 @@ export class MangleImageTag
   enddef
 
   def _SizePng(buf: list<number>): list<number>  # {{{1
-    var i = 0
-    var len = buf->len()
+    var i: number = 0
+    var len: number = buf->len()
 
     while i < len
       if buf[i : i + 11]->join(' ') =~ '^73 72 68 82\%( \d\+\)\{8}'
-        var width = buf[i + 4 : i + 7]->this._Vec()
-        var height = buf[i + 8 : i + 11]->this._Vec()
+        var width: number = buf[i + 4 : i + 7]->this._Vec()
+        var height: number = buf[i + 8 : i + 11]->this._Vec()
 
         return [width, height]
       endif
@@ -238,9 +238,9 @@ export class MangleImageTag
   def _SizeTiff(buf: list<number>): list<number>  # {{{1
     var i: number
     var j: number
-    var len = buf->len()
-    var width = -1
-    var height = -1
+    var len: number = buf->len()
+    var width: number = -1
+    var height: number = -1
     var bigendian: bool
     var type: number
 
@@ -294,8 +294,8 @@ export class MangleImageTag
   enddef
 
   def _SizeWebP(buf: list<number>): list<number>  # {{{1
-    var i = 0
-    var len = buf->len()
+    var i: number = 0
+    var len: number = buf->len()
 
     if buf[0 : 11]->join(' ') !~ '^82 73 70 70\%( \d\+\)\{4} 87 69 66 80'
       HTMLMessagesO.Error(HTMLMessagesO.E_WEBP)
@@ -307,8 +307,8 @@ export class MangleImageTag
     while i < len
       if buf[i : i + 3]->join(' ') =~ '^86 80 56 \d\+'
         i += 14
-        var width = and(buf[i : i + 1]->reverse()->this._Vec(), 0x3fff)
-        var height = and(buf[i + 2 : i + 3]->reverse()->this._Vec(), 0x3fff)
+        var width: number = buf[i : i + 1]->reverse()->this._Vec()->and(0x3fff)
+        var height: number = buf[i + 2 : i + 3]->reverse()->this._Vec()->and(0x3fff)
 
         return [width, height]
       endif
@@ -322,7 +322,7 @@ export class MangleImageTag
   enddef
 
   def _Vec(numbers: list<number>): number  # {{{1
-    var n = 0
+    var n: number = 0
     numbers->mapnew(
       (_, i): void => {
         n = n * 256 + i
