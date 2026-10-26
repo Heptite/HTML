@@ -59,7 +59,7 @@ endif
 #
 # Requirements:
 #
-#  - Vim 9.2 or later
+#  - Vim 9.2.1240 or later with job_start()/channel support
 #  - At least one supported browser must be installed
 #  - xdg-open should be installed for Unix for default browser behavior
 #
@@ -219,37 +219,6 @@ export class BrowserLauncher
     endif
   enddef # }}}
 
-  def _RegistrySearch(name: string, executable: string): string # {{{
-    var output: list<string>
-
-    # First look in the User's personal installs:
-    output = systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-    output += systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-    # Then look in the system-wide installs:
-    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-
-    for line: string in output
-      if line =~# '^\s*InstallLocation\>'
-        var path: string = substitute(trim(line), '^InstallLocation\s\+REG_SZ\s\+', '', '')
-        if has('win32unix') == 1
-          path = trim(system(['cygpath', path]))
-          path = findfile(executable, escape(path, ' ') .. '/**')
-        elseif HTMLUtilO.Has('WSL2')
-          path = trim(system(['wslpath', path]))
-          path = findfile(executable, escape(path, ' ') .. '/**')
-        else
-          path = findfile(executable, escape(path, ' ') .. '\**')
-        endif
-        if executable(path)
-          return path
-        endif
-      endif
-    endfor
-
-    return ''
-  enddef # }}}
-
   def BrowserExists(browser: string = ''): any  # {{{1
     if HTMLUtilO.Has('mac')
       return this._MacBrowserExists(browser)
@@ -265,6 +234,49 @@ export class BrowserLauncher
       return this._UnixWindowsLaunch(browser, new, url)
     endif
   enddef  # }}}1
+
+  # _RegistrySearch() {{{1
+  #
+  # Find the executable location of a browser installed on Windows by
+  # searching the registry, returning a path to the executable if found, or an
+  # empty string if not found.
+  #
+  # Args:
+  #  1 - The name of the browser to search for (as it appears in the registry)
+  #  2 - The name of the executable to search for (e.g., "firefox.exe")
+  # Return value:
+  #  The path to the executable of the browser, or an empty string if not
+  #  found
+  def _RegistrySearch(name: string, exe: string): string
+    var output: list<string>
+
+    # First look in the User's personal installs:
+    output = systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    # Then look in the system-wide installs:
+    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+
+    for line: string in output
+      if line =~# '^\s*InstallLocation\>'
+        var path: string = substitute(trim(line), '^InstallLocation\s\+REG_SZ\s\+', '', '')
+        if has('win32unix') == 1
+          path = trim(system(['cygpath', path]))
+          path = findfile(exe, escape(path, ' ') .. '/**')
+        elseif HTMLUtilO.Has('WSL2')
+          path = trim(system(['wslpath', path]))
+          path = findfile(exe, escape(path, ' ') .. '/**')
+        else
+          path = findfile(exe, escape(path, ' ') .. '\**')
+        endif
+        if executable(path)
+          return path
+        endif
+      endif
+    endfor
+
+    return ''
+  enddef
 
   # _FindTextModeBrowsers() {{{1
   #
@@ -290,9 +302,11 @@ export class BrowserLauncher
   enddef # }}}1
 
   def _UseAppleScript(): bool # {{{1
-    return system('/usr/bin/osascript -e '
-      .. "'tell application \"System Events\" to set UI_enabled "
-      .. "to UI elements enabled' 2>/dev/null")->trim() ==? 'true' ? true : false
+    return system([
+      '/usr/bin/osascript', '-e',
+      'tell application "System Events" to set UI_enabled '
+      .. 'to UI elements enabled'
+    ])->trim() ==? 'true' ? true : false
   enddef
 
   def _MacBrowserExists(app: string = ''): any # {{{1
@@ -303,7 +317,7 @@ export class BrowserLauncher
     if match(_MacBrowsersExist, $'^\c\V{app}\$')
       return true
     else
-      system("/usr/bin/osascript -e 'get id of application \"" .. app->escape("\"'\\") .. "\"'")
+      system(['/usr/bin/osascript', '-e', 'get id of application "' .. app->escape('"''\') .. '"'])
       if v:shell_error
         return false
       endif
@@ -316,10 +330,10 @@ export class BrowserLauncher
   def _MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool  # {{{1
     var file: string
     var torn: string
-    var script: string
-    var command: string
+    var script: list<string>
+    var command: list<string>
     var use_AS: bool
-    var as_msg: string
+    var as_msg: list<string>
 
     if (!this._MacBrowserExists(app) && app !=? 'default')
       printf(HTMLMessagesO.E_NOAPP, app)->HTMLMessagesO.Error()
@@ -342,12 +356,14 @@ export class BrowserLauncher
     use_AS = this._UseAppleScript()
 
     # Why we can't open new tabs and windows:
-    as_msg = "The feature that allows the opening of new browser windows\n"
-      .. "and tabs utilizes the built-in Graphic User Interface Scripting\n"
-      .. "architecture of Mac OS X which is currently disabled. You can\n"
-      .. "activate GUI Scripting by selecting the checkbox \"Enable\n"
-      .. "access for assistive devices\" in the Universal Access\n"
-      .. "preference pane."
+    as_msg =<< trim END
+      The feature that allows the opening of new browser windows
+      and tabs utilizes the built-in Graphic User Interface Scripting
+      architecture of Mac OS X which is currently disabled. You can
+      activate GUI Scripting by selecting the checkbox "Enable
+      access for assistive devices" in the Universal Access
+      preference pane."
+    END
 
     if (app ==? 'safari') # {{{
       if new != Behavior.default && use_AS
@@ -358,29 +374,32 @@ export class BrowserLauncher
           torn = 'n'
           HTMLMessagesO.Message('Opening file in new Safari window...')
         endif
-        script = '-e "tell application \"safari\"" '
-          .. '-e "activate" '
-          .. '-e "tell application \"System Events\"" '
-          .. '-e "tell process \"safari\"" '
-          .. $'-e "keystroke \"{torn}\" using {{command down}}" '
-          .. '-e "end tell" '
-          .. '-e "end tell" '
-          .. '-e "delay 0.3" '
-          .. '-e "tell window 1" '
-          .. '-e ' .. shellescape($'set (URL of last tab) to "{file}"') .. ' '
-          .. '-e "end tell" '
-          .. '-e "end tell" '
 
-        command = $'/usr/bin/osascript {script}'
+        script = [
+          '-e', 'tell application "safari"',
+          '-e', 'activate',
+          '-e', 'tell application "System Events"',
+          '-e', 'tell process "safari"',
+          '-e', $'keystroke "{torn}" using {{command down}}',
+          '-e', 'end tell',
+          '-e', 'end tell',
+          '-e', 'delay 0.3',
+          '-e', 'tell window 1',
+          '-e', $'set (URL of last tab) to "{file}"',
+          '-e', 'end tell',
+          '-e', 'end tell'
+        ]
+
+        command = ['/usr/bin/osascript'] + script
 
       else
         if new != Behavior.default
           # Let the user know what's going on:
-          as_msg->confirm('&Dismiss', 1, 'Error')
+          as_msg->join("\n")->confirm('&Dismiss', 1, 'Error')
         endif
 
         HTMLMessagesO.Message('Opening file in Safari...')
-        command = $'/usr/bin/open -a safari {file->shellescape()}'
+        command = ['/usr/bin/open', '-a', 'safari', file]
       endif
     endif # }}}
 
@@ -395,29 +414,31 @@ export class BrowserLauncher
           torn = 'n'
           HTMLMessagesO.Message('Opening file in new Firefox window...')
         endif
-        script = '-e "tell application \"firefox\"" '
-          .. '-e "activate" '
-          .. '-e "tell application \"System Events\"" '
-          .. '-e "tell process \"firefox\"" '
-          .. $'-e "keystroke \"{torn}\" using {{command down}}" '
-          .. '-e "delay 0.8" '
-          .. '-e "keystroke \"l\" using {command down}" '
-          .. '-e "keystroke \"a\" using {command down}" '
-          .. '-e ' .. shellescape($'keystroke "{file}" & return') .. " "
-          .. '-e "end tell" '
-          .. '-e "end tell" '
-          ..  '-e "end tell" '
+        script = [
+          '-e', 'tell application "firefox"',
+          '-e', 'activate',
+          '-e', 'tell application "System Events"',
+          '-e', 'tell process "firefox"',
+          '-e', $'keystroke "{torn}" using {{command down}}',
+          '-e', 'delay 0.8',
+          '-e', 'keystroke "l" using {command down}',
+          '-e', 'keystroke "a" using {command down}',
+          '-e', $'keystroke "{file}" & return',
+          '-e', 'end tell',
+          '-e', 'end tell',
+          '-e', 'end tell'
+        ]
 
-        command = $'/usr/bin/osascript {script}'
+        command = ['/usr/bin/osascript'] + script
 
       else
         if new != Behavior.default
           # Let the user know wath's going on:
-          as_msg->confirm('&Dismiss', 1, 'Error')
-
+          as_msg->join("\n")->confirm('&Dismiss', 1, 'Error')
         endif
+
         HTMLMessagesO.Message('Opening file in Firefox...')
-        command = $'/usr/bin/open -a firefox {file->shellescape()}'
+        command = ['/usr/bin/open', '-a', 'firefox', file]
       endif
     endif # }}}
 
@@ -432,38 +453,40 @@ export class BrowserLauncher
           torn = 'n'
           HTMLMessagesO.Message('Opening file in new Opera window...')
         endif
-        script = '-e "tell application \"Opera\"" '
-          .. '-e "activate" '
-          .. '-e "tell application \"System Events\"" '
-          .. '-e "tell process \"opera\"" '
-          .. $'-e "keystroke \"{torn}\" using {{command down}}" '
-          .. '-e "end tell" '
-          .. '-e "end tell" '
-          .. '-e "delay 0.5" '
-          .. '-e ' .. shellescape($'set URL of front document to "{file}\"') .. " "
-          .. '-e "end tell" '
+        script = [
+          '-e', 'tell application \"Opera\"',
+          '-e', 'activate',
+          '-e', 'tell application "System Events"',
+          '-e', 'tell process "opera"',
+          '-e', $'keystroke "{torn}" using {{command down}}"',
+          '-e', 'end tell',
+          '-e', 'end tell',
+          '-e', 'delay 0.5',
+          '-e', $'set URL of front document to "{file}"',
+          '-e', 'end tell',
+        ] 
 
-        command = $'/usr/bin/osascript {script}'
+        command = ['/usr/bin/osascript'] + script
 
       else
         if new != Behavior.default
           # Let the user know what's going on:
-          as_msg->confirm('&Dismiss', 1, 'Error')
-
+          as_msg->join("\n")->confirm('&Dismiss', 1, 'Error')
         endif
+
         HTMLMessagesO.Message('Opening file in Opera...')
-        command = $'/usr/bin/open -a opera {file->shellescape()}'
+        command = ['/usr/bin/open', '-a', 'opera', file]
       endif
     endif # }}}
 
     if (app ==? 'default')
       HTMLMessagesO.Message('Opening file in default browser...')
-      command = $'/usr/bin/open {file->shellescape()}'
+      command = ['/usr/bin/open', file]
     endif
 
-    if (command == '')
+    if (command == [])
       HTMLMessagesO.Message($'Opening {HTMLUtilO.Cap(app)}...')
-      command = $'/usr/bin/open -a {app} {file->shellescape()}'
+      command = ['/usr/bin/open', '-a', app, file]
     endif
 
     system(command)
@@ -500,10 +523,12 @@ export class BrowserLauncher
   #    Use BrowserExists() to see which ones are available.
   #
   #    The optional second argument is whether to launch a new window:
-  #      0 - No (default -- in modern brosers this tends to open a new tab)
-  #      1 - Yes (some modern browsers don't actually provide a way to do this)
-  #      2 - New Tab (or new window if the browser doesn't provide a way to
-  #                   open a new tab)
+  #      Behavior.default   - (default -- in modern brosers this tends to
+  #                           open a new tab)
+  #      Behavior.newwindow - (some modern browsers don't actually provide
+  #                           a way to do this)
+  #      Behavior.newtab    - (or new window if the browser doesn't provide a
+  #                           way to open a new tab)
   #
   #    The optional third argument is an URL to go to instead of loading the
   #    current file.
@@ -663,7 +688,7 @@ export class BrowserLauncher
         #},
       })
 
-      if  job_status(job_id) == 'fail'
+      if job_status(job_id) == 'fail'
         printf(HTMLMessagesO.E_COMMAND, command)->HTMLMessagesO.Error()
         return false
       endif
