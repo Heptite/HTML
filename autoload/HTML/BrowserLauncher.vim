@@ -18,9 +18,11 @@ endif
 #    (This will fall back to Chromium if it's installed and Chrome isn't.)
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
-#  - Lynx     (Current TTY / :terminal / new xterm)
+#  - lynx     (Current TTY / :terminal / new xterm)
 #  - w3m      (Current TTY / :terminal / new xterm)
 #  - links    (Current TTY / :terminal / new xterm)
+#  - links2   (Current TTY / :terminal / new xterm)
+#  - elinks   (Current TTY / :terminal / new xterm)
 #  - Default
 #
 # MacOS:
@@ -35,7 +37,7 @@ endif
 #  - Edge     (remote [new window / new tab] / launch)
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
-#  - Plus lynx, w3m, and links text-mode browsers if they can be found.
+#  - Plus lynx, w3m, and elinks text-mode browsers if they can be found.
 #  - Default
 #
 # TODO:
@@ -44,7 +46,7 @@ endif
 #    Note: Various browsers use the same HTML rendering engine as Firefox
 #    or Chrome, so supporting them isn't as important.
 #
-#  - Defaulting to Lynx/w3m/Links if the the GUI isn't available on Unix may
+#  - Defaulting to lynx/w3m/elinks if the the GUI isn't available on Unix may
 #    be undesirable.
 #
 #  - Make a way to invoke browsers installed under WSL2 if they're there,
@@ -88,15 +90,21 @@ endenum # }}}1
 
 export class BrowserLauncher
 
-  const _Browsers: dict<list<string>> = {}
-  const _TextModeBrowsers: dict<list<string>> = {lynx: [], w3m: [], links: []}
+  const _Browsers: dict<dict<string>> = {}
+  const _TextModeBrowsers: dict<dict<string>> = {
+    lynx:   {realname: 'lynx',   path: '', tab: '', window: ''},
+    w3m:    {realname: 'w3m',    path: '', tab: '', window: ''},
+    links:  {realname: 'links',  path: '', tab: '', window: ''},
+    links2: {realname: 'links2', path: '', tab: '', window: ''},
+    elinks: {realname: 'elinks', path: '', tab: '', window: ''}
+  }
   var _MacBrowsersExist: list<string> = ['default']
   static var HTMLMessagesO: Messages.HTMLMessages
   static var HTMLUtilO: Util.HTMLUtil
 
   def new() # {{{
     var temppath: string
-    var Browserstmp: dict<list<any>>
+    var Browserstmp: dict<dict<any>>
 
     if HTMLMessagesO == null_object
       HTMLMessagesO = Messages.HTMLMessages.new()
@@ -106,23 +114,45 @@ export class BrowserLauncher
     if HTMLUtilO.Has('mac') || this._Browsers != {}
       return
     elseif (! (HTMLUtilO.Has('WSL2') || has('win32unix') == 1)) && has('unix') == 1
-      Browserstmp.firefox = ['firefox',
-        '', '', '--new-tab', '--new-window']
-      Browserstmp.brave   = [['brave-browser', 'brave'],
-        '', '', '',          '--new-window']
-      Browserstmp.chrome  = [['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
-        '', '', '',          '--new-window']
-      Browserstmp.opera   = ['opera',
-        '', '', '',          '--new-window']
-      Browserstmp.default = ['xdg-open',
-        '', '', '',          '']
+      Browserstmp = {
+        firefox: {
+          realname: 'firefox',
+          path:     '',
+          tab:      '--new-tab',
+          window:   '--new-window'
+        },
+        brave: {
+          realname: ['brave-browser', 'brave'],
+          path:     '',
+          tab:      '',
+          window:   '--new-window'
+        },
+        chrome: {
+          realname: ['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
+          path:     '',
+          tab:      '',
+          window:   '--new-window'
+        },
+        opera: {
+          realname: 'opera',
+          path:     '',
+          tab:      '',
+          window:   '--new-window'
+        },
+        default: {
+          realname: 'xdg-open',
+          path:     '',
+          tab:      '',
+          window:   ''
+        }
+      }
 
       for tempkey: string in Browserstmp->keys()
-        for tempname in (type(Browserstmp[tempkey][0]) == v:t_list ? Browserstmp[tempkey][0] : [Browserstmp[tempkey][0]])
+        for tempname in (type(Browserstmp[tempkey]['realname']) == v:t_list ? Browserstmp[tempkey]['realname'] : [Browserstmp[tempkey]['realname']])
           temppath = tempname->exepath()
           if temppath != ''
-            Browserstmp[tempkey][0] = tempname
-            Browserstmp[tempkey][1] = temppath
+            Browserstmp[tempkey]['realname'] = tempname
+            Browserstmp[tempkey]['path']     = temppath
             break
           endif
         endfor
@@ -140,17 +170,44 @@ export class BrowserLauncher
       this._Browsers->extend(this._TextModeBrowsers)
 
     elseif HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
-      Browserstmp.brave   = ['Brave',   'brave.exe',   '', '',          '--new-window']
-      Browserstmp.firefox = ['Firefox', 'firefox.exe', '', '--new-tab', '--new-window']
-      Browserstmp.chrome  = ['Chrome',  'chrome.exe',  '', '',          '--new-window']
-      Browserstmp.opera   = ['Opera',   'opera.exe',   '', '',          '--new-window']
-      Browserstmp.edge    = ['Edge',    'msedge.exe',  '', '',          '--new-window']
+      Browserstmp = {
+        brave: {
+          realname: 'Brave',
+          path:     'brave.exe',
+          tab:      '',
+          window:   '--new-window'
+        },
+        firefox: {
+          realname: 'Firefox',
+          path:     'firefox.exe',
+          tab:      '--new-tab',
+          window:   '--new-window'
+        },
+        chrome: {
+          realname: 'Chrome',
+          path:     'chrome.exe',
+          tab:      '',
+          window:   '--new-window'
+        },
+        opera: {
+          realname: 'Opera',
+          path:     'opera.exe',
+          tab:      '',
+          window:   '--new-window'
+        },
+        edge: {
+          realname: 'Edge',
+          path:     'msedge.exe',
+          tab:      '',
+          window:   '--new-window'
+        }
+      }
 
       for tempkey: string in Browserstmp->keys()
-        temppath = this._RegistrySearch(Browserstmp[tempkey][0], Browserstmp[tempkey][1])
+        temppath = this._RegistrySearch(Browserstmp[tempkey]['realname'], Browserstmp[tempkey]['path'])
         if temppath != ''
-          Browserstmp[tempkey][0] = fnamemodify(Browserstmp[tempkey][1], ':r')
-          Browserstmp[tempkey][1] = temppath
+          Browserstmp[tempkey]['realname'] = fnamemodify(Browserstmp[tempkey]['path'], ':r')
+          Browserstmp[tempkey]['path'] = temppath
         else
           Browserstmp->remove(tempkey)
         endif
@@ -160,7 +217,7 @@ export class BrowserLauncher
         this._Browsers[tmpkey] = Browserstmp[tmpkey]
       endfor
 
-      this._Browsers.default = ['', '', '', '', '']
+      this._Browsers.default = {realname: '', path: '', tab: '', window: ''}
 
       if HTMLUtilO.Has('WSL2') || has('win32unix') == 1
         this._TextModeBrowsers = this._FindTextModeBrowsers()
@@ -190,7 +247,7 @@ export class BrowserLauncher
     endif
   enddef  # }}}1
 
-  # _Find_TextModeBrowsers() {{{1
+  # _FindTextModeBrowsers() {{{1
   #
   # Remove browsers from _TextModeBrowsers that aren't found, and add to
   # _Browsers dictionary of textmode browsers that are found.
@@ -198,23 +255,17 @@ export class BrowserLauncher
   # Args:
   #  The list of browsers to search for
   # Return value:
-  #  A list of browsers that were found, in list<list<string>> format
-  def _FindTextModeBrowsers(browserlist: dict<list<string>> = this._TextModeBrowsers): dict<list<string>>
-    var browsers: dict<list<string>>
+  #  A list of browsers that were found, in dict<dict<string>> format
+  def _FindTextModeBrowsers(browserlist: dict<dict<string>> = this._TextModeBrowsers): dict<dict<string>>
+    var browsers: dict<dict<string>>
 
-    browsers = browserlist->mapnew(
-      (textbrowser, _) => {
-        var temp: string = textbrowser->exepath()
-
-        if temp == ''
-          return []
-        else
-          return [textbrowser, temp, '', '', '']
+    for browser: string in browserlist->keys()
+        var temp: string = browserlist[browser]['realname']->exepath()
+        if temp != ''
+          browsers[browser] = browserlist[browser]
+          browsers[browser]['path'] = temp
         endif
-      }
-    )
-
-    browsers->filter((_, tmp) => tmp != [])
+    endfor
 
     return browsers
   enddef # }}}1
@@ -479,44 +530,43 @@ export class BrowserLauncher
         HTMLMessagesO.Error(HTMLMessagesO.E_DISPLAY)
         return false
       else
-        which = this._TextModeBrowsers->keys()[0]
+        which = this._TextModeBrowsers->keys()->sort('i')[0]
       endif
     endif
 
     # Have to handle the textmode browsers different than the GUI browsers:
     if match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') >= 0
-      HTMLMessagesO.Message('Launching ' .. this._Browsers[which][0] .. '...')
+      var xterm: string
 
-      var xterm = exepath('xterm')
+      HTMLMessagesO.Message('Launching ' .. this._Browsers[which]['realname'] .. '...')
+
+      if executable('/etc/alternatives/x-terminal-emulator')
+        xterm = '/etc/alternatives/x-terminal-emulator'
+      else
+        xterm = exepath('xterm')
+      endif
 
       if has('gui_running') == 1 || donew != Behavior.default
         if $DISPLAY != '' && xterm != '' && donew == Behavior.newwindow
-          command = [
-            xterm,
-            '-T',
-            this._Browsers[which][0],
-            ' -e ',
-            this._Browsers[which][1],
-            file
-          ]
+          command = [xterm, '-e', this._Browsers[which]['path'], file]
         elseif exists_compiled(':terminal') == 2
-          execute 'terminal ++close ' .. this._Browsers[which][1] .. ' ' .. file
+          execute 'terminal ++close ' .. this._Browsers[which]['path'] .. ' ' .. file
           return true
         else
           if donew == Behavior.newwindow
-            HTMLMessagesO.Error(printf(HTMLMessagesO.E_XTERM, this._Browsers[which][0]))
+            HTMLMessagesO.Error(printf(HTMLMessagesO.E_XTERM, this._Browsers[which]['realname']))
           else
-            HTMLMessagesO.Error(printf(HTMLMessagesO.E_TERM, this._Browsers[which][0]))
+            HTMLMessagesO.Error(printf(HTMLMessagesO.E_TERM, this._Browsers[which]['realname']))
           endif
 
           return false
         endif
       else
         sleep 1
-        execute '!' .. this._Browsers[which][1] .. ' ' .. file->shellescape()
+        execute '!' .. this._Browsers[which]['path'] .. ' ' .. file->shellescape()
 
         if v:shell_error
-          printf(HTMLMessagesO.E_LAUNCH, this._Browsers[which][0])->HTMLMessagesO.Error()
+          printf(HTMLMessagesO.E_LAUNCH, this._Browsers[which]['realname'])->HTMLMessagesO.Error()
           return false
         endif
 
@@ -529,30 +579,29 @@ export class BrowserLauncher
     if command == []
 
       if donew == Behavior.newtab
-        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which][0])} tab...')
+        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which]['realname'])} tab...')
         command = [
-          this._Browsers[which][1],
+          this._Browsers[which]['path'],
           file,
-          this._Browsers[which][3]
+          this._Browsers[which]['tab']
         ]
       elseif donew != Behavior.default
-        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which][0])} window...')
+        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which]['realname'])} window...')
         command = [
-          this._Browsers[which][1],
+          this._Browsers[which]['path'],
           file,
-          this._Browsers[which][4]
+          this._Browsers[which]['window']
         ]
       else
         if which == 'default'
           HTMLMessagesO.Message('Invoking system default browser...')
         else
-          HTMLMessagesO.Message($'Invoking {HTMLUtilO.Cap(this._Browsers[which][0])}...')
+          HTMLMessagesO.Message($'Invoking {HTMLUtilO.Cap(this._Browsers[which]['realname'])}...')
         endif
 
         command = [
-          this._Browsers[which][1],
-          file,
-          this._Browsers[which][2]
+          this._Browsers[which]['path'],
+          file
         ]
       endif
     endif
@@ -606,7 +655,7 @@ export class BrowserLauncher
   def _RegistrySearch(name: string, executable: string): string # {{{
     var output: list<string>
 
-    # First look in the USer's personal installs:
+    # First look in the User's personal installs:
     output = systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
     output += systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
     # Then look in the system-wide installs:

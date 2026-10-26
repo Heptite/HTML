@@ -13,7 +13,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite(at)proton(dot)me>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      October 24, 2026
+# Last Change:      October 25, 2026
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.2 or later
 #
@@ -66,6 +66,7 @@ endif
 #
 # ---- TODO: ------------------------------------------------------------ {{{1
 #
+# - Add mappings for more textmode browsers
 # - Add a lot more character entity mappings (see table in
 #   import/HTML/Variables.vim)
 # - Add more HTML 5 tags?
@@ -541,24 +542,24 @@ if BrowserLauncherO.BrowserExists('w3m') # {{{2
   )
 endif
 
-if BrowserLauncherO.BrowserExists('links') # {{{2
-  # Links:  (This may happen anyway if there's no GUI available.)
+if BrowserLauncherO.BrowserExists('lynx') # {{{2
+  # Lynx:  (This may happen anyway if there's no GUI available.)
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.BrowserBehavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
   # Lynx in an xterm:  (This always happens in the Vim GUI.)
   HTMLMapO.Map(
     'nnoremap',
     '<lead>nln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
   # Lynx in a new Vim window, using ":terminal":
   HTMLMapO.Map(
     'nnoremap',
     '<lead>tln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.BrowserBehavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif # }}}2
 
@@ -798,9 +799,9 @@ else
     endif
 
     if maparg($'{g:htmlplugin.map_leader}ln', 'n') != ''
-      HTMLMenuO.Menu('tmenu', '1.600', ['ToolBar', 'Links'],
-        'Launch Links on the Current File')
-      HTMLMenuO.LeadMenu('amenu', '1.600', ['ToolBar', 'Links'], 'ln')
+      HTMLMenuO.Menu('tmenu', '1.600', ['ToolBar', 'Lynx'],
+        'Launch Lynx on the Current File')
+      HTMLMenuO.LeadMenu('amenu', '1.600', ['ToolBar', 'Lynx'], 'ln')
     endif
 
     HTMLMenuO.Menu('menu',      '1.997', ['ToolBar', '-sep99-'], '<Nop>')
@@ -908,9 +909,9 @@ else
   endif
   if maparg($'{g:htmlplugin.map_leader}ln', 'n') != ''
     HTMLMenuO.Menu('menu', '-', ['Preview', '-sep9-'], '<nop>')
-    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Li&nks'], 'ln')
-    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Links (New Window)'], 'nln')
-    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Links (:terminal)'], 'tln')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Ly&nx'], 'ln')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Lynx (New Window)'], 'nln')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Lynx (:terminal)'], 'tln')
   endif
 
   # Bring in the tags and entities menus and mappings at the same time. (If we
