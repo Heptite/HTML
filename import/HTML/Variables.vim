@@ -1,7 +1,7 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 902
+if v:versionlong < 9021240
   finish
 endif
 
@@ -38,7 +38,7 @@ export class HTMLVariables
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
   static const COPYRIGHT: string = $'Copyright © 1998-{strftime("%Y")} under the terms of the GPL3'
 
-  static const VERSION: string   = '1.7.2'
+  static const VERSION: string   = '1.7.3'
 
   static var HTMLMessagesO: Messages.HTMLMessages
 

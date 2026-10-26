@@ -186,6 +186,7 @@ html-javascript-module	HTML.txt	/*html-javascript-module*
 html-line-break	HTML.txt	/*html-line-break*
 html-linked-css	HTML.txt	/*html-linked-css*
 html-links-browser	HTML.txt	/*html-links-browser*
+html-links2-browser	HTML.txt	/*html-links2-browser*
 html-list-item	HTML.txt	/*html-list-item*
 html-lynx-browser	HTML.txt	/*html-lynx-browser*
 html-main	HTML.txt	/*html-main*
@@ -773,6 +774,7 @@ n_;im	HTML.txt	/*n_;im*
 n_;in	HTML.txt	/*n_;in*
 n_;it	HTML.txt	/*n_;it*
 n_;iv	HTML.txt	/*n_;iv*
+n_;l2	HTML.txt	/*n_;l2*
 n_;lA	HTML.txt	/*n_;lA*
 n_;la	HTML.txt	/*n_;la*
 n_;li	HTML.txt	/*n_;li*
@@ -792,6 +794,7 @@ n_;na	HTML.txt	/*n_;na*
 n_;ned	HTML.txt	/*n_;ned*
 n_;nff	HTML.txt	/*n_;nff*
 n_;ngc	HTML.txt	/*n_;ngc*
+n_;nl2	HTML.txt	/*n_;nl2*
 n_;nln	HTML.txt	/*n_;nln*
 n_;nly	HTML.txt	/*n_;nly*
 n_;noa	HTML.txt	/*n_;noa*
@@ -842,6 +845,7 @@ n_;tff	HTML.txt	/*n_;tff*
 n_;tgc	HTML.txt	/*n_;tgc*
 n_;th	HTML.txt	/*n_;th*
 n_;ti	HTML.txt	/*n_;ti*
+n_;tl2	HTML.txt	/*n_;tl2*
 n_;tln	HTML.txt	/*n_;tln*
 n_;tly	HTML.txt	/*n_;tly*
 n_;tm	HTML.txt	/*n_;tm*

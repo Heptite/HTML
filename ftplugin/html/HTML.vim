@@ -1,9 +1,9 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 902
+if v:versionlong < 9021240
   echohl ErrorMsg
-  echomsg 'The HTML macros plugin no longer supports Vim versions prior to 9.2'
+  echomsg 'The HTML macros plugin no longer supports Vim versions prior to 9.2.1240'
   echohl None
   sleep 3
   finish
@@ -15,11 +15,11 @@ endif
 # URL:              https://christianrobinson.name/HTML/
 # Last Change:      October 25, 2026
 # Original Concept: Doug Renze
-# Requirements:     Vim 9.2 or later
+# Requirements:     Vim 9.2.1240 or later
 #
 # The original Copyright goes to Doug Renze, although nearly all of his
 # efforts have been modified in this implementation.  My changes and additions
-# are Copyrighted by me, on the dates marked in the ChangeLog.
+# are Copyrighted by me.
 #
 # (Doug Renze has authorized me to place the original "code" under the GPL.)
 #
@@ -104,7 +104,7 @@ import autoload '../../autoload/HTML/Messages.vim'
 # Create Glue object ...
 var HTMLGlueO: Glue.HTMLGlue = Glue.HTMLGlue.new()
 # ...and save it where it can be used by the mappings:
-#b:htmlplugin.HTMLGlueO = HTMLGlueO
+b:htmlplugin.HTMLGlueO = HTMLGlueO
 # ...and do the same with the rest:
 var BrowserLauncherO: BrowserLauncher.BrowserLauncher =
   BrowserLauncher.BrowserLauncher.new()
@@ -118,7 +118,7 @@ var HTMLMapO: Map.HTMLMap = Map.HTMLMap.new()
 b:htmlplugin.HTMLMapO = HTMLMapO
 # ...
 var HTMLMenuO: Menu.HTMLMenu = Menu.HTMLMenu.new()
-#b:htmlplugin.HTMLMenuO = HTMLMenuO
+b:htmlplugin.HTMLMenuO = HTMLMenuO
 # ...
 var HTMLMessagesO: Messages.HTMLMessages =
   Messages.HTMLMessages.new()
@@ -126,7 +126,7 @@ b:htmlplugin.HTMLMessagesO = HTMLMessagesO
 # ...
 var HTMLVariablesO: Variables.HTMLVariables =
   Variables.HTMLVariables.new()
-#b:htmlplugin.HTMLVariablesO = HTMLVariablesO
+b:htmlplugin.HTMLVariablesO = HTMLVariablesO
 # ...
 var HTMLUtilO: Util.HTMLUtil = Util.HTMLUtil.new()
 b:htmlplugin.HTMLUtilO = HTMLUtilO
@@ -501,13 +501,13 @@ if BrowserLauncherO.BrowserExists('safari') # {{{2
 endif
 
 if BrowserLauncherO.BrowserExists('lynx') # {{{2
-  # Lynx:  (This may happen anyway if there's no GUI available.)
+  # Lynx:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ly',
     "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
-  # Lynx in an xterm:  (This always happens in the Vim GUI.)
+  # Lynx in an xterm:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>nly',
@@ -542,24 +542,64 @@ if BrowserLauncherO.BrowserExists('w3m') # {{{2
   )
 endif
 
-if BrowserLauncherO.BrowserExists('lynx') # {{{2
-  # Lynx:  (This may happen anyway if there's no GUI available.)
+if BrowserLauncherO.BrowserExists('links') # {{{2
+  # Links:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>ln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.default)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.BrowserBehavior.default)<CR>"
   )
-  # Lynx in an xterm:  (This always happens in the Vim GUI.)
+  # Links in an xterm:
   HTMLMapO.Map(
     'nnoremap',
     '<lead>nln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
   )
-  # Lynx in a new Vim window, using ":terminal":
+  # Links in a new Vim window, using ":terminal":
   HTMLMapO.Map(
     'nnoremap',
     '<lead>tln',
-    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('lynx', b:htmlplugin.BrowserBehavior.newtab)<CR>"
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links', b:htmlplugin.BrowserBehavior.newtab)<CR>"
+  )
+endif # }}}2
+if BrowserLauncherO.BrowserExists('links2') # {{{2
+  # Links2:
+  HTMLMapO.Map(
+    'nnoremap',
+    '<lead>l2',
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links2', b:htmlplugin.BrowserBehavior.default)<CR>"
+  )
+  # Links2 in an xterm:
+  HTMLMapO.Map(
+    'nnoremap',
+    '<lead>nl2',
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links2', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
+  )
+  # Links2 in a new Vim window, using ":terminal":
+  HTMLMapO.Map(
+    'nnoremap',
+    '<lead>tl2',
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('links2', b:htmlplugin.BrowserBehavior.newtab)<CR>"
+  )
+endif # }}}2
+if BrowserLauncherO.BrowserExists('elinks') # {{{2
+  # Elinks:
+  HTMLMapO.Map(
+    'nnoremap',
+    '<lead>el',
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('elinks', b:htmlplugin.BrowserBehavior.default)<CR>"
+  )
+  # ELinks in an xterm:
+  HTMLMapO.Map(
+    'nnoremap',
+    '<lead>nel',
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('elinks', b:htmlplugin.BrowserBehavior.newwindow)<CR>"
+  )
+  # ELinks in a new Vim window, using ":terminal":
+  HTMLMapO.Map(
+    'nnoremap',
+    '<lead>tel',
+    "<ScriptCmd>b:htmlplugin.BrowserLauncherO.Launch('elinks', b:htmlplugin.BrowserBehavior.newtab)<CR>"
   )
 endif # }}}2
 
@@ -601,6 +641,7 @@ else
       set guioptions+=T
     else
       augroup HTMLplugin
+        autocmd!
         autocmd GUIEnter * set guioptions+=T
       augroup END
     endif
@@ -799,9 +840,9 @@ else
     endif
 
     if maparg($'{g:htmlplugin.map_leader}ln', 'n') != ''
-      HTMLMenuO.Menu('tmenu', '1.600', ['ToolBar', 'Lynx'],
+      HTMLMenuO.Menu('tmenu', '1.600', ['ToolBar', 'Links'],
         'Launch Lynx on the Current File')
-      HTMLMenuO.LeadMenu('amenu', '1.600', ['ToolBar', 'Lynx'], 'ln')
+      HTMLMenuO.LeadMenu('amenu', '1.600', ['ToolBar', 'Links'], 'ln')
     endif
 
     HTMLMenuO.Menu('menu',      '1.997', ['ToolBar', '-sep99-'], '<Nop>')
@@ -903,15 +944,21 @@ else
   endif
   if maparg($'{g:htmlplugin.map_leader}w3', 'n') != ''
     HTMLMenuO.Menu('menu', '-', ['Preview', '-sep8-'], '<nop>')
-    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', '&w3m'], 'w3')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'w&3m'], 'w3')
     HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'w3m (New Window)'], 'nw3')
     HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'w3m (:terminal)'], 'tw3')
   endif
   if maparg($'{g:htmlplugin.map_leader}ln', 'n') != ''
     HTMLMenuO.Menu('menu', '-', ['Preview', '-sep9-'], '<nop>')
-    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Ly&nx'], 'ln')
-    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Lynx (New Window)'], 'nln')
-    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Lynx (:terminal)'], 'tln')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Li&nks'], 'ln')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Links (New Window)'], 'nln')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Links (:terminal)'], 'tln')
+  endif
+  if maparg($'{g:htmlplugin.map_leader}l2', 'n') != ''
+    HTMLMenuO.Menu('menu', '-', ['Preview', '-sep9-'], '<nop>')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Links&2'], 'l2')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Links2 (New Window)'], 'nl2')
+    HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Links2 (:terminal)'], 'tl2')
   endif
 
   # Bring in the tags and entities menus and mappings at the same time. (If we

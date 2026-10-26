@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2026 Oct 23
+		Last change: 2026 Oct 25
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -1769,6 +1769,30 @@ drive).
 	Cygwin.)
 								*n_;tln*
 ;tln	Same as |n_;ln|, but in a new Vim window, using `:terminal`.  (Only
+	on Unix and Cygwin.)
+							*html-links2-browser*
+								*n_;l2*
+;l2	Use Links2 to view the current file. This behaves like |n_;nln| if the
+	Vim |GUI| is running. (Only on Unix and Cygwin.)
+								*n_;nl2*
+;nl2	Same as |n_;ln|, but in a new xterm. This behaves like |n_;ln| if there
+	is no DISPLAY environmental variable. (Note that this will fall back
+	to using `:terminal` if xterm is not found.) (Only on Unix and
+	Cygwin.)
+								*n_;tl2*
+;tl2	Same as |n_;ln|, but in a new Vim window, using `:terminal`.  (Only
+	on Unix and Cygwin.)
+							*html-elinks-browser*
+								*n_;el*
+;el	Use Elinks to view the current file. This behaves like |n_;nln| if the
+	Vim |GUI| is running. (Only on Unix and Cygwin.)
+								*n_;nel*
+;nel	Same as |n_;ln|, but in a new xterm. This behaves like |n_;ln| if there
+	is no DISPLAY environmental variable. (Note that this will fall back
+	to using `:terminal` if xterm is not found.) (Only on Unix and
+	Cygwin.)
+								*n_;tel*
+;tel	Same as |n_;ln|, but in a new Vim window, using `:terminal`.  (Only
 	on Unix and Cygwin.)
 
 ==============================================================================
