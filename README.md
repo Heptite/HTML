@@ -69,9 +69,11 @@ git clone https://github.com/Heptite/HTML.git
 
 Or for PowerShell users:
 
+```
 mkdir $HOME\vimfiles\pack\cjr\start
 cd $HOME\vimfiles\pack\cjr\start
 git clone https://github.com/Heptite/HTML.git
+```
 
 After installing using git you can always update by going into the
 `pack/cjr/start/HTML` directory and typing: `git pull`
