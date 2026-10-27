@@ -478,6 +478,15 @@ The following commands are only defined in HTML buffers.
 	(See: |;cc|)
 
 
+				*:BrowserLog* *:ShowBrowserLog* *:HTMLBrowserLog*
+:BrowserLog
+:ShowBrowserLog
+:HTMLBrowserLog
+	Open a buffer displaying the text output of the browser launch
+	commands.
+
+	This command fails if you are not in an HTML buffer.
+
 ==============================================================================
 5. Mappings for Normal <> Tags				*html-tags*
 
