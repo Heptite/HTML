@@ -53,10 +53,6 @@ endif
 #  - Make a way to invoke browsers installed under WSL2 if they're there,
 #    instead of just the "native" Windows binaries.
 #
-#  - No way to view error output of GUI browsers.
-#
-#  - Move code into smaller functions.
-#
 # BUGS:
 #
 # Requirements:
@@ -151,6 +147,7 @@ export class BrowserLauncher
   static var _MacBrowsersExist: list<string> = ['default']
   static var HTMLMessagesO: Messages.HTMLMessages
   static var HTMLUtilO: Util.HTMLUtil
+  static var _BrowserLog: list<string> = []
 
   def new() # {{{
     var temppath: string
@@ -679,9 +676,7 @@ export class BrowserLauncher
             b:htmlplugin.HTMLMessagesO.Error($'Job exited abmormally: {exitstatus}')
           endif
         },
-        #err_cb: (_, msg: string) => {
-        #  b:htmlplugin.HTMLMessagesO.Error($'Error message from sub-process: {msg}')
-        #},
+        callback: this._AddLogItem
       })
 
       if job_status(job_id) == 'fail'
@@ -694,9 +689,37 @@ export class BrowserLauncher
 
     HTMLMessagesO.E_FINAL->HTMLMessagesO.Error()
     return false
-  enddef
+  enddef  # }}}1
 
-  # }}}1
+  def _AddLogItem(channel: channel, msg: string): void # {{{1
+    _BrowserLog->add($'[{strftime("%c")}] channel {channel->ch_info()['id']}: {msg}')
+  enddef # }}}1
+      
+  def ShowBrowserLog(): void  # {{{1
+    if _BrowserLog == []
+      HTMLMessagesO.Message('No browser output to show.')
+      return
+    endif
+
+    var logbuf: number = bufnr('\[BrowserLauncherLog\]')
+    if logbuf == -1
+      new [BrowserLauncherLog]
+      setlocal buftype=nofile bufhidden=hide noswapfile filetype=log
+    else
+      var winid: number = bufwinnr(logbuf)
+      if winid != -1
+        execute $':{winid}wincmd w'
+      else
+        execute $'sbuffer {logbuf}'
+      endif
+      setlocal modifiable
+    endif
+
+    execute ':%d'
+    append(0, _BrowserLog)
+    setlocal nomodifiable
+  enddef # }}}1
+
 endclass
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:

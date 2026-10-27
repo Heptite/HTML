@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.
 #
-# Last Change: May 18, 2026
+# Last Change: October 27, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -36,10 +36,12 @@ endif
 import autoload '../../autoload/HTML/Util.vim'
 import autoload '../../autoload/HTML/Map.vim'
 import autoload '../../autoload/HTML/Glue.vim'
+import autoload '../../autoload/HTML/BrowserLauncher.vim'
 
 var HTMLUtilO: Util.HTMLUtil = Util.HTMLUtil.new()
 var HTMLMapO: Map.HTMLMap = Map.HTMLMap.new()
 var HTMLGlueO: Glue.HTMLGlue = Glue.HTMLGlue.new()
+var BrowserLauncherO: BrowserLauncher.BrowserLauncher = BrowserLauncher.BrowserLauncher.new()
 
 def HTMLpluginComplete(A: string, C: string, P: number): list<string>
   return ['disable', 'off', 'false', 'enable', 'on', 'true', 'about', 'template']->filter((idx, val) => val =~? $'^{A}')
@@ -64,6 +66,10 @@ command! -buffer -bar HTMLTemplate {
     endif
   }
 command! -buffer -bar HTMLtemplate HTMLTemplate
+
+command! -buffer -bar BrowserLog     BrowserLauncherO.ShowBrowserLog()
+command! -buffer -bar ShowBrowserLog BrowserLauncherO.ShowBrowserLog()
+command! -buffer -bar HTMLBrowserLog BrowserLauncherO.ShowBrowserLog()
 
 b:htmlplugin.did_commands = true
 

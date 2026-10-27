@@ -38,7 +38,7 @@ export class HTMLVariables
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
   static const COPYRIGHT: string = $'Copyright © 1998-{strftime("%Y")} under the terms of the GPL3'
 
-  static const VERSION: string   = '1.7.5'
+  static const VERSION: string   = '1.7.6'
 
   static const MENU_NAME: string = 'HTM&L'
 
