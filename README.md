@@ -32,10 +32,19 @@ use of macros. For example:
 Note: If you have an old installation of this plugin, you need to remove its
 files first or they may prevent the packed version from loading.
 
-Install using your favorite package manager, or use Vim's built-in package
-support:
+### Vim Package Manager: vim-plug
 
-### Unix/MacOS
+If you are using vim-plug, just add it to your vimrc. For example:
+
+```
+call plug#begin()
+Plug 'Heptite/HTML'
+call plug#end()
+```
+
+### Vim's Built-In Package Support
+
+#### Unix/MacOS
 
 In a terminal type these commands:
 
@@ -45,7 +54,7 @@ cd ~/.vim/pack/cjr/start
 git clone https://github.com/Heptite/HTML.git
 ```
 
-### Windows
+#### Windows
 
 Press `Windows+R`, type in "`cmd`" and press `Enter`.  In that window run these
 commands:
@@ -55,6 +64,12 @@ mkdir %USERPROFILE%\vimfiles\pack\cjr\start
 cd %USERPROFILE%\vimfiles\pack\cjr\start
 git clone https://github.com/Heptite/HTML.git
 ```
+
+Or for PowerShell users:
+
+mkdir $HOME\vimfiles\pack\cjr\start
+cd $HOME\vimfiles\pack\cjr\start
+git clone https://github.com/Heptite/HTML.git
 
 After installing using git you can always update by going into the
 `pack/cjr/start/HTML` directory and typing: `git pull`
