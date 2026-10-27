@@ -42,6 +42,8 @@ Plug 'Heptite/HTML'
 call plug#end()
 ```
 
+Then type `:PlugInstall` in Vim.
+
 ### Vim's Built-In Package Support
 
 #### Unix/MacOS
