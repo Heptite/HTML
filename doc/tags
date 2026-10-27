@@ -14,10 +14,13 @@
 %time24%	HTML.txt	/*%time24%*
 %vimversion%	HTML.txt	/*%vimversion%*
 %vlinkcolor%	HTML.txt	/*%vlinkcolor%*
+:BrowserLog	HTML.txt	/*:BrowserLog*
 :CC	HTML.txt	/*:CC*
 :ColorChooser	HTML.txt	/*:ColorChooser*
+:HTMLBrowserLog	HTML.txt	/*:HTMLBrowserLog*
 :HTMLabout	HTML.txt	/*:HTMLabout*
 :HTMLplugin	HTML.txt	/*:HTMLplugin*
+:ShowBrowserLog	HTML.txt	/*:ShowBrowserLog*
 GPL	gpl-3.0.txt	/*GPL*
 GPL3	gpl-3.0.txt	/*GPL3*
 HTML-macros	HTML.txt	/*HTML-macros*

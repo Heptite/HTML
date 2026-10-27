@@ -48,31 +48,28 @@ Then type `:PlugInstall` in Vim.
 
 #### Unix/MacOS
 
-In a terminal type these commands:
+In a terminal type this command:
 
 ```
-mkdir -p ~/.vim/pack/cjr/start
-cd ~/.vim/pack/cjr/start
-git clone https://github.com/Heptite/HTML.git
+git clone https://github.com/Heptite/HTML.git \
+    ~/.vim/pack/cjr/start/HTML
 ```
 
 #### Windows
 
-Press `Windows+R`, type in "`cmd`" and press `Enter`.  In that window run these
-commands:
+Press `Windows+R`, type in "`cmd`" and press `Enter`.  In that window run this
+command:
 
 ```
-mkdir %USERPROFILE%\vimfiles\pack\cjr\start
-cd %USERPROFILE%\vimfiles\pack\cjr\start
-git clone https://github.com/Heptite/HTML.git
+git clone https://github.com/Heptite/HTML.git ^
+    %USERPROFILE%\vimfiles\pack\cjr\start\HTML
 ```
 
 Or for PowerShell users:
 
 ```
-mkdir $HOME\vimfiles\pack\cjr\start
-cd $HOME\vimfiles\pack\cjr\start
-git clone https://github.com/Heptite/HTML.git
+git clone https://github.com/Heptite/HTML.git `
+    $HOME\vimfiles\pack\cjr\start\HTML
 ```
 
 After installing using git you can always update by going into the
