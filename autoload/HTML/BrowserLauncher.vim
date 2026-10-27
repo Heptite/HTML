@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: October 25, 2026
+# Last Change: October 26, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -23,13 +23,13 @@ endif
 #  - links    (Current TTY / :terminal / new xterm)
 #  - links2   (Current TTY / :terminal / new xterm)
 #  - elinks   (Current TTY / :terminal / new xterm)
-#  - Default
+#  - OS Default (using xdg-open)
 #
 # MacOS:
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
 #  - Safari   (remote [new window / new tab] / launch)
-#  - Default
+#  - OS Default
 #
 # Windows, Cygwin, and WSL2:
 #  - Brave    (remote [new window / new tab] / launch)
@@ -37,8 +37,9 @@ endif
 #  - Edge     (remote [new window / new tab] / launch)
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
-#  - Plus lynx, w3m, and elinks text-mode browsers if they can be found.
-#  - Default
+#  - Plus lynx, w3m, links, links2, and elinks text-mode browsers if under
+#    Cygwin or WSL2
+#  - OS Default
 #
 # TODO:
 #
@@ -58,7 +59,7 @@ endif
 #
 # Requirements:
 #
-#  - Vim 9.2 or later
+#  - Vim 9.2.1240 or later with job_start()/channel support
 #  - At least one supported browser must be installed
 #  - xdg-open should be installed for Unix for default browser behavior
 #
@@ -88,146 +89,133 @@ export enum Behavior # {{{1
   newtab
 endenum # }}}1
 
+type BrowserList = dict<dict<string>>
+
 export class BrowserLauncher
 
-  const _Browsers: dict<dict<string>> = {}
-  const _TextModeBrowsers: dict<dict<string>> = {
+  static var _Browsers: BrowserList = {}
+  static var _TextModeBrowsers: BrowserList = {
     lynx:   {realname: 'lynx',   path: '', tab: '', window: ''},
     w3m:    {realname: 'w3m',    path: '', tab: '', window: ''},
     links:  {realname: 'links',  path: '', tab: '', window: ''},
     links2: {realname: 'links2', path: '', tab: '', window: ''},
     elinks: {realname: 'elinks', path: '', tab: '', window: ''}
   }
-  var _MacBrowsersExist: list<string> = ['default']
+  static var _MacBrowsersExist: list<string> = ['default']
   static var HTMLMessagesO: Messages.HTMLMessages
   static var HTMLUtilO: Util.HTMLUtil
 
   def new() # {{{
     var temppath: string
-    var Browserstmp: dict<dict<any>>
+    var browserstmp: dict<dict<any>>
 
     if HTMLMessagesO == null_object
       HTMLMessagesO = Messages.HTMLMessages.new()
       HTMLUtilO = Util.HTMLUtil.new()
     endif
 
-    if HTMLUtilO.Has('mac') || this._Browsers != {}
+    if HTMLUtilO.Has('mac') || _Browsers != {}
       return
     elseif (! (HTMLUtilO.Has('WSL2') || has('win32unix') == 1)) && has('unix') == 1
-      Browserstmp = {
+      browserstmp = {
         firefox: {
-          realname: 'firefox',
-          path:     '',
-          tab:      '--new-tab',
-          window:   '--new-window'
+          realname: 'firefox',   path:   '',
+          tab:      '--new-tab', window: '--new-window'
         },
         brave: {
-          realname: ['brave-browser', 'brave'],
-          path:     '',
-          tab:      '',
-          window:   '--new-window'
+          realname: ['brave-browser', 'brave'], path:   '',
+          tab:      '',                         window: '--new-window'
         },
         chrome: {
           realname: ['google-chrome', 'chrome', 'chromium-browser', 'chromium'],
           path:     '',
-          tab:      '',
-          window:   '--new-window'
+          tab:      '', window: '--new-window'
         },
         opera: {
-          realname: 'opera',
-          path:     '',
-          tab:      '',
-          window:   '--new-window'
+          realname: 'opera', path:   '',
+          tab:      '',      window: '--new-window'
         },
         default: {
-          realname: 'xdg-open',
-          path:     '',
-          tab:      '',
-          window:   ''
+          realname: 'xdg-open', path:   '',
+          tab:      '',         window: ''
         }
       }
 
-      for tempkey: string in Browserstmp->keys()
-        for tempname in (type(Browserstmp[tempkey]['realname']) == v:t_list ? Browserstmp[tempkey]['realname'] : [Browserstmp[tempkey]['realname']])
+      for tempkey: string in browserstmp->keys()
+        for tempname in (
+            type(browserstmp[tempkey]['realname']) == v:t_list
+              ?
+            browserstmp[tempkey]['realname']
+              :
+            [browserstmp[tempkey]['realname']]
+        )
           temppath = tempname->exepath()
           if temppath != ''
-            Browserstmp[tempkey]['realname'] = tempname
-            Browserstmp[tempkey]['path']     = temppath
+            browserstmp[tempkey]['realname'] = tempname
+            browserstmp[tempkey]['path']     = temppath
             break
           endif
         endfor
 
         if temppath == ''
-          Browserstmp->remove(tempkey)
+          browserstmp->remove(tempkey)
         endif
       endfor
 
-      for tmpkey: string in Browserstmp->keys()
-        this._Browsers[tmpkey] = Browserstmp[tmpkey]
+      for tmpkey: string in browserstmp->keys()
+        _Browsers[tmpkey] = browserstmp[tmpkey]
       endfor
 
-      this._TextModeBrowsers = this._FindTextModeBrowsers()
-      this._Browsers->extend(this._TextModeBrowsers)
+      _TextModeBrowsers = this._FindTextModeBrowsers()
+      _Browsers->extend(_TextModeBrowsers)
 
     elseif HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
-      Browserstmp = {
+      browserstmp = {
         brave: {
-          realname: 'Brave',
-          path:     'brave.exe',
-          tab:      '',
-          window:   '--new-window'
+          realname: 'Brave',     path:   'brave.exe',
+          tab:      '',          window: '--new-window'
         },
         firefox: {
-          realname: 'Firefox',
-          path:     'firefox.exe',
-          tab:      '--new-tab',
-          window:   '--new-window'
+          realname: 'Firefox',   path:   'firefox.exe',
+          tab:      '--new-tab', window: '--new-window'
         },
         chrome: {
-          realname: 'Chrome',
-          path:     'chrome.exe',
-          tab:      '',
-          window:   '--new-window'
+          realname: 'Chrome',    path:   'chrome.exe',
+          tab:      '',          window: '--new-window'
         },
         opera: {
-          realname: 'Opera',
-          path:     'opera.exe',
-          tab:      '',
-          window:   '--new-window'
+          realname: 'Opera',     path:   'opera.exe',
+          tab:      '',          window: '--new-window'
         },
         edge: {
-          realname: 'Edge',
-          path:     'msedge.exe',
-          tab:      '',
-          window:   '--new-window'
+          realname: 'Edge',      path:   'msedge.exe',
+          tab:      '',          window: '--new-window'
         }
       }
 
-      for tempkey: string in Browserstmp->keys()
-        temppath = this._RegistrySearch(Browserstmp[tempkey]['realname'], Browserstmp[tempkey]['path'])
+      for tempkey: string in browserstmp->keys()
+        temppath = this._RegistrySearch(browserstmp[tempkey]['realname'], browserstmp[tempkey]['path'])
         if temppath != ''
-          Browserstmp[tempkey]['realname'] = fnamemodify(Browserstmp[tempkey]['path'], ':r')
-          Browserstmp[tempkey]['path'] = temppath
+          browserstmp[tempkey]['realname'] = fnamemodify(browserstmp[tempkey]['path'], ':r')
+          browserstmp[tempkey]['path'] = temppath
         else
-          Browserstmp->remove(tempkey)
+          browserstmp->remove(tempkey)
         endif
       endfor
 
-      for tmpkey: string in Browserstmp->keys()
-        this._Browsers[tmpkey] = Browserstmp[tmpkey]
+      for tmpkey: string in browserstmp->keys()
+        _Browsers[tmpkey] = browserstmp[tmpkey]
       endfor
 
-      this._Browsers.default = {realname: '', path: '', tab: '', window: ''}
+      _Browsers.default = {realname: '', path: '', tab: '', window: ''}
 
       if HTMLUtilO.Has('WSL2') || has('win32unix') == 1
-        this._TextModeBrowsers = this._FindTextModeBrowsers()
-        this._Browsers->extend(this._TextModeBrowsers)
+        _TextModeBrowsers = this._FindTextModeBrowsers()
+        _Browsers->extend(_TextModeBrowsers)
       endif
 
     else
-      HTMLMessagesO.Warn('Your OS is not recognized, browser controls will not work.')
-
-      this._Browsers = {}
+      HTMLMessagesO.Warn('Your OS is not recognized--browser controls will not work.')
     endif
   enddef # }}}
 
@@ -247,17 +235,60 @@ export class BrowserLauncher
     endif
   enddef  # }}}1
 
-  # _FindTextModeBrowsers() {{{1
+  # _RegistrySearch() {{{1
   #
-  # Remove browsers from _TextModeBrowsers that aren't found, and add to
-  # _Browsers dictionary of textmode browsers that are found.
+  # Find the executable location of a browser installed on Windows by
+  # searching the registry, returning a path to the executable if found, or an
+  # empty string if not found.
   #
   # Args:
-  #  The list of browsers to search for
+  #  1 - The name of the browser to search for (as it appears in the registry)
+  #  2 - The name of the executable to search for (e.g., "firefox.exe")
   # Return value:
-  #  A list of browsers that were found, in dict<dict<string>> format
-  def _FindTextModeBrowsers(browserlist: dict<dict<string>> = this._TextModeBrowsers): dict<dict<string>>
-    var browsers: dict<dict<string>>
+  #  The path to the executable of the browser, or an empty string if not
+  #  found
+  def _RegistrySearch(name: string, exe: string): string
+    var output: list<string>
+
+    # First look in the User's personal installs:
+    output = systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    # Then look in the system-wide installs:
+    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
+
+    for line: string in output
+      if line =~# '^\s*InstallLocation\>'
+        var path: string = substitute(trim(line), '^InstallLocation\s\+REG_SZ\s\+', '', '')
+        if has('win32unix') == 1
+          path = trim(system(['cygpath', path]))
+          path = findfile(exe, escape(path, ' ') .. '/**')
+        elseif HTMLUtilO.Has('WSL2')
+          path = trim(system(['wslpath', path]))
+          path = findfile(exe, escape(path, ' ') .. '/**')
+        else
+          path = findfile(exe, escape(path, ' ') .. '\**')
+        endif
+        if executable(path)
+          return path
+        endif
+      endif
+    endfor
+
+    return ''
+  enddef
+
+  # _FindTextModeBrowsers() {{{1
+  #
+  # Process dictionary of textmode browsers, returning a dictionary with
+  # information of those that are found.
+  #
+  # Args:
+  #  The dictionary of browsers to search for
+  # Return value:
+  #  A dictionary of browsers that were found
+  def _FindTextModeBrowsers(browserlist: BrowserList = _TextModeBrowsers): BrowserList
+    var browsers: BrowserList
 
     for browser: string in browserlist->keys()
         var temp: string = browserlist[browser]['realname']->exepath()
@@ -271,25 +302,27 @@ export class BrowserLauncher
   enddef # }}}1
 
   def _UseAppleScript(): bool # {{{1
-    return system('/usr/bin/osascript -e '
-      .. "'tell application \"System Events\" to set UI_enabled "
-      .. "to UI elements enabled' 2>/dev/null")->trim() ==? 'true' ? true : false
+    return system([
+      '/usr/bin/osascript', '-e',
+      'tell application "System Events" to set UI_enabled '
+      .. 'to UI elements enabled'
+    ])->trim() ==? 'true' ? true : false
   enddef
 
   def _MacBrowserExists(app: string = ''): any # {{{1
     if app == ''
-      return this._MacBrowsersExist
+      return _MacBrowsersExist
     endif
 
-    if match(this._MacBrowsersExist, $'^\c\V{app}\$')
+    if match(_MacBrowsersExist, $'^\c\V{app}\$')
       return true
     else
-      system("/usr/bin/osascript -e 'get id of application \"" .. app->escape("\"'\\") .. "\"'")
+      system(['/usr/bin/osascript', '-e', 'get id of application "' .. app->escape('"''\') .. '"'])
       if v:shell_error
         return false
       endif
 
-      this._MacBrowsersExist->add(app->tolower())->sort()->uniq()
+      _MacBrowsersExist->add(app->tolower())->sort()->uniq()
       return true
     endif
   enddef
@@ -297,10 +330,10 @@ export class BrowserLauncher
   def _MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool  # {{{1
     var file: string
     var torn: string
-    var script: string
-    var command: string
+    var script: list<string>
+    var command: list<string>
     var use_AS: bool
-    var as_msg: string
+    var as_msg: list<string>
 
     if (!this._MacBrowserExists(app) && app !=? 'default')
       printf(HTMLMessagesO.E_NOAPP, app)->HTMLMessagesO.Error()
@@ -323,12 +356,14 @@ export class BrowserLauncher
     use_AS = this._UseAppleScript()
 
     # Why we can't open new tabs and windows:
-    as_msg = "The feature that allows the opening of new browser windows\n"
-      .. "and tabs utilizes the built-in Graphic User Interface Scripting\n"
-      .. "architecture of Mac OS X which is currently disabled. You can\n"
-      .. "activate GUI Scripting by selecting the checkbox \"Enable\n"
-      .. "access for assistive devices\" in the Universal Access\n"
-      .. "preference pane."
+    as_msg =<< trim END
+      The feature that allows the opening of new browser windows
+      and tabs utilizes the built-in Graphic User Interface Scripting
+      architecture of Mac OS X which is currently disabled. You can
+      activate GUI Scripting by selecting the checkbox "Enable
+      access for assistive devices" in the Universal Access
+      preference pane."
+    END
 
     if (app ==? 'safari') # {{{
       if new != Behavior.default && use_AS
@@ -339,29 +374,32 @@ export class BrowserLauncher
           torn = 'n'
           HTMLMessagesO.Message('Opening file in new Safari window...')
         endif
-        script = '-e "tell application \"safari\"" '
-          .. '-e "activate" '
-          .. '-e "tell application \"System Events\"" '
-          .. '-e "tell process \"safari\"" '
-          .. $'-e "keystroke \"{torn}\" using {{command down}}" '
-          .. '-e "end tell" '
-          .. '-e "end tell" '
-          .. '-e "delay 0.3" '
-          .. '-e "tell window 1" '
-          .. '-e ' .. shellescape($'set (URL of last tab) to "{file}"') .. ' '
-          .. '-e "end tell" '
-          .. '-e "end tell" '
 
-        command = $'/usr/bin/osascript {script}'
+        script = [
+          '-e', 'tell application "safari"',
+          '-e', 'activate',
+          '-e', 'tell application "System Events"',
+          '-e', 'tell process "safari"',
+          '-e', $'keystroke "{torn}" using {{command down}}',
+          '-e', 'end tell',
+          '-e', 'end tell',
+          '-e', 'delay 0.3',
+          '-e', 'tell window 1',
+          '-e', $'set (URL of last tab) to "{file}"',
+          '-e', 'end tell',
+          '-e', 'end tell'
+        ]
+
+        command = ['/usr/bin/osascript'] + script
 
       else
         if new != Behavior.default
           # Let the user know what's going on:
-          as_msg->confirm('&Dismiss', 1, 'Error')
+          as_msg->join("\n")->confirm('&Dismiss', 1, 'Error')
         endif
 
         HTMLMessagesO.Message('Opening file in Safari...')
-        command = $'/usr/bin/open -a safari {file->shellescape()}'
+        command = ['/usr/bin/open', '-a', 'safari', file]
       endif
     endif # }}}
 
@@ -376,29 +414,31 @@ export class BrowserLauncher
           torn = 'n'
           HTMLMessagesO.Message('Opening file in new Firefox window...')
         endif
-        script = '-e "tell application \"firefox\"" '
-          .. '-e "activate" '
-          .. '-e "tell application \"System Events\"" '
-          .. '-e "tell process \"firefox\"" '
-          .. $'-e "keystroke \"{torn}\" using {{command down}}" '
-          .. '-e "delay 0.8" '
-          .. '-e "keystroke \"l\" using {command down}" '
-          .. '-e "keystroke \"a\" using {command down}" '
-          .. '-e ' .. shellescape($'keystroke "{file}" & return') .. " "
-          .. '-e "end tell" '
-          .. '-e "end tell" '
-          ..  '-e "end tell" '
+        script = [
+          '-e', 'tell application "firefox"',
+          '-e', 'activate',
+          '-e', 'tell application "System Events"',
+          '-e', 'tell process "firefox"',
+          '-e', $'keystroke "{torn}" using {{command down}}',
+          '-e', 'delay 0.8',
+          '-e', 'keystroke "l" using {command down}',
+          '-e', 'keystroke "a" using {command down}',
+          '-e', $'keystroke "{file}" & return',
+          '-e', 'end tell',
+          '-e', 'end tell',
+          '-e', 'end tell'
+        ]
 
-        command = $'/usr/bin/osascript {script}'
+        command = ['/usr/bin/osascript'] + script
 
       else
         if new != Behavior.default
           # Let the user know wath's going on:
-          as_msg->confirm('&Dismiss', 1, 'Error')
-
+          as_msg->join("\n")->confirm('&Dismiss', 1, 'Error')
         endif
+
         HTMLMessagesO.Message('Opening file in Firefox...')
-        command = $'/usr/bin/open -a firefox {file->shellescape()}'
+        command = ['/usr/bin/open', '-a', 'firefox', file]
       endif
     endif # }}}
 
@@ -413,38 +453,40 @@ export class BrowserLauncher
           torn = 'n'
           HTMLMessagesO.Message('Opening file in new Opera window...')
         endif
-        script = '-e "tell application \"Opera\"" '
-          .. '-e "activate" '
-          .. '-e "tell application \"System Events\"" '
-          .. '-e "tell process \"opera\"" '
-          .. $'-e "keystroke \"{torn}\" using {{command down}}" '
-          .. '-e "end tell" '
-          .. '-e "end tell" '
-          .. '-e "delay 0.5" '
-          .. '-e ' .. shellescape($'set URL of front document to "{file}\"') .. " "
-          .. '-e "end tell" '
+        script = [
+          '-e', 'tell application \"Opera\"',
+          '-e', 'activate',
+          '-e', 'tell application "System Events"',
+          '-e', 'tell process "opera"',
+          '-e', $'keystroke "{torn}" using {{command down}}"',
+          '-e', 'end tell',
+          '-e', 'end tell',
+          '-e', 'delay 0.5',
+          '-e', $'set URL of front document to "{file}"',
+          '-e', 'end tell',
+        ] 
 
-        command = $'/usr/bin/osascript {script}'
+        command = ['/usr/bin/osascript'] + script
 
       else
         if new != Behavior.default
           # Let the user know what's going on:
-          as_msg->confirm('&Dismiss', 1, 'Error')
-
+          as_msg->join("\n")->confirm('&Dismiss', 1, 'Error')
         endif
+
         HTMLMessagesO.Message('Opening file in Opera...')
-        command = $'/usr/bin/open -a opera {file->shellescape()}'
+        command = ['/usr/bin/open', '-a', 'opera', file]
       endif
     endif # }}}
 
     if (app ==? 'default')
       HTMLMessagesO.Message('Opening file in default browser...')
-      command = $'/usr/bin/open {file->shellescape()}'
+      command = ['/usr/bin/open', file]
     endif
 
-    if (command == '')
+    if (command == [])
       HTMLMessagesO.Message($'Opening {HTMLUtilO.Cap(app)}...')
-      command = $'/usr/bin/open -a {app} {file->shellescape()}'
+      command = ['/usr/bin/open', '-a', app, file]
     endif
 
     system(command)
@@ -460,10 +502,17 @@ export class BrowserLauncher
   #  Without an argument: list - The names of the browsers that were found
   def _UnixWindowsBrowserExists(browser: string = ''): any
     if browser == ''
-      return this._Browsers->keys()->sort()
-    else
-      return this._Browsers->has_key(browser) ? true : false
+      #return _Browsers->keys()->sort()
+      return _Browsers->mapnew(
+        (name: string, info: dict<string>) => ({
+          path: info.path,
+          realname: info.realname
+        })
+      )
     endif
+
+    # Oddly, has_key() returns numbers and not a bool value, so convert it:
+    return _Browsers->has_key(browser) == 1 ? true : false
   enddef
 
   # _UnixWindowsLaunch() {{{1
@@ -474,10 +523,12 @@ export class BrowserLauncher
   #    Use BrowserExists() to see which ones are available.
   #
   #    The optional second argument is whether to launch a new window:
-  #      0 - No (default -- in modern brosers this tends to open a new tab)
-  #      1 - Yes (some modern browsers don't actually provide a way to do this)
-  #      2 - New Tab (or new window if the browser doesn't provide a way to
-  #                   open a new tab)
+  #      Behavior.default   - (default -- in modern brosers this tends to
+  #                           open a new tab)
+  #      Behavior.newwindow - (some modern browsers don't actually provide
+  #                           a way to do this)
+  #      Behavior.newtab    - (or new window if the browser doesn't provide a
+  #                           way to open a new tab)
   #
   #    The optional third argument is an URL to go to instead of loading the
   #    current file.
@@ -510,10 +561,10 @@ export class BrowserLauncher
       # If we're on Cygwin or WSL2 and not using a text mode browser,
       # translate the file path to a Windows native path for later use,
       # otherwise just add the file:// prefix:
-      if has('win32unix') == 1 && match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
+      if has('win32unix') == 1 && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         file = 'file://' .. system(['cygpath', '-w', expand('%:p')])->trim()
       elseif HTMLUtilO.Has('WSL2')
-          && match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
+          && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         file = 'file://' .. system(['wslpath', '-w', expand('%:p')])->trim()
       else
         file = 'file://' .. expand('%:p')
@@ -524,21 +575,21 @@ export class BrowserLauncher
     endif
 
     if has('unix') == 1 && $DISPLAY == ''
-        && match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
+        && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         && has('win32unix') == 0
-      if this._TextModeBrowsers->keys() == []
+      if _TextModeBrowsers->keys() == []
         HTMLMessagesO.Error(HTMLMessagesO.E_DISPLAY)
         return false
       else
-        which = this._TextModeBrowsers->keys()->sort('i')[0]
+        which = _TextModeBrowsers->keys()->sort('i')[0]
       endif
     endif
 
     # Have to handle the textmode browsers different than the GUI browsers:
-    if match(this._TextModeBrowsers->keys(), $'^\c\V{which}\$') >= 0
+    if match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') >= 0
       var xterm: string
 
-      HTMLMessagesO.Message('Launching ' .. this._Browsers[which]['realname'] .. '...')
+      HTMLMessagesO.Message('Launching ' .. _Browsers[which]['realname'] .. '...')
 
       if executable('/etc/alternatives/x-terminal-emulator')
         xterm = '/etc/alternatives/x-terminal-emulator'
@@ -548,25 +599,25 @@ export class BrowserLauncher
 
       if has('gui_running') == 1 || donew != Behavior.default
         if $DISPLAY != '' && xterm != '' && donew == Behavior.newwindow
-          command = [xterm, '-e', this._Browsers[which]['path'], file]
+          command = [xterm, '-e', _Browsers[which]['path'], file]
         elseif exists_compiled(':terminal') == 2
-          execute 'terminal ++close ' .. this._Browsers[which]['path'] .. ' ' .. file
+          execute 'terminal ++close ' .. _Browsers[which]['path'] .. ' ' .. file
           return true
         else
           if donew == Behavior.newwindow
-            HTMLMessagesO.Error(printf(HTMLMessagesO.E_XTERM, this._Browsers[which]['realname']))
+            HTMLMessagesO.Error(printf(HTMLMessagesO.E_XTERM, _Browsers[which]['realname']))
           else
-            HTMLMessagesO.Error(printf(HTMLMessagesO.E_TERM, this._Browsers[which]['realname']))
+            HTMLMessagesO.Error(printf(HTMLMessagesO.E_TERM, _Browsers[which]['realname']))
           endif
 
           return false
         endif
       else
-        sleep 1
-        execute '!' .. this._Browsers[which]['path'] .. ' ' .. file->shellescape()
+        #sleep 1
+        execute '!' .. _Browsers[which]['path'] .. ' ' .. file->shellescape()
 
         if v:shell_error
-          printf(HTMLMessagesO.E_LAUNCH, this._Browsers[which]['realname'])->HTMLMessagesO.Error()
+          printf(HTMLMessagesO.E_LAUNCH, _Browsers[which]['realname'])->HTMLMessagesO.Error()
           return false
         endif
 
@@ -579,35 +630,34 @@ export class BrowserLauncher
     if command == []
 
       if donew == Behavior.newtab
-        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which]['realname'])} tab...')
+        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(_Browsers[which]['realname'])} tab...')
         command = [
-          this._Browsers[which]['path'],
+          _Browsers[which]['path'],
           file,
-          this._Browsers[which]['tab']
+          _Browsers[which]['tab']
         ]
-      elseif donew != Behavior.default
-        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(this._Browsers[which]['realname'])} window...')
+      elseif donew == Behavior.newwindow
+        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(_Browsers[which]['realname'])} window...')
         command = [
-          this._Browsers[which]['path'],
+          _Browsers[which]['path'],
           file,
-          this._Browsers[which]['window']
+          _Browsers[which]['window']
         ]
       else
         if which == 'default'
           HTMLMessagesO.Message('Invoking system default browser...')
         else
-          HTMLMessagesO.Message($'Invoking {HTMLUtilO.Cap(this._Browsers[which]['realname'])}...')
+          HTMLMessagesO.Message($'Invoking {HTMLUtilO.Cap(_Browsers[which]['realname'])}...')
         endif
 
         command = [
-          this._Browsers[which]['path'],
+          _Browsers[which]['path'],
           file
         ]
       endif
     endif
 
     if command != []
-
       if command[0] == ''
         if HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
           map(command, (_, val) => substitute(val, '^file://', '', ''))
@@ -638,7 +688,7 @@ export class BrowserLauncher
         #},
       })
 
-      if  job_status(job_id) == 'fail'
+      if job_status(job_id) == 'fail'
         printf(HTMLMessagesO.E_COMMAND, command)->HTMLMessagesO.Error()
         return false
       endif
@@ -646,42 +696,11 @@ export class BrowserLauncher
       return true
     endif
 
-    HTMLMessagesO.Error(HTMLMessagesO.E_FINAL)
+    HTMLMessagesO.E_FINAL->HTMLMessagesO.Error()
     return false
   enddef
 
   # }}}1
-
-  def _RegistrySearch(name: string, executable: string): string # {{{
-    var output: list<string>
-
-    # First look in the User's personal installs:
-    output = systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-    output += systemlist(['reg.exe', 'query', 'HKCU\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-    # Then look in the system-wide installs:
-    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-    output += systemlist(['reg.exe', 'query', 'HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall', '/s', '/f', name, '/d'])
-
-    for line in output
-      if line =~# '^\s*InstallLocation\>'
-        var path = substitute(trim(line), '^InstallLocation\s\+REG_SZ\s\+', '', '')
-        if has('win32unix') == 1
-          path = trim(system(['cygpath', path]))
-          path = findfile(executable, escape(path, ' ') .. '/**')
-        elseif HTMLUtilO.Has('WSL2')
-          path = trim(system(['wslpath', path]))
-          path = findfile(executable, escape(path, ' ') .. '/**')
-        else
-          path = findfile(executable, escape(path, ' ') .. '\**')
-        endif
-        if executable(path)
-          return path
-        endif
-      endif
-    endfor
-
-    return ''
-  enddef # }}}
 endclass
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:

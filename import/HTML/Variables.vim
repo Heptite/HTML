@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.
 #
-# Last Change: October 25, 2026
+# Last Change: October 26, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -38,14 +38,14 @@ export class HTMLVariables
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
   static const COPYRIGHT: string = $'Copyright © 1998-{strftime("%Y")} under the terms of the GPL3'
 
-  static const VERSION: string   = '1.7.3'
+  static const VERSION: string   = '1.7.4'
+
+  static const MENU_NAME: string = 'HTM&L'
 
   static var HTMLMessagesO: Messages.HTMLMessages
 
   static var EntitiesToChar: dict<string> = {}
   static var CharToEntities: dict<string> = {}
-
-  static const MENU_NAME: string = 'HTM&L'
 
   static const TAGS_FILE: string         = 'json/HTML/tags.json'
   static const ENTITIES_FILE: string     = 'json/HTML/entities.json'

@@ -69,7 +69,7 @@ def Test_map_methods()
 	setline(1, ['<html>', '<head>', '<title></title>', '</head>', '</html>'])
 	cursor(0, 0)
 	assert_true(mapo.NextInsertPoint(), "NextInsertPoint() cursor should reposition")
-	normal iLorem Ipsum
+	normal! iLorem Ipsum
 	assert_false(mapo.NextInsertPoint(), "NextInsertPoint() cursor should NOT reposition")
 	:%delete
 	assert_equal("<b></b>\<C-O>F<", mapo.SmartTag("b", "i"), 'SmartTag("b", "i")')

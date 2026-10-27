@@ -7,7 +7,7 @@ endif
 
 # Messaging functions for the HTML macros filetype plugin.
 #
-# Last Change: October 24, 2026
+# Last Change: October 26, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -94,7 +94,7 @@ export class HTMLMessages
   const E_XTERM        = gettext("XTerm not found, and :terminal is not compiled into this version of GVim. Can't launch %s.", 'CJRHTML')
   const E_ZEROROWSCOLS = gettext("Rows and columns must be positive, non-zero integers.", 'CJRHTML')
 
-  const W_MAPOVERRIDE  = gettext("WARNING: A mapping of %s for %s mode has been overridden for buffer number %d: %s", 'CJRHTML')
+  const W_MAPOVERRIDE  = gettext("WARNING: A mapping of %s for %s mode has been overridden for buffer %d: %s", 'CJRHTML')
   const W_CAUGHTERR    = gettext("Caught error \"%s\", continuing.", 'CJRHTML')
   const W_INVALIDCASE  = gettext("%s Specified case is invalid: %s. Overriding to \"lowercase\".", 'CJRHTML')
   const W_NOMENU       = gettext("No menu item was defined for \"%s\".", 'CJRHTML')
@@ -133,7 +133,7 @@ export class HTMLMessages
       throw printf(this.E_INVALIDTYPE, typename(message))
     endif
 
-    for s in m
+    for s: string in m
       if exists_compiled(':echowindow') == 2 && type !~? '^e'
         echowindow s
       else

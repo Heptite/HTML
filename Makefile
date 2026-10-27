@@ -37,6 +37,7 @@ Choose a specific target:
             in the appropriate locations on the local
             machine, for testing.
   "upload" will send the script archive (zip) to Vim Online
+  "publish" will do "push", "copy", and "upload"
   "test" will test (some of) the plugin's functionality
 EOF
 endef
@@ -61,6 +62,8 @@ debug:
 	@echo "\$$(alllang)       = $(alllang)"
 
 all: HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
+
+publish: version push copy upload
 
 push: pushed
 
