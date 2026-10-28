@@ -36,13 +36,13 @@ sub GetRequiredVimVersion() {
 		chomp($line);
 
 		if ($line =~ m/^if v:version < ([0-9]+)$/) {
-			$plugin->close;
 			return int($1 / 100) . '.' . ($1 % 100);
-		} elsif ($line =~ m/^if v:version < ([0-9]+) \|\| v:versionlong < ([0-9]+)$/) {
-			$plugin->close;
-			return int($1 / 100) . '.' . ($1 % 100) . '.' . ($2 % 10000);
+		} elsif ($line =~ m/^if .*v:versionlong < ([0-9]+)$/) {
+			return int($1 / 1000000) . '.' . ($1 / 10000 % 100) . '.' . ($1 % 10000);
 		}
 	}
+
+	$plugin->close;
 
 	return '';
 }
@@ -58,7 +58,7 @@ sub GetPluginVersion() {
 
 sub GetComment() {
 	my $lines;
-	print "Enter a comment, Ctrl-D to finish:\n";
+	print "Enter version notes, Ctrl-D to finish:\n";
 	while (my $line = <STDIN>) {
 		$lines .= $line;
 	}
@@ -66,14 +66,20 @@ sub GetComment() {
 }
 
 my $archive = "$dirname/HTML.zip";
-my $script_version = GetPluginVersion();
-my $version_comment = GetComment();
 
-die "Must provide a comment\n" unless $version_comment;
+my $script_version = GetPluginVersion();
+
+print "Script version: $script_version\n";
 
 my $vim_version_required = GetRequiredVimVersion();
 
 die "Can't obtain minumum required version of Vim?\n" unless $vim_version_required;
+
+print "Required Vim version: $vim_version_required\n";
+
+my $version_comment = GetComment();
+
+die "Must provide version notes\n" unless $version_comment;
 
 my @user_credentials = GetCredentials();
 

@@ -1,11 +1,11 @@
 vim9script
 scriptencoding utf8
 
-if v:version < 902 || v:versionlong < 9021240
-  echohl ErrorMsg
-  echomsg 'The HTML macros plugin no longer supports Vim versions prior to 9.2.1240'
-  echohl None
-  sleep 3
+if v:versionlong < 9021240
+  confirm(
+    'The HTML macros plugin no longer supports Vim versions prior to 9.2.1240',
+    '&OK', 1, 'Error'
+  )
   finish
 endif
 
