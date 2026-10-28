@@ -11,9 +11,9 @@ endif
 
 # ---- Author & Copyright: ---------------------------------------------- {{{1
 #
-# Author:           Christian J. Robinson <heptite(at)proton(dot)me>
+# Author:           Christian J. Robinson <heptite+html(at)proton(dot)me>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      October 25, 2026
+# Last Change:      October 28, 2026
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.2.1240 or later
 #
@@ -67,14 +67,18 @@ endif
 # ---- TODO: ------------------------------------------------------------ {{{1
 #
 # - Add mappings for more textmode browsers
+#
 # - Add a lot more character entity mappings (see table in
 #   import/HTML/Variables.vim)
+#
 # - Add more HTML 5 tags?
 #   https://www.w3.org/wiki/HTML/New_HTML5_Elements
 #   https://www.geeksforgeeks.org/html5-new-tags/
+#
 # - Find a way to make "gv"--after executing a visual mapping--re-select the
 #   right text.  (Currently my extra code that wraps around the visual
 #   mappings can tweak the selected area significantly.)
+#
 #   + This should probably exclude the newly created tag text, so things like
 #     visual selection ;ta, then gv and ;tr, then gv and ;td work.
 #
@@ -182,14 +186,17 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
   # Intitialize some necessary variables:  {{{2
 
   if type(g:htmlplugin.toplevel_menu) != v:t_list
-    Messages.HTMLMessages.Error('g:htmlplugin.toplevel_menu must be a list! Overriding to default.')
+    Messages.HTMLMessages.Error(
+      'g:htmlplugin.toplevel_menu must be a list! Overriding to default.'
+    )
     sleep 3
     g:htmlplugin.toplevel_menu = []
   endif
 
   if !g:htmlplugin->has_key('toplevel_menu_escaped')
     g:htmlplugin.toplevel_menu_escaped =
-      HTMLMenuO.Join(g:htmlplugin.toplevel_menu->add(Variables.HTMLVariables.MENU_NAME))
+      HTMLMenuO.Join(g:htmlplugin.toplevel_menu
+        ->add(Variables.HTMLVariables.MENU_NAME))
     lockvar g:htmlplugin.toplevel_menu
     lockvar g:htmlplugin.toplevel_menu_escaped
   endif
@@ -198,8 +205,12 @@ if !HTMLUtilO.BoolVar('b:htmlplugin.did_mappings_init')
   setlocal matchpairs+=<:>
 
   if g:htmlplugin.entity_map_leader ==# g:htmlplugin.map_leader
-    Messages.HTMLmessages.Error('"g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!')
-    Messages.HTMLmessages.Error('Resetting both to their defaults (";" and "&" respectively).')
+    Messages.HTMLMessages.Error(
+      '"g:htmlplugin.entity_map_leader" and "g:htmlplugin.map_leader" have the same value!'
+    )
+    Messages.HTMLMessages.Error(
+      'Resetting both to their defaults (";" and "&" respectively).'
+    )
     sleep 3
     g:htmlplugin.map_leader = ';'
     g:htmlplugin.entity_map_leader = '&'
@@ -634,9 +645,9 @@ else
 
   if HTMLUtilO.BoolVar('g:htmlplugin.toolbar') && has('toolbar')
 
-    # In the context of running ":gui" after starting the non-GUI, unfortunately
-    # there's no way to make this work if the user has 'guioptions' set in their
-    # gvimrc, and it removes the 'T'.
+    # In the context of running ":gui" after starting the non-GUI,
+    # unfortunately there's no way to make this work if the user has
+    # 'guioptions' set in their gvimrc, and it removes the 'T'.
     if has('gui_running')
       set guioptions+=T
     else
@@ -993,9 +1004,9 @@ if !HTMLUtilO.BoolVar('g:htmlplugin.did_old_variable_check') &&  # {{{
     || exists('g:no_html_maps') || exists('g:no_html_menu')
     || exists('g:no_html_toolbar') || exists('g:no_html_tab_mapping'))
   g:htmlplugin.did_old_variable_check = true
-  var message = "You have set one or more of the old HTML plugin configuration variables.\n"
-  .. "These variables are no longer used in favor of a new dictionary variable.\n\n"
-  .. "Please refer to \":help html-variables\"."
+  var message: string = "You have set one or more of the old HTML plugin configuration variables.\n"
+    .. "These variables are no longer used in favor of a new dictionary variable.\n\n"
+    .. 'Please refer to ":help html-variables".'
   if message->confirm("&Help\n&Dismiss", 2, 'Warning') == 1
     help html-variables
     # Go to the previous window or everything gets messy:
@@ -1009,7 +1020,7 @@ if !HTMLUtilO.BoolVar('g:htmlplugin.did_plugin_warning_check')  # {{{
   if files->len() > 1
     var filesmatched = files->Util.HTMLUtil.FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)
     if filesmatched->len() > 1
-      var message = "Multiple versions of the HTML plugin are installed.\n"
+      var message: string = "Multiple versions of the HTML plugin are installed.\n"
         .. "Locations:\n   " .. filesmatched->map((_, value) => value->fnamemodify(':~'))->join("\n   ")
         .. "\nIt is necessary that you remove old versions!\n"
         .. "(Don't forget about browser_launcher.vim/BrowserLauncher.vim and MangleImageTag.vim)"

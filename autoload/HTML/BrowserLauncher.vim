@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: October 27, 2026
+# Last Change: October 28, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -61,7 +61,7 @@ endif
 #  - At least one supported browser must be installed
 #  - xdg-open should be installed for Unix for default browser behavior
 #
-# Copyright © 1998-2026 Christian J. Robinson <heptite(at)proton(dot)me>
+# Copyright © 1998-2026 Christian J. Robinson <heptite+html(at)proton(dot)me>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -87,7 +87,7 @@ export enum Behavior # {{{1
   newtab
 endenum # }}}1
 
-type BrowserList = dict<dict<string>>
+export type BrowserList = dict<dict<string>>
 
 export class BrowserLauncher
 
@@ -149,7 +149,7 @@ export class BrowserLauncher
   static var HTMLUtilO: Util.HTMLUtil
   static var _BrowserLog: list<string> = []
 
-  def new() # {{{
+  def new()  # {{{
     var temppath: string
     var browserstmp: dict<dict<any>>
 
@@ -173,7 +173,7 @@ export class BrowserLauncher
     else
       HTMLMessagesO.Warn('Your OS is not recognized--browser controls will not work.')
     endif
-  enddef # }}}
+  enddef  # }}}
 
   def BrowserExists(browser: string = ''): any  # {{{1
     if HTMLUtilO.Has('mac')
@@ -691,9 +691,9 @@ export class BrowserLauncher
     return false
   enddef  # }}}1
 
-  def _AddLogItem(channel: channel, msg: string): void # {{{1
+  def _AddLogItem(channel: channel, msg: string): void  # {{{1
     _BrowserLog->add($'[{strftime("%c")}] channel {channel->ch_info()['id']}: {msg}')
-  enddef # }}}1
+  enddef
       
   def ShowBrowserLog(): void  # {{{1
     if _BrowserLog == []

@@ -10,7 +10,7 @@
 ## Reporting a Vulnerability
 
 Please contact me privately about vulnerabilities using this form: 
-<https://christianrobinson.name/contact>
+<https://christianrobinson.name/contact?subject=HTML%20plugin%20vulnerability>.
 
 I will make every effort to fix problems within a few days and respond, but I'm
 busy and patches are welcome.

@@ -2,13 +2,13 @@
 
 		by Christian J. Robinson
 
-		Last change: 2026 Oct 27
+		Last change: 2026 Oct 28
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
 
 This is a set of HTML/XHTML macros, menus, and toolbar buttons for Vim
-9.1.1157 or later to make editing HTML files easier. The original Copyright
+9.2.1240 or later to make editing HTML files easier. The original Copyright
 goes to Doug Renze, although his efforts have been heavily modified and
 extended in this implementation.  All the changes are Copyright © 1998 - 2026
 Christian J.  Robinson. These macros and the supporting scripts are
@@ -1370,303 +1370,289 @@ another character of your preference. See |g:htmlplugin.entity_map_leader|.
 
 Name:			Symbol:		HTML:		Macro: ~
 ------------------------------------------------------------------------------
-Ampersand (&)		&		&amp;		&&		*i_&&*
-Greater than (>)	>		&gt;		&>		*i_&>*
-Less than (<)		<		&lt;		&<		*i_&<*
+Ampersand (&)		&		&amp;		&&	*i_&&*
+Greater than (>)	>		&gt;		&>	*i_&>*
+Less than (<)		<		&lt;		&<	*i_&<*
 							*i_&<space>* *i_&space*
 Space (non-breaking)	 		&nbsp;		&<space>
-Quotation mark (")	"		&quot;		&'		*i_&'*
-Left Single Quote	‘		&lsquo;		&l'		*i_&l'*
-Right Single Quote	’		&rsquo;		&r'		*i_&r'*
+Quotation mark (")	"		&quot;		&'	*i_&'*
+Left Single Quote	‘		&lsquo;		&l'	*i_&l'*
+Right Single Quote	’		&rsquo;		&r'	*i_&r'*
 								*i_&lquote*
 Left Double Quote	“		&ldquo;		&l"
 								*i_&rquote*
 Right Double Quote	”		&rdquo;		&r"
-Left Angle Quote	«		&laquo;		&2<		*i_&2<*
-Right Angle Quote	»		&raquo;		&2>		*i_&2>*
-Cent			¢		&cent;		&c|		*i_&cbar*
-Lira			₤		&x20A4;		&L=		*i_&l=*
-Euro			€		&euro;		&E=		*i_&E=*
-Pound			£		&pound;		&#		*i_&#*
-Yen			¥		&yen;		&Y=		*i_&Y=*
-Copyright		©		&copy;		&cO		*i_&cO*
-Registered		®		&reg;		&rO		*i_&rO*
-Trademark		™		&trade;		&tm		*i_&tm*
-Multiply		×		&times;		&x		*i_&x*
-Divide			÷		&divide;	&/		*i_&/*
-Plus/Minus		±		&plusmn;	&+-		*i_&+-*
-Inverted Exclamation	¡		&iexcl;		&!		*i_&!*
-Inverted Question	¿		&iquest;	&?		*i_&?*
-Degree			°		&deg;		&dg		*i_&dg*
-Micro			µ		&micro;		&mi		*i_&mi*
-Ohm			Ω		&ohm;		&oh		*i_&oh*
-Paragraph		¶		&para;		&pa		*i_&pa*
-Section			§		&sect;		&se		*i_&se*
-Middle Dot		·		&middot;	&.		*i_&.*
-Bullet			•		&bull;		&*		*i_&star*
-One Quarter		¼		&frac14;	&14		*i_&14*
-One Half		½		&frac12;	&12		*i_&12*
-Three Quarters		¾		&frac34;	&34		*i_&34*
-One Third		⅓		&frac13;	&13		*i_&13*
-Two Thirds		⅔		&frac23;	&23		*i_&23*
-One Fifth		⅕		&frac15;	&15		*i_&15*
-Two Fifths		⅖		&frac25;	&25		*i_&25*
-Three Fifths		⅗		&frac35;	&35		*i_&35*
-Four Fifths		⅘		&frac45;	&45		*i_&45*
-One Sixth		⅙		&frac16;	&16		*i_&16*
-Five Sixths		⅚		&frac56;	&56		*i_&56*
-One Eight		⅛		&frac18;	&18		*i_&18*
-Three Eights		⅜		&frac38;	&38		*i_&38*
-Five Eights		⅝		&frac58;	&58		*i_&58*
-Seven Eights		⅞		&frac78;	&78		*i_&78*
-Superscript 0		⁰		&#x2070;	&0^		*i_&0^*
-Superscript 1		¹		&sup1;		&1^		*i_&1^*
-Superscript 2		²		&sup2;		&2^		*i_&2^*
-Superscript 3		³		&sup3;		&3^		*i_&3^*
-Superscript 4		⁴		&#x2074;	&4^		*i_&4^*
-Superscript 5		⁵		&#x2075;	&5^		*i_&5^*
-Superscript 6		⁶		&#x2076;	&6^		*i_&6^*
-Superscript 7		⁷		&#x2077;	&7^		*i_&7^*
-Superscript 8		⁸		&#x2078;	&8^		*i_&8^*
-Superscript 9		⁹		&#x2079;	&9^		*i_&9^*
-Subscript 0		₀		&#x2080;	&0v		*i_&0v*
-Subscript 1		₁		&#x2081;	&1v		*i_&1v*
-Subscript 2		₂		&#x2082;	&2v		*i_&2v*
-Subscript 3		₃		&#x2083;	&3v		*i_&3v*
-Subscript 4		₄		&#x2084;	&4v		*i_&4v*
-Subscript 5		₅		&#x2085;	&5v		*i_&5v*
-Subscript 6		₆		&#x2086;	&6v		*i_&6v*
-Subscript 7		₇		&#x2087;	&7v		*i_&7v*
-Subscript 8		₈		&#x2088;	&8v		*i_&8v*
-Subscript 9		₉		&#x2089;	&9v		*i_&9v*
-En dash			–		&ndash;		&n-		*i_&n-*
-Em dash			—		&mdash;		&m-		*i_&m-*
-Ellipsis		…		&hellip;	&3.		*i_&3.*
-A-grave			À		&Agrave;	&A`		*i_&A`*
-a-grave			à		&agrave;	&a`		*i_&a`*
-E-grave			È		&Egrave;	&E`		*i_&E`*
-e-grave			è		&egrave;	&e`		*i_&e`*
-I-grave			Ì		&Igrave;	&I`		*i_&I`*
-i-grave			ì		&igrave;	&i`		*i_&i`*
-O-grave			Ò		&Ograve;	&O`		*i_&O`*
-o-grave			ò		&ograve;	&o`		*i_&o`*
-U-grave			Ù		&Ugrave;	&U`		*i_&U`*
-u-grave			ù		&ugrave;	&u`		*i_&u`*
-A-acute			Á		&Aacute;	&A'		*i_&A'*
-a-acute			á		&aacute;	&a'		*i_&a'*
-E-acute			É		&Eacute;	&E'		*i_&E'*
-e-acute			é		&eacute;	&e'		*i_&e'*
-I-acute			Í		&Iacute;	&I'		*i_&I'*
-i-acute			í		&iacute;	&i'		*i_&i'*
-O-acute			Ó		&Oacute;	&O'		*i_&O'*
-o-acute			ó		&oacute;	&o'		*i_&o'*
-U-acute			Ú		&Uacute;	&U'		*i_&U'*
-u-acute			ú		&uacute;	&u'		*i_&u'*
-Y-acute			Ý		&Yacute;	&Y'		*i_&Y'*
-y-acute			ý		&yacute;	&y'		*i_&y'*
-A-tilde			Ã		&Atilde;	&A~		*i_&A~*
-a-tilde			ã		&atilde;	&a~		*i_&a~*
-N-tilde			Ñ		&Ntilde;	&N~		*i_&N~*
-n-tilde			ñ		&ntilde;	&n~		*i_&n~*
-O-tilde			Õ		&Otilde;	&O~		*i_&O~*
-o-tilde			õ		&otilde;	&o~		*i_&o~*
-A-circumflex		Â		&Acirc;		&A^		*i_&A^*
-a-circumflex		â		&acirc;		&a^		*i_&a^*
-E-circumflex		Ê		&Ecirc;		&E^		*i_&E^*
-e-circumflex		ê		&ecirc;		&e^		*i_&e^*
-I-circumflex		Î		&Icirc;		&I^		*i_&I^*
-i-circumflex		î		&icirc;		&i^		*i_&i^*
-O-circumflex		Ô		&Ocirc;		&O^		*i_&O^*
-o-circumflex		ô		&ocirc;		&o^		*i_&o^*
-U-circumflex		Û		&Ucirc;		&U^		*i_&U^*
-u-circumflex		û		&ucirc;		&u^		*i_&u^*
-								*i_&Aquote*
-A-umlaut		Ä		&Auml;		&A"
-								*i_&aquote*
-a-umlaut		ä		&auml;		&a"
-								*i_&Equote*
-E-umlaut		Ë		&Euml;		&E"
-								*i_&equote*
-e-umlaut		ë		&euml;		&e"
-								*i_&Iquote*
-I-umlaut		Ï		&Iuml;		&I"
-								*i_&iquote*
-i-umlaut		ï		&iuml;		&i"
-								*i_&Oquote*
-O-umlaut		Ö		&Ouml;		&O"
-								*i_&oquote*
-o-umlaut		ö		&ouml;		&o"
-								*i_&Uquote*
-U-umlaut		Ü		&Uuml;		&U"
-								*i_&uquote*
-u-umlaut		ü		&uuml;		&u"
-								*i_&yquote*
-y-umlaut		ÿ		&yuml;		&y"
-								*i_&quote*
-Umlaut			¨		&uml;		&"
-A-ring			Å		&Aring;		&Ao		*i_&Ao*
-a-ring			å		&aring;		&ao		*i_&ao*
-AE-ligature		Æ		&AElig;		&AE		*i_&AE*
-ae-ligature		æ		&aelig;		&ae		*i_&ae*
-C-cedilla		Ç		&Ccedil;	&C,		*i_&C,*
-c-cedilla		ç		&ccedil;	&c,		*i_&c,*
-O-slash			Ø		&Oslash;	&O/		*i_&O/*
-o-slash			ø		&oslash;	&o/		*i_&o/*
-Szlig			ß		&szlig;		&sz		*i_&sz*
-Left single arrow	←		&larr;		&la		*i_&la*
-Right single arrow	→		&rarr;		&ra		*i_&ra*
-Up single arrow		↑		&uarr;		&ua		*i_&ua*
-Down single arrow	↓		&darr;		&da		*i_&da*
-Left-right single arrow	↔		&harr;		&ha		*i_&ha*
-Up-down single arrow	↕		&varr;		&va		*i_&va*
-North-West single arrow	↖		&nwarr;		&nw		*i_&nw*
-North-East single arrow	↗		&nearr;		&ne		*i_&ne*
-South-East single arrow	↘		&searr;		&sE		*i_&sa*
-South-West single arrow	↙		&swarr;		&sw		*i_&sw*
-Left double arrow	⇐		&lArr;		&lA		*i_&lA*
-Right double arrow	⇒		&rArr;		&rA		*i_&rA*
-Up double arrow		⇑		&uArr;		&uA		*i_&uA*
-Down double arrow	⇓		&dArr;		&dA		*i_&dA*
-Left-right double arrow	⇔		&hArr;		&hA		*i_&hA*
-Up-down double arrow	⇕		&vArr;		&vA		*i_&vA*
-North-West double arrow	⇖		&nwArr;		&nW		*i_&nW*
-North-West double arrow	⇗		&neArr;		&nE		*i_&nE*
-North-West double arrow	⇘		&seArr;		&sE		*i_&sE*
-North-West double arrow	⇙		&swArr;		&sW		*i_&sW*
-Female			♀		&female;	&fm		*i_&fm*
-Male			♂		&male;		&ml		*i_&ml*
-Quarter Note (music)	♩		&#x2669;	&md		*i_&md*
-Sung (music)		♪		&sung;		&m8		*i_&m8*
-Eight Note (music)	♫		&#x266B;	&m2		*i_&m2*
-Flat (music)		♭		&flat;		&mb		*i_&mb*
-Sharp (music)		♯		&sharp;		&mx		*i_&mx*
-G Clef			𝄞		#x1D11E;	&gc		*i_&gc*
-F Clef			𝄢		#x1D122;	&fc		*i_&fc*
-Checkmark		✓		&check;		&ok		*i_&ok*
-X mark			✗		&cross;		&xx		*i_&xx*
-								*i_&2star*
-Filled Star		★		&starf;		&2*
-								*i_&3star*
-Hollow Star		☆		&star;		&3*
-Maltese Cross		✠		&malt;		&m+		*i_&m+*
-Spades Suit		♠		&spades;	&sp		*i_&sp*
-Clubs Suit		♣		&clubs;		&cl		*i_&cl*
-Hearts Suit		♥		&hearts;	&he		*i_&he*
-Diamonds Suit		♦		&diams;		&di		*i_&di*
-Rx (Prescription)	℞		&rx;		&rx		*i_&rx*
-Infinite		∞		&infin;		&00		*i_&00*
-Greaterthan Equal	≥		&ge;		&>=		*i_&>=*
-Lessthan Equal		≤		&le;		&<=		*i_&<=*
-Not Greaterthan		≯		&ngt;		&!>		*i_&!>*
-Not Lessthan		≮		&nlt;		&!<		*i_&!<*
-Not Equal		≠		&ne;		&!=		*i_&!=*
-Square Root		√		&Sqrt;		&sq		*i_&sq*
-Dagger (footnote)	†		&dagger;	&dt		*i_&dt*
-Double Dagger		‡		&Dagger;	&dd		*i_&dd*
-Care Of (c/o)		℅		&incare;	&co		*i_&co*
-Backspace		⌫		&#x232B;	&bs		*i_&bs*
-Delete			⌦		&#x2326;	&dl		*i_&dl*
+Left Angle Quote	«		&laquo;		&2<	*i_&2<*
+Right Angle Quote	»		&raquo;		&2>	*i_&2>*
+Cent			¢		&cent;		&c|	*i_&cbar*
+Lira			₤		&x20A4;		&L=	*i_&l=*
+Euro			€		&euro;		&E=	*i_&E=*
+Pound			£		&pound;		&#	*i_&#*
+Yen			¥		&yen;		&Y=	*i_&Y=*
+Copyright		©		&copy;		&cO	*i_&cO*
+Registered		®		&reg;		&rO	*i_&rO*
+Trademark		™		&trade;		&tm	*i_&tm*
+Multiply		×		&times;		&x	*i_&x*
+Divide			÷		&divide;	&/	*i_&/*
+Plus/Minus		±		&plusmn;	&+-	*i_&+-*
+Inverted Exclamation	¡		&iexcl;		&!	*i_&!*
+Inverted Question	¿		&iquest;	&?	*i_&?*
+Degree			°		&deg;		&dg	*i_&dg*
+Micro			µ		&micro;		&mi	*i_&mi*
+Ohm			Ω		&ohm;		&oh	*i_&oh*
+Paragraph		¶		&para;		&pa	*i_&pa*
+Section			§		&sect;		&se	*i_&se*
+Middle Dot		·		&middot;	&.	*i_&.*
+Bullet			•		&bull;		&*	*i_&star*
+One Quarter		¼		&frac14;	&14	*i_&14*
+One Half		½		&frac12;	&12	*i_&12*
+Three Quarters		¾		&frac34;	&34	*i_&34*
+One Third		⅓		&frac13;	&13	*i_&13*
+Two Thirds		⅔		&frac23;	&23	*i_&23*
+One Fifth		⅕		&frac15;	&15	*i_&15*
+Two Fifths		⅖		&frac25;	&25	*i_&25*
+Three Fifths		⅗		&frac35;	&35	*i_&35*
+Four Fifths		⅘		&frac45;	&45	*i_&45*
+One Sixth		⅙		&frac16;	&16	*i_&16*
+Five Sixths		⅚		&frac56;	&56	*i_&56*
+One Eight		⅛		&frac18;	&18	*i_&18*
+Three Eights		⅜		&frac38;	&38	*i_&38*
+Five Eights		⅝		&frac58;	&58	*i_&58*
+Seven Eights		⅞		&frac78;	&78	*i_&78*
+Superscript 0		⁰		&#x2070;	&0^	*i_&0^*
+Superscript 1		¹		&sup1;		&1^	*i_&1^*
+Superscript 2		²		&sup2;		&2^	*i_&2^*
+Superscript 3		³		&sup3;		&3^	*i_&3^*
+Superscript 4		⁴		&#x2074;	&4^	*i_&4^*
+Superscript 5		⁵		&#x2075;	&5^	*i_&5^*
+Superscript 6		⁶		&#x2076;	&6^	*i_&6^*
+Superscript 7		⁷		&#x2077;	&7^	*i_&7^*
+Superscript 8		⁸		&#x2078;	&8^	*i_&8^*
+Superscript 9		⁹		&#x2079;	&9^	*i_&9^*
+Subscript 0		₀		&#x2080;	&0v	*i_&0v*
+Subscript 1		₁		&#x2081;	&1v	*i_&1v*
+Subscript 2		₂		&#x2082;	&2v	*i_&2v*
+Subscript 3		₃		&#x2083;	&3v	*i_&3v*
+Subscript 4		₄		&#x2084;	&4v	*i_&4v*
+Subscript 5		₅		&#x2085;	&5v	*i_&5v*
+Subscript 6		₆		&#x2086;	&6v	*i_&6v*
+Subscript 7		₇		&#x2087;	&7v	*i_&7v*
+Subscript 8		₈		&#x2088;	&8v	*i_&8v*
+Subscript 9		₉		&#x2089;	&9v	*i_&9v*
+En dash			–		&ndash;		&n-	*i_&n-*
+Em dash			—		&mdash;		&m-	*i_&m-*
+Ellipsis		…		&hellip;	&3.	*i_&3.*
+A-grave			À		&Agrave;	&A`	*i_&A`*
+a-grave			à		&agrave;	&a`	*i_&a`*
+E-grave			È		&Egrave;	&E`	*i_&E`*
+e-grave			è		&egrave;	&e`	*i_&e`*
+I-grave			Ì		&Igrave;	&I`	*i_&I`*
+i-grave			ì		&igrave;	&i`	*i_&i`*
+O-grave			Ò		&Ograve;	&O`	*i_&O`*
+o-grave			ò		&ograve;	&o`	*i_&o`*
+U-grave			Ù		&Ugrave;	&U`	*i_&U`*
+u-grave			ù		&ugrave;	&u`	*i_&u`*
+A-acute			Á		&Aacute;	&A'	*i_&A'*
+a-acute			á		&aacute;	&a'	*i_&a'*
+E-acute			É		&Eacute;	&E'	*i_&E'*
+e-acute			é		&eacute;	&e'	*i_&e'*
+I-acute			Í		&Iacute;	&I'	*i_&I'*
+i-acute			í		&iacute;	&i'	*i_&i'*
+O-acute			Ó		&Oacute;	&O'	*i_&O'*
+o-acute			ó		&oacute;	&o'	*i_&o'*
+U-acute			Ú		&Uacute;	&U'	*i_&U'*
+u-acute			ú		&uacute;	&u'	*i_&u'*
+Y-acute			Ý		&Yacute;	&Y'	*i_&Y'*
+y-acute			ý		&yacute;	&y'	*i_&y'*
+A-tilde			Ã		&Atilde;	&A~	*i_&A~*
+a-tilde			ã		&atilde;	&a~	*i_&a~*
+N-tilde			Ñ		&Ntilde;	&N~	*i_&N~*
+n-tilde			ñ		&ntilde;	&n~	*i_&n~*
+O-tilde			Õ		&Otilde;	&O~	*i_&O~*
+o-tilde			õ		&otilde;	&o~	*i_&o~*
+A-circumflex		Â		&Acirc;		&A^	*i_&A^*
+a-circumflex		â		&acirc;		&a^	*i_&a^*
+E-circumflex		Ê		&Ecirc;		&E^	*i_&E^*
+e-circumflex		ê		&ecirc;		&e^	*i_&e^*
+I-circumflex		Î		&Icirc;		&I^	*i_&I^*
+i-circumflex		î		&icirc;		&i^	*i_&i^*
+O-circumflex		Ô		&Ocirc;		&O^	*i_&O^*
+o-circumflex		ô		&ocirc;		&o^	*i_&o^*
+U-circumflex		Û		&Ucirc;		&U^	*i_&U^*
+u-circumflex		û		&ucirc;		&u^	*i_&u^*
+A-umlaut		Ä		&Auml;		&A"	*i_&Aquote*
+a-umlaut		ä		&auml;		&a"	*i_&aquote*
+E-umlaut		Ë		&Euml;		&E"	*i_&Equote*
+e-umlaut		ë		&euml;		&e"	*i_&equote*
+I-umlaut		Ï		&Iuml;		&I"	*i_&Iquote*
+i-umlaut		ï		&iuml;		&i"	*i_&iquote*
+O-umlaut		Ö		&Ouml;		&O"	*i_&Oquote*
+o-umlaut		ö		&ouml;		&o"	*i_&oquote*
+U-umlaut		Ü		&Uuml;		&U"	*i_&Uquote*
+u-umlaut		ü		&uuml;		&u"	*i_&uquote*
+y-umlaut		ÿ		&yuml;		&y"	*i_&yquote*
+Umlaut			¨		&uml;		&"	*i_&quote*
+A-ring			Å		&Aring;		&Ao	*i_&Ao*
+a-ring			å		&aring;		&ao	*i_&ao*
+AE-ligature		Æ		&AElig;		&AE	*i_&AE*
+ae-ligature		æ		&aelig;		&ae	*i_&ae*
+C-cedilla		Ç		&Ccedil;	&C,	*i_&C,*
+c-cedilla		ç		&ccedil;	&c,	*i_&c,*
+O-slash			Ø		&Oslash;	&O/	*i_&O/*
+o-slash			ø		&oslash;	&o/	*i_&o/*
+Szlig			ß		&szlig;		&sz	*i_&sz*
+Left single arrow	←		&larr;		&la	*i_&la*
+Right single arrow	→		&rarr;		&ra	*i_&ra*
+Up single arrow		↑		&uarr;		&ua	*i_&ua*
+Down single arrow	↓		&darr;		&da	*i_&da*
+Left-right single arrow	↔		&harr;		&ha	*i_&ha*
+Up-down single arrow	↕		&varr;		&va	*i_&va*
+North-West single arrow	↖		&nwarr;		&nw	*i_&nw*
+North-East single arrow	↗		&nearr;		&ne	*i_&ne*
+South-East single arrow	↘		&searr;		&sE	*i_&sa*
+South-West single arrow	↙		&swarr;		&sw	*i_&sw*
+Left double arrow	⇐		&lArr;		&lA	*i_&lA*
+Right double arrow	⇒		&rArr;		&rA	*i_&rA*
+Up double arrow		⇑		&uArr;		&uA	*i_&uA*
+Down double arrow	⇓		&dArr;		&dA	*i_&dA*
+Left-right double arrow	⇔		&hArr;		&hA	*i_&hA*
+Up-down double arrow	⇕		&vArr;		&vA	*i_&vA*
+North-West double arrow	⇖		&nwArr;		&nW	*i_&nW*
+North-West double arrow	⇗		&neArr;		&nE	*i_&nE*
+North-West double arrow	⇘		&seArr;		&sE	*i_&sE*
+North-West double arrow	⇙		&swArr;		&sW	*i_&sW*
+Female			♀		&female;	&fm	*i_&fm*
+Male			♂		&male;		&ml	*i_&ml*
+Quarter Note (music)	♩		&#x2669;	&md	*i_&md*
+Sung (music)		♪		&sung;		&m8	*i_&m8*
+Eight Note (music)	♫		&#x266B;	&m2	*i_&m2*
+Flat (music)		♭		&flat;		&mb	*i_&mb*
+Sharp (music)		♯		&sharp;		&mx	*i_&mx*
+G Clef			𝄞		#x1D11E;	&gc	*i_&gc*
+F Clef			𝄢		#x1D122;	&fc	*i_&fc*
+Checkmark		✓		&check;		&ok	*i_&ok*
+X mark			✗		&cross;		&xx	*i_&xx*
+Filled Star		★		&starf;		&2*	*i_&2star*
+Hollow Star		☆		&star;		&3*	*i_&3star*
+Maltese Cross		✠		&malt;		&m+	*i_&m+*
+Spades Suit		♠		&spades;	&sp	*i_&sp*
+Clubs Suit		♣		&clubs;		&cl	*i_&cl*
+Hearts Suit		♥		&hearts;	&he	*i_&he*
+Diamonds Suit		♦		&diams;		&di	*i_&di*
+Rx (Prescription)	℞		&rx;		&rx	*i_&rx*
+Infinite		∞		&infin;		&00	*i_&00*
+Greaterthan Equal	≥		&ge;		&>=	*i_&>=*
+Lessthan Equal		≤		&le;		&<=	*i_&<=*
+Not Greaterthan		≯		&ngt;		&!>	*i_&!>*
+Not Lessthan		≮		&nlt;		&!<	*i_&!<*
+Not Equal		≠		&ne;		&!=	*i_&!=*
+Square Root		√		&Sqrt;		&sq	*i_&sq*
+Dagger (footnote)	†		&dagger;	&dt	*i_&dt*
+Double Dagger		‡		&Dagger;	&dd	*i_&dd*
+Care Of (c/o)		℅		&incare;	&co	*i_&co*
+Backspace		⌫		&#x232B;	&bs	*i_&bs*
+Delete			⌦		&#x2326;	&dl	*i_&dl*
 
 
 The Greek Alphabet:
 
 Name:			Symbol:		HTML:		Macro: ~
 ------------------------------------------------------------------------------
-Upper Alpha		Α		&Alpha;		&Al		*i_&Al*
-Upper Beta		Β		&Beta;		&Be		*i_&Be*
-Upper Gamma		Γ		&Gamma;		&Ga		*i_&Ga*
-Upper Delta		Δ		&Delta;		&De		*i_&De*
-Upper Epsilon		Ε		&Epsilon;	&Ep		*i_&Ep*
-Upper Zeta		Ζ		&Zeta;		&Ze		*i_&Ze*
-Upper Eta		Η		&Eta;		&Et		*i_&Et*
-Upper Theta		Θ		&Theta;		&Th		*i_&Th*
-Upper Iota		Ι		&Iota;		&Io		*i_&Io*
-Upper Kappa		Κ		&Kappa;		&Ka		*i_&Ka*
-Upper Lambda		Λ		&Lambda;	&Lm		*i_&Lm*
-Upper Mu		Μ		&Mu;		&Mu		*i_&Mu*
-Upper Nu		Ν		&Nu;		&Nu		*i_&Nu*
-Upper Xi		Ξ		&Xi;		&Xi		*i_&Xi*
-Upper Omicron		Ο		&Omicron;	&Oc		*i_&Oc*
-Upper Pi		Π		&Pi;		&Pi		*i_&Pi*
-Upper Rho		Ρ		&Rho;		&Rh		*i_&Rh*
-Upper Sigma		Σ		&Sigma;		&Si		*i_&Si*
-Upper Tau		Τ		&Tau;		&Ta		*i_&Ta*
-Upper Upsilon		Υ		&Upsilon;	&Up		*i_&Up*
-Upper Phi		Φ		&Phi;		&Ph		*i_&Ph*
-Upper Chi		Χ		&Chi;		&Ch		*i_&Ch*
-Upper Psi		Ψ		&Psi;		&Ps		*i_&Ps*
-Lower alpha		α		&alpha;		&al		*i_&al*
-Lower beta		β		&beta;		&be		*i_&be*
-Lower gamma		γ		&gamma;		&ga		*i_&ga*
-Lower delta		δ		&delta;		&de		*i_&de*
-Lower epsilon		ε		&epsilon;	&ep		*i_&ep*
-Lower zeta		ζ		&zeta;		&ze		*i_&ze*
-Lower eta		η		&eta;		&et		*i_&et*
-Lower theta		θ		&theta;		&th		*i_&th*
-Lower iota		ι		&iota;		&io		*i_&io*
-Lower kappa		κ		&kappa;		&ka		*i_&ka*
-Lower lambda		λ		&lambda;	&lm		*i_&lm*
-Lower mu		μ		&mu;		&mu		*i_&mu*
-Lower nu		ν		&nu;		&nu		*i_&nu*
-Lower xi		ξ		&xi;		&xi		*i_&xi*
-Lower omicron		ο		&omicron;	&oc		*i_&oc*
-Lower pi		π		&pi;		&pi		*i_&pi*
-Lower rho		ρ		&rho;		&rh		*i_&rh*
-Lower sigma		σ		&sigma;		&si		*i_&si*
-Lower sigmaf		ς		&sigmaf;	&sf		*i_&sf*
-Lower tau		τ		&tau;		&ta		*i_&ta*
-Lower upsilon		υ		&upsilon;	&up		*i_&up*
-Lower phi		φ		&phi;		&ph		*i_&ph*
-Lower chi		χ		&chi;		&ch		*i_&ch*
-Lower psi		ψ		&psi;		&ps		*i_&ps*
-Lower omega		ω		&omega;		&og		*i_&og*
-Lower theta		θ		&thetasym;	&ts		*i_&ts*
-Lower upsih		υ		&upsih;		&uh		*i_&uh*
-Lower piv		ϖ		&piv;		&pv		*i_&pv*
+Upper Alpha		Α		&Alpha;		&Al	*i_&Al*
+Upper Beta		Β		&Beta;		&Be	*i_&Be*
+Upper Gamma		Γ		&Gamma;		&Ga	*i_&Ga*
+Upper Delta		Δ		&Delta;		&De	*i_&De*
+Upper Epsilon		Ε		&Epsilon;	&Ep	*i_&Ep*
+Upper Zeta		Ζ		&Zeta;		&Ze	*i_&Ze*
+Upper Eta		Η		&Eta;		&Et	*i_&Et*
+Upper Theta		Θ		&Theta;		&Th	*i_&Th*
+Upper Iota		Ι		&Iota;		&Io	*i_&Io*
+Upper Kappa		Κ		&Kappa;		&Ka	*i_&Ka*
+Upper Lambda		Λ		&Lambda;	&Lm	*i_&Lm*
+Upper Mu		Μ		&Mu;		&Mu	*i_&Mu*
+Upper Nu		Ν		&Nu;		&Nu	*i_&Nu*
+Upper Xi		Ξ		&Xi;		&Xi	*i_&Xi*
+Upper Omicron		Ο		&Omicron;	&Oc	*i_&Oc*
+Upper Pi		Π		&Pi;		&Pi	*i_&Pi*
+Upper Rho		Ρ		&Rho;		&Rh	*i_&Rh*
+Upper Sigma		Σ		&Sigma;		&Si	*i_&Si*
+Upper Tau		Τ		&Tau;		&Ta	*i_&Ta*
+Upper Upsilon		Υ		&Upsilon;	&Up	*i_&Up*
+Upper Phi		Φ		&Phi;		&Ph	*i_&Ph*
+Upper Chi		Χ		&Chi;		&Ch	*i_&Ch*
+Upper Psi		Ψ		&Psi;		&Ps	*i_&Ps*
+Lower alpha		α		&alpha;		&al	*i_&al*
+Lower beta		β		&beta;		&be	*i_&be*
+Lower gamma		γ		&gamma;		&ga	*i_&ga*
+Lower delta		δ		&delta;		&de	*i_&de*
+Lower epsilon		ε		&epsilon;	&ep	*i_&ep*
+Lower zeta		ζ		&zeta;		&ze	*i_&ze*
+Lower eta		η		&eta;		&et	*i_&et*
+Lower theta		θ		&theta;		&th	*i_&th*
+Lower iota		ι		&iota;		&io	*i_&io*
+Lower kappa		κ		&kappa;		&ka	*i_&ka*
+Lower lambda		λ		&lambda;	&lm	*i_&lm*
+Lower mu		μ		&mu;		&mu	*i_&mu*
+Lower nu		ν		&nu;		&nu	*i_&nu*
+Lower xi		ξ		&xi;		&xi	*i_&xi*
+Lower omicron		ο		&omicron;	&oc	*i_&oc*
+Lower pi		π		&pi;		&pi	*i_&pi*
+Lower rho		ρ		&rho;		&rh	*i_&rh*
+Lower sigma		σ		&sigma;		&si	*i_&si*
+Lower sigmaf		ς		&sigmaf;	&sf	*i_&sf*
+Lower tau		τ		&tau;		&ta	*i_&ta*
+Lower upsilon		υ		&upsilon;	&up	*i_&up*
+Lower phi		φ		&phi;		&ph	*i_&ph*
+Lower chi		χ		&chi;		&ch	*i_&ch*
+Lower psi		ψ		&psi;		&ps	*i_&ps*
+Lower omega		ω		&omega;		&og	*i_&og*
+Lower theta		θ		&thetasym;	&ts	*i_&ts*
+Lower upsih		υ		&upsih;		&uh	*i_&uh*
+Lower piv		ϖ		&piv;		&pv	*i_&pv*
 
 
 Roman Numerals, Upppercase:
 
 Name:			Symbol:		HTML:		Macro: ~
 ------------------------------------------------------------------------------
-1			Ⅰ		&#x2160;	&R1		*i_&R1*
-2			Ⅱ		&#x2161;	&R2		*i_&R2*
-3			Ⅲ		&#x2162;	&R3		*i_&R3*
-4			Ⅳ		&#x2163;	&R4		*i_&R4*
-5			Ⅴ		&#x2164;	&R5		*i_&R5*
-6			Ⅵ		&#x2165;	&R6		*i_&R6*
-7			Ⅶ		&#x2166;	&R7		*i_&R7*
-8			Ⅷ		&#x2167;	&R8		*i_&R8*
-9			Ⅸ		&#x2168;	&R9		*i_&R9*
-10			Ⅹ		&#x2169;	&R10		*i_&R10*
-11			Ⅺ		&#x216a;	&R11		*i_&R11*
-12			Ⅻ		&#x216b;	&R12		*i_&R12*
-50			Ⅼ		&#x216c;	&R50		*i_&R50*
-100			Ⅽ		&#x216d;	&R100		*i_&R100*
-500			Ⅾ		&#x216e;	&R500		*i_&R500*
-1000			Ⅿ		&#x216f;	&R1000		*i_&R1000*
+1			Ⅰ		&#x2160;	&R1	*i_&R1*
+2			Ⅱ		&#x2161;	&R2	*i_&R2*
+3			Ⅲ		&#x2162;	&R3	*i_&R3*
+4			Ⅳ		&#x2163;	&R4	*i_&R4*
+5			Ⅴ		&#x2164;	&R5	*i_&R5*
+6			Ⅵ		&#x2165;	&R6	*i_&R6*
+7			Ⅶ		&#x2166;	&R7	*i_&R7*
+8			Ⅷ		&#x2167;	&R8	*i_&R8*
+9			Ⅸ		&#x2168;	&R9	*i_&R9*
+10			Ⅹ		&#x2169;	&R10	*i_&R10*
+11			Ⅺ		&#x216a;	&R11	*i_&R11*
+12			Ⅻ		&#x216b;	&R12	*i_&R12*
+50			Ⅼ		&#x216c;	&R50	*i_&R50*
+100			Ⅽ		&#x216d;	&R100	*i_&R100*
+500			Ⅾ		&#x216e;	&R500	*i_&R500*
+1000			Ⅿ		&#x216f;	&R1000	*i_&R1000*
 
 
 Roman Numerals, Lowercase:
 
 Name:			Symbol:		HTML:		Macro: ~
 ------------------------------------------------------------------------------
-1			ⅰ		&#x2170;	&r1		*i_&r1*
-2			ⅱ		&#x2171;	&r2		*i_&r2*
-3			ⅲ		&#x2172;	&r3		*i_&r3*
-4			ⅳ		&#x2173;	&r4		*i_&r4*
-5			ⅴ		&#x2174;	&r5		*i_&r5*
-6			ⅵ		&#x2175;	&r6		*i_&r6*
-7			ⅶ		&#x2176;	&r7		*i_&r7*
-8			ⅷ		&#x2177;	&r8		*i_&r8*
-9			ⅸ		&#x2178;	&r9		*i_&r9*
-10			ⅹ		&#x2179;	&r10		*i_&r10*
-11			ⅺ		&#x217a;	&r11		*i_&r11*
-12			ⅻ		#x217b;		&r12		*i_&r12*
-50			ⅼ		&#x217c;	&r50		*i_&r50*
-100			ⅽ		&#x217d;	&r100		*i_&r100*
-500			ⅾ		&#x217e;	&r500		*i_&r500*
-1000			ⅿ		#x217f;		&r1000		*i_&r1000*
+1			ⅰ		&#x2170;	&r1	*i_&r1*
+2			ⅱ		&#x2171;	&r2	*i_&r2*
+3			ⅲ		&#x2172;	&r3	*i_&r3*
+4			ⅳ		&#x2173;	&r4	*i_&r4*
+5			ⅴ		&#x2174;	&r5	*i_&r5*
+6			ⅵ		&#x2175;	&r6	*i_&r6*
+7			ⅶ		&#x2176;	&r7	*i_&r7*
+8			ⅷ		&#x2177;	&r8	*i_&r8*
+9			ⅸ		&#x2178;	&r9	*i_&r9*
+10			ⅹ		&#x2179;	&r10	*i_&r10*
+11			ⅺ		&#x217a;	&r11	*i_&r11*
+12			ⅻ		#x217b;		&r12	*i_&r12*
+50			ⅼ		&#x217c;	&r50	*i_&r50*
+100			ⅽ		&#x217d;	&r100	*i_&r100*
+500			ⅾ		&#x217e;	&r500	*i_&r500*
+1000			ⅿ		#x217f;		&r1000	*i_&r1000*
 
 
 ==============================================================================

@@ -7,12 +7,12 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: October 25, 2026
+# Last Change: October 28, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
 #
-# Copyright © 1998-2026 Christian J. Robinson <heptite(at)proton(dot)me>
+# Copyright © 1998-2026 Christian J. Robinson <heptite+html(at)proton(dot)me>
 #
 # This program is free software; you can  redistribute  it  and/or  modify  it
 # under the terms of the GNU General Public License as published by  the  Free
@@ -377,11 +377,11 @@ export class HTMLMap extends Util.HTMLUtil
       b:htmlplugin.maps = {'n': {}, 'v': {}, 'i': {}}
     endif
 
-    var mode = cmd->strpart(0, 1)
-    var newarg = arg
-    var newmap = map->substitute('^<lead>\c', g:htmlplugin.map_leader->escape('&~\'), '')
+    var mode: string = cmd->strpart(0, 1)
+    var newarg: string = arg
+    var newmap: string = map->substitute('^<lead>\c', g:htmlplugin.map_leader->escape('&~\'), '')
       ->substitute('^<elead>\c', g:htmlplugin.entity_map_leader->escape('&~\'), '')
-    var newmap_escaped = newmap->substitute('<', '<lt>', 'g')->escape('"')
+    var newmap_escaped: string = newmap->substitute('<', '<lt>', 'g')->escape('"')
 
     var mapchecked: MapCheckR = newmap->this.MapCheck(mode, internal)
     if Variables.HTMLVariables.MODES->has_key(mode) &&
