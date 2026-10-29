@@ -50,9 +50,9 @@ sub GetRequiredVimVersion() {
 sub GetPluginVersion() {
 	my $versionfile = "$dirname/version";
 	my $version;
-	my $ver = FileHandle->new($versionfile, 'r') or die "Can't open version file: $versionfile\n";
-	chomp($version = <$ver>);
-	$ver->close();
+	my $verhandle = FileHandle->new($versionfile, 'r') or die "Can't open version file: $versionfile\n";
+	chomp($version = <$verhandle>);
+	$verhandle->close();
 	return $version;
 }
 

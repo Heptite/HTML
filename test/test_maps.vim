@@ -336,6 +336,7 @@ def Test_normal_mode_mappings(...which: list<string>)
 	endif
 enddef
 
+g:htmlplugin = { menu: false }
 set runtimepath+=..
 
 delete('./Xresult')
