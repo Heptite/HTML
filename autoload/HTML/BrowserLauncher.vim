@@ -18,11 +18,11 @@ endif
 #    (This will fall back to Chromium if it's installed and Chrome isn't.)
 #  - Firefox  (remote [new window / new tab] / launch)
 #  - Opera    (remote [new window / new tab] / launch)
-#  - lynx     (Current TTY / :terminal / new xterm)
-#  - w3m      (Current TTY / :terminal / new xterm)
+#  - elinks   (Current TTY / :terminal / new xterm)
 #  - links    (Current TTY / :terminal / new xterm)
 #  - links2   (Current TTY / :terminal / new xterm)
-#  - elinks   (Current TTY / :terminal / new xterm)
+#  - lynx     (Current TTY / :terminal / new xterm)
+#  - w3m      (Current TTY / :terminal / new xterm)
 #  - OS Default (using xdg-open)
 #
 # MacOS:
@@ -52,6 +52,9 @@ endif
 #
 #  - Make a way to invoke browsers installed under WSL2 if they're there,
 #    instead of just the "native" Windows binaries.
+#
+#  - More commentary, especially documenting the methods and their arguments
+#    and return values.
 #
 # BUGS:
 #
@@ -322,12 +325,12 @@ export class BrowserLauncher
   enddef
 
   def _MacLaunch(app: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool  # {{{1
-    var file: string
-    var torn: string
-    var script: list<string>
-    var command: list<string>
-    var use_AS: bool
-    var as_msg: list<string>
+    var file:     string
+    var torn:     string
+    var script:   list<string>
+    var command:  list<string>
+    var use_AS:   bool
+    var as_msg:   list<string>
 
     if (!this._MacBrowserExists(app) && app !=? 'default')
       printf(HTMLMessagesO.E_NOAPP, app)->HTMLMessagesO.Error()
@@ -554,7 +557,7 @@ export class BrowserLauncher
 
       # If we're on Cygwin or WSL2 and not using a text mode browser,
       # translate the file path to a Windows native path for later use,
-      # otherwise just add the file:// prefix:
+      # otherwise just expand the filename to a full path:
       if has('win32unix') == 1
           && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         file = system(['cygpath', '-w', expand('%:p')])->trim()
