@@ -512,7 +512,7 @@ export class BrowserLauncher
   # _UnixWindowsLaunch() {{{1
   #
   # Usage:
-  #  UnixWindowsLaunch({...}, [{0/1/2}], [url])
+  #  UnixWindowsLaunch({...}, [Behavior], [url])
   #    The first argument is which browser to launch, by name (not executable).
   #    Use BrowserExists() to see which ones are available.
   #
@@ -530,11 +530,11 @@ export class BrowserLauncher
   # Return value:
   #  false - Failure (No browser was launched/controlled.)
   #  true  - Success (A browser was launched/controlled.)
-  def _UnixWindowsLaunch(browser: string = 'default', new: Behavior = Behavior.default, url: string = ''): bool
-    var which:   string       = browser
-    var donew:   Behavior     = new
-    var command: list<string> = []
-    var file:    string
+  def _UnixWindowsLaunch(browser: string = 'default', behavior: Behavior = Behavior.default, url: string = ''): bool
+    var which:    string       = browser
+    var dowhat:   Behavior     = behavior
+    var command:  list<string> = []
+    var file:     string
 
     if !this._UnixWindowsBrowserExists(which)
       printf(HTMLMessagesO.E_UNKNOWN, which)->HTMLMessagesO.Error()
@@ -542,7 +542,7 @@ export class BrowserLauncher
     endif
 
     if which == 'default'
-      donew = Behavior.default
+      dowhat = Behavior.default
     endif
 
     if url != ''
@@ -555,13 +555,14 @@ export class BrowserLauncher
       # If we're on Cygwin or WSL2 and not using a text mode browser,
       # translate the file path to a Windows native path for later use,
       # otherwise just add the file:// prefix:
-      if has('win32unix') == 1 && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
-        file = 'file://' .. system(['cygpath', '-w', expand('%:p')])->trim()
+      if has('win32unix') == 1
+          && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
+        file = system(['cygpath', '-w', expand('%:p')])->trim()
       elseif HTMLUtilO.Has('WSL2')
           && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
-        file = 'file://' .. system(['wslpath', '-w', expand('%:p')])->trim()
+        file = system(['wslpath', '-w', expand('%:p')])->trim()
       else
-        file = 'file://' .. expand('%:p')
+        file = expand('%:p')
       endif
     else
       HTMLMessagesO.Error(HTMLMessagesO.E_NOFILE)
@@ -579,61 +580,30 @@ export class BrowserLauncher
       endif
     endif
 
-    # Have to handle the textmode browsers different than the GUI browsers:
     if match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') >= 0
-      var xterm: string
-
-      HTMLMessagesO.Message('Launching ' .. _Browsers[which]['realname'] .. '...')
-
-      if executable('/etc/alternatives/x-terminal-emulator')
-        xterm = '/etc/alternatives/x-terminal-emulator'
+      var textmode_return = this._LaunchTextmodeBrowser(which, $'file://{file}', dowhat)
+      if type(textmode_return) == v:t_bool
+        return textmode_return
       else
-        xterm = exepath('xterm')
-      endif
-
-      if has('gui_running') == 1 || donew != Behavior.default
-        if $DISPLAY != '' && xterm != '' && donew == Behavior.newwindow
-          command = [xterm, '-e', _Browsers[which]['path'], file]
-        elseif exists_compiled(':terminal') == 2
-          execute 'terminal ++close ' .. _Browsers[which]['path'] .. ' ' .. file
-          return true
-        else
-          if donew == Behavior.newwindow
-            HTMLMessagesO.Error(printf(HTMLMessagesO.E_XTERM, _Browsers[which]['realname']))
-          else
-            HTMLMessagesO.Error(printf(HTMLMessagesO.E_TERM, _Browsers[which]['realname']))
-          endif
-
-          return false
-        endif
-      else
-        execute '!' .. _Browsers[which]['path'] .. ' ' .. file->shellescape()
-
-        if v:shell_error
-          printf(HTMLMessagesO.E_LAUNCH, _Browsers[which]['realname'])->HTMLMessagesO.Error()
-          return false
-        endif
-
-        return true
+        command = textmode_return
       endif
     endif
 
     # If we haven't already defined a command, we are going to use a GUI
     # browser:
     if command == []
-
-      if donew == Behavior.newtab
+      if dowhat == Behavior.newtab
         HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(_Browsers[which]['realname'])} tab...')
         command = [
           _Browsers[which]['path'],
-          file,
+          $'file://{file}',
           _Browsers[which]['tab']
         ]
-      elseif donew == Behavior.newwindow
+      elseif dowhat == Behavior.newwindow
         HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(_Browsers[which]['realname'])} window...')
         command = [
           _Browsers[which]['path'],
-          file,
+          $'file://{file}',
           _Browsers[which]['window']
         ]
       else
@@ -645,7 +615,7 @@ export class BrowserLauncher
 
         command = [
           _Browsers[which]['path'],
-          file
+          _Browsers[which]['path'] == '' ? file : $'file://{file}'
         ]
       endif
     endif
@@ -653,7 +623,6 @@ export class BrowserLauncher
     if command != []
       if command[0] == ''
         if HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
-          map(command, (_, val) => substitute(val, '^file://', '', ''))
           command = ['rundll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
         else
           HTMLMessagesO.Error(HTMLMessagesO.E_NOCOMMAND)
@@ -664,31 +633,75 @@ export class BrowserLauncher
       # Strip out useless command arguments:
       command->filter((_, v: string) => !empty(v))
 
-      if has('unix') == 1
-        command = ['nohup'] + command
+      return this._BackgroundJob(command)
+    endif
+
+    HTMLMessagesO.E_FINAL->HTMLMessagesO.Error()
+    return false
+  enddef
+
+  def _LaunchTextmodeBrowser(browser: string, url: string, behavior: Behavior): any  # {{{1
+    var xterm: string
+
+    HTMLMessagesO.Message('Launching ' .. _Browsers[browser]['realname'] .. '...')
+
+    if executable('/etc/alternatives/x-terminal-emulator')
+      xterm = '/etc/alternatives/x-terminal-emulator'
+    else
+      xterm = exepath('xterm')
+    endif
+
+    if has('gui_running') == 1 || behavior != Behavior.default
+      if $DISPLAY != '' && xterm != '' && behavior == Behavior.newwindow
+        return [xterm, '-e', _Browsers[browser]['path'], url]
+      elseif exists_compiled(':terminal') == 2
+        execute 'terminal ++close ' .. _Browsers[browser]['path'] .. ' ' .. url
+        return true
+      else
+        if behavior == Behavior.newwindow
+          HTMLMessagesO.Error(printf(HTMLMessagesO.E_XTERM, _Browsers[browser]['realname']))
+        else
+          HTMLMessagesO.Error(printf(HTMLMessagesO.E_TERM, _Browsers[browser]['realname']))
+        endif
+
+        return false
       endif
+    else
+      execute '!' .. _Browsers[browser]['path'] .. ' ' .. url->shellescape()
 
-      var job_id: job = job_start(command, {
-        drop: 'auto',
-        stoponexit: '',
-        exit_cb: (_, exitstatus: number) => {
-          if exitstatus > 0
-            b:htmlplugin.HTMLMessagesO.Error($'Job exited abmormally: {exitstatus}')
-          endif
-        },
-        callback: this._AddLogItem
-      })
-
-      if job_status(job_id) == 'fail'
-        printf(HTMLMessagesO.E_COMMAND, command)->HTMLMessagesO.Error()
+      if v:shell_error
+        printf(HTMLMessagesO.E_LAUNCH, _Browsers[browser]['realname'])->HTMLMessagesO.Error()
         return false
       endif
 
       return true
     endif
+  enddef
 
-    HTMLMessagesO.E_FINAL->HTMLMessagesO.Error()
-    return false
+  def _BackgroundJob(command: list<string>): bool  # {{{1
+    var newcommand: list<string> = command
+
+    if has('unix') == 1
+      newcommand = ['nohup'] + newcommand
+    endif
+
+    var job_id: job = job_start(newcommand, {
+      drop: 'auto',
+      stoponexit: '',
+      exit_cb: (_, exitstatus: number) => {
+        if exitstatus > 0
+          b:htmlplugin.HTMLMessagesO.Error($'Job exited abmormally: {exitstatus}')
+        endif
+      },
+      callback: this._AddLogItem
+    })
+
+    if job_status(job_id) == 'fail'
+      printf(HTMLMessagesO.E_COMMAND, newcommand)->HTMLMessagesO.Error()
+      return false
+    endif
+
+    return true
   enddef  # }}}1
 
   def _AddLogItem(channel: channel, msg: string): void  # {{{1
