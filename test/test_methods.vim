@@ -109,6 +109,7 @@ def Test_glue_methods()
 	endif
 enddef
 
+g:htmlplugin = { menu: false }
 set runtimepath+=..
 
 delete('.swp')

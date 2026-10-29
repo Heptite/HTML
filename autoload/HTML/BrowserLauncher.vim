@@ -87,7 +87,7 @@ export enum Behavior # {{{1
   newtab
 endenum # }}}1
 
-export type BrowserList = dict<dict<string>>
+export type BrowserList = dict<dict<any>>
 
 export class BrowserLauncher
 
@@ -151,7 +151,6 @@ export class BrowserLauncher
 
   def new()  # {{{
     var temppath: string
-    var browserstmp: dict<dict<any>>
 
     if HTMLMessagesO == null_object
       HTMLMessagesO = Messages.HTMLMessages.new()
