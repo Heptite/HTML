@@ -1,6 +1,9 @@
 vim9script
 scriptencoding utf8
 
+# Unfortunately this does not test all methods because some of them require
+# user input or other things that are not easily testable in an automated way.
+
 import "../autoload/HTML/Util.vim"
 import "../autoload/HTML/Map.vim"
 import "../autoload/HTML/Messages.vim"
@@ -85,8 +88,6 @@ def Test_map_methods()
 enddef
 
 def Test_messages_methods()
-	var mapo: Map.HTMLMap = Map.HTMLMap.new()
-
 	assert_match('function <SNR>\d\+_Test_messages_methods', Messages.HTMLMessages.F(), 'Messages.HTMLMessages.F()')
 
 	if v:errors != []
@@ -109,8 +110,9 @@ def Test_glue_methods()
 	endif
 enddef
 
+# Prevent the system menu from loading to avoid errors we don't care about:
 g:htmlplugin = { menu: false }
-set runtimepath+=..
+set runtimepath^=..
 
 delete('.swp')
 delete('./Xresult')

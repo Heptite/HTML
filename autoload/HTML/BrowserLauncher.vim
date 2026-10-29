@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: October 28, 2026
+# Last Change: October 29, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -145,9 +145,10 @@ export class BrowserLauncher
     }
   } # }}}
   static var _MacBrowsersExist: list<string> = ['default']
+  static var _BrowserLog: list<string> = []
+
   static var HTMLMessagesO: Messages.HTMLMessages
   static var HTMLUtilO: Util.HTMLUtil
-  static var _BrowserLog: list<string> = []
 
   def new()  # {{{
     var temppath: string
