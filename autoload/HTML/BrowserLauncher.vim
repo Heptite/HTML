@@ -58,6 +58,9 @@ endif
 #
 # BUGS:
 #
+#  - Wayland is currently not supported, unless it's running an X
+#    compatibility layer.
+#
 # Requirements:
 #
 #  - Vim 9.2.1240 or later with job_start()/channel support
@@ -678,7 +681,7 @@ export class BrowserLauncher
         return false
       endif
     else
-      execute '!{_Browsers[browser]["path"]} {url->shellescape()}'
+      execute $'!{_Browsers[browser]["path"]} {url->shellescape()}'
 
       if v:shell_error
         printf(HTMLMessagesO.E_LAUNCH, _Browsers[browser]['realname'])->HTMLMessagesO.Error()
