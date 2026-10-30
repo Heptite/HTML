@@ -3,8 +3,6 @@
 Note that this plugin requires Vim 9.2.1240 or later; nightly builds are
 available for Windows at:
 <https://github.com/vim/vim-win32-installer/releases>
-Or semi-frequent builds are available for Windows at:
-<https://tuxproject.de/projects/vim/>
 
 This plugin allows for the rapid development of HTML files primarily with the
 use of macros. For example:
@@ -34,7 +32,8 @@ files first or they may prevent the packed version from loading.
 
 ### Vim Package Manager: vim-plug
 
-If you are using vim-plug, just add it to your vimrc. For example:
+If you are using [vim-plug](https://github.com/junegunn/vim-plug), just add it
+to your vimrc. For example:
 
 ```
 call plug#begin()
@@ -77,7 +76,7 @@ After installing using git you can always update by going into the
 
 ## Official Website
 
-<http://christianrobinson.name/vim/HTML/>
+<http://christianrobinson.name/HTML>
 
 This includes extra documentation, alternate install methods, an FAQ, etc.
 
