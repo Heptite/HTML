@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: October 29, 2026
+# Last Change: October 30, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -218,13 +218,13 @@ export class BrowserLauncher
       if line =~# '^\s*InstallLocation\>'
         var path: string = substitute(trim(line), '^InstallLocation\s\+REG_SZ\s\+', '', '')
         if has('win32unix') == 1
-          path = trim(system(['cygpath', path]))
-          path = findfile(exe, escape(path, ' ') .. '/**')
+          path = system(['cygpath', path])->trim()
+          path = exe->findfile(escape(path, ' ') .. '/**')
         elseif HTMLUtilO.Has('WSL2')
-          path = trim(system(['wslpath', path]))
-          path = findfile(exe, escape(path, ' ') .. '/**')
+          path = system(['wslpath', path])->trim()
+          path = exe->findfile(escape(path, ' ') .. '/**')
         else
-          path = findfile(exe, escape(path, ' ') .. '\**')
+          path = exe->findfile(escape(path, ' ') .. '\**')
         endif
         if executable(path)
           return path
@@ -485,7 +485,7 @@ export class BrowserLauncher
     endif
 
     system(command)
-    return v:shell_error == 0 ? true : false
+    return v:shell_error == 0
   enddef # }}}
 
   # _UnixWindowsBrowserExists() {{{1
@@ -507,7 +507,7 @@ export class BrowserLauncher
     endif
 
     # Oddly, has_key() returns numbers and not a bool value, so convert it:
-    return _Browsers->has_key(browser) == 1 ? true : false
+    return _Browsers->has_key(browser) == 1
   enddef
 
   # _UnixWindowsLaunch() {{{1
