@@ -22,7 +22,6 @@ cat <<'EOF'
 Choose a specific target:
   HTML.zip
   bitmaps, pixmaps, or vim-html-pixmaps
-  vim-html-pixmaps.zip
   montage, toolbar-icons, or toolbar-icons.png
   tags
   HTML.html or html
@@ -61,7 +60,7 @@ debug:
 	@echo "\$$(alldoc)        = $(alldoc)"
 	@echo "\$$(alllang)       = $(alllang)"
 
-all: HTML.html HTML.zip bitmaps vim-html-pixmaps.zip toolbar-icons.png version
+all: HTML.html HTML.zip bitmaps toolbar-icons.png version
 
 publish: version push copy upload
 
@@ -130,11 +129,6 @@ toolbar-icons.png: $(allxpm)
 		do echo -label `basename -s.xpm $$i` $$i; done) \
 		toolbar-icons.png
 	chmod a+r toolbar-icons.png
-
-vim-html-pixmaps.zip: $(allxpm) $(allbmp)
-	rm -f vim-html-pixmaps.zip
-	zip -9j vim-html-pixmaps.zip ${bitmaps}/*
-	chmod a+r vim-html-pixmaps.zip
 
 rsync scp:
 	@echo "Use 'make copy' instead, then use git to sync the website."

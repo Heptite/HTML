@@ -513,7 +513,7 @@ export class BrowserLauncher
   # _UnixWindowsLaunch() {{{1
   #
   # Usage:
-  #  UnixWindowsLaunch({...}, [Behavior], [url])
+  #  _UnixWindowsLaunch({...}, [Behavior], [url])
   #    The first argument is which browser to launch, by name (not executable).
   #    Use BrowserExists() to see which ones are available.
   #
@@ -553,18 +553,7 @@ export class BrowserLauncher
         HTMLMessagesO.Warn(HTMLMessagesO.W_UNSAVED)
       endif
 
-      # If we're on Cygwin or WSL2 and not using a text mode browser,
-      # translate the file path to a Windows native path for later use,
-      # otherwise just expand the filename to a full path:
-      if has('win32unix') == 1
-          && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
-        file = system(['cygpath', '-w', expand('%:p')])->trim()
-      elseif HTMLUtilO.Has('WSL2')
-          && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
-        file = system(['wslpath', '-w', expand('%:p')])->trim()
-      else
-        file = expand('%:p')
-      endif
+      file = this._NativePath(expand('%:p'), which)
     else
       HTMLMessagesO.Error(HTMLMessagesO.E_NOFILE)
       return false
@@ -582,7 +571,7 @@ export class BrowserLauncher
     endif
 
     if match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') >= 0
-      var textmode_return = this._LaunchTextmodeBrowser(which, $'file://{file}', dowhat)
+      var textmode_return = this._LaunchTextModeBrowser(which, $'file://{file}', dowhat)
       if type(textmode_return) == v:t_bool
         return textmode_return
       else
@@ -641,7 +630,28 @@ export class BrowserLauncher
     return false
   enddef
 
-  def _LaunchTextmodeBrowser(browser: string, url: string, behavior: Behavior): any  # {{{1
+  # _LaunchTextModeBrowser() {{{1
+  #
+  # Usage:
+  #  _LaunchTextModeBrowser({browser}, {url}, {behavior})
+  #    The first argument is which browser to launch, by name (not executable).
+  #    Use BrowserExists() to see which ones are available.
+  #
+  #    The third argument is an URL to go to.
+  #
+  #    The third argument is whether to launch a new window:
+  #      Behavior.default   - (default -- in modern brosers this tends to
+  #                           open a new tab)
+  #      Behavior.newwindow - (some modern browsers don't actually provide
+  #                           a way to do this)
+  #      Behavior.newtab    - (or new window if the browser doesn't provide a
+  #                           way to open a new tab)
+  #
+  # Return value:
+  #  false - Failure (No browser was launched/controlled.)
+  #  true  - Success (A browser was launched/controlled.)
+  #  list  - A GUI command for _UnixWindowsLaunch() to run
+  def _LaunchTextModeBrowser(browser: string, url: string, behavior: Behavior): any
     var xterm: string
 
     HTMLMessagesO.Message($'Launching {_Browsers[browser]["realname"]}...')
@@ -704,6 +714,21 @@ export class BrowserLauncher
 
     return true
   enddef  # }}}1
+
+  def _NativePath(path: string, browser: string): string  # {{{
+    # If we're on Cygwin or WSL2 and not using a text mode browser,
+    # translate the file path to a Windows native path for later use,
+    # otherwise just expand the filename to a full path:
+    if has('win32unix') == 1
+        && match(_TextModeBrowsers->keys(), $'^\c\V{browser}\$') < 0
+      return system(['cygpath', '-w', path])->trim()
+    elseif HTMLUtilO.Has('WSL2')
+        && match(_TextModeBrowsers->keys(), $'^\c\V{browser}\$') < 0
+      return system(['wslpath', '-w', path])->trim()
+    else
+      return path
+    endif
+  enddef  # }}}
 
   def _AddLogItem(channel: channel, msg: string): void  # {{{1
     _BrowserLog->add($'[{strftime("%c")}] channel {channel->ch_info()['id']}: {msg}')
