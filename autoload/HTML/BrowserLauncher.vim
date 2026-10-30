@@ -90,7 +90,7 @@ export enum Behavior # {{{1
   newtab
 endenum # }}}1
 
-export type BrowserList = dict<dict<any>>
+type BrowserList = dict<dict<any>>
 
 export class BrowserLauncher
 
@@ -154,8 +154,6 @@ export class BrowserLauncher
   static var HTMLUtilO: Util.HTMLUtil
 
   def new()  # {{{
-    var temppath: string
-
     if HTMLMessagesO == null_object
       HTMLMessagesO = Messages.HTMLMessages.new()
       HTMLUtilO = Util.HTMLUtil.new()
@@ -646,7 +644,7 @@ export class BrowserLauncher
   def _LaunchTextmodeBrowser(browser: string, url: string, behavior: Behavior): any  # {{{1
     var xterm: string
 
-    HTMLMessagesO.Message('Launching ' .. _Browsers[browser]['realname'] .. '...')
+    HTMLMessagesO.Message($'Launching {_Browsers[browser]["realname"]}...')
 
     if executable('/etc/alternatives/x-terminal-emulator')
       xterm = '/etc/alternatives/x-terminal-emulator'
@@ -658,7 +656,7 @@ export class BrowserLauncher
       if $DISPLAY != '' && xterm != '' && behavior == Behavior.newwindow
         return [xterm, '-e', _Browsers[browser]['path'], url]
       elseif exists_compiled(':terminal') == 2
-        execute 'terminal ++close ' .. _Browsers[browser]['path'] .. ' ' .. url
+        execute $'terminal ++close {_Browsers[browser]["path"]} {url}'
         return true
       else
         if behavior == Behavior.newwindow
@@ -670,7 +668,7 @@ export class BrowserLauncher
         return false
       endif
     else
-      execute '!' .. _Browsers[browser]['path'] .. ' ' .. url->shellescape()
+      execute '!{_Browsers[browser]["path"]} {url->shellescape()}'
 
       if v:shell_error
         printf(HTMLMessagesO.E_LAUNCH, _Browsers[browser]['realname'])->HTMLMessagesO.Error()
