@@ -7,7 +7,7 @@ endif
 
 # Menu functions for the HTML macros filetype plugin.
 #
-# Last Change: October 26, 2026
+# Last Change: October 31, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -54,12 +54,12 @@ export class HTMLMenu extends Util.HTMLUtil
   # Return Value:
   #  None
   def ColorsMenu(name: string, color: string): void
-    var c: string = name->strpart(0, 1)->toupper()
-    var newname: list<string>
+    var c:           string = name->strpart(0, 1)->toupper()
+    var newname:     list<string>
     var namenospace: string
     var nameescaped: string
-    var rgb: string
-    var rgbpercent: string
+    var rgb:         string
+    var rgbpercent:  string
 
     if Variables.HTMLVariables.COLORS_SORT->has_key(c)
       newname = [name]->extendnew(['&Colors', '&' .. Variables.HTMLVariables.COLORS_SORT[c]], 0)
@@ -123,7 +123,7 @@ export class HTMLMenu extends Util.HTMLUtil
   # Return Value:
   #  None
   def EntityMenu(name: list<string>, item: string, symb: string = ''): void
-    var newname = name->extendnew(['Character Entities'], 0)
+    var newname: list<string> = name->extendnew(['Character Entities'], 0)
     var nameescaped: string
 
     if g:htmlplugin.toplevel_menu != []
@@ -132,9 +132,9 @@ export class HTMLMenu extends Util.HTMLUtil
 
     nameescaped = newname->this.Join()
 
-    var newsymb = symb
-    var leaderescaped = g:htmlplugin.entity_map_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
-    var itemescaped = item->escape('&<.|')->substitute('\\&', '\&\&', 'g')
+    var newsymb: string = symb
+    var leaderescaped: string = g:htmlplugin.entity_map_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
+    var itemescaped: string = item->escape('&<.|')->substitute('\\&', '\&\&', 'g')
 
     if newsymb != ''
       # Makes it so UTF8 characters don't have to be hardcoded in JSON files:
@@ -164,11 +164,11 @@ export class HTMLMenu extends Util.HTMLUtil
   # Return Value:
   #  None
   def LeadMenu(type: string, level: string, name: list<string>, item: string, pre: string = ''): void
-    var newlevel: string
-    var newname: list<string>
-    var nameescaped: string
-    var leaderescaped = g:htmlplugin.map_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
-    var priorityprefix = this.PriorityPrefix(name[0])
+    var newlevel:       string
+    var newname:        list<string>
+    var nameescaped:    string
+    var leaderescaped:  string = g:htmlplugin.map_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
+    var priorityprefix: string = this.PriorityPrefix(name[0])
 
     if name[0] == 'ToolBar'
       newname = name
@@ -199,11 +199,11 @@ export class HTMLMenu extends Util.HTMLUtil
   # Return Value:
   #  None
   def Menu(type: string, level: string, name: list<string>, item: string): void
-    var newlevel: string
-    var newname: list<string>
-    var nameescaped: string
-    var leaderescaped = g:htmlplugin.map_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
-    var priorityprefix = this.PriorityPrefix(name[0])
+    var newlevel:       string
+    var newname:        list<string>
+    var nameescaped:    string
+    var leaderescaped:  string = g:htmlplugin.map_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
+    var priorityprefix: string = this.PriorityPrefix(name[0])
 
     if name[0] == 'ToolBar' || name[0] == 'PopUp'
       newname = name
@@ -246,18 +246,13 @@ export class HTMLMenu extends Util.HTMLUtil
       execute $'amenu disable {g:htmlplugin.toplevel_menu_escaped}.*'
       if g:htmlplugin->has_key('did_toolbar')
         amenu disable ToolBar.*
-        amenu enable ToolBar.Open
-        amenu enable ToolBar.Save
-        amenu enable ToolBar.SaveAll
-        amenu enable ToolBar.Undo
-        amenu enable ToolBar.Redo
-        amenu enable ToolBar.Cut
-        amenu enable ToolBar.Copy
-        amenu enable ToolBar.Paste
-        amenu enable ToolBar.Replace
-        amenu enable ToolBar.FindNext
-        amenu enable ToolBar.FindPrev
-        amenu enable ToolBar.Help
+        for m: string in [
+              'Open',     'Save', 'SaveAll', 'Undo',    'Redo',
+              'Cut',      'Copy', 'Paste',   'Replace', 'FindNext',
+              'FindPrev', 'Help'
+            ]
+          exe $'amenu enable ToolBar.{m}'
+        endfor
       endif
       if this.BoolVar('b:htmlplugin.did_mappings_init')
           && !this.BoolVar('b:htmlplugin.did_mappings')
@@ -287,7 +282,7 @@ export class HTMLMenu extends Util.HTMLUtil
   # Arguments:
   #  1 - List: The menu name
   # Return Value:
-  #  The menu name joined into a single string, escaped
+  #  String: The menu name joined into a single string, escaped
   def Join(menuname: list<string>): string
     return menuname->mapnew((key, value) => value->escape(' .'))->join('.')
   enddef
@@ -300,7 +295,7 @@ export class HTMLMenu extends Util.HTMLUtil
   # Arguments:
   #  None
   # Return Value:
-  #  String - the number of periods necessary to properly specify the prefix
+  #  String: The periods necessary to properly specify the prefix
   def PriorityPrefix(menu: string): string
     if menu == 'ToolBar' || menu == 'PopUp'
       return ''

@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: October 25, 2026
+# Last Change: October 31, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -100,7 +100,7 @@ export class HTMLUtil
   # Return Value:
   #  Boolean
   def Bool(value: any): bool
-    var regexp = '^no\?$\|^off$\|^\%(v:\)\?\%(false\|none\|null\)$\|^0\%(\.0\)\?$\|^$'
+    var regexp: string = '^no\?$\|^off$\|^\%(v:\)\?\%(false\|none\|null\)$\|^0\%(\.0\)\?$\|^$'
 
     if value->type() == v:t_string
       return value !~? regexp
@@ -130,7 +130,7 @@ export class HTMLUtil
   # Limitations:
   #  This /will not/ work on function-local variable names.
   def BoolVar(v: string): bool
-    var variable = v
+    var variable: string = v
 
     if variable !~ '^[bgstvw]:'
       variable = $'g:{variable}'
@@ -169,11 +169,11 @@ export class HTMLUtil
       return
     endif
 
-    var maxw = 0
-    var doname = false
-    var dorgb = false
-    var dorgbpercent = false
-    var mode = mode()
+    var maxw:         number = 0
+    var doname:       bool   = false
+    var dorgb:        bool   = false
+    var dorgbpercent: bool   = false
+    var mode:         string = mode()
 
     def CCSelect(id: number, result: number)  # {{{2
       if result < 0
@@ -288,9 +288,9 @@ export class HTMLUtil
   # Return Value:
   #  The converted string(s), or 0 on error.
   def ConvertCase(s: any, c: string = 'config'): any
-    var str: list<string>
+    var str:    list<string>
     var newstr: list<string>
-    var case: string
+    var case:   string
 
     if typename(s) == 'list<string>'
       str = s

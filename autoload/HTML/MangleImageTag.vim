@@ -7,7 +7,7 @@ endif
 
 # MangleImageTag.Update() - updates an <IMG>'s WIDTH and HEIGHT attributes.
 #
-# Last Change: October 26, 2026
+# Last Change: October 31, 2026
 #
 # Requirements:
 #   Vim 9.2 or later
@@ -47,9 +47,9 @@ export class MangleImageTag
 
   def Update(): bool  # {{{1
     var start_linenr: number
-    var end_linenr: number
-    var col: number
-    var line: string
+    var end_linenr:   number
+    var col:          number
+    var line:         string
 
     # Find out if we're inside an <img ...> tag, and get its first line, etc.:
     [start_linenr, col] = searchpairpos('<', '', '>', 'bnW')
@@ -145,9 +145,9 @@ export class MangleImageTag
   enddef
 
   def ImageSize(file: string): list<number>  # {{{1
-    var ext = file->fnamemodify(':e')->tolower()
+    var ext:  string = file->fnamemodify(':e')->tolower()
     var size: list<number>
-    var buf: list<number>
+    var buf:  list<number>
 
     if ['png', 'gif', 'jpg', 'jpeg', 'tif', 'tiff', 'webp']->match(ext) < 0
       printf(HTMLMessagesO.E_UNSUPPORTED, ext)->HTMLMessagesO.Error()
@@ -236,13 +236,13 @@ export class MangleImageTag
   enddef
 
   def _SizeTiff(buf: list<number>): list<number>  # {{{1
-    var i: number
-    var j: number
-    var len: number = buf->len()
-    var width: number = -1
-    var height: number = -1
+    var i:         number
+    var j:         number
+    var len:       number = buf->len()
+    var width:     number = -1
+    var height:    number = -1
     var bigendian: bool
-    var type: number
+    var type:      number
 
     if buf[0 : 1]->join(' ') == '73 73'
       #echomsg "TIFF is Little Endian"

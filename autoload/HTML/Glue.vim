@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: October 23, 2026
+# Last Change: October 31, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -132,15 +132,15 @@ export class HTMLGlue extends Util.HTMLUtil
   #  Return Value:
   #   Boolean - Whether the json file was successfully read in without error
   def ReadEntities(domenu: bool = true, internal: bool = false, file: string = Variables.HTMLVariables.ENTITIES_FILE): bool
-    var rval = true
-    var json_data = this.ReadJsonFile(file)
+    var rval: bool = true
+    var json_data: list<list<any>> = this.ReadJsonFile(file)
 
     if json_data == []
       printf(HTMLMessagesO.E_NOENTITY)
       return false
     endif
 
-    for json in json_data
+    for json: list<any> in json_data
       if json->len() != 4 || json[2]->type() != v:t_list
         printf(HTMLMessagesO.E_JSON, Messages.HTMLMessages.F(), file, json->string())->HTMLMessagesO.Error()
         rval = false
@@ -177,10 +177,10 @@ export class HTMLGlue extends Util.HTMLUtil
   #  Return Value:
   #   Boolean - Whether the json file was successfully read in without error
   def ReadTags(domenu: bool = true, internal: bool = false, file: string = Variables.HTMLVariables.TAGS_FILE): bool
-    var maplhs: string
-    var menulhs: string
-    var rval = true
-    var json_data = this.ReadJsonFile(file)
+    var maplhs:    string
+    var menulhs:   string
+    var rval:      bool = true
+    var json_data: list<dict<any>> = this.ReadJsonFile(file)
 
     if json_data == []
       printf(HTMLMessagesO.E_NOTAG)

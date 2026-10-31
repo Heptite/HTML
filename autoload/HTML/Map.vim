@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.
 #
-# Last Change: October 28, 2026
+# Last Change: October 31, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -38,9 +38,7 @@ export enum MapCheckR # {{{1
   override,
   nooverride,
   suppressed
-endenum
-
-# }}}1
+endenum # }}}1
 
 export class HTMLMap extends Util.HTMLUtil
 
@@ -116,9 +114,9 @@ export class HTMLMap extends Util.HTMLUtil
   def DoMap(): string
     var evalstr: string
 
-    var mode = this._mode
-    var lhs = this._lhs
-    var rhs = this._rhs
+    var mode: string = this._mode
+    var lhs:  string = this._lhs
+    var rhs:  string = this._rhs
        ->substitute(
          '\\\(<[a-zA-Z0-9_-]\+>\)',
          '\=Variables.HTMLVariables.MAP_ESCAPES->get(submatch(1)->toupper(), submatch(1))',
@@ -200,15 +198,15 @@ export class HTMLMap extends Util.HTMLUtil
   # Return Value:
   #  Boolean: Whether a table was generated
   def GenerateTable(rows: number = -1, columns: number = -1, border: number = -1, thead: bool = false, tfoot: bool = false): bool
-    var curpos = getcharpos('.')
-    var rowsstring: string
+    var curpos:        list<number> = getcharpos('.')
+    var rowsstring:    string
     var columnsstring: string
-    var newrows: number
-    var newcolumns: number
-    var newborder: number
-    var newthead = thead
-    var newtfoot = tfoot
-    var lines: list<string>
+    var newrows:       number
+    var newcolumns:    number
+    var newborder:     number
+    var newthead:      bool = thead
+    var newtfoot:      bool = tfoot
+    var lines:         list<string>
 
     if rows < 0
       rowsstring = inputdialog('Number of rows: ', '', 'cancel')
@@ -255,7 +253,7 @@ export class HTMLMap extends Util.HTMLUtil
     if newthead
       lines->add('<[{THEAD}]>')
       lines->add('<[{TR}]>')
-      for c in newcolumns->range()
+      for c: number in newcolumns->range()
         if newborder > 0
           lines->add($'<[{{TH STYLE}}]="border: solid {g:htmlplugin.textcolor} {newborder}px; padding: 3px;"></[{{TH}}]>')
         else
@@ -270,10 +268,10 @@ export class HTMLMap extends Util.HTMLUtil
       lines->add('<[{TBODY}]>')
     endif
 
-    for r in newrows->range()
+    for r: number in newrows->range()
       lines->add('<[{TR}]>')
 
-      for c in newcolumns->range()
+      for c: number in newcolumns->range()
         if newborder > 0
           lines->add($'<[{{TD STYLE}}]="border: solid {g:htmlplugin.textcolor} {newborder}px; padding: 3px;"></[{{TD}}]>')
         else
@@ -291,7 +289,7 @@ export class HTMLMap extends Util.HTMLUtil
     if newtfoot
       lines->add('<[{TFOOT}]>')
       lines->add('<[{TR}]>')
-      for c in newcolumns->range()
+      for c: number in newcolumns->range()
         if newborder > 0
           lines->add($'<[{{TD STYLE}}]="border: solid {g:htmlplugin.textcolor} {newborder}px; padding: 3px;"></[{{TD}}]>')
         else
@@ -489,10 +487,10 @@ export class HTMLMap extends Util.HTMLUtil
   #                         g:htmlplugin.no_maps or b:htmlplugin.no_maps.
   def MapCheck(map: string, mode: string, internal: bool = false): MapCheckR
     if internal &&
-          ( (g:htmlplugin->has_key('no_maps')
-              && g:htmlplugin.no_maps->match($'^\C\V{map}\$') >= 0) ||
-            (b:htmlplugin->has_key('no_maps')
-              && b:htmlplugin.no_maps->match($'^\C\V{map}\$') >= 0) )
+        ( (g:htmlplugin->has_key('no_maps')
+            && g:htmlplugin.no_maps->match($'^\C\V{map}\$') >= 0) ||
+          (b:htmlplugin->has_key('no_maps')
+            && b:htmlplugin.no_maps->match($'^\C\V{map}\$') >= 0) )
       return MapCheckR.suppressed
     elseif Variables.HTMLVariables.MODES->has_key(mode) && map->maparg(mode) != ''
       if !this.BoolVar('g:htmlplugin.map_override') && internal
@@ -545,7 +543,7 @@ export class HTMLMap extends Util.HTMLUtil
   #  multiple matches.
   def NextInsertPoint(mode: string = 'n', direction: string = 'f'): bool
     var done: bool
-    var line = line('.')->getline()
+    var line: string = line('.')->getline()
 
     # Tab in insert mode on the beginning of a closing tag jumps us to
     # after the tag:
@@ -573,7 +571,8 @@ export class HTMLMap extends Util.HTMLUtil
 
     # This regexp looks like someone ran their fingers along the keyboard
     # randomly, but it does work and even correctly positions the cursor:
-    return '<\_[^<>]\{-}\(["'']\)\zs\1\_[^<>]*>\|<\([^ <>]\+\)\_[^<>]*>\_s\{-}\zs\n\?\s\{-}<\/\2>\|<!--\_s\{-}\zs\_s\?-->'->search('w' .. (direction =~? '^b' ? 'b' : '')) > 0
+    return '<\_[^<>]\{-}\(["'']\)\zs\1\_[^<>]*>\|<\([^ <>]\+\)\_[^<>]*>\_s\{-}\zs\n\?\s\{-}<\/\2>\|<!--\_s\{-}\zs\_s\?-->'
+      ->search('w' .. (direction =~? '^b' ? 'b' : '')) > 0
   enddef
 
   # OpWrap()  {{{1
@@ -655,8 +654,8 @@ export class HTMLMap extends Util.HTMLUtil
       lastline = line('$')
     endif
 
-    var range = firstline == lastline ? firstline : $'{firstline},{lastline}'
-    var curpos = getcharpos('.')
+    var range: string = firstline == lastline ? firstline : $'{firstline},{lastline}'
+    var curpos: list<number> = getcharpos('.')
 
     try
       execute $'keepjumps :{range}normal! =='
@@ -683,12 +682,12 @@ export class HTMLMap extends Util.HTMLUtil
   #  The string to be executed to insert the tag.
 
   def SmartTag(tag: string, mode: string): string
-    var newmode = mode->strpart(0, 1)->tolower()
-    var newtag = tag->tolower()
-    var which: string
-    var ret: string
-    var line: number
-    var column: number
+    var newmode: string = mode->strpart(0, 1)->tolower()
+    var newtag:  string = tag->tolower()
+    var which:   string
+    var ret:     string
+    var line:    number
+    var column:  number
 
     if ! b:htmlplugin.smarttags->has_key(newtag)
       printf(HTMLMessagesO.E_NOSMART, Messages.HTMLMessages.F(), newtag)->HTMLMessagesO.Error()
@@ -698,7 +697,7 @@ export class HTMLMap extends Util.HTMLUtil
     if newtag == 'comment'
       [line, column] = searchpairpos('<!--', '', '-->', 'ncW')
     else
-      var realtag = tag->substitute('\d\+$', '', '')
+      var realtag: string = tag->substitute('\d\+$', '', '')
       [line, column] = searchpairpos($'\c<{realtag}\>[^>]*>', '', $'\c<\/{realtag}>', 'ncW')
     endif
 
@@ -724,12 +723,13 @@ export class HTMLMap extends Util.HTMLUtil
   # Return Value:
   #  Boolean - Whether the cursor is on an insert point.
   def Template(file: string = ''): bool
-    var ret = false
+    var ret: bool = false
 
     if line('$') == 1 && getline(1) == ''
       ret = this.TemplateInsert(file)
     else
-      var YesNoOverwrite = "Non-empty file.\nInsert template anyway?"->confirm("&Yes\n&No\n&Overwrite", 2, 'Question')
+      var YesNoOverwrite: number = "Non-empty file.\nInsert template anyway?"
+        ->confirm("&Yes\n&No\n&Overwrite", 2, 'Question')
       if YesNoOverwrite == 1
         ret = this.TemplateInsert(file)
       elseif YesNoOverwrite == 3
@@ -774,13 +774,18 @@ export class HTMLMap extends Util.HTMLUtil
 
     if template != ''
       if template->expand()->filereadable()
-        template->readfile()->this.TokenReplace(fnamemodify(template, ':p:h'))->append(0)
+        template->readfile()
+          ->this.TokenReplace(fnamemodify(template, ':p:h'))
+          ->append(0)
       else
         printf(HTMLMessagesO.E_TEMPLATE, template)->HTMLMessagesO.Error()
         return false
       endif
     else
-      b:htmlplugin.internal_template->tuple2list()->this.TokenReplace()->append(0)
+      b:htmlplugin.internal_template
+        ->tuple2list()
+        ->this.TokenReplace()
+        ->append(0)
     endif
 
     # Special case, can't be done in TokenReplace():
