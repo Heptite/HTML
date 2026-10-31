@@ -5,11 +5,11 @@ if v:versionlong < 9021240
   finish
 endif
 
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------------------ {{{
 #
 # Methods to launch/control browsers
 #
-# Last Change: October 30, 2026
+# Last Change: October 31, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -83,6 +83,8 @@ endif
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
 # https://www.gnu.org/licenses/licenses.html#GPL
+#
+# ------------------------------------------------------------------------ }}}
 
 import autoload './Messages.vim'
 import autoload './Util.vim'
@@ -201,12 +203,21 @@ export class BrowserLauncher
   # searching the registry, returning a path to the executable if found, or an
   # empty string if not found.
   #
+  # Usage:
+  #  _RegistrySearch({name}, {executable})
+  #
   # Args:
   #  1 - The name of the browser to search for (as it appears in the registry)
-  #  2 - The name of the executable to search for (e.g., "firefox.exe")
+  #  2 - The filename of the executable to search for (e.g., "firefox.exe")
+  #
   # Return value:
   #  The path to the executable of the browser, or an empty string if not
   #  found
+  #
+  # Limitations:
+  #  This relies on finding an executable based on the *uninstaller* location,
+  #  as it's the most reliable way to find an install of a browser.  This is
+  #  still "brittle", but better than the old method this script used.
   def _RegistrySearch(name: string, exe: string): string
     var output: list<string>
 
@@ -495,6 +506,7 @@ export class BrowserLauncher
   #
   # Usage:
   #  UnixWindowsBrowserExists([browser])
+  #
   # Return value:
   #  With an argument: True or False - Whether the browser was found (exists)
   #  Without an argument: list - The names of the browsers that were found
@@ -699,7 +711,7 @@ export class BrowserLauncher
       newcommand = ['nohup'] + newcommand
     endif
 
-    var job_id: job = job_start(newcommand, {
+    var job_id: job = newcommand->job_start({
       drop: 'auto',
       stoponexit: '',
       exit_cb: (_, exitstatus: number) => {
@@ -718,10 +730,19 @@ export class BrowserLauncher
     return true
   enddef  # }}}1
 
-  def _NativePath(path: string, browser: string): string  # {{{
-    # If we're on Cygwin or WSL2 and not using a text mode browser,
-    # translate the file path to a Windows native path for later use,
-    # otherwise just expand the filename to a full path:
+  # _NativePath() {{{1
+  #
+  # On Cygwin or WSL2 and not using a text mode browser, translate the file
+  # path to a Windows native path for later use, otherwise just expand the
+  # filename to a full path.
+  #
+  # Usage:
+  #  _NativePath({filename})
+  #
+  # Return value:
+  #  String: The path the plugin needs for the "native" (host) OS to load the
+  #  file in a browser.
+  def _NativePath(path: string, browser: string): string
     if has('win32unix') == 1
         && match(_TextModeBrowsers->keys(), $'^\c\V{browser}\$') < 0
       return system(['cygpath', '-w', path])->trim()
