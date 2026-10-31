@@ -6,9 +6,9 @@ available for Windows at:
 
 * [Introduction](#introduction)
 * [Installation](#installation)
-  * [Vim Package Manager: vim-plug](#vim-package-manager:-vim-plug)
-  * [Vim's Built-In Package Support](#vim's-built-in-package-support)
-    * [Unix/MacOS](#unix/macos)
+  * [Vim Package Manager: vim-plug](#vim-package-manager-vim-plug)
+  * [Vim's Built-In Package Support](#vims-built-in-package-support)
+    * [Unix/MacOS](#unixmacos)
     * [Windows](#windows)
 * [Official Website](#official-website)
 * [License](#license)
