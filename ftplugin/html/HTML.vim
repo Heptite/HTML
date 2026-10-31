@@ -13,7 +13,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite+html(at)proton(dot)me>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      October 28, 2026
+# Last Change:      October 31, 2026
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.2.1240 or later
 #
@@ -66,9 +66,7 @@ endif
 #
 # ---- TODO: ------------------------------------------------------------ {{{1
 #
-# - Add mappings for more textmode browsers
-#
-# - Add a lot more character entity mappings (see table in
+# - Add many more character entity mappings (see table in
 #   import/HTML/Variables.vim)
 #
 # - Add more HTML 5 tags?

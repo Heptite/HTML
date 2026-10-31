@@ -97,3 +97,5 @@ Copyright © 1998 - 2026 Christian J. Robinson
 
 Distributable under the terms of the GNU General Public License, version 3 or
 later:  <https://www.gnu.org/licenses/licenses.html#GPL>
+
+[//]: # ( vim: set foldcolumn=5: )
