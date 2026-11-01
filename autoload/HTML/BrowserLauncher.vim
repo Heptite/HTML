@@ -9,7 +9,7 @@ endif
 #
 # Methods to launch/control browsers
 #
-# Last Change: October 31, 2026
+# Last Change: November 01, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -597,32 +597,7 @@ export class BrowserLauncher
     # If we haven't already defined a command, we are going to use a GUI
     # browser:
     if command == []
-      if dowhat == Behavior.newtab
-        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(_Browsers[which]['realname'])} tab...')
-        command = [
-          _Browsers[which]['path'],
-          $'file://{file}',
-          _Browsers[which]['tab']
-        ]
-      elseif dowhat == Behavior.newwindow
-        HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(_Browsers[which]['realname'])} window...')
-        command = [
-          _Browsers[which]['path'],
-          $'file://{file}',
-          _Browsers[which]['window']
-        ]
-      else
-        if which == 'default'
-          HTMLMessagesO.Message('Invoking system default browser...')
-        else
-          HTMLMessagesO.Message($'Invoking {HTMLUtilO.Cap(_Browsers[which]['realname'])}...')
-        endif
-
-        command = [
-          _Browsers[which]['path'],
-          _Browsers[which]['path'] == '' ? file : $'file://{file}'
-        ]
-      endif
+      command = _GetGUICommand(which, file, dowhat)
     endif
 
     if command != []
@@ -669,6 +644,11 @@ export class BrowserLauncher
   def _LaunchTextModeBrowser(browser: string, url: string, behavior: Behavior): any
     var xterm: string
 
+    if !this._UnixWindowsBrowserExists(browser)
+      printf(Messages.HTMLMessages.E_UNKNOWN, browser)->HTMLMessagesO.Error()
+      return false
+    endif
+
     HTMLMessagesO.Message($'Launching {_Browsers[browser]["realname"]}...')
 
     if executable('/etc/alternatives/x-terminal-emulator')
@@ -704,6 +684,44 @@ export class BrowserLauncher
     endif
   enddef
 
+  def _GetGUICommand(browser: string, file: string, behavior: Behavior): list<string>  # {{{1
+    var command: list<string>
+
+    if !this._UnixWindowsBrowserExists(browser)
+      printf(Messages.HTMLMessages.E_UNKNOWN, browser)->HTMLMessagesO.Error()
+      return []
+    endif
+
+    if behavior == Behavior.newtab
+      HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(_Browsers[browser]['realname'])} tab...')
+      command = [
+        _Browsers[browser]['path'],
+        $'file://{file}',
+        _Browsers[browser]['tab']
+      ]
+    elseif behavior == Behavior.newwindow
+      HTMLMessagesO.Message($'Opening new {HTMLUtilO.Cap(_Browsers[browser]['realname'])} window...')
+      command = [
+        _Browsers[browser]['path'],
+        $'file://{file}',
+        _Browsers[browser]['window']
+      ]
+    else
+      if browser == 'default'
+        HTMLMessagesO.Message('Invoking system default browser...')
+      else
+        HTMLMessagesO.Message($'Invoking {HTMLUtilO.Cap(_Browsers[browser]['realname'])}...')
+      endif
+
+      command = [
+        _Browsers[browser]['path'],
+        _Browsers[browser]['path'] == '' ? file : $'file://{file}'
+      ]
+    endif
+
+    return command
+  enddef
+
   def _BackgroundJob(command: list<string>): bool  # {{{1
     var newcommand: list<string> = command
 
@@ -733,8 +751,7 @@ export class BrowserLauncher
   # _NativePath() {{{1
   #
   # On Cygwin or WSL2 and not using a text mode browser, translate the file
-  # path to a Windows native path for later use, otherwise just expand the
-  # filename to a full path.
+  # path to a Windows native path, otherwise just return the path as-is.
   #
   # Usage:
   #  _NativePath({filename})

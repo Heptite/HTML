@@ -7,7 +7,7 @@ endif
 
 # Messaging functions for the HTML macros filetype plugin.
 #
-# Last Change: October 31, 2026
+# Last Change: November 01, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -134,7 +134,7 @@ export class HTMLMessages
     endif
 
     for s: string in m
-      if exists_compiled(':echowindow') == 2 && type !~? '^e'
+      if type !~? '^e'
         echowindow s
       else
         echomsg s
