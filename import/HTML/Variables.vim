@@ -81,9 +81,11 @@ export class HTMLVariables
     '',
     '  <[{TITLE></TITLE}]>',
     '',
-    '  <[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; charset=%charset%" />',
-    '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% (Vi IMproved editor; http://www.vim.org/) with HTML Editing Macros '
-    .. $'%htmlversion% ({HTMLVariables.HOMEPAGE})" />',
+    '  <[{META HTTP-EQUIV}]="Content-Type" [{CONTENT}]="text/html; '
+    .. 'charset=%charset%" />',
+    '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% '
+    .. '(Vi IMproved editor; http://www.vim.org/) with HTML Editing Macros '
+    .. '%htmlversion% (%hthmlhomepage%)" />',
     '  <[{META NAME}]="Author" [{CONTENT}]="%authorname%" />',
     '  <[{META NAME}]="Copyright" [{CONTENT}]="Copyright (C) %date% %authorname%" />',
     '  <[{LINK REL}]="made" [{HREF}]="mailto:%authoremail%" />',
@@ -553,7 +555,7 @@ export class HTMLVariables
       var json_files: list<string> = ENTITY_TABLE_FILE->findfile(&runtimepath, -1)
 
       if json_files->len() == 0
-        printf(HTMLMessagesO.E_NOTFOUND, ENTITY_TABLE_FILE)->HTMLMessagesO.Error()
+        printf(Messages.HTMLMessages.E_NOTFOUND, ENTITY_TABLE_FILE)->HTMLMessagesO.Error()
         return
       endif
 
@@ -565,7 +567,7 @@ export class HTMLVariables
             CharToEntities[entities[key].characters] = key
           endfor
         else
-          printf(HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->HTMLMessagesO.Error()
+          printf(Messages.HTMLMessages.E_NOREAD, Messages.HTMLMessages.F(), f)->HTMLMessagesO.Error()
         endif
       endfor
     endif

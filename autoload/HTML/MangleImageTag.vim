@@ -57,7 +57,7 @@ export class MangleImageTag
     line = getline(start_linenr)
 
     if line !~? '<img'
-      HTMLMessagesO.Error(HTMLMessagesO.E_NOIMG)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_NOIMG)
       return false
     endif
 
@@ -82,7 +82,7 @@ export class MangleImageTag
     tag = tag->strpart(0, tagend)
 
     if tag[0] != '<' || col > strlen(savestart .. tag) - 1
-      HTMLMessagesO.Error(HTMLMessagesO.E_NOIMG)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_NOIMG)
       return false
     endif
 
@@ -96,18 +96,18 @@ export class MangleImageTag
         case = true
       endif
     else
-      HTMLMessagesO.Error(HTMLMessagesO.E_NOSRC)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_NOSRC)
       return false
     endif
 
     if src == ''
-      HTMLMessagesO.Error(HTMLMessagesO.E_BLANK)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_BLANK)
       return false
     elseif !src->filereadable()
       if filereadable($"{expand('%:p:h')}/{src}")
         src = $"{expand('%:p:h')}/{src}"
       else
-        printf(HTMLMessagesO.E_NOIMAGE, src)->HTMLMessagesO.Error()
+        printf(Messages.HTMLMessages.E_NOIMAGE, src)->HTMLMessagesO.Error()
         return false
       endif
     endif
@@ -150,10 +150,10 @@ export class MangleImageTag
     var buf:  list<number>
 
     if ['png', 'gif', 'jpg', 'jpeg', 'tif', 'tiff', 'webp']->match(ext) < 0
-      printf(HTMLMessagesO.E_UNSUPPORTED, ext)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_UNSUPPORTED, ext)->HTMLMessagesO.Error()
       return []
     elseif !file->filereadable()
-      printf(HTMLMessagesO.E_NOIMGREAD, file)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_NOIMGREAD, file)->HTMLMessagesO.Error()
       return []
     endif
 
@@ -190,7 +190,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    HTMLMessagesO.Error(HTMLMessagesO.E_GIF)
+    HTMLMessagesO.Error(Messages.HTMLMessages.E_GIF)
 
     return []
   enddef
@@ -210,7 +210,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    HTMLMessagesO.Error(HTMLMessagesO.E_JPG)
+    HTMLMessagesO.Error(Messages.HTMLMessages.E_JPG)
 
     return []
   enddef
@@ -230,7 +230,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    HTMLMessagesO.Error(HTMLMessagesO.E_PNG)
+    HTMLMessagesO.Error(Messages.HTMLMessages.E_PNG)
 
     return []
   enddef
@@ -251,12 +251,12 @@ export class MangleImageTag
       #echomsg "TIFF is Big Endian"
       bigendian = true
     else
-      HTMLMessagesO.Error(HTMLMessagesO.E_TIFFENDIAN)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_TIFFENDIAN)
       return []
     endif
 
     if (bigendian ? buf[2 : 3]->this._Vec() : buf[2 : 3]->reverse()->this._Vec()) != 42
-      HTMLMessagesO.Error(HTMLMessagesO.E_TIFFID)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_TIFFID)
       return []
     endif
 
@@ -288,7 +288,7 @@ export class MangleImageTag
       endif
     endwhile
 
-    HTMLMessagesO.Error(HTMLMessagesO.E_TIFF)
+    HTMLMessagesO.Error(Messages.HTMLMessages.E_TIFF)
 
     return []
   enddef
@@ -298,7 +298,7 @@ export class MangleImageTag
     var len: number = buf->len()
 
     if buf[0 : 11]->join(' ') !~ '^82 73 70 70\%( \d\+\)\{4} 87 69 66 80'
-      HTMLMessagesO.Error(HTMLMessagesO.E_WEBP)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_WEBP)
       return []
     endif
 
@@ -316,7 +316,7 @@ export class MangleImageTag
       ++i
     endwhile
 
-    HTMLMessagesO.Error(HTMLMessagesO.E_WEBP)
+    HTMLMessagesO.Error(Messages.HTMLMessages.E_WEBP)
 
     return []
   enddef

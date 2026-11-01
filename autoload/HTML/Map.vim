@@ -131,7 +131,7 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     if mode->strlen() != 1
-      printf(HTMLMessagesO.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return ''
     endif
 
@@ -153,7 +153,7 @@ export class HTMLMap extends Util.HTMLUtil
       try
         execute $'silent normal! {evalstr}'
       catch
-        printf(HTMLMessagesO.E_MAPEXCEPT, v:exception, lhs)->HTMLMessagesO.Error()
+        printf(Messages.HTMLMessages.E_MAPEXCEPT, v:exception, lhs)->HTMLMessagesO.Error()
       endtry
 
       # Can't :defer this because we need it reset here, not later:
@@ -168,7 +168,7 @@ export class HTMLMap extends Util.HTMLUtil
         startinsert
       endif
     else
-      printf(HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), mode)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_INVALIDARG, Messages.HTMLMessages.F(), mode)->HTMLMessagesO.Error()
     endif
 
     # If we got here, we already ran the mapping and don't need to run it
@@ -229,7 +229,7 @@ export class HTMLMap extends Util.HTMLUtil
     endif
 
     if newrows < 1 || newcolumns < 1
-      HTMLMessagesO.Error(HTMLMessagesO.E_ZEROROWSCOLS)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_ZEROROWSCOLS)
       return false
     endif
 
@@ -342,32 +342,32 @@ export class HTMLMap extends Util.HTMLUtil
   #  Boolean: Whether a mapping was defined
   def Map(cmd: string, map: string, arg: string, opts: dict<any> = {}, internal: bool = false): bool
     if !g:htmlplugin->has_key('map_leader') && map =~? '^<lead>'
-      printf(HTMLMessagesO.E_NOMAPLEAD, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_NOMAPLEAD, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if !g:htmlplugin->has_key('entity_map_leader') && map =~? '^<elead>'
-      printf(HTMLMessagesO.E_NOEMAPLEAD, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_NOEMAPLEAD, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if map == '' || map ==? '<lead>' || map ==? '<elead>'
-      printf(HTMLMessagesO.E_EMPTYLHS, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_EMPTYLHS, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if arg == '' && map =~# '^\(nmap\|nnoremap\)$'
-      printf(HTMLMessagesO.E_EMPTYRHS, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_EMPTYRHS, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if cmd->strlen() <= 2
-      printf(HTMLMessagesO.E_NOFULL, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_NOFULL, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
     if cmd =~# '^no' || cmd =~# '^map$'
-      printf(HTMLMessagesO.E_NOMODE, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_NOMODE, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return false
     endif
 
@@ -496,7 +496,7 @@ export class HTMLMap extends Util.HTMLUtil
       if !this.BoolVar('g:htmlplugin.map_override') && internal
         return MapCheckR.nooverride
       else
-        printf(HTMLMessagesO.W_MAPOVERRIDE, map, Variables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->HTMLMessagesO.Warn()
+        printf(Messages.HTMLMessages.W_MAPOVERRIDE, map, Variables.HTMLVariables.MODES[mode], bufnr('%'), expand('%'))->HTMLMessagesO.Warn()
         return MapCheckR.override
       endif
     endif
@@ -600,7 +600,7 @@ export class HTMLMap extends Util.HTMLUtil
         execute $'normal `[v`]{b:htmlplugin.operator_action}'
       endif
     catch
-      printf(HTMLMessagesO.W_CAUGHTERR, v:exception)->HTMLMessagesO.Warn()
+      printf(Messages.HTMLMessages.W_CAUGHTERR, v:exception)->HTMLMessagesO.Warn()
     finally
       &selection = HTMLVariablesO.saveopts.selection
     endtry
@@ -660,7 +660,7 @@ export class HTMLMap extends Util.HTMLUtil
     try
       execute $'keepjumps :{range}normal! =='
     catch
-      printf(HTMLMessagesO.E_INDENTEXCEPT, v:exception)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_INDENTEXCEPT, v:exception)->HTMLMessagesO.Error()
     finally
       setcharpos('.', curpos)
     endtry
@@ -690,7 +690,7 @@ export class HTMLMap extends Util.HTMLUtil
     var column:  number
 
     if ! b:htmlplugin.smarttags->has_key(newtag)
-      printf(HTMLMessagesO.E_NOSMART, Messages.HTMLMessages.F(), newtag)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_NOSMART, Messages.HTMLMessages.F(), newtag)->HTMLMessagesO.Error()
       return ''
     endif
 
@@ -778,7 +778,7 @@ export class HTMLMap extends Util.HTMLUtil
           ->this.TokenReplace(fnamemodify(template, ':p:h'))
           ->append(0)
       else
-        printf(HTMLMessagesO.E_TEMPLATE, template)->HTMLMessagesO.Error()
+        printf(Messages.HTMLMessages.E_TEMPLATE, template)->HTMLMessagesO.Error()
         return false
       endif
     else

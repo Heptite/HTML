@@ -345,18 +345,18 @@ export class BrowserLauncher
     var as_msg:   list<string>
 
     if (!this._MacBrowserExists(app) && app !=? 'default')
-      printf(HTMLMessagesO.E_NOAPP, app)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_NOAPP, app)->HTMLMessagesO.Error()
       return false
     endif
 
     if url != ''
       file = url
     elseif expand('%') == ''
-      HTMLMessagesO.Error(HTMLMessagesO.E_NOFILE)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_NOFILE)
       return false
     else
       if &modified
-        HTMLMessagesO.Warn(HTMLMessagesO.W_UNSAVED)
+        HTMLMessagesO.Warn(Messages.HTMLMessages.W_UNSAVED)
       endif
       file = expand('%:p')
     endif
@@ -553,7 +553,7 @@ export class BrowserLauncher
     var file:     string
 
     if !this._UnixWindowsBrowserExists(which)
-      printf(HTMLMessagesO.E_UNKNOWN, which)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_UNKNOWN, which)->HTMLMessagesO.Error()
       return false
     endif
 
@@ -565,12 +565,12 @@ export class BrowserLauncher
       file = url
     elseif expand('%') != ''
       if &modified
-        HTMLMessagesO.Warn(HTMLMessagesO.W_UNSAVED)
+        HTMLMessagesO.Warn(Messages.HTMLMessages.W_UNSAVED)
       endif
 
       file = this._NativePath(expand('%:p'), which)
     else
-      HTMLMessagesO.Error(HTMLMessagesO.E_NOFILE)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_NOFILE)
       return false
     endif
 
@@ -578,7 +578,7 @@ export class BrowserLauncher
         && match(_TextModeBrowsers->keys(), $'^\c\V{which}\$') < 0
         && has('win32unix') == 0
       if _TextModeBrowsers->keys() == []
-        HTMLMessagesO.Error(HTMLMessagesO.E_DISPLAY)
+        HTMLMessagesO.Error(Messages.HTMLMessages.E_DISPLAY)
         return false
       else
         which = _TextModeBrowsers->keys()->sort('i')[0]
@@ -630,7 +630,7 @@ export class BrowserLauncher
         if HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
           command = ['rundll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
         else
-          HTMLMessagesO.Error(HTMLMessagesO.E_NOCOMMAND)
+          HTMLMessagesO.Error(Messages.HTMLMessages.E_NOCOMMAND)
           return false
         endif
       endif
@@ -641,7 +641,7 @@ export class BrowserLauncher
       return this._BackgroundJob(command)
     endif
 
-    HTMLMessagesO.E_FINAL->HTMLMessagesO.Error()
+    Messages.HTMLMessages.E_FINAL->HTMLMessagesO.Error()
     return false
   enddef
 
@@ -685,9 +685,9 @@ export class BrowserLauncher
         return true
       else
         if behavior == Behavior.newwindow
-          HTMLMessagesO.Error(printf(HTMLMessagesO.E_XTERM, _Browsers[browser]['realname']))
+          HTMLMessagesO.Error(printf(Messages.HTMLMessages.E_XTERM, _Browsers[browser]['realname']))
         else
-          HTMLMessagesO.Error(printf(HTMLMessagesO.E_TERM, _Browsers[browser]['realname']))
+          HTMLMessagesO.Error(printf(Messages.HTMLMessages.E_TERM, _Browsers[browser]['realname']))
         endif
 
         return false
@@ -696,7 +696,7 @@ export class BrowserLauncher
       execute $'!{_Browsers[browser]["path"]} {url->shellescape()}'
 
       if v:shell_error
-        printf(HTMLMessagesO.E_LAUNCH, _Browsers[browser]['realname'])->HTMLMessagesO.Error()
+        printf(Messages.HTMLMessages.E_LAUNCH, _Browsers[browser]['realname'])->HTMLMessagesO.Error()
         return false
       endif
 
@@ -723,7 +723,7 @@ export class BrowserLauncher
     })
 
     if job_status(job_id) == 'fail'
-      printf(HTMLMessagesO.E_COMMAND, newcommand)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_COMMAND, newcommand)->HTMLMessagesO.Error()
       return false
     endif
 

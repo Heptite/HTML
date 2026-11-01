@@ -113,7 +113,7 @@ export class HTMLUtil
       return value != {}
     endif
 
-    printf(HTMLMessagesO.E_BOOLTYPE, Messages.HTMLMessages.F(), value->typename())->HTMLMessagesO.Error()
+    printf(Messages.HTMLMessages.E_BOOLTYPE, Messages.HTMLMessages.F(), value->typename())->HTMLMessagesO.Error()
     return false
   enddef
 
@@ -165,7 +165,7 @@ export class HTMLUtil
   #  None
   def ColorChooser(how: string = 'i'): void
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
-      HTMLMessagesO.Error(HTMLMessagesO.E_NOSOURCED)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_NOSOURCED)
       return
     endif
 
@@ -299,7 +299,7 @@ export class HTMLUtil
     elseif type(s) == v:t_tuple
       str = s->tuple2list()
     else
-      printf(HTMLMessagesO.E_INVALIDTYPE, typename(str))->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_INVALIDTYPE, typename(str))->HTMLMessagesO.Error()
       return 0
     endif
 
@@ -315,7 +315,7 @@ export class HTMLUtil
     elseif case =~? '^l\%(ow\%(er\%(case\)\?\)\?\)\?'
       newstr = str->mapnew((_, value): string => value->substitute('\[{\(.\{-}\)}\]', '\L\1', 'g'))
     else
-      printf(HTMLMessagesO.W_INVALIDCASE, Messages.HTMLMessages.F(), case)->HTMLMessagesO.Warn()
+      printf(Messages.HTMLMessages.W_INVALIDCASE, Messages.HTMLMessages.F(), case)->HTMLMessagesO.Warn()
       newstr = str->this.ConvertCase('lowercase')
     endif
 
@@ -418,7 +418,7 @@ export class HTMLUtil
     var found: list<string> = file->findfile(path, -1)
 
     if len(found) <= 0
-      printf(HTMLMessagesO.E_NOTFOUND, file)->HTMLMessagesO.Warn()
+      printf(Messages.HTMLMessages.E_NOTFOUND, file)->HTMLMessagesO.Warn()
       return []
     endif
 
@@ -428,7 +428,7 @@ export class HTMLUtil
       if f->filereadable()
         contents->extend(f->readfile())
       else
-        printf(HTMLMessagesO.E_NOREAD, Messages.HTMLMessages.F(), f)->HTMLMessagesO.Error()
+        printf(Messages.HTMLMessages.E_NOREAD, Messages.HTMLMessages.F(), f)->HTMLMessagesO.Error()
       endif
 
       if ! all
@@ -532,14 +532,14 @@ export class HTMLUtil
     var variable = v
 
     if variable =~# '^l:'
-      printf(HTMLMessagesO.E_NOLOCALVAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_NOLOCALVAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return SetIfUnsetR.error
     elseif variable !~# '^[bgstvw]:'
       variable = $'g:{variable}'
     endif
 
     if args->len() == 0
-      printf(HTMLMessagesO.E_NARGS, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_NARGS, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       return SetIfUnsetR.error
     elseif type(args[0]) == v:t_list || type(args[0]) == v:t_dict
         || type(args[0]) == v:t_number
@@ -581,7 +581,7 @@ export class HTMLUtil
   #  String or List: The new text
   def TokenReplace(text: list<string>, path: string = ''): list<string>
     if type(text) != v:t_tuple && typename(text) != 'list<string>'
-      printf(HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), text)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_INVALIDARG, Messages.HTMLMessages.F(), text)->HTMLMessagesO.Error()
     endif
 
     var newpath: string
@@ -604,6 +604,7 @@ export class HTMLUtil
             ->substitute('\C%charset%', '\=this.DetectCharset()', 'g')
             ->substitute('\C%vimversion%', '\=(v:version / 100) .. "." .. (v:version % 100) .. "." .. (v:versionlong % 10000)', 'g')
             ->substitute('\C%htmlversion%', Variables.HTMLVariables.VERSION, 'g')
+            ->substitute('\C%htmlhomepage%', Variables.HTMLVariables.HOMEPAGE, 'g')
             ->substitute('\C%include\s\+\(.\{-1,}\)%',
               '\=this.FindAndRead(submatch(1), newpath, true, true)->join("%newline%")', 'g')
       )
@@ -637,7 +638,7 @@ export class HTMLUtil
       if g:htmlplugin->has_key('save_clipboard')
         &clipboard = g:htmlplugin.save_clipboard
       else
-        printf(HTMLMessagesO.E_NOCLIPBOARD, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+        printf(Messages.HTMLMessages.E_NOCLIPBOARD, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
         return false
       endif
     else
@@ -693,7 +694,7 @@ export class HTMLUtil
         endif
       endif
     catch
-      printf(HTMLMessagesO.E_OPTEXCEPTION, v:exception)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_OPTEXCEPTION, v:exception)->HTMLMessagesO.Error()
     endtry
   enddef
 
@@ -709,7 +710,7 @@ export class HTMLUtil
   #  String: The converted color
   def ToRGB(color: string, percent: bool = false): string
     if color !~ '^#\x\{6}$'
-      printf(HTMLMessagesO.E_COLOR, Messages.HTMLMessages.F(), color)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_COLOR, Messages.HTMLMessages.F(), color)->HTMLMessagesO.Error()
       return ''
     endif
 
@@ -754,7 +755,7 @@ export class HTMLUtil
       # currently I can't access HTMLMessagesO in a lambda, so just leave it
       # commented out:
       #if char->strchars(1) != 1
-      #  printf(HTMLMessagesO.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+      #  printf(Messages.HTMLMessages.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
       #  return char
       #endif
 

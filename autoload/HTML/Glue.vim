@@ -71,7 +71,7 @@ export class HTMLGlue extends Util.HTMLUtil
   #  Boolean: False for an error, true otherwise
   def PluginControl(dowhat: string): bool
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
-      HTMLMessagesO.Error(HTMLMessagesO.E_NOSOURCED)
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_NOSOURCED)
       return false
     endif
 
@@ -91,12 +91,12 @@ export class HTMLGlue extends Util.HTMLUtil
           HTMLMenuO.Control(Menu.ControlA.disable)
         endif
       else
-        HTMLMessagesO.Error(HTMLMessagesO.E_DISABLED)
+        HTMLMessagesO.Error(Messages.HTMLMessages.E_DISABLED)
         return false
       endif
     elseif dowhat =~? '^\%(e\%(nable\)\?\|on\|true\|1\)$'
       if this.BoolVar('b:htmlplugin.did_mappings')
-        HTMLMessagesO.Error(HTMLMessagesO.E_ENABLED)
+        HTMLMessagesO.Error(Messages.HTMLMessages.E_ENABLED)
       else
         this.ReadEntities(false, true)
         this.ReadTags(false, true)
@@ -113,7 +113,7 @@ export class HTMLGlue extends Util.HTMLUtil
         startinsert
       endif
     else
-      printf(HTMLMessagesO.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->HTMLMessagesO.Error()
+      printf(Messages.HTMLMessages.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->HTMLMessagesO.Error()
       return false
     endif
 
@@ -136,13 +136,13 @@ export class HTMLGlue extends Util.HTMLUtil
     var json_data: list<list<any>> = this.ReadJsonFile(file)
 
     if json_data == []
-      printf(HTMLMessagesO.E_NOENTITY)
+      printf(Messages.HTMLMessages.E_NOENTITY)
       return false
     endif
 
     for json: list<any> in json_data
       if json->len() != 4 || json[2]->type() != v:t_list
-        printf(HTMLMessagesO.E_JSON, Messages.HTMLMessages.F(), file, json->string())->HTMLMessagesO.Error()
+        printf(Messages.HTMLMessages.E_JSON, Messages.HTMLMessages.F(), file, json->string())->HTMLMessagesO.Error()
         rval = false
         continue
       endif
@@ -183,7 +183,7 @@ export class HTMLGlue extends Util.HTMLUtil
     var json_data: list<dict<any>> = this.ReadJsonFile(file)
 
     if json_data == []
-      printf(HTMLMessagesO.E_NOTAG)
+      printf(Messages.HTMLMessages.E_NOTAG)
       return false
     endif
 
@@ -287,8 +287,8 @@ export class HTMLGlue extends Util.HTMLUtil
           # actually defined, don't set the menu items for this mapping either:
           if did_mappings == 0
             if maplhs != ''
-              HTMLMessagesO.Warn(printf(HTMLMessagesO.W_NOMAPDEFINED, maplhs,
-                domenu && json->has_key('menu') ? '' : HTMLMessagesO.W_SKIPPEDMENU))
+              HTMLMessagesO.Warn(printf(Messages.HTMLMessages.W_NOMAPDEFINED, maplhs,
+                domenu && json->has_key('menu') ? '' : Messages.HTMLMessages.W_SKIPPEDMENU))
             endif
             continue
           endif
@@ -335,7 +335,7 @@ export class HTMLGlue extends Util.HTMLUtil
           endif
 
           if did_menus == 0
-            printf(HTMLMessagesO.W_NOMENU, json.menu[1][-1])->HTMLMessagesO.Warn()
+            printf(Messages.HTMLMessages.W_NOMENU, json.menu[1][-1])->HTMLMessagesO.Warn()
           endif
         endif
     endfor
