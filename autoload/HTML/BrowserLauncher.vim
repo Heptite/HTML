@@ -597,7 +597,7 @@ export class BrowserLauncher
     # If we haven't already defined a command, we are going to use a GUI
     # browser:
     if command == []
-      command = _GetGUICommand(which, file, dowhat)
+      command = this._GetGUICommand(which, file, dowhat)
     endif
 
     if command != []
