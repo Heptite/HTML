@@ -5,8 +5,8 @@
 		"lhs": "&",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'e')<CR><ESC>", {"extra": false}],
-			"o": ["", {"insert": false}]
+			"v": ["s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'e')<CR><ESC>", {"extra": false}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["Character &Entities", "Convert to Entities"], {
@@ -18,8 +18,8 @@
 		"lhs": "*",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'x')<CR><ESC>", {"extra": false}],
-			"o": ["", {"insert": false}]
+			"v": ["s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'x')<CR><ESC>", {"extra": false}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["Character Entities", "Convert to Hexadecimal Entities"], {
@@ -31,8 +31,8 @@
 		"lhs": "%",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", '%')<CR><ESC>", {"extra": false}],
-			"o": ["", {"insert": false}]
+			"v": ["s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", '%')<CR><ESC>", {"extra": false}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["Character &Entities", "Convert to %XX (URI Encode)"], {
@@ -44,8 +44,8 @@
 		"lhs": "^",
 
 		"maps": {
-			"v": ["", "s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'd')<CR><ESC>", {"extra": false}],
-			"o": ["", {"insert": false}]
+			"v": ["s<C-R><C-R>=b:htmlplugin.HTMLMapO.TranscodeString(@\", 'd')<CR><ESC>", {"extra": false}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["Character &Entities", "Convert from Entities and URI/%XX"], {
@@ -57,9 +57,9 @@
 		"lhs": "cc",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>b:htmlplugin.HTMLUtilO.ColorChooser()<CR>"],
-			"i": ["", "<ScriptCmd>b:htmlplugin.HTMLUtilO.ColorChooser()<CR>", {"extra": false}],
-			"v": ["", "s<ScriptCmd>b:htmlplugin.HTMLUtilO.ColorChooser()<CR>", {"extra": false}]
+			"n": ["<ScriptCmd>b:htmlplugin.HTMLUtilO.ColorChooser()<CR>"],
+			"i": ["<ScriptCmd>b:htmlplugin.HTMLUtilO.ColorChooser()<CR>", {"extra": false}],
+			"v": ["s<ScriptCmd>b:htmlplugin.HTMLUtilO.ColorChooser()<CR>", {"extra": false}]
 		},
 
 		"menu": ["-", ["&Colors", "Display All && Select"], {
@@ -75,9 +75,9 @@
 		"lhs": "bo",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('b', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('b', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('b', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('b', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "&Bold"], {
@@ -103,9 +103,9 @@
 		"lhs": "st",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('strong', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('strong', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('strong', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('strong', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "&Strong"], {
@@ -131,9 +131,9 @@
 		"lhs": "it",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('i', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('i', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('i', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('i', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "&Italics"], {
@@ -159,9 +159,9 @@
 		"lhs": "em",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('em', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('em', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('em', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('em', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "&Emphasis"], {
@@ -187,9 +187,9 @@
 		"lhs": "un",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('u', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('u', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('u', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('u', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "&Underline"], {
@@ -215,9 +215,9 @@
 		"lhs": "bi",
 
 		"maps": {
-			"i": ["", "<[{SPAN STYLE}]=\"font-size: larger;\"></[{SPAN}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"font-size: larger;\">\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{SPAN STYLE}]=\"font-size: larger;\"></[{SPAN}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"font-size: larger;\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Bi&g"], {
@@ -229,9 +229,9 @@
 		"lhs": "sm",
 
 		"maps": {
-			"i": ["", "<[{SPAN STYLE}]=\"font-size: smaller;\"></[{SPAN}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"font-size: smaller;\">\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{SPAN STYLE}]=\"font-size: smaller;\"></[{SPAN}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"font-size: smaller;\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "S&mall"], {
@@ -245,9 +245,9 @@
 		"lhs": "fo",
 
 		"maps": {
-			"i": ["", "<[{SPAN STYLE}]=\"font-size: ;\"></[{SPAN}]>\\<C-O>F;"],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"font-size: ;\">\\<C-O>F;", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{SPAN STYLE}]=\"font-size: ;\"></[{SPAN}]>\\<C-O>F;"],
+			"v": ["\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"font-size: ;\">\\<C-O>F;", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Font Si&ze"], {
@@ -259,9 +259,9 @@
 		"lhs": "fc",
 
 		"maps": {
-			"i": ["", "<[{SPAN STYLE}]=\"color: ;\"></[{SPAN}]>\\<C-O>F;"],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"color: ;\">\\<C-O>F;", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{SPAN STYLE}]=\"color: ;\"></[{SPAN}]>\\<C-O>F;"],
+			"v": ["\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"color: ;\">\\<C-O>F;", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Font &Color"], {
@@ -275,9 +275,9 @@
 		"lhs": "ci",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('cite', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('cite', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('cite', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('cite', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "CITE"], {
@@ -303,9 +303,9 @@
 		"lhs": "co",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('code', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('code', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('code', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('code', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "CODE"], {
@@ -331,9 +331,9 @@
 		"lhs": "in",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('ins', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('ins', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('ins', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('ins', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Inserted Text"], {
@@ -359,9 +359,9 @@
 		"lhs": "de",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('del', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('del', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('del', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('del', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Deleted Text"], {
@@ -387,9 +387,9 @@
 		"lhs": "kb",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('kbd', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('kbd', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('kbd', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('kbd', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Keyboard Text"], {
@@ -415,9 +415,9 @@
 		"lhs": "sa",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('samp', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('samp', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('samp', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('samp', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Sample Text"], {
@@ -443,9 +443,9 @@
 		"lhs": "sb",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('sub', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('sub', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('sub', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('sub', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Subscript"], {
@@ -471,9 +471,9 @@
 		"lhs": "sp",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('sup', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('sup', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('sup', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('sup', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Superscript"], {
@@ -499,9 +499,9 @@
 		"lhs": "tt",
 
 		"maps": {
-			"i": ["", "<[{SPAN STYLE}]=\"font-family: monospace;\"></[{SPAN}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"font-family: monospace;\">\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{SPAN STYLE}]=\"font-family: monospace;\"></[{SPAN}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"font-family: monospace;\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Teletype Text"], {
@@ -513,9 +513,9 @@
 		"lhs": "va",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('var', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('var', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('var', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('var', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Font Styles", "Variable"], {
@@ -541,9 +541,9 @@
 		"lhs": "fm",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('form', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('form', 'v')", {"expr": true, "reindent": 1}],
-			"o": ["", {"insert": true}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('form', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('form', 'v')", {"expr": true, "reindent": 1}],
+			"o": [{"insert": true}]
 		},
 
 
@@ -569,9 +569,9 @@
 		"lhs": "fd",
 
 		"maps": {
-			"i": ["", "<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR></[{FIELDSET}]>\\<ESC>k$F<i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{FIELDSET}]>\\<C-O>`<<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR>\\<ESC>k$F<", {"reindent": 2, "insert": false}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR></[{FIELDSET}]>\\<ESC>k$F<i"],
+			"v": ["\\<ESC>`>a\\<CR></[{FIELDSET}]>\\<C-O>`<<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR>\\<ESC>k$F<", {"reindent": 2, "insert": false}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["F&orms", "FIELDSET"], {
@@ -583,9 +583,9 @@
 		"lhs": "bu",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"BUTTON\" NAME=\"\" VALUE}]=\"\" />\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"BUTTON\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"BUTTON\" NAME=\"\" VALUE}]=\"\" />\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"BUTTON\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "BUTTON"], {
@@ -597,9 +597,9 @@
 		"lhs": "ch",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"CHECKBOX\" NAME=\"\" VALUE}]=\"\" />\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"CHECKBOX\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"CHECKBOX\" NAME=\"\" VALUE}]=\"\" />\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"CHECKBOX\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "CHECKBOX"], {
@@ -611,9 +611,9 @@
 		"lhs": "da",
 
 		"maps": {
-			"i": ["", "<[{INPUT LIST}]=\"\">\\<CR><[{DATALIST ID}]=\"\">\\<CR></[{DATALIST}]>\\<CR></[{INPUT}]>\\<ESC>kkk$F\"i"],
-			"v": ["", "s<[{INPUT LIST}]=\"\\<C-R>\"\">\\<CR><[{DATALIST ID}]=\"\\<C-R>\"\">\\<CR></[{DATALIST}]>\\<CR></[{INPUT}]>\\<ESC>kO", {"reindent": 2, "insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT LIST}]=\"\">\\<CR><[{DATALIST ID}]=\"\">\\<CR></[{DATALIST}]>\\<CR></[{INPUT}]>\\<ESC>kkk$F\"i"],
+			"v": ["s<[{INPUT LIST}]=\"\\<C-R>\"\">\\<CR><[{DATALIST ID}]=\"\\<C-R>\"\">\\<CR></[{DATALIST}]>\\<CR></[{INPUT}]>\\<ESC>kO", {"reindent": 2, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "DATALIST"], {
@@ -625,9 +625,9 @@
 		"lhs": "cl",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"DATE\" NAME}]=\"\" />\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"DATE\" NAME}]=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{INPUT TYPE=\"DATE\" NAME}]=\"\" />\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"DATE\" NAME}]=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["F&orms", "DATE"], {
@@ -639,9 +639,9 @@
 		"lhs": "ra",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"RADIO\" NAME=\"\" VALUE}]=\"\" />\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"RADIO\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"RADIO\" NAME=\"\" VALUE}]=\"\" />\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"RADIO\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "RADIO"], {
@@ -653,9 +653,9 @@
 		"lhs": "rn",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"RANGE\" NAME=\"\" MIN=\"\" MAX}]=\"\" />\\<C-O>5F\""],
-			"v": ["", "\\<ESC>`>a\" [{MIN=\"\" MAX}]=\"\" />\\<C-O>`<<[{INPUT TYPE=\"RANGE\" NAME}]=\"\\<C-O>3f\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"RANGE\" NAME=\"\" MIN=\"\" MAX}]=\"\" />\\<C-O>5F\""],
+			"v": ["\\<ESC>`>a\" [{MIN=\"\" MAX}]=\"\" />\\<C-O>`<<[{INPUT TYPE=\"RANGE\" NAME}]=\"\\<C-O>3f\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "RANGE"], {
@@ -667,9 +667,9 @@
 		"lhs": "hi",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"HIDDEN\" NAME=\"\" VALUE}]=\"\" />\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"HIDDEN\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"HIDDEN\" NAME=\"\" VALUE}]=\"\" />\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"HIDDEN\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "HIDDEN"], {
@@ -681,9 +681,9 @@
 		"lhs": "@",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"EMAIL\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
-			"v": ["", "\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"EMAIL\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"EMAIL\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
+			"v": ["\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"EMAIL\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "EMAIL"], {
@@ -695,9 +695,9 @@
 		"lhs": "nu",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"NUMBER\" NAME=\"\" VALUE=\"\" STYLE}]=\"width: 5em;\" />\\<C-O>5F\""],
-			"v": ["", "\\<ESC>`>a\" [{STYLE}]=\"width: 5em;\" />\\<C-O>`<<[{INPUT TYPE=\"NUMBER\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"NUMBER\" NAME=\"\" VALUE=\"\" STYLE}]=\"width: 5em;\" />\\<C-O>5F\""],
+			"v": ["\\<ESC>`>a\" [{STYLE}]=\"width: 5em;\" />\\<C-O>`<<[{INPUT TYPE=\"NUMBER\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "NUMBER"], {
@@ -709,9 +709,9 @@
 		"lhs": "op",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('option', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('option', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('option', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('option', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["F&orms", "OPTION"], {
@@ -737,9 +737,9 @@
 		"lhs": "og",
 
 		"maps": {
-			"i": ["", "<[{OPTGROUP LABEL}]=\"\">\\<CR></[{OPTGROUP}]>\\<ESC>k$F\"i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{OPTGROUP}]>\\<C-O>`<<[{OPTGROUP LABEL}]=\"\">\\<CR>\\<ESC>k$F\"i", {"reindent": 1, "insert": true}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{OPTGROUP LABEL}]=\"\">\\<CR></[{OPTGROUP}]>\\<ESC>k$F\"i"],
+			"v": ["\\<ESC>`>a\\<CR></[{OPTGROUP}]>\\<C-O>`<<[{OPTGROUP LABEL}]=\"\">\\<CR>\\<ESC>k$F\"i", {"reindent": 1, "insert": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["F&orms", "OPTGROUP"], {
@@ -751,9 +751,9 @@
 		"lhs": "ou",
 
 		"maps": {
-			"i": ["", "<[{OUTPUT NAME}]=\"\"></[{OUTPUT}]>\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a</[{OUTPUT}]>\\<C-O>`<<[{OUTPUT NAME}]=\"\">\\<C-O>F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{OUTPUT NAME}]=\"\"></[{OUTPUT}]>\\<C-O>F\""],
+			"v": ["\\<ESC>`>a</[{OUTPUT}]>\\<C-O>`<<[{OUTPUT NAME}]=\"\">\\<C-O>F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "OUTPUT"], {
@@ -762,9 +762,11 @@
 	},
 
 	{
+		"lhs": "oU",
+
 		"maps": {
-			"v": ["oU", "\\<ESC>`>a\"></[{OUTPUT}]>\\<C-O>`<<[{OUTPUT NAME}]=\"\\<C-O>f<", {"insert": true}],
-			"o": ["oU", {"insert": true}]
+			"v": ["\\<ESC>`>a\"></[{OUTPUT}]>\\<C-O>`<<[{OUTPUT NAME}]=\"\\<C-O>f<", {"insert": true}],
+			"o": [{"insert": true}]
 		}
 	},
 
@@ -772,9 +774,9 @@
 		"lhs": "pa",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"PASSWORD\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
-			"v": ["", "\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"PASSWORD\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"PASSWORD\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
+			"v": ["\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"PASSWORD\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "PASSWORD"], {
@@ -786,9 +788,9 @@
 		"lhs": "nt",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"TIME\" NAME}]=\"\" />\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"TIME\" NAME}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"TIME\" NAME}]=\"\" />\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{INPUT TYPE=\"TIME\" NAME}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "TIME"], {
@@ -800,9 +802,9 @@
 		"lhs": "#",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"TEL\" NAME=\"\" VALUE=\"\" SIZE}]=\"15\" />\\<C-O>5F\""],
-			"v": ["", "\\<ESC>`>a\" [{SIZE}]=\"15\" />\\<C-O>`<<[{INPUT TYPE=\"TEL\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"TEL\" NAME=\"\" VALUE=\"\" SIZE}]=\"15\" />\\<C-O>5F\""],
+			"v": ["\\<ESC>`>a\" [{SIZE}]=\"15\" />\\<C-O>`<<[{INPUT TYPE=\"TEL\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "TEL"], {
@@ -814,9 +816,9 @@
 		"lhs": "te",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"TEXT\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
-			"v": ["", "\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"TEXT\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"TEXT\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
+			"v": ["\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"TEXT\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "TEXT"], {
@@ -828,9 +830,9 @@
 		"lhs": "fi",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"FILE\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
-			"v": ["", "\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"FILE\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"FILE\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
+			"v": ["\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"FILE\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "FILE"], {
@@ -842,9 +844,9 @@
 		"lhs": "se",
 
 		"maps": {
-			"i": ["", "<[{SELECT NAME}]=\"\">\\<CR></[{SELECT}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{SELECT}]>\\<C-O>`<<[{SELECT NAME}]=\"\">\\<CR>\\<ESC>k$F\"i", {"reindent": 1, "insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{SELECT NAME}]=\"\">\\<CR></[{SELECT}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{SELECT}]>\\<C-O>`<<[{SELECT NAME}]=\"\">\\<CR>\\<ESC>k$F\"i", {"reindent": 1, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "SELECT"], {
@@ -856,9 +858,9 @@
 		"lhs": "ms",
 
 		"maps": {
-			"i": ["", "<[{SELECT NAME=\"\" MULTIPLE}]>\\<CR></[{SELECT}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{SELECT}]>\\<C-O>`<<[{SELECT NAME=\"\" MULTIPLE}]>\\<CR>\\<ESC>k$F\"i", {"reindent": 1, "insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{SELECT NAME=\"\" MULTIPLE}]>\\<CR></[{SELECT}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{SELECT}]>\\<C-O>`<<[{SELECT NAME=\"\" MULTIPLE}]>\\<CR>\\<ESC>k$F\"i", {"reindent": 1, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "SELECT MULTIPLE"], {
@@ -870,9 +872,9 @@
 		"lhs": "tx",
 
 		"maps": {
-			"i": ["", "<[{TEXTAREA NAME=\"\" ROWS=\"10\" COLS}]=\"50\">\\<CR></[{TEXTAREA}]>\\<ESC>k$5F\"i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{TEXTAREA}]>\\<C-O>`<<[{TEXTAREA NAME=\"\" ROWS=\"10\" COLS}]=\"50\">\\<CR>\\<ESC>k$5F\"i", {"reindent": 1, "insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{TEXTAREA NAME=\"\" ROWS=\"10\" COLS}]=\"50\">\\<CR></[{TEXTAREA}]>\\<ESC>k$5F\"i"],
+			"v": ["\\<ESC>`>a\\<CR></[{TEXTAREA}]>\\<C-O>`<<[{TEXTAREA NAME=\"\" ROWS=\"10\" COLS}]=\"50\">\\<CR>\\<ESC>k$5F\"i", {"reindent": 1, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "TEXTAREA"], {
@@ -884,9 +886,9 @@
 		"lhs": "ur",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"URL\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
-			"v": ["", "\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"URL\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{INPUT TYPE=\"URL\" NAME=\"\" VALUE=\"\" SIZE}]=\"20\" />\\<C-O>5F\""],
+			"v": ["\\<ESC>`>a\" [{SIZE}]=\"20\" />\\<C-O>`<<[{INPUT TYPE=\"URL\" NAME=\"\" VALUE}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "URL"], {
@@ -898,7 +900,7 @@
 		"lhs": "su",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"SUBMIT\" VALUE}]=\"Submit\" />"]
+			"i": ["<[{INPUT TYPE=\"SUBMIT\" VALUE}]=\"Submit\" />"]
 		},
 
 		"menu": ["-", ["F&orms", "SUBMIT"], {
@@ -910,7 +912,7 @@
 		"lhs": "re",
 
 		"maps": {
-			"i": ["", "<[{INPUT TYPE=\"RESET\" VALUE}]=\"Reset\" />"]
+			"i": ["<[{INPUT TYPE=\"RESET\" VALUE}]=\"Reset\" />"]
 		},
 
 		"menu": ["-", ["F&orms", "RESET"], {
@@ -922,9 +924,9 @@
 		"lhs": "la",
 
 		"maps": {
-			"i": ["", "<[{LABEL FOR=\"\"></LABEL}]>\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a</[{LABEL}]>\\<C-O>`<<[{LABEL FOR}]=\"\">\\<C-O>F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{LABEL FOR=\"\"></LABEL}]>\\<C-O>F\""],
+			"v": ["\\<ESC>`>a</[{LABEL}]>\\<C-O>`<<[{LABEL FOR}]=\"\">\\<C-O>F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["F&orms", "LABEL"], {
@@ -933,9 +935,11 @@
 	},
 
 	{
+		"lhs": "lA",
+
 		"maps": {
-			"v": ["lA", "\\<ESC>`>a\"></[{LABEL}]>\\<C-O>`<<[{LABEL FOR}]=\"\\<C-O>f<", {"insert": true}],
-			"o": ["lA", {"insert": true}]
+			"v": ["\\<ESC>`>a\"></[{LABEL}]>\\<C-O>`<<[{LABEL FOR}]=\"\\<C-O>f<", {"insert": true}],
+			"o": [{"insert": true}]
 		}
 	},
 
@@ -943,9 +947,9 @@
 		"lhs": "bd",
 
 		"maps": {
-			"i": ["", "<[{BODY}]>\\<CR></[{BODY}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{BODY}]>\\<C-O>`<<[{BODY}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{BODY}]>\\<CR></[{BODY}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{BODY}]>\\<C-O>`<<[{BODY}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "BODY"], {
@@ -957,9 +961,9 @@
 		"lhs": "bn",
 
 		"maps": {
-			"i": ["", "<[{BUTTON TYPE}]=\"button\"></[{BUTTON}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{BUTTON}]>\\<C-O>`<<[{BUTTON TYPE}]=\"button\">\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{BUTTON TYPE}]=\"button\"></[{BUTTON}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{BUTTON}]>\\<C-O>`<<[{BUTTON TYPE}]=\"button\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "BUTTON"], {
@@ -971,9 +975,9 @@
 		"lhs": "ce",
 
 		"maps": {
-			"i": ["", "<[{DIV STYLE}]=\"text-align: center;\">\\<CR></[{DIV}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{DIV}]>\\<C-O>`<<[{DIV STYLE}]=\"text-align: center;\">\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{DIV STYLE}]=\"text-align: center;\">\\<CR></[{DIV}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{DIV}]>\\<C-O>`<<[{DIV STYLE}]=\"text-align: center;\">\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "CENTER"], {
@@ -985,9 +989,9 @@
 		"lhs": "he",
 
 		"maps": {
-			"i": ["", "<[{HEAD}]>\\<CR></[{HEAD}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{HEAD}]>\\<C-O>`<<[{HEAD}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{HEAD}]>\\<CR></[{HEAD}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{HEAD}]>\\<C-O>`<<[{HEAD}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "HEAD"], {
@@ -999,7 +1003,7 @@
 		"lhs": "hr",
 
 		"maps": {
-			"i": ["", "<[{HR}] />"]
+			"i": ["<[{HR}] />"]
 		},
 
 		"menu": ["-", ["&General Tags", "Horizontal Rule"], {
@@ -1008,8 +1012,10 @@
 	},
 
 	{
+		"lhs": "Hr",
+
 		"maps": {
-			"i": ["Hr", "<[{HR STYLE}]=\"width: 75%;\" />"]
+			"i": ["<[{HR STYLE}]=\"width: 75%;\" />"]
 		}
 	},
 
@@ -1023,9 +1029,9 @@
 		"lhs": "ah",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('a1', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('a1', 'v')", {"expr": true, "insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('a1', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('a1', 'v')", {"expr": true, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&General Tags", "Hyperlink"], {
@@ -1048,10 +1054,12 @@
 	},
 
 	{
+		"lhs": "aH",
+
 		"maps": {
-			"i": ["aH", "b:htmlplugin.HTMLMapO.SmartTag('a2', 'i')", {"expr": true}],
-			"v": ["aH", "b:htmlplugin.HTMLMapO.SmartTag('a2', 'v')", {"expr": true, "insert": true}],
-			"o": ["aH", {"insert": true}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('a2', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('a2', 'v')", {"expr": true, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"smarttag": {
@@ -1070,10 +1078,12 @@
 	},
 
 	{
+		"lhs": "at",
+
 		"maps": {
-			"i": ["at", "b:htmlplugin.HTMLMapO.SmartTag('a3', 'i')", {"expr": true}],
-			"v": ["at", "b:htmlplugin.HTMLMapO.SmartTag('a3', 'v')", {"expr": true, "insert": true}],
-			"o": ["at", {"insert": true}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('a3', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('a3', 'v')", {"expr": true, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"smarttag": {
@@ -1092,10 +1102,12 @@
 	},
 
 	{
+		"lhs": "aT",
+
 		"maps": {
-			"i": ["aT", "b:htmlplugin.HTMLMapO.SmartTag('a4', 'i')", {"expr": true}],
-			"v": ["aT", "b:htmlplugin.HTMLMapO.SmartTag('a4', 'v')", {"expr": true, "insert": true}],
-			"o": ["aT", {"insert": true}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('a4', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('a4', 'v')", {"expr": true, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"smarttag": {
@@ -1117,9 +1129,9 @@
 		"lhs": "im",
 
 		"maps": {
-			"i": ["", "<[{IMG SRC=\"\" ALT}]=\"\" />\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{IMG SRC=\"\" ALT}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{IMG SRC=\"\" ALT}]=\"\" />\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{IMG SRC=\"\" ALT}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&General Tags", "Inline Image"], {
@@ -1128,10 +1140,12 @@
 	},
 
 	{
+		"lhs": "iM",
+
 		"maps": {
-			"i": ["iM", "<[{IMG SRC=\"\\<C-R>*\" ALT}]=\"\" />\\<C-O>F\""],
-			"v": ["iM", "\\<ESC>`>a\" [{ALT}]=\"\" />\\<C-O>`<<[{IMG SRC}]=\"\\<C-O>3f\"", {"insert": true}],
-			"o": ["iM", {"insert": true}]
+			"i": ["<[{IMG SRC=\"\\<C-R>*\" ALT}]=\"\" />\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" [{ALT}]=\"\" />\\<C-O>`<<[{IMG SRC}]=\"\\<C-O>3f\"", {"insert": true}],
+			"o": [{"insert": true}]
 		}
 	},
 
@@ -1139,9 +1153,9 @@
 		"lhs": "mi",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>b:htmlplugin.MangleImageTagO.Update()<CR>"],
-			"i": ["", "<ScriptCmd>b:htmlplugin.MangleImageTagO.Update()<CR>", {"extra": false}],
-			"v": ["", "<ScriptCmd>b:htmlplugin.MangleImageTagO.Update()<CR>", {"extra": false}]
+			"n": ["<ScriptCmd>b:htmlplugin.MangleImageTagO.Update()<CR>"],
+			"i": ["<ScriptCmd>b:htmlplugin.MangleImageTagO.Update()<CR>", {"extra": false}],
+			"v": ["<ScriptCmd>b:htmlplugin.MangleImageTagO.Update()<CR>", {"extra": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "Update Image Size Attributes"], {
@@ -1153,7 +1167,7 @@
 		"lhs": "br",
 
 		"maps": {
-			"i": ["", "<[{BR}] />"]
+			"i": ["<[{BR}] />"]
 		},
 
 		"menu": ["-", ["&General Tags", "Line Break"], {
@@ -1165,9 +1179,9 @@
 		"lhs": "pp",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('p', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('p', 'v')", {"expr": true, "reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('p', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('p', 'v')", {"expr": true, "reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "Paragraph"], {
@@ -1190,8 +1204,10 @@
 	},
 
 	{
+		"lhs": "/p",
+
 		"maps": {
-			"i": ["/p", "</[{P}]>\\<CR>\\<CR><[{P}]>\\<CR>"]
+			"i": ["</[{P}]>\\<CR>\\<CR><[{P}]>\\<CR>"]
 		}
 	},
 
@@ -1199,9 +1215,9 @@
 		"lhs": "pr",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('pre', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('pre', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('pre', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('pre', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "Preformatted Text"], {
@@ -1227,9 +1243,9 @@
 		"lhs": "ti",
 
 		"maps": {
-			"i": ["", "<[{TITLE></TITLE}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{TITLE}]>\\<C-O>`<<[{TITLE}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{TITLE></TITLE}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{TITLE}]>\\<C-O>`<<[{TITLE}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&General Tags", "TITLE"], {
@@ -1241,9 +1257,9 @@
 		"lhs": "h1",
 
 		"maps": {
-			"i": ["", "<[{H1}]></[{H1}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{H1}]>\\<C-O>`<<[{H1}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{H1}]></[{H1}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H1}]>\\<C-O>`<<[{H1}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Headings", "Heading Level 1"], {
@@ -1252,10 +1268,12 @@
 	},
 
 	{
+		"lhs": "H1",
+
 		"maps": {
-			"i": ["H1", "<[{H1 STYLE}]=\"text-align: center;\"></[{H1}]>\\<C-O>F<"],
-			"v": ["H1", "\\<ESC>`>a</[{H1}]>\\<C-O>`<<[{H1 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
-			"o": ["H1", {"insert": false}]
+			"i": ["<[{H1 STYLE}]=\"text-align: center;\"></[{H1}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H1}]>\\<C-O>`<<[{H1 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		}
 	},
 
@@ -1263,9 +1281,9 @@
 		"lhs": "h2",
 
 		"maps": {
-			"i": ["", "<[{H2}]></[{H2}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{H2}]>\\<C-O>`<<[{H2}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{H2}]></[{H2}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H2}]>\\<C-O>`<<[{H2}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Headings", "Heading Level 2"], {
@@ -1274,10 +1292,12 @@
 	},
 
 	{
+		"lhs": "H2",
+
 		"maps": {
-			"i": ["H2", "<[{H2 STYLE}]=\"text-align: center;\"></[{H2}]>\\<C-O>F<"],
-			"v": ["H2", "\\<ESC>`>a</[{H2}]>\\<C-O>`<<[{H2 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
-			"o": ["H2", {"insert": false}]
+			"i": ["<[{H2 STYLE}]=\"text-align: center;\"></[{H2}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H2}]>\\<C-O>`<<[{H2 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		}
 	},
 
@@ -1285,9 +1305,9 @@
 		"lhs": "h3",
 
 		"maps": {
-			"i": ["", "<[{H3}]></[{H3}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{H3}]>\\<C-O>`<<[{H3}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{H3}]></[{H3}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H3}]>\\<C-O>`<<[{H3}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Headings", "Heading Level 3"], {
@@ -1296,10 +1316,12 @@
 	},
 
 	{
+		"lhs": "H3",
+
 		"maps": {
-			"i": ["H3", "<[{H3 STYLE}]=\"text-align: center;\"></[{H3}]>\\<C-O>F<"],
-			"v": ["H3", "\\<ESC>`>a</[{H3}]>\\<C-O>`<<[{H3 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
-			"o": ["H3", {"insert": false}]
+			"i": ["<[{H3 STYLE}]=\"text-align: center;\"></[{H3}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H3}]>\\<C-O>`<<[{H3 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		}
 	},
 
@@ -1307,9 +1329,9 @@
 		"lhs": "h4",
 
 		"maps": {
-			"i": ["", "<[{H4}]></[{H4}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{H4}]>\\<C-O>`<<[{H4}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{H4}]></[{H4}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H4}]>\\<C-O>`<<[{H4}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Headings", "Heading Level 4"], {
@@ -1318,10 +1340,12 @@
 	},
 
 	{
+		"lhs": "H4",
+
 		"maps": {
-			"i": ["H4", "<[{H4 STYLE}]=\"text-align: center;\"></[{H4}]>\\<C-O>F<"],
-			"v": ["H4", "\\<ESC>`>a</[{H4}]>\\<C-O>`<<[{H4 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
-			"o": ["H4", {"insert": false}]
+			"i": ["<[{H4 STYLE}]=\"text-align: center;\"></[{H4}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H4}]>\\<C-O>`<<[{H4 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		}
 	},
 
@@ -1329,9 +1353,9 @@
 		"lhs": "h5",
 
 		"maps": {
-			"i": ["", "<[{H5}]></[{H5}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{H5}]>\\<C-O>`<<[{H5}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{H5}]></[{H5}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H5}]>\\<C-O>`<<[{H5}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Headings", "Heading Level 5"], {
@@ -1340,10 +1364,12 @@
 	},
 
 	{
+		"lhs": "H5",
+
 		"maps": {
-			"i": ["H5", "<[{H5 STYLE}]=\"text-align: center;\"></[{H5}]>\\<C-O>F<"],
-			"v": ["H5", "\\<ESC>`>a</[{H5}]>\\<C-O>`<<[{H5 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
-			"o": ["H5", {"insert": false}]
+			"i": ["<[{H5 STYLE}]=\"text-align: center;\"></[{H5}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H5}]>\\<C-O>`<<[{H5 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		}
 	},
 
@@ -1351,9 +1377,9 @@
 		"lhs": "h6",
 
 		"maps": {
-			"i": ["", "<[{H6}]></[{H6}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{H6}]>\\<C-O>`<<[{H6}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{H6}]></[{H6}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H6}]>\\<C-O>`<<[{H6}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Headings", "Heading Level 6"], {
@@ -1362,10 +1388,12 @@
 	},
 
 	{
+		"lhs": "H6",
+
 		"maps": {
-			"i": ["H6", "<[{H6 STYLE}]=\"text-align: center;\"></[{H6}]>\\<C-O>F<"],
-			"v": ["H6", "\\<ESC>`>a</[{H6}]>\\<C-O>`<<[{H6 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
-			"o": ["H6", {"insert": false}]
+			"i": ["<[{H6 STYLE}]=\"text-align: center;\"></[{H6}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{H6}]>\\<C-O>`<<[{H6 STYLE}]=\"text-align: center;\">\\<ESC>", {}],
+			"o": [{"insert": false}]
 		}
 	},
 
@@ -1373,9 +1401,9 @@
 		"lhs": "hg",
 
 		"maps": {
-			"i": ["", "<[{HGROUP}]>\\<CR></[{HGROUP}]>\\<C-O>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{HGROUP}]>\\<C-O>`<<[{HGROUP}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{HGROUP}]>\\<CR></[{HGROUP}]>\\<C-O>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{HGROUP}]>\\<C-O>`<<[{HGROUP}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Headings", "Heading Grouping"], {
@@ -1387,9 +1415,9 @@
 		"lhs": "ar",
 
 		"maps": {
-			"i": ["", "<[{ARTICLE}]>\\<CR></[{ARTICLE}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{ARTICLE}]>\\<C-O>`<<[{ARTICLE}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{ARTICLE}]>\\<CR></[{ARTICLE}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{ARTICLE}]>\\<C-O>`<<[{ARTICLE}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&ARTICLE"], {
@@ -1401,9 +1429,9 @@
 		"lhs": "as",
 
 		"maps": {
-			"i": ["", "<[{ASIDE}]>\\<CR></[{ASIDE}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{ASIDE}]>\\<C-O>`<<[{ASIDE}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{ASIDE}]>\\<CR></[{ASIDE}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{ASIDE}]>\\<C-O>`<<[{ASIDE}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "AS&IDE"], {
@@ -1415,9 +1443,9 @@
 		"lhs": "au",
 
 		"maps": {
-			"i": ["", "<[{AUDIO CONTROLS}]>\\<CR><[{SOURCE SRC=\"\" TYPE}]=\"\">\\<CR>Your browser does not support the audio tag.\\<CR></[{AUDIO}]>\\<ESC>kk$3F\"i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{AUDIO}]>\\<C-O>`<<[{AUDIO CONTROLS}]>\\<CR><[{SOURCE SRC=\"\" TYPE}]=\"\">\\<CR>\\<ESC>k$3F\"li", {"reindent": 2, "insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{AUDIO CONTROLS}]>\\<CR><[{SOURCE SRC=\"\" TYPE}]=\"\">\\<CR>Your browser does not support the audio tag.\\<CR></[{AUDIO}]>\\<ESC>kk$3F\"i"],
+			"v": ["\\<ESC>`>a\\<CR></[{AUDIO}]>\\<C-O>`<<[{AUDIO CONTROLS}]>\\<CR><[{SOURCE SRC=\"\" TYPE}]=\"\">\\<CR>\\<ESC>k$3F\"li", {"reindent": 2, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "A&udio with controls"], {
@@ -1429,9 +1457,9 @@
 		"lhs": "vi",
 
 		"maps": {
-			"i": ["", "<[{VIDEO WIDTH=\"\" HEIGHT=\"\" CONTROLS}]>\\<CR><[{SOURCE SRC=\"\" TYPE}]=\"\">\\<CR>Your browser does not support the video tag.\\<CR></[{VIDEO}]>\\<ESC>kkk$3F\"i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{VIDEO}]>\\<C-O>`<<[{VIDEO WIDTH=\"\" HEIGHT=\"\" CONTROLS}]>\\<CR><[{SOURCE SRC=\"\" TYPE}]=\"\">\\<CR>\\<ESC>kk$3F\"i", {"reindent": 2, "insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{VIDEO WIDTH=\"\" HEIGHT=\"\" CONTROLS}]>\\<CR><[{SOURCE SRC=\"\" TYPE}]=\"\">\\<CR>Your browser does not support the video tag.\\<CR></[{VIDEO}]>\\<ESC>kkk$3F\"i"],
+			"v": ["\\<ESC>`>a\\<CR></[{VIDEO}]>\\<C-O>`<<[{VIDEO WIDTH=\"\" HEIGHT=\"\" CONTROLS}]>\\<CR><[{SOURCE SRC=\"\" TYPE}]=\"\">\\<CR>\\<ESC>kk$3F\"i", {"reindent": 2, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&Video with controls"], {
@@ -1443,9 +1471,9 @@
 		"lhs": "cv",
 
 		"maps": {
-			"i": ["", "<[{CANVAS WIDTH=\"\" HEIGHT=\"\"></CANVAS}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{CANVAS}]>\\<C-O>`<<[{CANVAS WIDTH=\"\" HEIGHT=\"\"}]>\\<C-O>3F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{CANVAS WIDTH=\"\" HEIGHT=\"\"></CANVAS}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{CANVAS}]>\\<C-O>`<<[{CANVAS WIDTH=\"\" HEIGHT=\"\"}]>\\<C-O>3F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&CANVAS"], {
@@ -1457,9 +1485,9 @@
 		"lhs": "ds",
 
 		"maps": {
-			"i": ["", "<[{DETAILS}]>\\<CR><[{SUMMARY}]></[{SUMMARY}]>\\<CR><[{P}]>\\<CR></[{P}]>\\<CR></[{DETAILS}]>\\<ESC>3k$F<i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{DETAILS}]>\\<C-O>`<<[{DETAILS}]>\\<CR><[{SUMMARY></SUMMARY}]>\\<CR>\\<ESC>k$F<a", {"insert": false, "reindent": 2}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{DETAILS}]>\\<CR><[{SUMMARY}]></[{SUMMARY}]>\\<CR><[{P}]>\\<CR></[{P}]>\\<CR></[{DETAILS}]>\\<ESC>3k$F<i"],
+			"v": ["\\<ESC>`>a\\<CR></[{DETAILS}]>\\<C-O>`<<[{DETAILS}]>\\<CR><[{SUMMARY></SUMMARY}]>\\<CR>\\<ESC>k$F<a", {"insert": false, "reindent": 2}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&DETAILS with SUMMARY"], {
@@ -1471,9 +1499,9 @@
 		"lhs": "eb",
 
 		"maps": {
-			"i": ["", "<[{EMBED TYPE=\"\" SRC=\"\" WIDTH=\"\" HEIGHT}]=\"\" />\\<ESC>$5F\"i"],
-			"v": ["", "\\<ESC>`>a\" [{WIDTH=\"\" HEIGHT}]=\"\" />\\<C-O>`<<[{EMBED TYPE=\"\" SRC}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{EMBED TYPE=\"\" SRC=\"\" WIDTH=\"\" HEIGHT}]=\"\" />\\<ESC>$5F\"i"],
+			"v": ["\\<ESC>`>a\" [{WIDTH=\"\" HEIGHT}]=\"\" />\\<C-O>`<<[{EMBED TYPE=\"\" SRC}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&EMBED"], {
@@ -1485,9 +1513,9 @@
 		"lhs": "fg",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('figure', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('figure', 'v')", {"expr": true, "reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('figure', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('figure', 'v')", {"expr": true, "reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&FIGURE"], {
@@ -1513,9 +1541,9 @@
 		"lhs": "fp",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('figcaption', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('figcaption', 'v')", {"expr": true, "reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('figcaption', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('figcaption', 'v')", {"expr": true, "reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "F&igure Caption"], {
@@ -1541,9 +1569,9 @@
 		"lhs": "ft",
 
 		"maps": {
-			"i": ["", "<[{FOOTER>\\<CR></FOOTER}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{FOOTER}]>\\<C-O>`<<[{FOOTER}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{FOOTER>\\<CR></FOOTER}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{FOOTER}]>\\<C-O>`<<[{FOOTER}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&FOOTER"], {
@@ -1555,9 +1583,9 @@
 		"lhs": "hd",
 
 		"maps": {
-			"i": ["", "<[{HEADER>\\<CR></HEADER}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{HEADER}]>\\<C-O>`<<[{HEADER}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{HEADER>\\<CR></HEADER}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{HEADER}]>\\<C-O>`<<[{HEADER}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&HEADER"], {
@@ -1569,9 +1597,9 @@
 		"lhs": "ma",
 
 		"maps": {
-			"i": ["", "<[{MAIN>\\<CR></MAIN}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{MAIN}]>\\<C-O>`<<[{MAIN}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{MAIN>\\<CR></MAIN}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{MAIN}]>\\<C-O>`<<[{MAIN}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&MAIN"], {
@@ -1583,9 +1611,9 @@
 		"lhs": "mk",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('mark', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('mark', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('mark', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('mark', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "MA&RK"], {
@@ -1611,9 +1639,9 @@
 		"lhs": "mt",
 
 		"maps": {
-			"i": ["", "<[{METER VALUE=\"\" MIN=\"\" MAX=\"\"></METER}]>\\<C-O>5F\""],
-			"v": ["", "\\<ESC>`>a</[{METER}]>\\<C-O>`<<[{METER VALUE=\"\" MIN=\"\" MAX}]=\"\">\\<C-O>5F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{METER VALUE=\"\" MIN=\"\" MAX=\"\"></METER}]>\\<C-O>5F\""],
+			"v": ["\\<ESC>`>a</[{METER}]>\\<C-O>`<<[{METER VALUE=\"\" MIN=\"\" MAX}]=\"\">\\<C-O>5F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "METE&R"], {
@@ -1625,9 +1653,9 @@
 		"lhs": "na",
 
 		"maps": {
-			"i": ["", "<[{NAV>\\<CR></NAV}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{NAV}]>\\<C-O>`<<[{NAV}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{NAV>\\<CR></NAV}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{NAV}]>\\<C-O>`<<[{NAV}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&NAV"], {
@@ -1639,9 +1667,9 @@
 		"lhs": "pg",
 
 		"maps": {
-			"i": ["", "<[{PROGRESS VALUE=\"\" MAX=\"\"></PROGRESS}]>\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" [{MAX=\"\"></PROGRESS}]>\\<C-O>`<<[{PROGRESS VALUE}]=\"\\<C-O>3f\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{PROGRESS VALUE=\"\" MAX=\"\"></PROGRESS}]>\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" [{MAX=\"\"></PROGRESS}]>\\<C-O>`<<[{PROGRESS VALUE}]=\"\\<C-O>3f\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&PROGRESS"], {
@@ -1653,9 +1681,9 @@
 		"lhs": "sc",
 
 		"maps": {
-			"i": ["", "<[{SECTION>\\<CR></SECTION}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{SECTION}]>\\<C-O>`<<[{SECTION}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{SECTION>\\<CR></SECTION}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{SECTION}]>\\<C-O>`<<[{SECTION}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&SECTION"], {
@@ -1667,9 +1695,9 @@
 		"lhs": "tm",
 
 		"maps": {
-			"i": ["", "<[{TIME DATETIME=\"\"></TIME}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{TIME}]>\\<C-O>`<<[{TIME DATETIME=\"\"}]>\\<ESC>hi", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{TIME DATETIME=\"\"></TIME}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{TIME}]>\\<C-O>`<<[{TIME DATETIME=\"\"}]>\\<ESC>hi", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&TIME"], {
@@ -1681,7 +1709,7 @@
 		"lhs": "wb",
 
 		"maps": {
-			"i": ["", "<[{WBR}] />"]
+			"i": ["<[{WBR}] />"]
 		},
 
 		"menu": ["-", ["HTML &5 Tags", "&WBR"], {
@@ -1693,9 +1721,9 @@
 		"lhs": "ol",
 
 		"maps": {
-			"i": ["", "<[{OL}]>\\<CR></[{OL}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{OL}]>\\<C-O>`<<[{OL}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{OL}]>\\<CR></[{OL}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{OL}]>\\<C-O>`<<[{OL}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Lists", "Ordered List"], {
@@ -1707,9 +1735,9 @@
 		"lhs": "ul",
 
 		"maps": {
-			"i": ["", "<[{UL}]>\\<CR></[{UL}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{UL}]>\\<C-O>`<<[{UL}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{UL}]>\\<CR></[{UL}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{UL}]>\\<C-O>`<<[{UL}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Lists", "Unordered List"], {
@@ -1721,9 +1749,9 @@
 		"lhs": "li",
 
 		"maps": {
-			"i": ["", "<[{LI}]></[{LI}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{LI}]>\\<C-O>`<<[{LI}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{LI}]></[{LI}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{LI}]>\\<C-O>`<<[{LI}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Lists", "List Item"], {
@@ -1737,9 +1765,9 @@
 		"lhs": "dl",
 
 		"maps": {
-			"i": ["", "<[{DL}]>\\<CR></[{DL}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{DL}]>\\<C-O>`<<[{DL}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{DL}]>\\<CR></[{DL}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{DL}]>\\<C-O>`<<[{DL}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Lists", "Definition List"], {
@@ -1751,9 +1779,9 @@
 		"lhs": "dt",
 
 		"maps": {
-			"i": ["", "<[{DT}]></[{DT}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{DT}]>\\<C-O>`<<[{DT}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{DT}]></[{DT}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{DT}]>\\<C-O>`<<[{DT}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Lists", "Definition Term"], {
@@ -1765,9 +1793,9 @@
 		"lhs": "dd",
 
 		"maps": {
-			"i": ["", "<[{DD}]></[{DD}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{DD}]>\\<C-O>`<<[{DD}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{DD}]></[{DD}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{DD}]>\\<C-O>`<<[{DD}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Lists", "Definition Body"], {
@@ -1779,9 +1807,9 @@
 		"lhs": "ab",
 
 		"maps": {
-			"i": ["", "<[{ABBR TITLE=\"\"></ABBR}]>\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a</[{ABBR}]>\\<C-O>`<<[{ABBR TITLE}]=\"\">\\<C-O>F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{ABBR TITLE=\"\"></ABBR}]>\\<C-O>F\""],
+			"v": ["\\<ESC>`>a</[{ABBR}]>\\<C-O>`<<[{ABBR TITLE}]=\"\">\\<C-O>F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "Abbreviation"], {
@@ -1790,10 +1818,12 @@
 	},
 
 	{
+		"lhs": "aB",
+
 		"maps": {
-			"i": ["aB", "<[{ABBR TITLE=\"\\<C-R>*\"></ABBR}]>\\<C-O>F<"],
-			"v": ["aB", "\\<ESC>`>a\"></[{ABBR}]>\\<C-O>`<<[{ABBR TITLE}]=\"\\<C-O>f<", {"insert": true}],
-			"o": ["aB", {"insert": true}]
+			"i": ["<[{ABBR TITLE=\"\\<C-R>*\"></ABBR}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a\"></[{ABBR}]>\\<C-O>`<<[{ABBR TITLE}]=\"\\<C-O>f<", {"insert": true}],
+			"o": [{"insert": true}]
 		}
 	},
 
@@ -1801,9 +1831,9 @@
 		"lhs": "ad",
 
 		"maps": {
-			"i": ["", "<[{ADDRESS></ADDRESS}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{ADDRESS}]>\\<C-O>`<<[{ADDRESS}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{ADDRESS></ADDRESS}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{ADDRESS}]>\\<C-O>`<<[{ADDRESS}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "ADDRESS"], {
@@ -1815,9 +1845,9 @@
 		"lhs": "bh",
 
 		"maps": {
-			"i": ["", "<[{BASE HREF}]=\"\" />\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{BASE HREF}]=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{BASE HREF}]=\"\" />\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{BASE HREF}]=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "BASE HREF"], {
@@ -1829,9 +1859,9 @@
 		"lhs": "bt",
 
 		"maps": {
-			"i": ["", "<[{BASE TARGET}]=\"\" />\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{BASE TARGET}]=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{BASE TARGET}]=\"\" />\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{BASE TARGET}]=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "BASE TARGET"], {
@@ -1843,9 +1873,9 @@
 		"lhs": "bl",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('blockquote', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('blockquote', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('blockquote', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('blockquote', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "BLOCKQUTE"], {
@@ -1871,9 +1901,9 @@
 		"lhs": "cm",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('comment', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('comment', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('comment', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('comment', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "Comment"], {
@@ -1899,9 +1929,9 @@
 		"lhs": "df",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('dfn', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('dfn', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('dfn', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('dfn', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "Defining Instance"], {
@@ -1927,9 +1957,9 @@
 		"lhs": "dv",
 
 		"maps": {
-			"i": ["", "<[{DIV}]>\\<CR></[{DIV}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{DIV}]>\\<C-O>`<<[{DIV}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{DIV}]>\\<CR></[{DIV}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{DIV}]>\\<C-O>`<<[{DIV}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "Document Division"], {
@@ -1941,9 +1971,9 @@
 		"lhs": "if",
 
 		"maps": {
-			"i": ["", "<[{IFRAME SRC=\"\" WIDTH=\"\" HEIGHT}]=\"\">\\<CR></[{IFRAME}]>\\<ESC>k$5F\"i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{IFRAME}]>\\<C-O>`<<[{IFRAME SRC=\"\" WIDTH=\"\" HEIGHT}]=\"\">\\<CR>\\<ESC>k$5F\"i", {"reindent": 1, "insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{IFRAME SRC=\"\" WIDTH=\"\" HEIGHT}]=\"\">\\<CR></[{IFRAME}]>\\<ESC>k$5F\"i"],
+			"v": ["\\<ESC>`>a\\<CR></[{IFRAME}]>\\<C-O>`<<[{IFRAME SRC=\"\" WIDTH=\"\" HEIGHT}]=\"\">\\<CR>\\<ESC>k$5F\"i", {"reindent": 1, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "Inline Frame"], {
@@ -1955,9 +1985,9 @@
 		"lhs": "js",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('script1', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('script1', 'v')", {"expr": true, "reindent": 3}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('script1', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('script1', 'v')", {"expr": true, "reindent": 3}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "JavaScript"], {
@@ -1983,9 +2013,9 @@
 		"lhs": "jm",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('script2', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('script2', 'v')", {"expr": true, "reindent": 3}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('script2', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('script2', 'v')", {"expr": true, "reindent": 3}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "JavaScript Module"], {
@@ -2011,9 +2041,9 @@
 		"lhs": "sj",
 
 		"maps": {
-			"i": ["", "<[{SCRIPT SRC}]=\"\" [{TYPE}]=\"application/javascript\"></[{SCRIPT}]>\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" [{TYPE}]=\"application/javascript\"></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT SRC}]=\"\\<C-O>`>\\<C-O>f<", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{SCRIPT SRC}]=\"\" [{TYPE}]=\"application/javascript\"></[{SCRIPT}]>\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" [{TYPE}]=\"application/javascript\"></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT SRC}]=\"\\<C-O>`>\\<C-O>f<", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "Sourced JavaScript"], {
@@ -2025,9 +2055,9 @@
 		"lhs": "mo",
 
 		"maps": {
-			"i": ["", "<[{SCRIPT SRC}]=\"\" [{TYPE}]=\"module\"></[{SCRIPT}]>\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" [{TYPE}]=\"module\"></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT SRC}]=\"\\<C-O>`>\\<C-O>f<", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{SCRIPT SRC}]=\"\" [{TYPE}]=\"module\"></[{SCRIPT}]>\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" [{TYPE}]=\"module\"></[{SCRIPT}]>\\<C-O>`<<[{SCRIPT SRC}]=\"\\<C-O>`>\\<C-O>f<", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "Sourced JavaScript Module"], {
@@ -2039,9 +2069,9 @@
 		"lhs": "lk",
 
 		"maps": {
-			"i": ["", "<[{LINK HREF}]=\"\" />\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{LINK HREF}]=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{LINK HREF}]=\"\" />\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{LINK HREF}]=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "LINK HREF"], {
@@ -2053,9 +2083,9 @@
 		"lhs": "me",
 
 		"maps": {
-			"i": ["", "<[{META NAME=\"\" CONTENT}]=\"\" />\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" [{CONTENT}]=\"\" />\\<C-O>`<<[{META NAME}]=\"\\<C-O>3f\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{META NAME=\"\" CONTENT}]=\"\" />\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" [{CONTENT}]=\"\" />\\<C-O>`<<[{META NAME}]=\"\\<C-O>3f\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "META"], {
@@ -2064,10 +2094,12 @@
 	},
 
 	{
+		"lhs": "mE",
+
 		"maps": {
-			"i": ["mE", "<[{META NAME=\"\" CONTENT}]=\"\\<C-R>*\" />\\<C-O>3F\""],
-			"v": ["mE", "\\<ESC>`>a\" />\\<C-O>`<<[{META NAME=\"\" CONTENT}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["mE", {"insert": true}]
+			"i": ["<[{META NAME=\"\" CONTENT}]=\"\\<C-R>*\" />\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{META NAME=\"\" CONTENT}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		}
 	},
 
@@ -2075,9 +2107,9 @@
 		"lhs": "mh",
 
 		"maps": {
-			"i": ["", "<[{META HTTP-EQUIV=\"\" CONTENT}]=\"\" />\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{META HTTP-EQUIV=\"\" CONTENT}]=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{META HTTP-EQUIV=\"\" CONTENT}]=\"\" />\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{META HTTP-EQUIV=\"\" CONTENT}]=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "META HTTP-EQUIV"], {
@@ -2089,9 +2121,9 @@
 		"lhs": "ns",
 
 		"maps": {
-			"i": ["", "<[{NOSCRIPT}]>\\<CR></[{NOSCRIPT}]>\\<C-O>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{NOSCRIPT}]>\\<C-O>`<<[{NOSCRIPT}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{NOSCRIPT}]>\\<CR></[{NOSCRIPT}]>\\<C-O>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{NOSCRIPT}]>\\<C-O>`<<[{NOSCRIPT}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "NOSCRIPT"], {
@@ -2103,9 +2135,9 @@
 		"lhs": "ob",
 
 		"maps": {
-			"i": ["", "<[{OBJECT DATA=\"\" WIDTH=\"\" HEIGHT}]=\"\">\\<CR></[{OBJECT}]>\\<ESC>k$5F\"i"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{OBJECT}]>\\<C-O>`<<[{OBJECT DATA=\"\" WIDTH=\"\" HEIGHT}]=\"\">\\<CR>\\<ESC>k$5F\"i", {"reindent": 1, "insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{OBJECT DATA=\"\" WIDTH=\"\" HEIGHT}]=\"\">\\<CR></[{OBJECT}]>\\<ESC>k$5F\"i"],
+			"v": ["\\<ESC>`>a\\<CR></[{OBJECT}]>\\<C-O>`<<[{OBJECT DATA=\"\" WIDTH=\"\" HEIGHT}]=\"\">\\<CR>\\<ESC>k$5F\"i", {"reindent": 1, "insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "Generic Embedded O"], {
@@ -2117,9 +2149,9 @@
 		"lhs": "pm",
 
 		"maps": {
-			"i": ["", "<[{PARAM NAME=\"\" VALUE}]=\"\" />\\<ESC>3F\"i"],
-			"v": ["", "\\<ESC>`>a\" [{VALUE}]=\"\" />\\<C-O>`<<[{PARAM NAME}]=\"\\<ESC>3f\"i", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{PARAM NAME=\"\" VALUE}]=\"\" />\\<ESC>3F\"i"],
+			"v": ["\\<ESC>`>a\" [{VALUE}]=\"\" />\\<C-O>`<<[{PARAM NAME}]=\"\\<ESC>3f\"i", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "O Parameter"], {
@@ -2131,9 +2163,9 @@
 		"lhs": "qu",
 
 		"maps": {
-			"i": ["", "b:htmlplugin.HTMLMapO.SmartTag('q', 'i')", {"expr": true}],
-			"v": ["", "b:htmlplugin.HTMLMapO.SmartTag('q', 'v')", {"expr": true}],
-			"o": ["", {"insert": false}]
+			"i": ["b:htmlplugin.HTMLMapO.SmartTag('q', 'i')", {"expr": true}],
+			"v": ["b:htmlplugin.HTMLMapO.SmartTag('q', 'v')", {"expr": true}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "Quoted Text"], {
@@ -2159,9 +2191,9 @@
 		"lhs": "sn",
 
 		"maps": {
-			"i": ["", "<[{SPAN CLASS=\"\"></SPAN}]>\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN CLASS}]=\"\">\\<ESC>hi", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{SPAN CLASS=\"\"></SPAN}]>\\<C-O>F\""],
+			"v": ["\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN CLASS}]=\"\">\\<ESC>hi", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "SPAN with CLASS"], {
@@ -2173,9 +2205,9 @@
 		"lhs": "ss",
 
 		"maps": {
-			"i": ["", "<[{SPAN STYLE=\"\"></SPAN}]>\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"\">\\<ESC>hi", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{SPAN STYLE=\"\"></SPAN}]>\\<C-O>F\""],
+			"v": ["\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN STYLE}]=\"\">\\<ESC>hi", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "SPAN with STYLE"], {
@@ -2187,9 +2219,9 @@
 		"lhs": "sN",
 
 		"maps": {
-			"i": ["", "<[{SPAN></SPAN}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN}]>", {"insert": false}],
-			"o": ["", {"insert": true}]
+			"i": ["<[{SPAN></SPAN}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{SPAN}]>\\<C-O>`<<[{SPAN}]>", {"insert": false}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&More Tags", "SPAN"], {
@@ -2201,9 +2233,9 @@
 		"lhs": "cs",
 
 		"maps": {
-			"i": ["", "<[{STYLE TYPE}]=\"text/css\">\\<CR></[{STYLE}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{STYLE}]>\\<C-O>`<<[{STYLE TYPE}]=\"text/css\">\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{STYLE TYPE}]=\"text/css\">\\<CR></[{STYLE}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{STYLE}]>\\<C-O>`<<[{STYLE TYPE}]=\"text/css\">\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "STYLE (Internal CSS)"], {
@@ -2215,9 +2247,9 @@
 		"lhs": "ls",
 
 		"maps": {
-			"i": ["", "<[{LINK REL}]=\"stylesheet\" [{TYPE}]=\"text/css\" [{HREF}]=\"\" />\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" />\\<C-O>`<<[{LINK REL}]=\"stylesheet\" [{TYPE}]=\"text/css\" [{HREF}]=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{LINK REL}]=\"stylesheet\" [{TYPE}]=\"text/css\" [{HREF}]=\"\" />\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" />\\<C-O>`<<[{LINK REL}]=\"stylesheet\" [{TYPE}]=\"text/css\" [{HREF}]=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&More Tags", "Linked CSS"], {
@@ -2229,9 +2261,9 @@
 		"lhs": "cf",
 
 		"maps": {
-			"i": ["", "<!--#config timefmt=\"\" -->\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" -->\\<C-O>`<<!--#config timefmt=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<!--#config timefmt=\"\" -->\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" -->\\<C-O>`<<!--#config timefmt=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&SSI Directives", "&config timefmt"], {
@@ -2243,9 +2275,9 @@
 		"lhs": "cz",
 
 		"maps": {
-			"i": ["", "<!--#config sizefmt=\"\" -->\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" -->\\<C-O>`<<!--#config sizefmt=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<!--#config sizefmt=\"\" -->\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" -->\\<C-O>`<<!--#config sizefmt=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&SSI Directives", "config sizef&mt"], {
@@ -2257,9 +2289,9 @@
 		"lhs": "ev",
 
 		"maps": {
-			"i": ["", "<!--#echo var=\"\" -->\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" -->\\<C-O>`<<!--#echo var=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<!--#echo var=\"\" -->\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" -->\\<C-O>`<<!--#echo var=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&SSI Directives", "&echo var"], {
@@ -2271,9 +2303,9 @@
 		"lhs": "iv",
 
 		"maps": {
-			"i": ["", "<!--#include virtual=\"\" -->\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" -->\\<C-O>`<<!--#include virtual=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<!--#include virtual=\"\" -->\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" -->\\<C-O>`<<!--#include virtual=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&SSI Directives", "&include virtual"], {
@@ -2285,9 +2317,9 @@
 		"lhs": "fv",
 
 		"maps": {
-			"i": ["", "<!--#flastmod virtual=\"\" -->\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" -->\\<C-O>`<<!--#flastmod virtual=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<!--#flastmod virtual=\"\" -->\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" -->\\<C-O>`<<!--#flastmod virtual=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&SSI Directives", "&flastmod virtual"], {
@@ -2299,9 +2331,9 @@
 		"lhs": "fz",
 
 		"maps": {
-			"i": ["", "<!--#fsize virtual=\"\" -->\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" -->\\<C-O>`<<!--#fsize virtual=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<!--#fsize virtual=\"\" -->\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" -->\\<C-O>`<<!--#fsize virtual=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&SSI Directives", "fsi&ze virtual"], {
@@ -2313,9 +2345,9 @@
 		"lhs": "ec",
 
 		"maps": {
-			"i": ["", "<!--#exec cmd=\"\" -->\\<C-O>F\""],
-			"v": ["", "\\<ESC>`>a\" -->\\<C-O>`<<!--#exec cmd=\"\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<!--#exec cmd=\"\" -->\\<C-O>F\""],
+			"v": ["\\<ESC>`>a\" -->\\<C-O>`<<!--#exec cmd=\"\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&SSI Directives", "e&xec cmd"], {
@@ -2327,9 +2359,9 @@
 		"lhs": "sv",
 
 		"maps": {
-			"i": ["", "<!--#set var=\"\" value=\"\" -->\\<C-O>3F\""],
-			"v": ["", "\\<ESC>`>a\" -->\\<C-O>`<<!--#set var=\"\" value=\"\\<C-O>2F\"", {"insert": true}],
-			"o": ["", {"insert": true}]
+			"i": ["<!--#set var=\"\" value=\"\" -->\\<C-O>3F\""],
+			"v": ["\\<ESC>`>a\" -->\\<C-O>`<<!--#set var=\"\" value=\"\\<C-O>2F\"", {"insert": true}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&SSI Directives", "&set var"], {
@@ -2341,9 +2373,9 @@
 		"lhs": "ie",
 
 		"maps": {
-			"i": ["", "<!--#if expr=\"\" -->\\<CR><!--#else -->\\<CR><!--#endif -->\\<ESC>kk$F\"i"],
-			"v": ["", "\\<ESC>`>a\\<CR><!--#else -->\\<CR><!--#endif -->\\<C-O>`<<!--#if expr=\"\" -->\\<CR>\\<ESC>`<f\"a", {"insert": true, "reindent": 3}],
-			"o": ["", {"insert": true}]
+			"i": ["<!--#if expr=\"\" -->\\<CR><!--#else -->\\<CR><!--#endif -->\\<ESC>kk$F\"i"],
+			"v": ["\\<ESC>`>a\\<CR><!--#else -->\\<CR><!--#endif -->\\<C-O>`<<!--#if expr=\"\" -->\\<CR>\\<ESC>`<f\"a", {"insert": true, "reindent": 3}],
+			"o": [{"insert": true}]
 		},
 
 		"menu": ["-", ["&SSI Directives", "if then e&lse"], {
@@ -2355,7 +2387,7 @@
 		"lhs": "tA",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>b:htmlplugin.HTMLMapO.GenerateTable()<CR>"]
+			"n": ["<ScriptCmd>b:htmlplugin.HTMLMapO.GenerateTable()<CR>"]
 		},
 
 		"menu": ["-", ["&Tables", "Interactive Table"], {
@@ -2367,9 +2399,9 @@
 		"lhs": "ta",
 
 		"maps": {
-			"i": ["", "<[{TABLE}]>\\<CR></[{TABLE}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{TABLE}]>\\<C-O>`<<[{TABLE}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{TABLE}]>\\<CR></[{TABLE}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{TABLE}]>\\<C-O>`<<[{TABLE}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Tables", "TABLE"], {
@@ -2381,9 +2413,9 @@
 		"lhs": "tH",
 
 		"maps": {
-			"i": ["", "<[{THEAD}]>\\<CR></[{THEAD}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{THEAD}]>\\<C-O>`<<[{THEAD}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{THEAD}]>\\<CR></[{THEAD}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{THEAD}]>\\<C-O>`<<[{THEAD}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Tables", "Header Row"], {
@@ -2395,9 +2427,9 @@
 		"lhs": "tb",
 
 		"maps": {
-			"i": ["", "<[{TBODY}]>\\<CR></[{TBODY}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{TBODY}]>\\<C-O>`<<[{TBODY}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{TBODY}]>\\<CR></[{TBODY}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{TBODY}]>\\<C-O>`<<[{TBODY}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Tables", "Table Body"], {
@@ -2409,9 +2441,9 @@
 		"lhs": "tr",
 
 		"maps": {
-			"i": ["", "<[{TR}]>\\<CR></[{TR}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{TR}]>\\<C-O>`<<[{TR}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{TR}]>\\<CR></[{TR}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{TR}]>\\<C-O>`<<[{TR}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Tables", "Row"], {
@@ -2423,9 +2455,9 @@
 		"lhs": "tf",
 
 		"maps": {
-			"i": ["", "<[{TFOOT}]>\\<CR></[{TFOOT}]>\\<ESC>O"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{TFOOT}]>\\<C-O>`<<[{TFOOT}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{TFOOT}]>\\<CR></[{TFOOT}]>\\<ESC>O"],
+			"v": ["\\<ESC>`>a\\<CR></[{TFOOT}]>\\<C-O>`<<[{TFOOT}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Tables", "Footer Row"], {
@@ -2437,9 +2469,9 @@
 		"lhs": "th",
 
 		"maps": {
-			"i": ["", "<[{TH></TH}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{TH}]>\\<C-O>`<<[{TH}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{TH></TH}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{TH}]>\\<C-O>`<<[{TH}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Tables", "Column Header"], {
@@ -2451,9 +2483,9 @@
 		"lhs": "td",
 
 		"maps": {
-			"i": ["", "<[{TD></TD}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a</[{TD}]>\\<C-O>`<<[{TD}]>\\<ESC>", {}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{TD></TD}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a</[{TD}]>\\<C-O>`<<[{TD}]>\\<ESC>", {}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Tables", "Data (Column Element)"], {
@@ -2465,9 +2497,9 @@
 		"lhs": "ca",
 
 		"maps": {
-			"i": ["", "<[{CAPTION></CAPTION}]>\\<C-O>F<"],
-			"v": ["", "\\<ESC>`>a\\<CR></[{CAPTION}]>\\<C-O>`<<[{CAPTION}]>\\<CR>\\<ESC>", {"reindent": 1}],
-			"o": ["", {"insert": false}]
+			"i": ["<[{CAPTION></CAPTION}]>\\<C-O>F<"],
+			"v": ["\\<ESC>`>a\\<CR></[{CAPTION}]>\\<C-O>`<<[{CAPTION}]>\\<CR>\\<ESC>", {"reindent": 1}],
+			"o": [{"insert": false}]
 		},
 
 		"menu": ["-", ["&Tables", "CAPTION"], {
@@ -2481,7 +2513,7 @@
 		"lhs": "html",
 
 		"maps": {
-			"n": ["", "<ScriptCmd>if b:htmlplugin.HTMLMapO.Template() \\| startinsert \\| endif<CR>"]
+			"n": ["<ScriptCmd>if b:htmlplugin.HTMLMapO.Template() \\| startinsert \\| endif<CR>"]
 		},
 
 		"menu": ["-", ["Template"], {
@@ -2499,7 +2531,7 @@
 		"lhs": "ct",
 
 		"maps": {
-			"i": ["", "'<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=' .. b:htmlplugin.HTMLUtilO.DetectCharset() .. '\" />'", {"expr": true}]
+			"i": ["'<[{META HTTP-EQUIV}]=\"Content-Type\" [{CONTENT}]=\"text/html; charset=' .. b:htmlplugin.HTMLUtilO.DetectCharset() .. '\" />'", {"expr": true}]
 		},
 
 		"menu": ["-", ["Content-Type"], {

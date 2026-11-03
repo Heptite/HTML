@@ -7,7 +7,7 @@ endif
 
 # Messaging functions for the HTML macros filetype plugin.
 #
-# Last Change: November 01, 2026
+# Last Change: November 02, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -100,6 +100,7 @@ export class HTMLMessages
   public static const W_NOMENU       = gettext("No menu item was defined for \"%s\".", 'CJRHTML')
   public static const W_UNSAVED      = gettext("Warning: The current buffer has unsaved modifications.", 'CJRHTML')
   public static const W_NOMAPDEFINED = gettext('No mapping(s) were defined for "%s".%s', 'CJRHTML')
+  public static const W_NOMAPLHS     = gettext('Found a mapping with no lhs in file "%s", skipping.', 'CJRHTML')
   public static const W_SKIPPEDMENU  = gettext(' Skipping menu item.', 'CJRHTML')
   # }}}1
 

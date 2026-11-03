@@ -216,6 +216,9 @@ export class HTMLGlue extends Util.HTMLUtil
         if json->has_key('lhs')
           maplhs = $'<lead>{json.lhs}'
           menulhs = json.lhs
+        elseif json->has_key('maps')
+          printf(Messages.HTMLMessages.W_NOMAPLHS, file)->HTMLMessagesO.Warn()
+          continue
         else
           maplhs = ""
           menulhs = ""
@@ -236,35 +239,35 @@ export class HTMLGlue extends Util.HTMLUtil
           var did_mappings: number = 0
 
           if json.maps->has_key('i')
-              && maparg((maplhs == '' ? $'<lead>{json.maps.i[0]}' : maplhs)->substitute('^<lead>\c',
+              && maparg(maplhs->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'i') == ''
             if HTMLMapO.Map('inoremap',
-                (maplhs == '' ? $'<lead>{json.maps.i[0]}' : maplhs),
-                json.maps.i[1],
-                len(json.maps.i) >= 3 ? json.maps.i[2] : {},
+                maplhs,
+                json.maps.i[0],
+                len(json.maps.i) >= 2 ? json.maps.i[1] : {},
                 internal)
               ++did_mappings
             endif
           endif
 
           if json.maps->has_key('v')
-              && maparg((maplhs == '' ? $'<lead>{json.maps.v[0]}' : maplhs)->substitute('^<lead>\c',
+              && maparg(maplhs->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'v') == ''
             if HTMLMapO.Map('vnoremap',
-                (maplhs == '' ? $'<lead>{json.maps.v[0]}' : maplhs),
-                json.maps.v[1],
-                len(json.maps.v) >= 3 ? json.maps.v[2] : {},
+                maplhs,
+                json.maps.v[0],
+                len(json.maps.v) >= 2 ? json.maps.v[1] : {},
                 internal)
               ++did_mappings
             endif
           endif
 
           if json.maps->has_key('n')
-              && maparg((maplhs == '' ? $'<lead>{json.maps.n[0]}' : maplhs)->substitute('^<lead>\c',
+              && maparg(maplhs->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'n') == ''
             if HTMLMapO.Map('nnoremap',
-                (maplhs == '' ? $'<lead>{json.maps.n[0]}' : maplhs),
-                json.maps.n[1],
+                maplhs,
+                json.maps.n[0],
                 v:none,
                 internal)
               ++did_mappings
@@ -272,12 +275,12 @@ export class HTMLGlue extends Util.HTMLUtil
           endif
 
           if json.maps->has_key('o')
-              && maparg((maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs)->substitute('^<lead>\c',
+              && maparg(maplhs->substitute('^<lead>\c',
                 g:htmlplugin.map_leader->escape('&~\'), ''), 'o') == ''
             if HTMLMapO.Map('nnoremap',
-                (maplhs == '' ? $'<lead>{json.maps.o[0]}' : maplhs),
+                maplhs,
                 '',
-                json.maps.o[1],
+                json.maps.o[0],
                 internal)
               ++did_mappings
             endif
