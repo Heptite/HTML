@@ -7,7 +7,7 @@ endif
 
 # Methods to launch/control browsers ------------------------------------- {{{
 #
-# Last Change: November 01, 2026
+# Last Change: November 03, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -793,8 +793,7 @@ export class BrowserLauncher
       setlocal modifiable
     endif
 
-    execute ':%d'
-    append(0, _BrowserLog)
+    setline(1, _BrowserLog)
     setlocal nomodifiable
   enddef # }}}1
 

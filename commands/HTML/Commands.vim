@@ -5,9 +5,9 @@ if v:versionlong < 9021240
   finish
 endif
 
-# Various :-commands for the HTML macros filetype plugin.
+# Various :-commands for the HTML macros filetype plugin.                 {{{1
 #
-# Last Change: October 27, 2026
+# Last Change: November 03, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -27,49 +27,47 @@ endif
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
-# https://www.gnu.org/licenses/licenses.html#GPL
+# https://www.gnu.org/licenses/licenses.html#GPL                          }}}1
 
 if get(b:htmlplugin, 'did_commands', false) # {{{1
   finish
 endif
 
-import autoload '../../autoload/HTML/Util.vim'
-import autoload '../../autoload/HTML/Map.vim'
 import autoload '../../autoload/HTML/Glue.vim'
-import autoload '../../autoload/HTML/BrowserLauncher.vim'
 
-var HTMLUtilO: Util.HTMLUtil = Util.HTMLUtil.new()
-var HTMLMapO: Map.HTMLMap = Map.HTMLMap.new()
 var HTMLGlueO: Glue.HTMLGlue = Glue.HTMLGlue.new()
-var BrowserLauncherO: BrowserLauncher.BrowserLauncher = BrowserLauncher.BrowserLauncher.new()
 
 def HTMLpluginComplete(A: string, C: string, P: number): list<string>
-  return ['disable', 'off', 'false', 'enable', 'on', 'true', 'about', 'template']->filter((idx, val) => val =~? $'^{A}')
+  return [
+    'disable', 'off', 'false', 'enable', 'on',
+    'true', 'about', 'template', 'browserlog',
+    'colorchooser'
+  ]->filter((idx, val) => val =~? $'^{A}')
 enddef
 
-command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTMLplugin HTMLGlueO.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTMLPlugin HTMLGlueO.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTMLmappings HTMLGlueO.PluginControl(<f-args>)
-command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTMLMappings HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
+      \ HTMLplugin HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
+      \ HTMLPlugin HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
+      \ HTMLmappings HTMLGlueO.PluginControl(<f-args>)
+command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
+      \ HTMLMappings HTMLGlueO.PluginControl(<f-args>)
 if exists(':HTML') != 2
-  command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete HTML HTMLGlueO.PluginControl(<f-args>)
+  command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
+        \ HTML HTMLGlueO.PluginControl(<f-args>)
 endif
 
-command! -buffer -bar -nargs=? ColorChooser HTMLUtilO.ColorChooser(<f-args>)
+command! -buffer -bar -nargs=? ColorChooser HTMLPlugin colorchooser
 if exists(':CC') != 2
-  command! -buffer -bar -nargs=? CC HTMLUtilO.ColorChooser(<f-args>)
+  command! -buffer -bar -nargs=? CC HTMLPlugin colorchooser
 endif
 
-command! -buffer -bar HTMLTemplate {
-    if HTMLMapO.Template()
-      startinsert
-    endif
-  }
-command! -buffer -bar HTMLtemplate HTMLTemplate
-
-command! -buffer -bar BrowserLog     BrowserLauncherO.ShowBrowserLog()
-command! -buffer -bar ShowBrowserLog BrowserLauncherO.ShowBrowserLog()
-command! -buffer -bar HTMLBrowserLog BrowserLauncherO.ShowBrowserLog()
+command! -buffer -bar HTMLTemplate   HTMLPlugin template
+command! -buffer -bar HTMLtemplate   HTMLPlugin template
+command! -buffer -bar BrowserLog     HTMLPlugin browserlog
+command! -buffer -bar ShowBrowserLog HTMLPlugin browserlog
+command! -buffer -bar HTMLBrowserLog HTMLPlugin browserlog
 
 b:htmlplugin.did_commands = true
 
@@ -78,8 +76,8 @@ if get(g:htmlplugin, 'did_commands', false) # {{{1
   finish
 endif
 
-command! -bar HTMLAbout Util.HTMLUtil.About()
-command! -bar HTMLabout Util.HTMLUtil.About()
+command! -bar HTMLAbout HTMLPlugin about
+command! -bar HTMLabout HTMLPlugin about
 
 g:htmlplugin.did_commands = true
 

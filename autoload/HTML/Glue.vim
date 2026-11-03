@@ -5,9 +5,9 @@ if v:versionlong < 9021240
   finish
 endif
 
-# Glue functions for the HTML macros filetype plugin.
+# Glue functions for the HTML macros filetype plugin.                     {{{1
 #
-# Last Change: November 02, 2026
+# Last Change: November 03, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -27,19 +27,22 @@ endif
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
-# https://www.gnu.org/licenses/licenses.html#GPL
+# https://www.gnu.org/licenses/licenses.html#GPL                          }}}1
 
 import '../../import/HTML/Variables.vim'
 import autoload './Map.vim'
 import autoload './Menu.vim'
 import autoload './Messages.vim'
 import autoload './Util.vim'
+import autoload './BrowserLauncher.vim'
 
 export class HTMLGlue extends Util.HTMLUtil
 
-  static var HTMLMapO: Map.HTMLMap
-  static var HTMLMenuO: Menu.HTMLMenu
-  static var HTMLMessagesO: Messages.HTMLMessages
+  static var HTMLMapO:         Map.HTMLMap
+  static var HTMLMenuO:        Menu.HTMLMenu
+  static var HTMLMessagesO:    Messages.HTMLMessages
+  static var HTMLUtilO:        Util.HTMLUtil
+  static var BrowserLauncherO: BrowserLauncher.BrowserLauncher
 
   def new() # {{{1
     # Even though this is done in the ftplugin file, this file can be imported
@@ -52,9 +55,11 @@ export class HTMLGlue extends Util.HTMLUtil
     endif
 
     if HTMLMapO == null_object
-      HTMLMapO = Map.HTMLMap.new()
-      HTMLMenuO = Menu.HTMLMenu.new()
-      HTMLMessagesO = Messages.HTMLMessages.new()
+      HTMLMapO         = Map.HTMLMap.new()
+      HTMLMenuO        = Menu.HTMLMenu.new()
+      HTMLMessagesO    = Messages.HTMLMessages.new()
+      HTMLUtilO        = Util.HTMLUtil.new()
+      BrowserLauncherO = BrowserLauncher.BrowserLauncher.new()
     endif
   enddef # }}}1
 
@@ -112,6 +117,10 @@ export class HTMLGlue extends Util.HTMLUtil
       if HTMLMapO.Template()
         startinsert
       endif
+    elseif dowhat =~? '^b\%(rowserlog\)\?$'
+      BrowserLauncherO.ShowBrowserLog()
+    elseif dowhat =~? '^c\%(olorchooser\)\?$'
+      HTMLUtilO.ColorChooser()
     else
       printf(Messages.HTMLMessages.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->HTMLMessagesO.Error()
       return false
@@ -177,8 +186,8 @@ export class HTMLGlue extends Util.HTMLUtil
   #  Return Value:
   #   Boolean - Whether the json file was successfully read in without error
   def ReadTags(domenu: bool = true, internal: bool = false, file: string = Variables.HTMLVariables.TAGS_FILE): bool
-    var maplhs:    string
-    var menulhs:   string
+    var maplhs:    string = ''
+    var menulhs:   string = ''
     var rval:      bool = true
     var json_data: list<dict<any>> = this.ReadJsonFile(file)
 
@@ -220,8 +229,8 @@ export class HTMLGlue extends Util.HTMLUtil
           printf(Messages.HTMLMessages.W_NOMAPLHS, file)->HTMLMessagesO.Warn()
           continue
         else
-          maplhs = ""
-          menulhs = ""
+          maplhs = ''
+          menulhs = ''
         endif
 
         if json->has_key('smarttag')
@@ -345,7 +354,6 @@ export class HTMLGlue extends Util.HTMLUtil
 
     return rval
   enddef
-
 
   # }}}1
 

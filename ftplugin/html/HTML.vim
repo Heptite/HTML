@@ -13,7 +13,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite+html(at)proton(dot)me>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      October 31, 2026
+# Last Change:      November 03, 2026
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.2.1240 or later
 #
@@ -369,9 +369,9 @@ HTMLMapO.Map('nnoremap', '<lead>ht', '')
 
 # Can't access an imported enum from mappings, so kluge it:
 b:htmlplugin.BrowserBehavior = {
-  default: BrowserLauncher.Behavior.default,
+  default:   BrowserLauncher.Behavior.default,
   newwindow: BrowserLauncher.Behavior.newwindow,
-  newtab: BrowserLauncher.Behavior.newtab
+  newtab:    BrowserLauncher.Behavior.newtab
 }
 
 if BrowserLauncherO.BrowserExists('default') # {{{2

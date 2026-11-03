@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: November 02, 2026
+# Last Change: November 03, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -51,13 +51,13 @@ endenum # }}}1
 
 export class HTMLUtil
 
-  static var HTMLMessagesO: Messages.HTMLMessages
+  static var HTMLMessagesO:  Messages.HTMLMessages
   static var HTMLVariablesO: Variables.HTMLVariables
   static var _WSL2: bool
 
   def new() # {{{
     if HTMLMessagesO == null_object
-      HTMLMessagesO = Messages.HTMLMessages.new()
+      HTMLMessagesO  = Messages.HTMLMessages.new()
       HTMLVariablesO = Variables.HTMLVariables.new()
       _WSL2 = filereadable('/proc/version') && readfile('/proc/version', '', 1)[0] =~# 'WSL2'
     endif
@@ -153,6 +153,27 @@ export class HTMLUtil
   #  String: The words capitalized
   def Cap(arg: string): string
     return arg->substitute('\<.', '\U&', 'g')
+  enddef
+
+  # CharToEntity()  {{{1
+  #
+  # Purpose:
+  #  Convert a character to its corresponding character entity, or its numeric
+  #  form if the entity doesn't exist in the lookup table.
+  # Arguments:
+  #  1 - Character: The character to encode
+  # Return Value:
+  #  String: The entity representing the character
+  def CharToEntity(char: string): string
+    # Would be good to keep this but it's unlikely to be necessary, and
+    # currently I can't access HTMLMessagesO in a lambda, so just leave it
+    # commented out:
+    #if char->strchars(1) != 1
+    #  printf(Messages.HTMLMessages.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+    #  return char
+    #endif
+
+    return Variables.HTMLVariables.CharToEntities->get(char, printf('&#x%X;', char->char2nr()))
   enddef
 
   # ColorChooser()  {{{1
@@ -328,6 +349,29 @@ export class HTMLUtil
     endif
   enddef
 
+  # DecodeSymbol()  {{{1
+  #
+  # Purpose:
+  #  Decode the HTML entity or URI symbol string to its literal character
+  #  counterpart
+  # Arguments:
+  #  1 - String: The string to decode.
+  # Return Value:
+  #  Character: The decoded character.
+  def DecodeSymbol(symbol: string): string
+    var char: string
+
+    if symbol =~ '^&#\%(x\x\+\);$\|^&#\%(\d\+\);$\|^&\%([A-Za-z0-9]\+\);$'
+      char = this.EntityToChar(symbol)
+    elseif symbol =~ '^%\%(\x\x\)$'
+      char = symbol->strpart(1, symbol->strlen() - 1)->str2nr(16)->nr2char()
+    else
+      char = symbol
+    endif
+
+    return char
+  enddef
+
   # DetectCharset()  {{{1
   #
   # Purpose:
@@ -368,6 +412,30 @@ export class HTMLUtil
     endif
 
     return g:htmlplugin.default_charset
+  enddef
+
+  # EntityToChar()  {{{1
+  #
+  # Purpose:
+  #  Convert character entities to its corresponing character.
+  # Arguments:
+  #  1 - String: The entity to decode
+  # Return Value:
+  #  String: The decoded character
+  def EntityToChar(entity: string): string
+    var char: string
+
+    if Variables.HTMLVariables.EntitiesToChar->has_key(entity)
+      char = Variables.HTMLVariables.EntitiesToChar[entity]
+    elseif entity =~ '^&#\%(x\x\+\);$'
+      char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
+    elseif entity =~ '^&#\%(\d\+\);$'
+      char = entity->strpart(2, entity->strlen() - 3)->str2nr()->nr2char()
+    else
+      char = entity
+    endif
+
+    return char
   enddef
 
   # FilesWithMatch()  {{{1
@@ -529,7 +597,7 @@ export class HTMLUtil
   #  SetIfUnsetR.error    - An error occurred
   def SetIfUnset(v: string, ...args: list<any>): SetIfUnsetR
     var val: any
-    var variable = v
+    var variable: string = v
 
     if variable =~# '^l:'
       printf(Messages.HTMLMessages.E_NOLOCALVAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
@@ -565,7 +633,7 @@ export class HTMLUtil
     elseif type(val) == v:t_number || type(val) == v:t_float
       execute $'{variable} = {val}'
     else
-      execute $'{variable} = {string(val)}'
+      execute $'{variable} = ''{string(val)}'''
     endif
 
     return SetIfUnsetR.success
@@ -755,73 +823,6 @@ export class HTMLUtil
     return ''
   enddef
 
-  # CharToEntity()  {{{1
-  #
-  # Purpose:
-  #  Convert a character to its corresponding character entity, or its numeric
-  #  form if the entity doesn't exist in the lookup table.
-  # Arguments:
-  #  1 - Character: The character to encode
-  # Return Value:
-  #  String: The entity representing the character
-  def CharToEntity(char: string): string
-    # Would be good to keep this but it's unlikely to be necessary, and
-    # currently I can't access HTMLMessagesO in a lambda, so just leave it
-    # commented out:
-    #if char->strchars(1) != 1
-    #  printf(Messages.HTMLMessages.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
-    #  return char
-    #endif
-
-    return Variables.HTMLVariables.CharToEntities->get(char, printf('&#x%X;', char->char2nr()))
-  enddef
-
-  # EntityToChar()  {{{1
-  #
-  # Purpose:
-  #  Convert character entities to its corresponing character.
-  # Arguments:
-  #  1 - String: The entity to decode
-  # Return Value:
-  #  String: The decoded character
-  def EntityToChar(entity: string): string
-    var char: string
-
-    if Variables.HTMLVariables.EntitiesToChar->has_key(entity)
-      char = Variables.HTMLVariables.EntitiesToChar[entity]
-    elseif entity =~ '^&#\%(x\x\+\);$'
-      char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
-    elseif entity =~ '^&#\%(\d\+\);$'
-      char = entity->strpart(2, entity->strlen() - 3)->str2nr()->nr2char()
-    else
-      char = entity
-    endif
-
-    return char
-  enddef
-
-  # DecodeSymbol()  {{{1
-  #
-  # Purpose:
-  #  Decode the HTML entity or URI symbol string to its literal character
-  #  counterpart
-  # Arguments:
-  #  1 - String: The string to decode.
-  # Return Value:
-  #  Character: The decoded character.
-  def DecodeSymbol(symbol: string): string
-    var char: string
-
-    if symbol =~ '^&#\%(x\x\+\);$\|^&#\%(\d\+\);$\|^&\%([A-Za-z0-9]\+\);$'
-      char = this.EntityToChar(symbol)
-    elseif symbol =~ '^%\%(\x\x\)$'
-      char = symbol->strpart(1, symbol->strlen() - 1)->str2nr(16)->nr2char()
-    else
-      char = symbol
-    endif
-
-    return char
-  enddef
 
   # }}}1
 
