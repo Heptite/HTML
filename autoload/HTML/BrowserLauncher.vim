@@ -5,9 +5,7 @@ if v:versionlong < 9021240
   finish
 endif
 
-# ------------------------------------------------------------------------ {{{
-#
-# Methods to launch/control browsers
+# Methods to launch/control browsers ------------------------------------- {{{
 #
 # Last Change: November 01, 2026
 #

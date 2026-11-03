@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.
 #
-# Last Change: October 31, 2026
+# Last Change: November 02, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -206,7 +206,7 @@ export class HTMLGlue extends Util.HTMLUtil
       b:htmlplugin.smarttags = {}
     endif
 
-    for json in json_data
+    for json: dict<any> in json_data
         if json->has_key('menu') && json.menu[2]->has_key('n')
             && json.menu[2].n[0] ==? '<nop>' && domenu
           HTMLMenuO.Menu('menu', json.menu[0], json.menu[1], '<nop>')
@@ -223,7 +223,7 @@ export class HTMLGlue extends Util.HTMLUtil
 
         if json->has_key('smarttag')
           # Translate \<...> strings to their corresponding actual value:
-          var smarttag = json.smarttag->string()->substitute(
+          var smarttag: string = json.smarttag->string()->substitute(
             '\\\(<[a-zA-Z0-9_-]\+>\)',
             '\=Variables.HTMLVariables.MAP_ESCAPES->get(submatch(1)->toupper(), submatch(1))',
             'g'
@@ -233,7 +233,7 @@ export class HTMLGlue extends Util.HTMLUtil
         endif
 
         if json->has_key('maps')
-          var did_mappings = 0
+          var did_mappings: number = 0
 
           if json.maps->has_key('i')
               && maparg((maplhs == '' ? $'<lead>{json.maps.i[0]}' : maplhs)->substitute('^<lead>\c',
@@ -295,7 +295,7 @@ export class HTMLGlue extends Util.HTMLUtil
         endif
 
         if domenu && json->has_key('menu')
-          var did_menus = 0
+          var did_menus: number = 0
 
           if json.menu[2]->has_key('i')
             HTMLMenuO.LeadMenu('imenu',

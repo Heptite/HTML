@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.
 #
-# Last Change: October 31, 2026
+# Last Change: November 02, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -254,7 +254,7 @@ export class HTMLUtil
     maxw = Variables.HTMLVariables.COLOR_LIST->mapnew((_, value) => value[0]->strlen())
       ->sort('f')[-1]
 
-    var colorwin = Variables.HTMLVariables.COLOR_LIST->mapnew(
+    var colorwin: number = Variables.HTMLVariables.COLOR_LIST->mapnew(
         (_, value) => printf($'%{maxw}s = %s', (value[0] == '' ? value[1] : value[0]), value[1])
       )->popup_menu({
         callback: CCSelect, filter: CCKeyFilter,
@@ -265,8 +265,8 @@ export class HTMLUtil
 
     Variables.HTMLVariables.COLOR_LIST->mapnew(
       (_, value) => {
-        var csplit = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
-        var contrast = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ? 0x000000 : 0xFFFFFF)
+        var csplit: list<number> = value[1][1 : -1]->split('\x\x\zs')->mapnew((_, val) => val->str2nr(16))
+        var contrast: number = (((csplit[0] > 0x80) || (csplit[1] > 0x80) || (csplit[2] > 0x80)) ? 0x000000 : 0xFFFFFF)
         var namenospace = (value[0] == '' ? value[1] : value[0]->substitute('\s', '', 'g'))
         win_execute(colorwin, $'syntax match hc_{namenospace} /{value[1]}$/')
         win_execute(colorwin, $'highlight hc_{namenospace} guibg={value[1]} guifg=#{printf("%06X", contrast)}')
@@ -459,7 +459,7 @@ export class HTMLUtil
       ->split('  ')
       ->mapnew(
         (_, val) => {
-          var newval = val->split(':')
+          var newval: list<string> = val->split(':')
           ftout[newval[0]] = newval[1]
         }
       )
@@ -624,7 +624,7 @@ export class HTMLUtil
   # (Note that g:htmlplugin.save_clipboard is set by this plugin's
   # initialization.)
   def ToggleClipboard(dowhat: ToggleClipboardA = ToggleClipboardA.auto): bool
-    var newdowhat = dowhat
+    var newdowhat: ToggleClipboardA = dowhat
 
     if newdowhat == ToggleClipboardA.auto
       if this.BoolVar('b:htmlplugin.did_mappings')
@@ -714,7 +714,7 @@ export class HTMLUtil
       return ''
     endif
 
-    var rgb = color[1 : -1]->split('\x\{2}\zs')->mapnew((_, val) => str2nr(val, 16))
+    var rgb: list<number> = color[1 : -1]->split('\x\{2}\zs')->mapnew((_, val) => str2nr(val, 16))
 
     if percent
       rgb = rgb->mapnew((_, val) => round(val / 256.0 * 100)->float2nr())
@@ -740,89 +740,87 @@ export class HTMLUtil
   # Return Value:
   #  String: The encoded string.
   def TranscodeString(str: string, code: string = 'encode'): string
-
-    # CharToEntity()  {{{2
-    #
-    # Purpose:
-    #  Convert a character to its corresponding character entity, or its numeric
-    #  form if the entity doesn't exist in the lookup table.
-    # Arguments:
-    #  1 - Character: The character to encode
-    # Return Value:
-    #  String: The entity representing the character
-    def CharToEntity(char: string): string
-      # Would be good to keep this but it's unlikely to be necessary, and
-      # currently I can't access HTMLMessagesO in a lambda, so just leave it
-      # commented out:
-      #if char->strchars(1) != 1
-      #  printf(Messages.HTMLMessages.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
-      #  return char
-      #endif
-
-      return Variables.HTMLVariables.CharToEntities->get(char, printf('&#x%X;', char->char2nr()))
-    enddef  # }}}2
-
-    # DecodeSymbol()  {{{2
-    #
-    # Purpose:
-    #  Decode the HTML entity or URI symbol string to its literal character
-    #  counterpart
-    # Arguments:
-    #  1 - String: The string to decode.
-    # Return Value:
-    #  Character: The decoded character.
-    def DecodeSymbol(symbol: string): string
-
-      # EntityToChar()  {{{3
-      #
-      # Purpose:
-      #  Convert character entities to its corresponing character.
-      # Arguments:
-      #  1 - String: The entity to decode
-      # Return Value:
-      #  String: The decoded character
-      def EntityToChar(entity: string): string
-        var char: string
-
-        if Variables.HTMLVariables.EntitiesToChar->has_key(entity)
-          char = Variables.HTMLVariables.EntitiesToChar[entity]
-        elseif entity =~ '^&#\%(x\x\+\);$'
-          char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
-        elseif entity =~ '^&#\%(\d\+\);$'
-          char = entity->strpart(2, entity->strlen() - 3)->str2nr()->nr2char()
-        else
-          char = entity
-        endif
-
-        return char
-      enddef  # }}}3
-
-      var char: string
-
-      if symbol =~ '^&#\%(x\x\+\);$\|^&#\%(\d\+\);$\|^&\%([A-Za-z0-9]\+\);$'
-        char = EntityToChar(symbol)
-      elseif symbol =~ '^%\%(\x\x\)$'
-        char = symbol->strpart(1, symbol->strlen() - 1)->str2nr(16)->nr2char()
-      else
-        char = symbol
-      endif
-
-      return char
-    enddef  # }}}2
-
     if code == '' || code =~? '^\%(e\%(ncode\)\=\)\=$'
-      return str->mapnew((_, char) => char->CharToEntity())
+      return str->mapnew((_, char) => this.CharToEntity(char))
     elseif code ==? 'x'
       return str->mapnew((_, char) => printf("&#x%x;", char->char2nr()))
     elseif code == '%'
       return str->substitute('[\x00-\x99]', '\=printf("%%%02X", submatch(0)->char2nr())', 'g')
     elseif code =~? '^d\%(ecode\)\=$'
       return str->split('\(&[A-Za-z0-9]\+;\|&#x\x\+;\|&#\d\+;\|%\x\x\)\zs')
-          ->mapnew((_, s) => s->DecodeSymbol())
+          ->mapnew((_, s) => this.DecodeSymbol(s))
           ->join('')
     endif
 
     return ''
+  enddef
+
+  # CharToEntity()  {{{1
+  #
+  # Purpose:
+  #  Convert a character to its corresponding character entity, or its numeric
+  #  form if the entity doesn't exist in the lookup table.
+  # Arguments:
+  #  1 - Character: The character to encode
+  # Return Value:
+  #  String: The entity representing the character
+  def CharToEntity(char: string): string
+    # Would be good to keep this but it's unlikely to be necessary, and
+    # currently I can't access HTMLMessagesO in a lambda, so just leave it
+    # commented out:
+    #if char->strchars(1) != 1
+    #  printf(Messages.HTMLMessages.E_ONECHAR, Messages.HTMLMessages.F())->HTMLMessagesO.Error()
+    #  return char
+    #endif
+
+    return Variables.HTMLVariables.CharToEntities->get(char, printf('&#x%X;', char->char2nr()))
+  enddef
+
+  # EntityToChar()  {{{1
+  #
+  # Purpose:
+  #  Convert character entities to its corresponing character.
+  # Arguments:
+  #  1 - String: The entity to decode
+  # Return Value:
+  #  String: The decoded character
+  def EntityToChar(entity: string): string
+    var char: string
+
+    if Variables.HTMLVariables.EntitiesToChar->has_key(entity)
+      char = Variables.HTMLVariables.EntitiesToChar[entity]
+    elseif entity =~ '^&#\%(x\x\+\);$'
+      char = entity->strpart(3, entity->strlen() - 4)->str2nr(16)->nr2char()
+    elseif entity =~ '^&#\%(\d\+\);$'
+      char = entity->strpart(2, entity->strlen() - 3)->str2nr()->nr2char()
+    else
+      char = entity
+    endif
+
+    return char
+  enddef
+
+  # DecodeSymbol()  {{{1
+  #
+  # Purpose:
+  #  Decode the HTML entity or URI symbol string to its literal character
+  #  counterpart
+  # Arguments:
+  #  1 - String: The string to decode.
+  # Return Value:
+  #  Character: The decoded character.
+  def DecodeSymbol(symbol: string): string
+    var char: string
+
+    if symbol =~ '^&#\%(x\x\+\);$\|^&#\%(\d\+\);$\|^&\%([A-Za-z0-9]\+\);$'
+      char = this.EntityToChar(symbol)
+    elseif symbol =~ '^%\%(\x\x\)$'
+      char = symbol->strpart(1, symbol->strlen() - 1)->str2nr(16)->nr2char()
+    else
+      char = symbol
+    endif
+
+    return char
   enddef
 
   # }}}1
