@@ -66,8 +66,7 @@ endif
 #
 # ---- TODO: ------------------------------------------------------------ {{{1
 #
-# - Add many more character entity mappings (see table in
-#   import/HTML/Variables.vim)
+# - Add many more character entity mappings
 #
 # - Add more HTML 5 tags?
 #   https://www.w3.org/wiki/HTML/New_HTML5_Elements

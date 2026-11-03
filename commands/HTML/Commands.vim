@@ -39,9 +39,8 @@ var HTMLGlueO: Glue.HTMLGlue = Glue.HTMLGlue.new()
 
 def HTMLpluginComplete(A: string, C: string, P: number): list<string>
   return [
-    'disable', 'off', 'false', 'enable', 'on',
-    'true', 'about', 'template', 'browserlog',
-    'colorchooser'
+    'disable', 'off',   'false',    'enable',     'on',
+    'true',    'about', 'template', 'browserlog', 'colorchooser'
   ]->filter((idx, val) => val =~? $'^{A}')
 enddef
 

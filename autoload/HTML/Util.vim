@@ -661,18 +661,14 @@ export class HTMLUtil
 
     return text->mapnew(
       (_, str) =>
-        str->substitute($'\C%\({join(keys(Variables.HTMLVariables.TEMPLATE_TOKENS), '\|')}\)%',
-              '\=get(b:htmlplugin, Variables.HTMLVariables.TEMPLATE_TOKENS[submatch(1)], "")', 'g')
-            ->substitute('\C%date%', '\=strftime("%B %d, %Y")', 'g')
+        str->substitute($'\C%\({join(keys(Variables.HTMLVariables.TEMPLATE_TOKENS.user), '\|')}\)%',
+              '\=get(b:htmlplugin, Variables.HTMLVariables.TEMPLATE_TOKENS.user[submatch(1)], "")', 'g')
+            ->substitute($'\C%\({join(keys(Variables.HTMLVariables.TEMPLATE_TOKENS.static), '\|')}\)%',
+              '\=Variables.HTMLVariables.TEMPLATE_TOKENS.static[submatch(1)]', 'g')
+            ->substitute($'\C%\({join(keys(Variables.HTMLVariables.TEMPLATE_TOKENS.dynamic), '\|')}\)%',
+              '\=eval(Variables.HTMLVariables.TEMPLATE_TOKENS.dynamic[submatch(1)])', 'g')
             ->substitute('\C%date\s*\(\%(\\%\|[^%]\)\{-}\)\s*%',
               '\=submatch(1)->substitute(''\\%'', "%%", "g")->substitute(''\\\@<!!'', "%", "g")->strftime()', 'g')
-            ->substitute('\C%time%', '\=strftime("%r %Z")', 'g')
-            ->substitute('\C%time12%', '\=strftime("%r %Z")', 'g')
-            ->substitute('\C%time24%', '\=strftime("%T")', 'g')
-            ->substitute('\C%charset%', '\=this.DetectCharset()', 'g')
-            ->substitute('\C%vimversion%', '\=(v:version / 100) .. "." .. (v:version % 100) .. "." .. (v:versionlong % 10000)', 'g')
-            ->substitute('\C%htmlversion%', Variables.HTMLVariables.VERSION, 'g')
-            ->substitute('\C%htmlhomepage%', Variables.HTMLVariables.HOMEPAGE, 'g')
             ->substitute('\C%include\s\+\(.\{-1,}\)%',
               '\=this.FindAndRead(submatch(1), newpath, true, true)->join("%newline%")', 'g')
       )

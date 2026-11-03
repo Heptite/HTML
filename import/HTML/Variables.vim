@@ -63,15 +63,29 @@ export class HTMLVariables
 
   var saveopts: dict<any> = {}
 
-  static const TEMPLATE_TOKENS: dict<string> = { # {{{
-    authorname:  'author_name',
-    authoremail: 'author_email_encoded',
-    authorurl:   'author_url',
-    bgcolor:     'bgcolor',
-    textcolor:   'textcolor',
-    linkcolor:   'linkcolor',
-    alinkcolor:  'alinkcolor',
-    vlinkcolor:  'vlinkcolor',
+  static const TEMPLATE_TOKENS: dict<dict<string>> = { # {{{
+    user: {
+      authorname:  'author_name',
+      authoremail: 'author_email_encoded',
+      authorurl:   'author_url',
+      bgcolor:     'bgcolor',
+      textcolor:   'textcolor',
+      linkcolor:   'linkcolor',
+      alinkcolor:  'alinkcolor',
+      vlinkcolor:  'vlinkcolor',
+    },
+    static: {
+      vimversion:    $'{v:version / 100}.{v:version % 100}.{v:versionlong % 10000}',
+      htmlversion:   HTMLVariables.VERSION,
+      hthmlhomepage: HTMLVariables.HOMEPAGE,
+    },
+    dynamic: {
+      date:    'strftime("%B %d, %Y")',
+      time:    'strftime("%r %Z")',
+      time12:  'strftime("%r %Z")',
+      time24:  'strftime("%T")',
+      charset: 'b:htmlplugin.HTMLUtilO.DetectCharset()',
+    }
   } # }}}
 
   static const INTERNAL_TEMPLATE: tuple<...list<string>> = (  # {{{

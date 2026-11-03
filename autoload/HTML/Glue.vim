@@ -117,9 +117,9 @@ export class HTMLGlue extends Util.HTMLUtil
       if HTMLMapO.Template()
         startinsert
       endif
-    elseif dowhat =~? '^b\%(rowserlog\)\?$'
+    elseif dowhat =~? '^b\%(rowser\%(log\)\?\)\?$'
       BrowserLauncherO.ShowBrowserLog()
-    elseif dowhat =~? '^c\%(olorchooser\)\?$'
+    elseif dowhat =~? '^c\%(olor\%(chooser)\?\)\?$'
       HTMLUtilO.ColorChooser()
     else
       printf(Messages.HTMLMessages.E_INVALIDARG, Messages.HTMLMessages.F(), dowhat)->HTMLMessagesO.Error()
