@@ -5,7 +5,7 @@ if v:versionlong < 9021240
   finish
 endif
 
-# Utility functions for the HTML macros filetype plugin.
+# Utility functions for the HTML macros filetype plugin.                  {{{1
 #
 # Last Change: November 03, 2026
 #
@@ -27,7 +27,7 @@ endif
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
-# https://www.gnu.org/licenses/licenses.html#GPL
+# https://www.gnu.org/licenses/licenses.html#GPL                          }}}1
 
 import '../../import/HTML/Variables.vim'
 import autoload './BrowserLauncher.vim'

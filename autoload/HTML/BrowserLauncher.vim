@@ -97,6 +97,9 @@ type BrowserList = dict<dict<any>>
 
 export class BrowserLauncher
 
+  static var HTMLMessagesO: Messages.HTMLMessages
+  static var HTMLUtilO: Util.HTMLUtil
+
   static var _Browsers: BrowserList = {}
   static var _TextModeBrowsers: BrowserList = { # {{{
     lynx:   {realname: 'lynx',   path: '', tab: '', window: ''},
@@ -152,9 +155,6 @@ export class BrowserLauncher
   } # }}}
   static var _MacBrowsersExist: list<string> = ['default']
   static var _BrowserLog: list<string> = []
-
-  static var HTMLMessagesO: Messages.HTMLMessages
-  static var HTMLUtilO: Util.HTMLUtil
 
   def new()  # {{{
     if HTMLMessagesO == null_object

@@ -5,9 +5,9 @@ if v:versionlong < 9021240
   finish
 endif
 
-# Messaging functions for the HTML macros filetype plugin.
+# Messaging functions for the HTML macros filetype plugin.                {{{1
 #
-# Last Change: November 02, 2026
+# Last Change: November 03, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -27,9 +27,7 @@ endif
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place  -  Suite  330,  Boston,  MA  02111-1307,  USA.   Or  you  can  go  to
-# https://www.gnu.org/licenses/licenses.html#GPL
-
-
+# https://www.gnu.org/licenses/licenses.html#GPL                          }}}1
 
 # Must be done outside of any class:
 bindtextdomain('CJRHTML', fnamemodify(expand('<script>'), ':p:h') .. '../../lang/')
