@@ -676,7 +676,7 @@ else
 
     # For some reason, the tmenu commands must come before the other menu
     # commands for that menu item, or GTK versions of gVim don't show the
-    # icons properly.
+    # icons properly.  (Is this still true?)
 
     HTMLMenuO.Menu('tmenu',     '1.10',  ['ToolBar', 'Open'],      'Open File')
     HTMLMenuO.Menu('anoremenu', '1.10',  ['ToolBar', 'Open'],      save_toolbar.open)
@@ -968,6 +968,10 @@ else
     HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Links2 (New Window)'], 'nl2')
     HTMLMenuO.LeadMenu('amenu', '-', ['&Preview', 'Links2 (:terminal)'], 'tl2')
   endif
+
+  HTMLMenuO.Menu('menu', '-', ['Preview', '-sep10-'], '<nop>')
+  HTMLMenuO.Menu('amenu', '-', ['&Preview', '&View Browser Log<TAB>:BrowserLog'],
+    ':BrowserLog<CR>')
 
   # Bring in the tags and entities menus and mappings at the same time. (If we
   # got here they weren't brought in above.):

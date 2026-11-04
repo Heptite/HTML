@@ -752,7 +752,7 @@ export class BrowserLauncher
   # path to a Windows native path, otherwise just return the path as-is.
   #
   # Usage:
-  #  _NativePath({filename})
+  #  _NativePath({filename}, {browser})
   #
   # Return value:
   #  String: The path the plugin needs for the "native" (host) OS to load the

@@ -53,12 +53,15 @@ export class HTMLVariables
   static const ENTITY_TABLE_FILE: string = 'json/HTML/entitytable.json'
 
   static const MAP_ESCAPES: dict<string> = {
-    '<CR>':   "\<CR>",   '<ESC>':    "\<ESC>",
-    '<LEFT>': "\<LEFT>", '<RIGHT>':  "\<RIGHT>",
-    '<UP>':   "\<UP>",   '<DOWN>':   "\<DOWN>",
-    '<C-O>':  "\<C-O>",  '<C-C>':    "\<C-C>",
-    '<C-R>':  "\<C-R>",  '<BAR>':    '|',
-    '<LT>':   '<',       '<BSLASH>': '\'
+    '<CR>':     "\<CR>",     '<ESC>':    "\<ESC>",
+    '<RETURN>': "\<RETURN>", '<ENTER>':  "\<ENTER>",
+    '<LEFT>':   "\<LEFT>",   '<RIGHT>':  "\<RIGHT>",
+    '<UP>':     "\<UP>",     '<DOWN>':   "\<DOWN>",
+    '<C-O>':    "\<C-O>",    '<C-C>':    "\<C-C>",
+    '<C-R>':    "\<C-R>",    '<BAR>':    '|',
+    '<LT>':     '<',         '<BSLASH>': '\',
+    '<TAB>':    "\<TAB>",    '<SPACE>':  ' ',
+    '<BS>':     "\<BS>",     '<DEL>':    "\<DEL>",
   }
 
   var saveopts: dict<any> = {}

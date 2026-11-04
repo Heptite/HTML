@@ -196,22 +196,20 @@ export class HTMLMenu extends Util.HTMLUtil
   #  2 - String: The menu numeric level(s) ("-" for automatic)
   #  3 - List:   The menu name, split into submenu heirarchy as a list
   #  4 - String: The keystrokes to run (usually going to be a mapping to call)
+  #  5 - Bool:   Optional, whether to run the menu command silently (default: false)
   # Return Value:
   #  None
-  def Menu(type: string, level: string, name: list<string>, item: string): void
+  def Menu(type: string, level: string, name: list<string>, item: string, silent: bool = false): void
     var newlevel:       string
-    var newname:        list<string>
     var nameescaped:    string
     var leaderescaped:  string = g:htmlplugin.map_leader->escape('&<.|')->substitute('\\&', '\&\&', 'g')
     var priorityprefix: string = this.PriorityPrefix(name[0])
 
     if name[0] == 'ToolBar' || name[0] == 'PopUp'
-      newname = name
+      nameescaped = name->this.Join()
     else
-      newname = name->extendnew(g:htmlplugin.toplevel_menu, 0)
+      nameescaped = name->extendnew(g:htmlplugin.toplevel_menu, 0)->this.Join()
     endif
-
-    nameescaped = newname->this.Join()
 
     if level ==? 'auto'
       if g:htmlplugin.toplevel_menu_priority > 0
@@ -226,7 +224,9 @@ export class HTMLMenu extends Util.HTMLUtil
       newlevel = priorityprefix .. level
     endif
 
-    execute $'{type} {newlevel} {nameescaped} {item}'
+    var besilent: string = silent ? '<silent>' : ''
+
+    execute $'{type} {besilent} {newlevel} {nameescaped} {item}'
   enddef
 
   # Control()  {{{1
@@ -234,7 +234,7 @@ export class HTMLMenu extends Util.HTMLUtil
   # Purpose:
   #  Disable/enable the HTML menu and toolbar.
   # Arguments:
-  #  1 - String: Optional, Whether to disable or enable the menus:
+  #  1 - String: Optional, whether to disable or enable the menus:
   #                empty/"detect": Detect which to do
   #                "disable": Disable the menu and toolbar
   #                "enable": Enable the menu and toolbar
