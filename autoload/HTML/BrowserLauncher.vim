@@ -774,6 +774,16 @@ export class BrowserLauncher
     _BrowserLog->add($'[{strftime("%Y-%m-%d %H:%M:%S")}] channel {channel->ch_info()['id']}: {msg}')
   enddef
       
+  def _UpdateBrowserLogBuffer(logbuf: number, timerid: number = -1): void  # {{{1
+    if logbuf < 0 || bufexists(logbuf) == 0
+      return
+    endif
+
+    setbufvar(logbuf, 'modifiable', 1)
+    setbufline(logbuf, 1, _BrowserLog)
+    setbufvar(logbuf, 'modifiable', 0)
+  enddef
+
   def ShowBrowserLog(): void  # {{{1
     if _BrowserLog == []
       HTMLMessagesO.Message('No browser output to show.')
@@ -809,16 +819,6 @@ export class BrowserLauncher
     endif
 
     this._UpdateBrowserLogBuffer(logbuf)
-  enddef
-
-  def _UpdateBrowserLogBuffer(logbuf: number, timerid: number = -1): void  # {{{1
-    if logbuf < 0 || bufexists(logbuf) == 0
-      return
-    endif
-
-    setbufvar(logbuf, 'modifiable', 1)
-    setbufline(logbuf, 1, _BrowserLog)
-    setbufvar(logbuf, 'modifiable', 0)
   enddef # }}}1
 
 endclass
