@@ -7,7 +7,7 @@ endif
 
 # Methods to launch/control browsers ------------------------------------- {{{
 #
-# Last Change: November 03, 2026
+# Last Change: November 04, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -155,6 +155,7 @@ export class BrowserLauncher
   } # }}}
   static var _MacBrowsersExist: list<string> = ['default']
   static var _BrowserLog: list<string> = []
+  static var _LogBufTimer: number = -1
 
   def new()  # {{{
     if HTMLMessagesO == null_object
@@ -770,7 +771,7 @@ export class BrowserLauncher
   enddef  # }}}
 
   def _AddLogItem(channel: channel, msg: string): void  # {{{1
-    _BrowserLog->add($'[{strftime("%c")}] channel {channel->ch_info()['id']}: {msg}')
+    _BrowserLog->add($'[{strftime("%Y-%m-%d %H:%M:%S")}] channel {channel->ch_info()['id']}: {msg}')
   enddef
       
   def ShowBrowserLog(): void  # {{{1
@@ -780,9 +781,24 @@ export class BrowserLauncher
     endif
 
     var logbuf: number = bufnr('\[BrowserLauncherLog\]')
-    if logbuf == -1
+    if logbuf < 0
       new [BrowserLauncherLog]
-      setlocal buftype=nofile bufhidden=hide noswapfile filetype=log
+      setlocal buftype=nofile bufhidden=hide noswapfile
+      nmap <silent> <buffer> q :hide<CR>
+      nmap <buffer> <space> <PageDown>
+
+      logbuf = bufnr()
+
+      if _LogBufTimer < 0
+        var F: func = function(this._UpdateBrowserLogBuffer, [logbuf])
+        _LogBufTimer = timer_start(
+          3000, F, {repeat: -1}
+        )
+
+        if _LogBufTimer < 0
+          HTMLMessagesO.Error('Could not start log buffer update timer.')
+        endif
+      endif
     else
       var winid: number = bufwinnr(logbuf)
       if winid != -1
@@ -790,11 +806,19 @@ export class BrowserLauncher
       else
         execute $'sbuffer {logbuf}'
       endif
-      setlocal modifiable
     endif
 
-    setline(1, _BrowserLog)
-    setlocal nomodifiable
+    this._UpdateBrowserLogBuffer(logbuf)
+  enddef
+
+  def _UpdateBrowserLogBuffer(logbuf: number, timerid: number = -1): void  # {{{1
+    if logbuf < 0 || bufexists(logbuf) == 0
+      return
+    endif
+
+    setbufvar(logbuf, 'modifiable', 1)
+    setbufline(logbuf, 1, _BrowserLog)
+    setbufvar(logbuf, 'modifiable', 0)
   enddef # }}}1
 
 endclass
