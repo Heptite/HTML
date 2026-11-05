@@ -83,7 +83,7 @@ pushed: commit
 tag: commit version
 	test "`git branch --show-current`" = "master"
 	test -z "`git status --porcelain --untracked-files=no 2>/dev/null`" 
-	git tag -a v`cat version` -m "Version `cat version`"
+	-git tag -a v`cat version` -m "Version `cat version`"
 	git push --atomic origin master v`cat version`
 	touch pushed
 
@@ -154,6 +154,7 @@ copy: all
 		toolbar-icons.png ~/www/website/src/assets/programming/
 
 upload: HTML.zip version
+	-chmod a+x ./upload
 	./upload
 
 install: installed
