@@ -445,26 +445,43 @@ export class HTMLUtil
     return char
   enddef
 
-  # FileSelect() {{{
+  # FileSelect() {{{1
   #
   # Purpose:
-  #  Use the popup feature of Vim to display a list of files for selection
+  #  Use the browse() feature of Vim to display a list of files for selection,
+  #  which is is used by mappings to insert into the current buffer at the
+  #  cursor position.
   # Arguments:
   #  None
   # Return Value:
   #  String: The file selected, or an empty string if none was selected
   def FileSelect(): string
+    if !has('gui_running')
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_NOFILESELECT)
+      return ''
+    endif
+
     var file: string = ''
-    #b:htmlplugin.browsefilter_save = get(b:, 'browsefilter', '')
+
+    def RestoreBrowseFilter()  # {{{2
+      lcd -
+      b:browsefilter = b:htmlplugin.browsefilter_save
+    enddef # }}}2
+
+    b:htmlplugin.browsefilter_save = get(b:, 'browsefilter', '')
+
     exe $'lcd {expand("%:p:h")}'
-    defer execute('lcd -', 'silent')
-    #defer execute('b:browsefilter = b:htmlplugin.browsefilter_save', 'silent')
+
+    defer RestoreBrowseFilter()
+
     b:browsefilter =
       "HTML Files\t*.htm;*.html;*.xht;*.xhtml;*.sht;*.shtml;*.dht;*.dhtml\n"
       .. "Web Compatible Images\t*.png;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.webp\n"
+      .. "JavaScript\t*.js\n"
+      .. "Cascading StyleSheets\t*.css\n"
       .. "All Files\t*.*;*\n"
-    file = browse(false, 'Select a file...', '.', '')
-    return file
+
+    return browse(false, 'Select a file...', '.', '')
   enddef
 
   # FilesWithMatch()  {{{1
