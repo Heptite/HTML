@@ -200,7 +200,7 @@ test_methods: force
 			echo PASSED; \
 		fi"
 
-test_maps: toolbar-icons.png force
+test_maps: force
 	@sh -c "cd test; \
 		rm -f test_maps_results.log; \
 		echo -n TESTING MAPPINGS...; \

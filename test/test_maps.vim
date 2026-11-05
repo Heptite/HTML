@@ -321,13 +321,14 @@ def Test_normal_mode_mappings(...which: list<string>)
 	endfor
 
 	# Special cases:
+	# (these also tend to test various methods)
 	:%delete
 	assert_nobeep("normal ;html")
 	assert_match('^<!DOCTYPE html>\n<html>\n\s<head>\n\n\s\s<title></title>\_.\+</body>\n</html>$',
 		join(getline(1, '$'), "\n"), $'Mapping: ;html')
 	:%delete
-	assert_nobeep("normal i;im../toolbar-icons.png\<esc>;mi")
-	assert_match('<img src="../toolbar-icons.png" width="\d\+" height="\d\+" alt="">',
+	assert_nobeep("normal i;im../circle.png\<esc>;mi")
+	assert_match('<img src="../circle.png" width="400" height="300" alt="">',
 		getline(1), $'Mapping: ;mi')
 
 	if v:errors != []
