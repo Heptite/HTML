@@ -22,6 +22,6 @@
   "homepage": "https://github.com/Heptite/HTML#readme",
   "devDependencies": {
     "@eslint/json": "^2.1.1",
-    "eslint": "^10.13.0"
+    "eslint": "^9.39.5"
   }
 }
