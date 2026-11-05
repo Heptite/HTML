@@ -28,9 +28,6 @@ jobs:
     - name: Install ImageMagick
       run: sudo apt-get install imagemagick
 
-    - name: Create archive
-      run: make zip
-
     - name: Run tests
       run: make -k test
 

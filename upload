@@ -10,7 +10,7 @@ use File::Basename;
 my $script_id = 453;
 
 die "Not on master branch!\n"
-	if (`git branch --show-current` ne "master");
+	if (`git branch --show-current` !~ m/^master/);
 
 print "Initializing...\n";
 
