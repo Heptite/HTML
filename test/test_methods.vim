@@ -6,6 +6,7 @@ scriptencoding utf8
 
 import "../autoload/HTML/Util.vim"
 import "../autoload/HTML/Map.vim"
+import "../autoload/HTML/Menu.vim"
 import "../autoload/HTML/Messages.vim"
 import "../autoload/HTML/Glue.vim"
 import "../import/HTML/Variables.vim"
@@ -87,6 +88,22 @@ def Test_map_methods()
 	endif
 enddef
 
+def Test_menu_methods()
+	var menuo: Menu.HTMLMenu = Menu.HTMLMenu.new()
+
+	assert_equal('Testing.Menu.Join', menuo.Join(["Testing", "Menu", "Join"]),
+		'Join(["Testing", "Menu", "Join"])')
+	unlockvar g:htmlplugin.toplevel_menu
+	g:htmlplugin.toplevel_menu = ["Foo", "Bar", "Baz"]
+	assert_equal('..', menuo.PriorityPrefix("Qux"),
+		'g:htmlplugin.toplevel_menu = ["Foo", "Bar", "Baz"]; PriorityPrefix("Qux")')
+
+	if v:errors != []
+		writefile(v:errors, 'Xresult', 'a')
+		v:errors = []
+	endif
+enddef
+
 def Test_messages_methods()
 	assert_match('function <SNR>\d\+_Test_messages_methods', Messages.HTMLMessages.F(), 'Messages.HTMLMessages.F()')
 
@@ -124,6 +141,7 @@ source ../ftplugin/html/HTML.vim
 Test_glue_methods()
 Test_util_methods()
 Test_map_methods()
+Test_menu_methods()
 Test_messages_methods()
 
 qall!
