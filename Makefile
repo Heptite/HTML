@@ -71,7 +71,7 @@ commit: committed
 
 committed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) README.md SECURITY.md version
 	git add .
-	git commit
+	git diff-index --quiet HEAD || git commit
 	touch committed
 
 push: pushed
