@@ -9,6 +9,9 @@ use File::Basename;
 
 my $script_id = 453;
 
+die "Not on master branch!\n"
+	if (`git branch --show-current` ne "master");
+
 print "Initializing...\n";
 
 my $mech = WWW::Mechanize->new(autocheck => 1);

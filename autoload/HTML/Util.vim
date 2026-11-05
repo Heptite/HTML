@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.                  {{{1
 #
-# Last Change: November 03, 2026
+# Last Change: November 05, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -101,16 +101,23 @@ export class HTMLUtil
   #  Boolean
   def Bool(value: any): bool
     var regexp: string = '^no\?$\|^off$\|^\%(v:\)\?\%(false\|none\|null\)$\|^0\%(\.0\)\?$\|^$'
+    var valuetype: number = type(value)
 
-    if value->type() == v:t_string
+    if valuetype == v:t_string
       return value !~? regexp
-    elseif value->type() == v:t_bool || value->type() == v:t_none
-        || value->type() == v:t_number || value->type() == v:t_float
+    elseif valuetype == v:t_bool || valuetype == v:t_none
+        || valuetype == v:t_number || valuetype == v:t_float
       return value->string() !~? regexp
-    elseif value->type() == v:t_list
+    elseif valuetype == v:t_list
       return value != []
-    elseif value->type() == v:t_dict
+    elseif valuetype == v:t_dict
       return value != {}
+    elseif valuetype == v:t_blob
+      return value != null_blob
+    elseif valuetype == v:t_object
+      return value != null_object
+    elseif valuetype == v:t_tuple
+      return value != null_tuple
     endif
 
     printf(Messages.HTMLMessages.E_BOOLTYPE, Messages.HTMLMessages.F(), value->typename())->HTMLMessagesO.Error()
@@ -436,6 +443,28 @@ export class HTMLUtil
     endif
 
     return char
+  enddef
+
+  # FileSelect() {{{
+  #
+  # Purpose:
+  #  Use the popup feature of Vim to display a list of files for selection
+  # Arguments:
+  #  None
+  # Return Value:
+  #  String: The file selected, or an empty string if none was selected
+  def FileSelect(): string
+    var file: string = ''
+    #b:htmlplugin.browsefilter_save = get(b:, 'browsefilter', '')
+    exe $'lcd {expand("%:p:h")}'
+    defer execute('lcd -', 'silent')
+    #defer execute('b:browsefilter = b:htmlplugin.browsefilter_save', 'silent')
+    b:browsefilter =
+      "HTML Files\t*.htm;*.html;*.xht;*.xhtml;*.sht;*.shtml;*.dht;*.dhtml\n"
+      .. "Web Compatible Images\t*.png;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.webp\n"
+      .. "All Files\t*.*;*\n"
+    file = browse(false, 'Select a file...', '.', '')
+    return file
   enddef
 
   # FilesWithMatch()  {{{1

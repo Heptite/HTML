@@ -2,6 +2,15 @@
 	{"menu": ["-", ["-sep4-"], {"n": ["<nop>"]}]},
 
 	{
+		"lhs": "fs",
+
+		"maps": {
+			"i": ["<C-R>=b:htmlplugin.HTMLUtilO.FileSelect()<CR>", {"extra": false}],
+			"n": ["\"=b:htmlplugin.HTMLUtilO.FileSelect()<CR>P", {"extra": false}]
+		}
+	},
+
+	{
 		"lhs": "&",
 
 		"maps": {
