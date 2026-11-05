@@ -62,13 +62,15 @@ debug:
 
 all: HTML.html HTML.zip bitmaps toolbar-icons.png version
 
-publish: version push copy upload
+publish: version tag push copy upload
+
+commit:
+	-git add .
+	-git commit
 
 push: pushed
 
-pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) README.md version
-	-git add .
-	-git commit
+pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) README.md version commit
 	-git push
 	touch pushed
 
@@ -76,6 +78,12 @@ version: import/HTML/Variables.vim
 	rm -f version
 	fgrep -m 1 'const VERSION' import/HTML/Variables.vim | awk -F "'" '{ORS=""; print $$2}' > version
 	chmod a+r version
+
+tag: version
+	test "`git branch --show-current`" = "master"
+	test -z "`git status --porcelain --untracked-files=no 2>/dev/null`" 
+	git tag -a v`cat version` -m "Version `cat version`"
+	git push origin v`cat version`
 
 zip html.zip: HTML.zip
 
