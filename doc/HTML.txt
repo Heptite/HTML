@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2026 Oct 28
+		Last change: 2026 Nov 05
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -130,8 +130,8 @@ I need someone to help me update the BrowserLauncher code for MacOS, namely to
 test to make sure it still works, and add support for Google Chrome.
 
 I will never include mappings for certain tags, such as <BLINK></BLINK> and
-<MARQUEE></MARQUEE> (which were always nonstandard). As far as I am concerned
-these tags should never have existed.
+<MARQUEE></MARQUEE> (both of which were always nonstandard). As far as I am
+concerned these tags should never have existed.
 
 
 ==============================================================================
@@ -531,6 +531,10 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 	strict version of this.)
 							*n_;cc* *i_;cc* *v_;cc*
 ;cc	A shortcut mapping to call |:ColorChooser|.
+							*n_;fs* *i_;fs*
+;fs	Bring up a file browser and insert the selected filename. The inserted
+	filename will be relative to the current file. (Only available in the
+	GUI.)
 							*html-content-type*
 							*i_;ct*
 ;ct	Inserts >

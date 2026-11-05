@@ -8,7 +8,7 @@ endif
 # MangleImageTag.Update() - updates an <IMG>'s WIDTH and HEIGHT           {{{1
 # attributes.
 #
-# Last Change: November 03, 2026
+# Last Change: November 05, 2026
 #
 # Requirements:
 #   Vim 9.2 or later
@@ -35,14 +35,17 @@ endif
 # https://www.gnu.org/licenses/licenses.html#GPL                          }}}1
 
 import autoload './Messages.vim'
+import autoload './Util.vim'
 
 export class MangleImageTag
 
   static var HTMLMessagesO: Messages.HTMLMessages
+  static var HTMLUtilO: Util.HTMLUtil
 
   def new()  # {{{1
     if HTMLMessagesO == null_object
       HTMLMessagesO = Messages.HTMLMessages.new()
+      HTMLUtilO = Util.HTMLUtil.new()
     endif
   enddef  # }}}1
 
@@ -160,6 +163,11 @@ export class MangleImageTag
 
     # Read the image and convert it to a list of numbers:
     buf = file->readblob()->blob2list()
+
+    if !HTMLUtilO.Bool(buf)
+      printf(Messages.HTMLMessages.E_NOIMGREAD, file)->HTMLMessagesO.Error()
+      return []
+    endif
 
     if ext == 'png'
       size = this._SizePng(buf)

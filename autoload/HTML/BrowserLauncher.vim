@@ -759,11 +759,10 @@ export class BrowserLauncher
   #  String: The path the plugin needs for the "native" (host) OS to load the
   #  file in a browser.
   def _NativePath(path: string, browser: string): string
-    if has('win32unix') == 1
-        && match(_TextModeBrowsers->keys(), $'^\c\V{browser}\$') < 0
+    var m: number = match(_TextModeBrowsers->keys(), $'^\c\V{browser}\$')
+    if has('win32unix') == 1 && m < 0
       return system(['cygpath', '-w', path])->trim()
-    elseif HTMLUtilO.Has('WSL2')
-        && match(_TextModeBrowsers->keys(), $'^\c\V{browser}\$') < 0
+    elseif HTMLUtilO.Has('WSL2') && m < 0
       return system(['wslpath', '-w', path])->trim()
     else
       return path

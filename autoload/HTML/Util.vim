@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.                  {{{1
 #
-# Last Change: November 03, 2026
+# Last Change: November 05, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -101,16 +101,23 @@ export class HTMLUtil
   #  Boolean
   def Bool(value: any): bool
     var regexp: string = '^no\?$\|^off$\|^\%(v:\)\?\%(false\|none\|null\)$\|^0\%(\.0\)\?$\|^$'
+    var valuetype: number = type(value)
 
-    if value->type() == v:t_string
+    if valuetype == v:t_string
       return value !~? regexp
-    elseif value->type() == v:t_bool || value->type() == v:t_none
-        || value->type() == v:t_number || value->type() == v:t_float
+    elseif valuetype == v:t_bool || valuetype == v:t_none
+        || valuetype == v:t_number || valuetype == v:t_float
       return value->string() !~? regexp
-    elseif value->type() == v:t_list
+    elseif valuetype == v:t_list
       return value != []
-    elseif value->type() == v:t_dict
+    elseif valuetype == v:t_dict
       return value != {}
+    elseif valuetype == v:t_blob
+      return value != null_blob
+    elseif valuetype == v:t_object
+      return value != null_object
+    elseif valuetype == v:t_tuple
+      return value != null_tuple
     endif
 
     printf(Messages.HTMLMessages.E_BOOLTYPE, Messages.HTMLMessages.F(), value->typename())->HTMLMessagesO.Error()
@@ -436,6 +443,43 @@ export class HTMLUtil
     endif
 
     return char
+  enddef
+
+  # FileSelect() {{{1
+  #
+  # Purpose:
+  #  Use the browse() feature of Vim to display a list of files for selection,
+  #  which is is used by mappings to insert into the current buffer at the
+  #  cursor position.
+  # Arguments:
+  #  None
+  # Return Value:
+  #  String: The file selected, or an empty string if none was selected
+  def FileSelect(): string
+    if !has('gui_running')
+      HTMLMessagesO.Error(Messages.HTMLMessages.E_NOFILESELECT)
+      return ''
+    endif
+
+    def RestoreBrowseFilter()  # {{{2
+      lcd -
+      b:browsefilter = b:htmlplugin.browsefilter_save
+    enddef # }}}2
+
+    b:htmlplugin.browsefilter_save = get(b:, 'browsefilter', '')
+
+    exe $'lcd {expand("%:p:h")}'
+
+    defer RestoreBrowseFilter()
+
+    b:browsefilter =
+      "HTML Files\t*.htm;*.html;*.xht;*.xhtml;*.sht;*.shtml;*.dht;*.dhtml\n"
+      .. "Web Compatible Images\t*.png;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.webp\n"
+      .. "JavaScript\t*.js\n"
+      .. "Cascading StyleSheets\t*.css\n"
+      .. "All Files\t*.*;*\n"
+
+    return browse(false, 'Select a file...', '.', '')
   enddef
 
   # FilesWithMatch()  {{{1
