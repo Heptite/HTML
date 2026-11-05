@@ -65,7 +65,7 @@ export class HTMLMessages
   public static const E_NOENTITY: string     = gettext("No entity mappings or menus have been defined.", 'CJRHTML')
   public static const E_NOFILE: string       = gettext("No file is associated with the current buffer and no URL was specified.", 'CJRHTML')
   public static const E_NOFULL: string       = gettext($"%s must use a full map command. {HTMLMessages.E_NOMAP}", 'CJRHTML')
-  public static const E_NOGUI: string        = gettext("The GUI is not running--file selection is not possible.", 'CJRHTML')
+  public static const E_NOFILESELECT: string = gettext("The GUI is not running--file selection is not possible.", 'CJRHTML')
   public static const E_NOIMAGE: string      = gettext("Can not find image file (or it is not readable): %s", 'CJRHTML')
   public static const E_NOIMG: string        = gettext("The cursor is not on an IMG tag.", 'CJRHTML')
   public static const E_NOIMGREAD: string    = gettext("Can not read file: %s", 'CJRHTML')

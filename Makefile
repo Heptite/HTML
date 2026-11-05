@@ -15,7 +15,7 @@ vim2html := $(or $(vim2html),false)
 
 PLUGIN_FILES = ftplugin/html/HTML.vim autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim autoload/HTML/Messages.vim autoload/HTML/Glue.vim autoload/HTML/Menu.vim autoload/HTML/Map.vim autoload/HTML/Util.vim commands/HTML/Commands.vim import/HTML/Variables.vim json/HTML/entities.json json/HTML/tags.json json/HTML/entitytable.json
 
-.PHONY : default debug all force html.zip html.html bitmaps pixmaps push
+.PHONY : default debug
 
 define _helptext
 cat <<'EOF'
@@ -28,16 +28,19 @@ Choose a specific target:
   version
   FAQ or faq
 
-  "all" will do all of the above.
-  "debug" will show some debugging info.
-  "copy" will copy the files to the local website repository.
-  "push" will commit the changes and push them to git.
-  "install" will put some, but not all of the files
-            in the appropriate locations on the local
-            machine, for testing.
-  "upload" will send the script archive (zip) to Vim Online
-  "publish" will do "push", "copy", and "upload"
-  "test" will test (some of) the plugin's functionality
+  all      - Do all of the above
+  debug    - Show some debugging info
+  copy     - Copy the files to the local website repository
+  install  - Put some, but not all of the files in the appropriate locations on
+             the local machine, for testing
+  push     - Commit the changes and push them to Github
+  tag      - Commit, create a git tag for the current version, and push to
+             Github
+  upload   - Send the script archive (zip) to Vim Online (must be on master
+             branch)
+  publish  - Do "version", "tag", "copy", and "upload" (must be on master
+             branch)
+  test     - Test (some of) the plugin's functionality
 EOF
 endef
 export HELPTEXT = $(value _helptext)
@@ -62,33 +65,37 @@ debug:
 
 all: HTML.html HTML.zip bitmaps toolbar-icons.png version
 
-publish: version tag push copy upload
+publish: version tag copy upload
 
-commit:
-	-git add .
-	-git commit
+commit: committed
+
+committed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) README.md SECURITY.md version
+	git add .
+	git commit
+	touch committed
 
 push: pushed
 
-pushed: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) README.md version commit
-	-git push
+pushed: commit
+	git push
 	touch pushed
 
-version: import/HTML/Variables.vim
-	rm -f version
-	fgrep -m 1 'const VERSION' import/HTML/Variables.vim | awk -F "'" '{ORS=""; print $$2}' > version
-	chmod a+r version
-
-tag: version
+tag: commit version
 	test "`git branch --show-current`" = "master"
 	test -z "`git status --porcelain --untracked-files=no 2>/dev/null`" 
 	git tag -a v`cat version` -m "Version `cat version`"
-	git push origin v`cat version`
+	git push --atomic origin master v`cat version`
+	touch pushed
+
+version: import/HTML/Variables.vim
+	-rm -f version
+	grep -F -m 1 'const VERSION' import/HTML/Variables.vim | awk -F "'" '{ORS=""; print $$2}' > version
+	chmod a+r version
 
 zip html.zip: HTML.zip
 
 HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) doc/tags
-	rm -f HTML.zip
+	-rm -f HTML.zip
 	mkdir -p ${tmpdir}/pack/cjr/start/HTML/bitmaps \
 		${tmpdir}/pack/cjr/start/HTML/ftplugin/html \
 		${tmpdir}/pack/cjr/start/HTML/doc \
@@ -107,13 +114,13 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) doc/tags
 	cp ${alllang} ${tmpdir}/pack/cjr/start/HTML/lang/
 	chmod -R a+rX ${tmpdir}
 	cd ${tmpdir}; zip -9mr ${savecwd}/HTML.zip *
-	rmdir ${tmpdir}
+	-rmdir ${tmpdir}
 	chmod a+r HTML.zip
 
 html HTML html.html: HTML.html
 
 HTML.html: $(alldoc) doc/tags
-	rm -f HTML.html
+	-rm -f HTML.html
 	$(vim2html) doc/tags doc/HTML.txt
 	perl -p -i -e 's#<link rel="stylesheet" href="([^"]+)" type="text/css">#open(F,$$1); join("", "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<style type=\"text/css\">\n<!--\n", <F>, "-->\n</style>")#e && unlink $$1; s#\|(<a href.+?</a>)\|#$$1#g' HTML.html
 	chmod a+r HTML.html

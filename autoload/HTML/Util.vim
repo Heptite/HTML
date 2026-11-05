@@ -461,8 +461,6 @@ export class HTMLUtil
       return ''
     endif
 
-    var file: string = ''
-
     def RestoreBrowseFilter()  # {{{2
       lcd -
       b:browsefilter = b:htmlplugin.browsefilter_save
