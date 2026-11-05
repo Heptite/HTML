@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*'  # Triggers on tags like v1.0.0, v2.1.3
+      - 'v*'
 
 permissions:
   contents: write  # Required to create releases
@@ -27,5 +27,5 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          files: HTML.zip  # Path to your build artifacts
-          generate_release_notes: true  # Auto-generate notes from PRs/commits   
+          files: HTML.zip
+          generate_release_notes: true

@@ -22,12 +22,6 @@ jobs:
         version: nightly
         configure-args: --with-features=huge
 
-    - name: update apt
-      run: sudo apt-get update
-
-    - name: Install ImageMagick
-      run: sudo apt-get install imagemagick
-
     - name: Run tests
       run: make -k test
 
