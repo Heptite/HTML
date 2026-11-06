@@ -39,6 +39,7 @@ HTMLUtilObject.ColorChooser()	HTML.txt	/*HTMLUtilObject.ColorChooser()*
 HTMLUtilObject.FilesWithMatch()	HTML.txt	/*HTMLUtilObject.FilesWithMatch()*
 HTMLUtilObject.IsSet()	HTML.txt	/*HTMLUtilObject.IsSet()*
 HTMLUtilObject.SetIfUnset()	HTML.txt	/*HTMLUtilObject.SetIfUnset()*
+HTMLUtilObject.TitleCase	HTML.txt	/*HTMLUtilObject.TitleCase*
 HTMLUtilObject.ToRGB()	HTML.txt	/*HTMLUtilObject.ToRGB()*
 HTMLUtilObject.TranscodeString()	HTML.txt	/*HTMLUtilObject.TranscodeString()*
 SSI-includes	HTML.txt	/*SSI-includes*
@@ -845,6 +846,7 @@ n_;tH	HTML.txt	/*n_;tH*
 n_;ta	HTML.txt	/*n_;ta*
 n_;tab	HTML.txt	/*n_;tab*
 n_;tb	HTML.txt	/*n_;tb*
+n_;tc	HTML.txt	/*n_;tc*
 n_;td	HTML.txt	/*n_;td*
 n_;te	HTML.txt	/*n_;te*
 n_;ted	HTML.txt	/*n_;ted*
@@ -997,6 +999,7 @@ v_;sv	HTML.txt	/*v_;sv*
 v_;tH	HTML.txt	/*v_;tH*
 v_;ta	HTML.txt	/*v_;ta*
 v_;tb	HTML.txt	/*v_;tb*
+v_;tc	HTML.txt	/*v_;tc*
 v_;td	HTML.txt	/*v_;td*
 v_;te	HTML.txt	/*v_;te*
 v_;tf	HTML.txt	/*v_;tf*

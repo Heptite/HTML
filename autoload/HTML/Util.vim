@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.                  {{{1
 #
-# Last Change: November 05, 2026
+# Last Change: November 06, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -722,18 +722,23 @@ export class HTMLUtil
   #    * Proper nouns that are small words (e.g., "The Who")
   #    * Proper nouns that start with a lowercase letter (e.g., "iPhone")
   #    * Hyphenated words (e.g., "X-Ray")
+  #    * ...Probably more
   def TitleCase(...words: list<any>): string
     var small: list<string> = [
-      'a', 'an', 'the', 'and', 'or', 'but', 'in', 'is', 'it', 'its', 'on',
-      'at', 'to', 'for', 'of', 'with', 'by', 'who', 'what', 'when', 'where',
-      'why', 'how', 'as', 'if', 'than', 'that', 'then', 'so', 'from'
-    ]
+        'a', 'an', 'the', 'and', 'or', 'but', 'in', 'is', 'it', 'its', 'on',
+        'at', 'to', 'for', 'of', 'with', 'by', 'who', 'what', 'when', 'where',
+        'why', 'how', 'as', 'if', 'than', 'that', 'then', 'this', 'so',
+        'from', "it's", "that's", "there's", "where's", "who's", "what's",
+        "when's", "why's"
+      ]
 
     return words->mapnew(
         (_, value: any): list<string> => type(value) == v:t_list ? value : value->split()
       )->flattennew()->mapnew(
         (_, w: string): string => index(small, tolower(w)) >= 0 ? w->tolower() : w->tolower()->substitute('\a', '\U&', '')
-      )->join(' ')->substitute('\a', '\U&', '')
+      )->join(' ')->substitute('^\A*\a\|\s\zs\a\ze[A-Za-z''-]*\A*$', '\U&', 'g')
+        # Final substitute() forces capitalization of the first letter of the
+        # first and last words, even if they are small words.
   enddef
 
   # TokenReplace()  {{{1

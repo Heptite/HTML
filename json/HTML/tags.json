@@ -15,6 +15,19 @@
 	},
 
 	{
+		"lhs": "tc",
+
+		"maps": {
+			"v": ["s<C-R><C-R>=b:htmlplugin.HTMLMapO.TitleCase(@\")<CR><ESC>", {"extra": false}],
+			"o": [{"insert": false}]
+		},
+
+		"menu": ["-", ["Title Case Selection"], {
+			"v": ["", ""]
+		}]
+	},
+
+	{
 		"lhs": "&",
 
 		"maps": {

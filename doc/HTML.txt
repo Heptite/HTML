@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2026 Nov 05
+		Last change: 2026 Nov 06
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -535,6 +535,12 @@ another character of your preference. See |g:htmlplugin.map_leader|.
 ;fs	Bring up a file browser and insert the selected filename. The inserted
 	filename will be relative to the current file. (Only available in the
 	GUI.)
+							*v_;tc* *n_;tc*
+;tc	Change selected the text into "Title Case" (first letter of each word
+	capitalized).  This avoids capitalizing small words like "the", "of",
+	"and", "is", etc.  There are many limitations and exceptions to this,
+	so it is not perfect; you may have to fix one or two errors.  It is
+	meant to be a convenience for headings and titles.
 							*html-content-type*
 							*i_;ct*
 ;ct	Inserts >
@@ -1966,6 +1972,14 @@ HTMLMapObject.Template()		*HTMLMapObject.Template()*
 	This function returns true if the cursor is on an insert point after
 	creating the template in the buffer, false otherwise.
 
+					*HTMLUtilObject.TitleCase*
+HTMLUtilObject.TitleCase({words})
+   	This function returns {words} in Title Case, with the first letter of
+	each word capitalized, and the rest of the letters in lowercase.  It
+	avoids capitalizing certain small words (like "and", "or", "the",
+	etc.) unless they are the first or last word in the string.  There are
+	limitations to this function, and it may not work correctly for all
+	words.
 					*HTMLUtilObject.SetIfUnset()*
 HTMLUtilObject.SetIfUnset({variable}, {value})
 	This function sets {variable} to {value} if the variable is not
