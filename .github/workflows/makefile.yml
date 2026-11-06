@@ -15,19 +15,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-    - uses: rhysd/action-setup-vim@v1
-      with:
-        version: nightly
-        configure-args: --with-features=huge
+      - uses: rhysd/action-setup-vim@v1
+        with:
+          version: nightly
+          configure-args: --with-features=huge
 
-    - name: Run tests
-      run: make -k test
+      - name: Run tests
+        run: make -k test
 
-    - name: Upload test failures
-      if: failure()
-      uses: actions/upload-artifact@v7
-      with:
-        name: test-logs
-        path: test/test_*_results.log
+      - name: Upload test failures
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-logs
+          path: test/test_*_results.log

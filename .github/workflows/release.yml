@@ -13,13 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: update apt
-        run: sudo apt-get update
-
-      - name: Install ImageMagick
-        run: sudo apt-get install imagemagick
+        uses: actions/checkout@v5
 
       - name: Generate zip file
         run: make zip

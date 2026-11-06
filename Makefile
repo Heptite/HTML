@@ -1,6 +1,7 @@
 VIM      ?= $(shell command -v vim)
 VIM      := $(or $(VIM),false)
 TMPDIR   ?= /tmp
+tmpdir   := $(shell mktemp -du $(TMPDIR)/make-tmp.XXXXXX)
 bitmaps  := bitmaps
 allxpm   := $(wildcard $(bitmaps)/*.xpm)
 allbmp   := $(allxpm:.xpm=.bmp)
@@ -8,7 +9,6 @@ alldoc   := $(wildcard doc/*.txt)
 alllang  := $(wildcard lang/*)
 faq      := $(HOME)/www/website/src/assets/programming/faq.html
 textfaq  := $(faq:%html=%)txt
-tmpdir   := $(shell mktemp -du $(TMPDIR)/make-tmp.XXXXXX)
 savecwd  := $(shell pwd)
 vim2html := $(shell find $(HOME)/share/vim /usr/share/vim -name vim2html.pl 2>/dev/null | tail -1)
 vim2html := $(or $(vim2html),false)
@@ -29,18 +29,19 @@ Choose a specific target:
   FAQ or faq
 
   all      - Do all of the above
-  debug    - Show some debugging info
-  copy     - Copy the files to the local website repository
+  copy     - Do all the above, then copy the relevant files to the local
+             website repository
   install  - Put some, but not all of the files in the appropriate locations on
              the local machine, for testing
   push     - Commit the changes and push them to Github
   tag      - Commit, create a git tag for the current version, and push to
              Github
-  upload   - Send the script archive (zip) to Vim Online (must be on master
-             branch)
-  publish  - Do "version", "tag", "copy", and "upload" (must be on master
-             branch)
+  upload   - Do "make zip" then send the archive to Vim Online (must be on
+             master branch)
+  publish  - Do "all", "version", "tag", "copy", and "upload" (must be on
+             master branch)
   test     - Test (some of) the plugin's functionality
+  debug    - Show some debugging info
 EOF
 endef
 export HELPTEXT = $(value _helptext)
@@ -51,12 +52,12 @@ default:
 debug:
 	@echo "\$$(VIM)           = $(VIM)"
 	@echo "\$$(TMPDIR)        = $(TMPDIR)"
+	@echo "\$${tmpdir}        = ${tmpdir}"
 	@echo "\$${bitmaps}       = ${bitmaps}"
 	@echo "\$$(allxpm)        = $(allxpm)"
 	@echo "\$$(allbmp)        = $(allbmp)"
 	@echo "\$${faq}           = ${faq}"
 	@echo "\$${textfaq}       = ${textfaq}"
-	@echo "\$${tmpdir}        = ${tmpdir}"
 	@echo "\$${savecwd}       = ${savecwd}"
 	@echo "\$${vim2html}      = ${vim2html}"
 	@echo "\$$(PLUGIN_FILES)  = $(PLUGIN_FILES)"
@@ -83,6 +84,7 @@ pushed: commit
 tag: commit version
 	test "`git branch --show-current`" = "master"
 	test -z "`git status --porcelain --untracked-files=no 2>/dev/null`" 
+	git tag -l v`cat version` | grep -q v`cat version`
 	git tag -a v`cat version` -m "Version `cat version`"
 	git push --atomic origin master v`cat version`
 	touch pushed
@@ -128,7 +130,7 @@ HTML.html: $(alldoc) doc/tags
 tags: doc/tags
 
 doc/tags: $(alldoc)
-	vim -c "helptags doc/" -c "qa" > /dev/null 2> /dev/null
+	vim -c "helptags doc/" -c "qa" > /dev/null 2>&1
 	chmod a+r doc/tags
 
 %.bmp: %.xpm

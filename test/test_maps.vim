@@ -327,8 +327,8 @@ def Test_normal_mode_mappings(...which: list<string>)
 	assert_match('^<!DOCTYPE html>\n<html>\n\s<head>\n\n\s\s<title></title>\_.\+</body>\n</html>$',
 		join(getline(1, '$'), "\n"), $'Mapping: ;html')
 	:%delete
-	assert_nobeep("normal i;im../circle.png\<esc>;mi")
-	assert_match('<img src="../circle.png" width="400" height="300" alt="">',
+	assert_nobeep("normal i;imcircle.png\<esc>;mi")
+	assert_match('<img src="circle.png" width="400" height="300" alt="">',
 		getline(1), $'Mapping: ;mi')
 
 	if v:errors != []
