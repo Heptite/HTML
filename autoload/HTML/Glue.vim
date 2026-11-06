@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.                     {{{1
 #
-# Last Change: November 03, 2026
+# Last Change: November 06, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -63,18 +63,25 @@ export class HTMLGlue extends Util.HTMLUtil
     endif
   enddef # }}}1
 
-  # PluginControl()  {{{1
+  # PluginCommand()  {{{1
   #
   # Purpose:
-  #  Disable/enable all the mappings defined by
-  #  Map().
+  #  Disable/enable all the mappings defined by Map(), or do other things.
+  #
+  #  This is usually called by the user via the :HTMLplugin command, but can
+  #  also be called directly from other scripts or plugins.
   # Arguments:
   #  1 - String: Whether to disable or enable the mappings:
   #               d/disable/off:   Clear the mappings
   #               e/enable/on:     Redefine the mappings
+  #              Othe commands:
+  #               a/about:         Show the about dialog
+  #               t/template:      Show the template dialog
+  #               b/browserlog:    Show the browser log
+  #               c/colorchooser:  Show the color chooser dialog
   # Return Value:
   #  Boolean: False for an error, true otherwise
-  def PluginControl(dowhat: string): bool
+  def PluginCommand(dowhat: string): bool
     if !this.BoolVar('b:htmlplugin.did_mappings_init')
       HTMLMessagesO.Error(Messages.HTMLMessages.E_NOSOURCED)
       return false

@@ -118,10 +118,10 @@ enddef
 def Test_glue_methods()
 	var glue: Glue.HTMLGlue = Glue.HTMLGlue.new()
 
-	assert_true(glue.PluginControl('disable'), 'PluginControl("disable")')
-	assert_false(glue.PluginControl('disable'), 'PluginControl("disable")')
-	assert_false(glue.PluginControl('foobar'), 'PluginControl("foobar")')
-	assert_true(glue.PluginControl('enable'), 'PluginControl("enable")')
+	assert_true(glue.PluginCommand('disable'), 'PluginCommand("disable")')
+	assert_false(glue.PluginCommand('disable'), 'PluginCommand("disable")')
+	assert_false(glue.PluginCommand('foobar'), 'PluginCommand("foobar")')
+	assert_true(glue.PluginCommand('enable'), 'PluginCommand("enable")')
 
 	if v:errors != []
 		writefile(v:errors, 'Xresult', 'a')

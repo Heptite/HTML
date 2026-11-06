@@ -1688,9 +1688,8 @@ corresponding browsers. |n_;db| is only defined if xdg-open is installed.
 
 For Windows (and Cygwin):			*browser-control-windows*
 
-The following mappings, aside from |n_;db| are only defined if you have
-installed the corresponding browsers in a standard location (i.e. on your C:\
-drive).
+The following mappings--aside from |n_;db|--are only defined if you have
+installed the corresponding browsers in a standard way.
 
 							*html-default-browser*
 								*n_;db*
@@ -1960,7 +1959,7 @@ HTMLMapObject.NextInsertPoint([{mode}, {direction}])
 
 	This function returns true if the cursor was moved, false otherwise.
 
-HTMLMapObject.PluginControl({what})	*HTMLMapObject.PluginControl()*
+HTMLMapObject.PluginCommand({what})	*HTMLMapObject.PluginCommand()*
 	This is normally called by the |:HTMLplugin| command.  It can either
 	enable the mappings by specifying "on" or "true" as {what}, or "off"
 	or "false" to disable.

@@ -7,7 +7,7 @@ endif
 
 # Various :-commands for the HTML macros filetype plugin.                 {{{1
 #
-# Last Change: November 03, 2026
+# Last Change: November 06, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -34,6 +34,7 @@ if get(b:htmlplugin, 'did_commands', false) # {{{1
 endif
 
 import autoload '../../autoload/HTML/Glue.vim'
+import autoload '../../autoload/HTML/Util.vim'
 
 var HTMLGlueO: Glue.HTMLGlue = Glue.HTMLGlue.new()
 
@@ -45,16 +46,16 @@ def HTMLpluginComplete(A: string, C: string, P: number): list<string>
 enddef
 
 command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
-      \ HTMLplugin HTMLGlueO.PluginControl(<f-args>)
+      \ HTMLplugin HTMLGlueO.PluginCommand(<f-args>)
 command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
-      \ HTMLPlugin HTMLGlueO.PluginControl(<f-args>)
+      \ HTMLPlugin HTMLGlueO.PluginCommand(<f-args>)
 command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
-      \ HTMLmappings HTMLGlueO.PluginControl(<f-args>)
+      \ HTMLmappings HTMLGlueO.PluginCommand(<f-args>)
 command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
-      \ HTMLMappings HTMLGlueO.PluginControl(<f-args>)
+      \ HTMLMappings HTMLGlueO.PluginCommand(<f-args>)
 if exists(':HTML') != 2
   command! -buffer -bar -nargs=1 -complete=customlist,HTMLpluginComplete
-        \ HTML HTMLGlueO.PluginControl(<f-args>)
+        \ HTML HTMLGlueO.PluginCommand(<f-args>)
 endif
 
 command! -buffer -bar -nargs=? ColorChooser HTMLPlugin colorchooser
@@ -64,6 +65,7 @@ endif
 
 command! -buffer -bar HTMLTemplate   HTMLPlugin template
 command! -buffer -bar HTMLtemplate   HTMLPlugin template
+
 command! -buffer -bar BrowserLog     HTMLPlugin browserlog
 command! -buffer -bar ShowBrowserLog HTMLPlugin browserlog
 command! -buffer -bar HTMLBrowserLog HTMLPlugin browserlog
@@ -75,8 +77,17 @@ if get(g:htmlplugin, 'did_commands', false) # {{{1
   finish
 endif
 
-command! -bar HTMLAbout HTMLPlugin about
-command! -bar HTMLabout HTMLPlugin about
+command! -bar          HTMLAbout    Util.HTMLUtil.About()
+command! -bar          HTMLabout    Util.HTMLUtil.About()
+
+command! -bar -nargs=? HTMLPlugin
+      \ echomsg "This command must be run in an HTML buffer."
+command! -bar -nargs=? HTMLplugin
+      \ echomsg "This command must be run in an HTML buffer."
+command! -bar -nargs=? HTMLMappings
+      \ echomsg "This command must be run in an HTML buffer."
+command! -bar -nargs=? HTMLmappings
+      \ echomsg "This command must be run in an HTML buffer."
 
 g:htmlplugin.did_commands = true
 
