@@ -48,6 +48,8 @@ def Test_util_methods()
 	assert_equal('rgb(7%, 20%, 34%)', util.ToRGB("#123456", true), 'ToRGB("#123456", true)')
 	assert_equal('&#x7E;&excl;&commat;&num;&dollar;&percnt;&Hat;&AMP;&ast;&lpar;&rpar;&UnderBar;&plus;',
 		util.TranscodeString("~!@#$%^&*()_+"), 'TranscodeString("~!@#$%^&*()_+")')
+	assert_equal('"The this is a Test String It''s"', util.TitleCase('"the this is a test string it''s"'),
+		'TitleCase(''"the this is a test string it''''s"'')')
 
 	if v:errors != []
 		writefile(v:errors, 'Xresult', 'a')

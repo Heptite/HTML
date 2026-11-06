@@ -714,9 +714,9 @@ export class HTMLUtil
   # Capitalize the first letter of every word in a string, except small words
   #
   # Args:
-  #  1 ... N - String: The words
+  #  1 ... N - String(s): The words
   # Return Value:
-  #  String: The words capitalized
+  #  String: The words title case capitalized
   # Limitations:
   #  - Won't properly handle:
   #    * Proper nouns that are small words (e.g., "The Who")
