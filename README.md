@@ -30,7 +30,7 @@ use of macros. For example:
   * and so on...
 * `;db` in normal mode launches the default browser on the current buffer file
 * Commands are included to disable and re-enable the mappings, so it is easier
-  to edit JavaScript, PHP, etc.
+  to edit inline JavaScript, PHP files, etc.
 * The map leaders (`;` and `&`) are configurable, along with many other
   configuration variables
 * A menu―including a modified toolbar―is included to allow for reference to
@@ -38,8 +38,8 @@ use of macros. For example:
 
 ## Installation
 
-Note: If you have an old installation of this plugin, you need to remove its
-files first or they may prevent the packed version from loading.
+Note: If you have an old (pre 1.0.0) installation of this plugin, you should
+remove its files first or they may prevent the packed version from loading.
 
 ### Vim Package Manager: vim-plug
 
@@ -89,7 +89,8 @@ After installing using git you can always update by going into the
 
 <http://christianrobinson.name/HTML>
 
-This includes extra documentation, alternate install methods, an FAQ, etc.
+This includes extra documentation, alternate install methods, an
+[FAQ](https://christianrobinson.name/assets/programming/faq.html), etc.
 
 ## License
 
