@@ -13,7 +13,7 @@ endif
 #
 # Author:           Christian J. Robinson <heptite+html(at)proton(dot)me>
 # URL:              https://christianrobinson.name/HTML/
-# Last Change:      November 03, 2026
+# Last Change:      November 05, 2026
 # Original Concept: Doug Renze
 # Requirements:     Vim 9.2.1240 or later
 #
@@ -995,16 +995,16 @@ endif
 
 # Try to reduce support requests from users:
 
-if !HTMLUtilO.BoolVar('g:htmlplugin.did_old_variable_check') &&  # {{{
-    (exists('g:html_author_name') || exists('g:html_author_email')
-    || exists('g:html_bgcolor') || exists('g:html_textcolor')
-    || exists('g:html_alinkcolor') || exists('g:html_vlinkcolor')
-    || exists('g:html_tag_case') || exists('g:html_map_leader')
-    || exists('g:html_map_entity_leader') || exists('g:html_default_charset')
-    || exists('g:html_template') || exists('g:no_html_map_override')
-    || exists('g:no_html_maps') || exists('g:no_html_menu')
-    || exists('g:no_html_toolbar') || exists('g:no_html_tab_mapping'))
-  g:htmlplugin.did_old_variable_check = true
+if !HTMLUtilO.BoolVar('g:htmlplugin.did_old_variable_check')  # {{{
+      &&
+    HTMLUtilO.Exists(
+      'g:html_author_name',     'g:html_author_email', 'g:html_bgcolor',
+      'g:html_textcolor',       'g:html_alinkcolor',   'g:html_vlinkcolor',
+      'g:html_tag_case',        'g:html_map_leader',   'g:html_map_entity_leader',
+      'g:html_default_charset', 'g:html_template',     'g:no_html_map_override',
+      'g:no_html_maps',         'g:no_html_menu',      'g:no_html_toolbar',
+      'g:no_html_tab_mapping'
+    )
   var message: string = "You have set one or more of the old HTML plugin configuration variables.\n"
     .. "These variables are no longer used in favor of a new dictionary variable.\n\n"
     .. 'Please refer to ":help html-variables".'
@@ -1013,13 +1013,15 @@ if !HTMLUtilO.BoolVar('g:htmlplugin.did_old_variable_check') &&  # {{{
     # Go to the previous window or everything gets messy:
     wincmd p
   endif
-endif  # }}}
+endif
+
+g:htmlplugin.did_old_variable_check = true
+# }}}
 
 if !HTMLUtilO.BoolVar('g:htmlplugin.did_plugin_warning_check')  # {{{
-  g:htmlplugin.did_plugin_warning_check = true
   var files = 'ftplugin/html/HTML.vim'->findfile(&runtimepath, -1)
   if files->len() > 1
-    var filesmatched = files->Util.HTMLUtil.FilesWithMatch('https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/', 20)
+    var filesmatched = files->Util.HTMLUtil.FilesWithMatch('\<https\?://christianrobinson.name/\%(\%(programming/\)\?vim/\)\?HTML/\?\>', 25)
     if filesmatched->len() > 1
       var message: string = "Multiple versions of the HTML plugin are installed.\n"
         .. "Locations:\n   " .. filesmatched->map((_, value) => value->fnamemodify(':~'))->join("\n   ")
@@ -1028,7 +1030,10 @@ if !HTMLUtilO.BoolVar('g:htmlplugin.did_plugin_warning_check')  # {{{
       message->confirm('&Dismiss', 1, 'Warning')
     endif
   endif
-endif  #}}}
+endif
+
+g:htmlplugin.did_plugin_warning_check = true
+#}}}
 
 # vim:tabstop=2:shiftwidth=0:expandtab:textwidth=78:formatoptions=croq2j:
 # vim:foldmethod=marker:foldcolumn=4:comments=b\:#:commentstring=\ #\ %s:

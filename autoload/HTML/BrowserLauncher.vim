@@ -7,7 +7,7 @@ endif
 
 # Methods to launch/control browsers ------------------------------------- {{{
 #
-# Last Change: November 04, 2026
+# Last Change: November 05, 2026
 #
 # Currently supported browsers:
 # Unix:
@@ -165,13 +165,13 @@ export class BrowserLauncher
 
     if HTMLUtilO.Has('mac') || _Browsers != {}
       return
-    elseif (! (HTMLUtilO.Has('WSL2') || has('win32unix') == 1)) && has('unix') == 1
+    elseif (! HTMLUtilO.Has('WSL2', 'win32unix')) && has('unix') == 1
       _Browsers->extend(this._FindUnixBrowsers())
       _TextModeBrowsers = this._FindTextModeBrowsers()
       _Browsers->extend(_TextModeBrowsers)
-    elseif HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
+    elseif HTMLUtilO.Has('WSL2', 'win')
       _Browsers->extend(this._FindWindowsBrowsers())
-      if HTMLUtilO.Has('WSL2') || has('win32unix') == 1
+      if HTMLUtilO.Has('WSL2', 'win32unix')
         _TextModeBrowsers = this._FindTextModeBrowsers()
         _Browsers->extend(_TextModeBrowsers)
       endif
@@ -326,7 +326,7 @@ export class BrowserLauncher
       return true
     else
       system(['/usr/bin/osascript', '-e', 'get id of application "' .. app->escape('"''\') .. '"'])
-      if v:shell_error
+      if v:shell_error != 0
         return false
       endif
 
@@ -601,7 +601,7 @@ export class BrowserLauncher
 
     if command != []
       if command[0] == ''
-        if HTMLUtilO.Has('WSL2') || HTMLUtilO.Has('win')
+        if HTMLUtilO.Has('WSL2', 'win')
           command = ['rundll32.exe', 'shell32.dll,ShellExec_RunDLL'] + command[1 : -1]
         else
           HTMLMessagesO.Error(Messages.HTMLMessages.E_NOCOMMAND)

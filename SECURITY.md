@@ -17,20 +17,19 @@
 2. **Contact me directly**
    - Use this form to email me: <https://christianrobinson.name/contact?subject=HTML%20plugin%20vulnerability>
 
-I will make every effort to fix problems within a few days and respond, but I'm
-busy and patches are welcome.
-
 ### What to Include
 
 Please provide the following information to help me triage and fix the issue:
 - Description of the vulnerability.
 - Steps to reproduce the issue.
 - Potential impact and proof-of-concept (if available).
-- Affected version(s).
-- Version of Vim used. (See ":HTMLAbout" for the plugin version.)
+- Affected version(s). (See ":HTMLAbout" for the plugin version.)
+- Version of Vim used. (See ":version" in Vim.)
 
 ## Scope
 
 This policy applies to the latest releases of the project. Reports regarding
 outdated versions may be declined at the author's discretion.
 
+I will make every effort to fix problems within a few days and respond, but I'm
+busy and patches are welcome.

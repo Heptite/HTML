@@ -156,7 +156,7 @@ export class HTMLUtil
   #
   # Args:
   #  1 - String: The words
-  # Return value:
+  # Return Value:
   #  String: The words capitalized
   def Cap(arg: string): string
     return arg->substitute('\<.', '\U&', 'g')
@@ -492,19 +492,23 @@ export class HTMLUtil
   #  2 - Integer: Optional, the number of lines to search before giving up
   # Return Value:
   #  List: Matching files
-  static def FilesWithMatch(files: list<string>, pat: string, max: number = -1): list<string>
+  static def FilesWithMatch(files: list<string>, pattern: string, maxlines: number = -1): list<string>
     var matched: list<string> = []
     var lines: list<string>
 
-    for file in files
-      if max > 0
-        lines = file->readfile('', max)
-      else
-        lines = file->readfile()
+    for file: string in files
+      if !file->expand()->filereadable()
+        continue
       endif
 
-      for line in lines
-        if line =~ pat
+      if maxlines > 0
+        lines = file->expand()->readfile('', maxlines)
+      else
+        lines = file->expand()->readfile()
+      endif
+
+      for line: string in lines
+        if line =~ pattern
           matched->add(file->fnamemodify(':p'))
           break
         endif
@@ -583,19 +587,41 @@ export class HTMLUtil
   # Purpose:
   #  Extended version of Vim's internal has()
   # Arguments:
-  #  1 - String:  Feature to test for
+  #  1 ... N - String: The feature(s) to test for
   # Return Value:
-  #  Boolean - Whether the test is true or not
-  def Has(feat: string): bool
-    if feat ==? 'WSL2'
-      return _WSL2
-    elseif feat ==? 'win'
-      return (has('win32') == 1) || (has('win32unix') == 1)
-    elseif feat ==? 'mac'
-      return (has('mac') == 1) || (has('macunix') == 1)
-    else
-      return has(feat) != 0
-    endif
+  #  Boolean - Whether any of the features exist
+  def Has(...feat: list<string>): bool
+    for f: string in feat
+      if f ==? 'WSL2' && _WSL2
+        return true
+      elseif f ==? 'win' && ((has('win32') == 1) || (has('win32unix') == 1))
+        return true
+      elseif f ==? 'mac' && ((has('mac') == 1) || (has('macunix') == 1))
+        return true
+      elseif has(f) != 0
+        return true
+      endif
+    endfor
+
+    return false
+  enddef
+
+  # Exists()  {{{1
+  #
+  # Purpose:
+  #  Extended version of Vim's internal exists()
+  # Arguments:
+  #  1 ... N - String: The items to test for
+  # Return Value:
+  #  Boolean - Whether any of the items exist
+  def Exists(...item: list<string>): bool
+    for i: string in item
+      if exists(i) != 0
+        return true
+      endif
+    endfor
+
+    return false
   enddef
 
   # IsSet()  {{{1
@@ -681,6 +707,33 @@ export class HTMLUtil
     endif
 
     return SetIfUnsetR.success
+  enddef
+
+  # TitleCase() {{{1
+  #
+  # Capitalize the first letter of every word in a string, except small words
+  #
+  # Args:
+  #  1 ... N - String: The words
+  # Return Value:
+  #  String: The words capitalized
+  # Limitations:
+  #  - Won't properly handle:
+  #    * Proper nouns that are small words (e.g., "The Who")
+  #    * Proper nouns that start with a lowercase letter (e.g., "iPhone")
+  #    * Hyphenated words (e.g., "X-Ray")
+  def TitleCase(...words: list<any>): string
+    var small: list<string> = [
+      'a', 'an', 'the', 'and', 'or', 'but', 'in', 'is', 'it', 'its', 'on',
+      'at', 'to', 'for', 'of', 'with', 'by', 'who', 'what', 'when', 'where',
+      'why', 'how', 'as', 'if', 'than', 'that', 'then', 'so', 'from'
+    ]
+
+    return words->mapnew(
+        (_, value: any): list<string> => type(value) == v:t_list ? value : value->split()
+      )->flattennew()->mapnew(
+        (_, w: string): string => index(small, tolower(w)) >= 0 ? w->tolower() : w->tolower()->substitute('\a', '\U&', '')
+      )->join(' ')->substitute('\a', '\U&', '')
   enddef
 
   # TokenReplace()  {{{1
