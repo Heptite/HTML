@@ -31,7 +31,7 @@ HTML.zip	HTML.txt	/*HTML.zip*
 HTMLMapObject.GenerateTable()	HTML.txt	/*HTMLMapObject.GenerateTable()*
 HTMLMapObject.Map()	HTML.txt	/*HTMLMapObject.Map()*
 HTMLMapObject.NextInsertPoint()	HTML.txt	/*HTMLMapObject.NextInsertPoint()*
-HTMLMapObject.PluginControl()	HTML.txt	/*HTMLMapObject.PluginControl()*
+HTMLMapObject.PluginCommand()	HTML.txt	/*HTMLMapObject.PluginCommand()*
 HTMLMapObject.Template()	HTML.txt	/*HTMLMapObject.Template()*
 HTMLUtilObject.Bool()	HTML.txt	/*HTMLUtilObject.Bool()*
 HTMLUtilObject.BoolVar()	HTML.txt	/*HTMLUtilObject.BoolVar()*
@@ -39,7 +39,7 @@ HTMLUtilObject.ColorChooser()	HTML.txt	/*HTMLUtilObject.ColorChooser()*
 HTMLUtilObject.FilesWithMatch()	HTML.txt	/*HTMLUtilObject.FilesWithMatch()*
 HTMLUtilObject.IsSet()	HTML.txt	/*HTMLUtilObject.IsSet()*
 HTMLUtilObject.SetIfUnset()	HTML.txt	/*HTMLUtilObject.SetIfUnset()*
-HTMLUtilObject.TitleCase	HTML.txt	/*HTMLUtilObject.TitleCase*
+HTMLUtilObject.TitleCase()	HTML.txt	/*HTMLUtilObject.TitleCase()*
 HTMLUtilObject.ToRGB()	HTML.txt	/*HTMLUtilObject.ToRGB()*
 HTMLUtilObject.TranscodeString()	HTML.txt	/*HTMLUtilObject.TranscodeString()*
 SSI-includes	HTML.txt	/*SSI-includes*

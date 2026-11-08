@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.                  {{{1
 #
-# Last Change: November 06, 2026
+# Last Change: November 08, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -401,10 +401,10 @@ export class HTMLUtil
 
     if charset != ''
       enc = charset
-    elseif &fileencoding == ''
-      enc = tolower(&encoding)
-    else
+    elseif &fileencoding != ''
       enc = tolower(&fileencoding)
+    else
+      enc = tolower(&encoding)
     endif
 
     # The iso-8859-* encodings are valid for the Content-Type charset header:
@@ -650,7 +650,14 @@ export class HTMLUtil
   #  Return Value:
   #   List - The JSON data as a Vim list, empty if there was a problem
   def ReadJsonFile(file: string, path: string = &runtimepath): list<any>
-    return file->this.FindAndRead(path, false, false)->join("\n")->json_decode()
+    # Code for stripping comments found at:
+    # https://github.com/romainl/vim-jsonc
+    return this.FindAndRead(file, path, false, false)
+          ->filter((_, val) => val !~ '\(^\s*\/\/\)\|\(^\s*\/\*\)\|\(^\s*\*\/\)')
+          ->filter((_, val) => val !~ '\(^\s*\w\)\|\(^\s*\*\)')
+          ->mapnew((_, val) => substitute(val, '\s*\/\*.*\*\/$', '', ''))
+          ->join()
+          ->json_decode()
   enddef
 
   # SetIfUnset()  {{{1

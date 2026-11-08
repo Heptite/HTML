@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.    {{{1
 #
-# Last Change: November 05, 2026
+# Last Change: November 08, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -47,10 +47,10 @@ export class HTMLVariables
   static var EntitiesToChar: dict<string> = {}
   static var CharToEntities: dict<string> = {}
 
-  static const TAGS_FILE: string         = 'json/HTML/tags.json'
-  static const ENTITIES_FILE: string     = 'json/HTML/entities.json'
+  static const TAGS_FILE: string         = 'json/HTML/tags.jsonc'
+  static const ENTITIES_FILE: string     = 'json/HTML/entities.jsonc'
   # https://dev.w3.org/html5/html-author/charref
-  static const ENTITY_TABLE_FILE: string = 'json/HTML/entitytable.json'
+  static const ENTITY_TABLE_FILE: string = 'json/HTML/entitytable.jsonc'
 
   static const MAP_ESCAPES: dict<string> = {
     '<CR>':     "\<CR>",     '<ESC>':    "\<ESC>",

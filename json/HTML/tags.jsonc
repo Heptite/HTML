@@ -1,3 +1,5 @@
+/* TODO: Document this rather complex data structure... */
+
 [
 	{"menu": ["-", ["-sep4-"], {"n": ["<nop>"]}]},
 
@@ -596,6 +598,10 @@
 
 		"maps": {
 			"i": ["<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR></[{FIELDSET}]>\\<ESC>k$F<i"],
+			/*
+			 * Unfortunately, due to a bug somewhere--possibly in Vim
+			 * itself--these can't enter insert mode:
+			 */
 			"v": ["\\<ESC>`>a\\<CR></[{FIELDSET}]>\\<C-O>`<<[{FIELDSET}]>\\<CR><[{LEGEND></LEGEND}]>\\<CR>\\<ESC>k$F<", {"reindent": 2, "insert": false}],
 			"o": [{"insert": false}]
 		},
@@ -1512,6 +1518,10 @@
 
 		"maps": {
 			"i": ["<[{DETAILS}]>\\<CR><[{SUMMARY}]></[{SUMMARY}]>\\<CR><[{P}]>\\<CR></[{P}]>\\<CR></[{DETAILS}]>\\<ESC>3k$F<i"],
+			/*
+			 * Unfortunately, due to a bug somewhere--possibly in Vim
+			 * itself--these can't enter insert mode:
+			 */
 			"v": ["\\<ESC>`>a\\<CR></[{DETAILS}]>\\<C-O>`<<[{DETAILS}]>\\<CR><[{SUMMARY></SUMMARY}]>\\<CR>\\<ESC>k$F<a", {"insert": false, "reindent": 2}],
 			"o": [{"insert": false}]
 		},

@@ -13,7 +13,7 @@ savecwd  := $(shell pwd)
 vim2html := $(shell find $(HOME)/share/vim /usr/share/vim -name vim2html.pl 2>/dev/null | tail -1)
 vim2html := $(or $(vim2html),false)
 
-PLUGIN_FILES = ftplugin/html/HTML.vim autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim autoload/HTML/Messages.vim autoload/HTML/Glue.vim autoload/HTML/Menu.vim autoload/HTML/Map.vim autoload/HTML/Util.vim commands/HTML/Commands.vim import/HTML/Variables.vim json/HTML/entities.json json/HTML/tags.json json/HTML/entitytable.json
+PLUGIN_FILES = ftplugin/html/HTML.vim autoload/HTML/BrowserLauncher.vim autoload/HTML/MangleImageTag.vim autoload/HTML/Messages.vim autoload/HTML/Glue.vim autoload/HTML/Menu.vim autoload/HTML/Map.vim autoload/HTML/Util.vim commands/HTML/Commands.vim import/HTML/Variables.vim json/HTML/entities.jsonc json/HTML/tags.jsonc json/HTML/entitytable.jsonc
 
 .PHONY : default debug
 
@@ -110,7 +110,7 @@ HTML.zip: $(PLUGIN_FILES) $(allxpm) $(allbmp) $(alldoc) $(alllang) doc/tags
 	cp ftplugin/html/*.vim ${tmpdir}/pack/cjr/start/HTML/ftplugin/html/
 	cp import/HTML/*.vim ${tmpdir}/pack/cjr/start/HTML/import/HTML/
 	cp commands/HTML/*.vim ${tmpdir}/pack/cjr/start/HTML/commands/HTML/
-	cp json/HTML/*.json ${tmpdir}/pack/cjr/start/HTML/json/HTML/
+	cp json/HTML/*.jsonc ${tmpdir}/pack/cjr/start/HTML/json/HTML/
 	cp autoload/HTML/*.vim ${tmpdir}/pack/cjr/start/HTML/autoload/HTML/
 	cp doc/tags doc/gpl-3.0.html ${alldoc} ${tmpdir}/pack/cjr/start/HTML/doc/
 	cp ${alllang} ${tmpdir}/pack/cjr/start/HTML/lang/
@@ -173,7 +173,7 @@ installed: $(PLUGIN_FILES) $(alldoc) $(alllang) $(allxpm) $(allbmp) doc/tags
 	cp -f ftplugin/html/*.vim ~/.vim/pack/cjr/start/HTML/ftplugin/html/
 	cp -f import/HTML/Variables.vim ~/.vim/pack/cjr/start/HTML/import/HTML/
 	cp -f commands/HTML/Commands.vim ~/.vim/pack/cjr/start/HTML/commands/HTML/
-	cp -f json/HTML/*.json ~/.vim/pack/cjr/start/HTML/json/HTML/
+	cp -f json/HTML/*.jsonc ~/.vim/pack/cjr/start/HTML/json/HTML/
 	cp -f autoload/HTML/*.vim ~/.vim/pack/cjr/start/HTML/autoload/HTML/
 	cp -f doc/tags doc/gpl-3.0.html ${alldoc} ~/.vim/pack/cjr/start/HTML/doc/
 	cp -f ${alllang} ~/.vim/pack/cjr/start/HTML/lang/
