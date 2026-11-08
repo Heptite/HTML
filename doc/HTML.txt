@@ -2,7 +2,7 @@
 
 		by Christian J. Robinson
 
-		Last change: 2026 Nov 06
+		Last change: 2026 Nov 07
 
 
 *HTML.vim*	*HTML.zip*	*HTML-macros*	*XHTML-macros*	*HTML-plugin*
@@ -335,8 +335,9 @@ automatically replaced with their corresponding variable value:
 Token:			Variable: 			Description: ~
 *%authorname%*		|b:htmlplugin.author_name|	Author's name
 *%authoremail%*		|b:htmlplugin.author_email_encoded|
-							Author's email address,
-							encoded to prevent spam
+							Author's email
+							address, encoded to
+							prevent spam
 *%authorurl%*		|b:htmlplugin.author_url|	Author's homepage
 *%bgcolor%*		|b:htmlplugin.bgcolor|		Main background color
 *%textcolor%*		|b:htmlplugin.textcolor|	Main text color
@@ -446,7 +447,7 @@ The following commands are only defined in HTML buffers.
 	*disable-HTML-macros*	*disable-HTML-mappings*	*disable-HTML-plugin*
 	*enable-HTML-macros*	*enable-HTML-mappings*	*enable-HTML-plugin*
 							*:HTMLplugin*
-:HTML[plugin] {disable/off/enable/on}
+:HTML[plugin] {disable/off/enable/on/about/browserlog/colorchooser/template}
 	This command allows the HTML macros to be disabled and re-enabled.
 	This is useful for editing inline PHP, JavaScript, etc. where you
 	would want to be able to type literal ";", "&" and tab characters
@@ -456,6 +457,9 @@ The following commands are only defined in HTML buffers.
 	|HTMLMapObject.Map()|--including all of the mappings defined by this
 	script--are disabled/enabled when this command is used, regardless of
 	what |g:htmlplugin.map_leader| is set to.
+
+	This command can also invoke the about dialog, the broswer log, the
+	colorchooser popup, and the template generator.
 
 							*:ColorChooser* *:CC*
 :ColorChooser
@@ -1752,8 +1756,8 @@ installed the corresponding browsers in a standard way.
 	on Unix and Cygwin.)
 							*html-w3m-browser*
 								*n_;w3*
-;w3	Use w3m to view the current file. This behaves like |n_;nw3| if the Vim
-	|GUI| is running. (Only on Unix and Cygwin.)
+;w3	Use w3m to view the current file. This behaves like |n_;nw3| if the
+	Vim |GUI| is running. (Only on Unix and Cygwin.)
 								*n_;nw3*
 ;nw3	Same as |n_;w3|, but in a new xterm. This behaves like |n_;w3| if there
 	is no DISPLAY environmental variable. (Note that this will fall back
@@ -1807,8 +1811,8 @@ Some of the functions used by the HTML mappings:	*html-functions*
 ------------------------------------------------
 
 These functions are wrapped into various classes and must be imported and a
-new object created to be used.  For example, to to create an object, first
-include the respective file(s) in your |vim9script|: >
+new object created to be used.  For example, first include the respective
+file(s) in your |vim9script|: >
 	
 	vim9script
 	import autoload 'HTML/Map.vim'
@@ -1821,9 +1825,13 @@ include the respective file(s) in your |vim9script|: >
 <
 Hereafter, example objects will be used for the various functions listed:
 
+HTMLUtilObject.Bool({any})		*HTMLUtilObject.Bool()*
+	This is the helper function called by |HTMLUtilObject.BoolVar()|
+	and does the actual test, but it can be used more directly if desired.
+
 HTMLUtilObject.BoolVar('{variable}')	*HTMLUtilObject.BoolVar()*
 	Tests to see if the contents of the named variable in the string
-	argument (don't forget the quotes!) are "truty" in a very broad sense
+	argument (don't forget the quotes!) are "truthy" in a very broad sense
 	of the word. >
 	True: 1/true/yes/y/on
 	False: 0/false/no/n/off/none/null/(blank value)
@@ -1836,10 +1844,6 @@ HTMLUtilObject.ColorChooser({how})	*HTMLUtilObject.ColorChooser()*
 	Create the Color Chooser popup. {how} determines if it is inserted
 	('i') or appended ('a') at the cursor position.
 
-HTMLUtilObject.Bool('{variable}')	*HTMLUtilObject.Bool()*
-	This is the helper function called by |HTMLUtilObject.BoolVar()|
-	and does the actual test, so it can be used more directly if desired.
-
 HTMLUtilObject.IsSet('{variable}')	*HTMLUtilObject.IsSet()*
 	Tests to see if the named variable is set. (Don't forget the quotes!)
 
@@ -1851,8 +1855,8 @@ HTMLUtilObject.FilesWithMatch([{filelist}], '{pattern}', [max])
 					*HTMLUtilObject.ToRGB()*
 HTMLUtilObject.ToRGB({string} [, {bool}])
 	Convert a #XXXXXX Hexadecimal color {string} to rgb() format. {bool}
-	determines whether to convert to percentages (|v:true|) or 0-255 format.
-	A blank string is returned on error.
+	determines whether to convert to percentages (|v:true|) or 0-255
+	format (|v:false| (default)).  A blank string is returned on error.
 
 					*HTMLUtilObject.TranscodeString()*
 HTMLUtilObject.TranscodeString({string} [, {...}])
@@ -1875,15 +1879,15 @@ HTMLUtilObject.TranscodeString({string} [, {...}])
 	Notes:
 	- Unicode characters can not be safely converted to %XX hex strings
 	  for URIs due to a limit in the specification, so this function will
-	  leave them untouched. This limitation does not apply to encoding to
-	  or from &...; entities.
+	  leave them untouched. This limitation does not apply to encoding
+	  from or to &...; entities.
 	- Null characters will be converted to newlines, due to a limitation
 	  in Vim itself.
 
 					*HTMLMapObject.GenerateTable()*
 HTMLMapObject.GenerateTable([{rows}, {columns}, {border-width}, {thead}, {tfoot}])
 	This is normally called by the |n_;tA|, mapping but it can be called
-	with argumetns to non-interactively generate a table:
+	with arguments to non-interactively generate a table:
 
 	Argument:	Behavior: ~
 	{rows}		|Number|: Number of rows to insert
@@ -1962,7 +1966,9 @@ HTMLMapObject.NextInsertPoint([{mode}, {direction}])
 HTMLMapObject.PluginCommand({what})	*HTMLMapObject.PluginCommand()*
 	This is normally called by the |:HTMLplugin| command.  It can either
 	enable the mappings by specifying "on" or "true" as {what}, or "off"
-	or "false" to disable.
+	or "false" to disable. It can also invoke the template generation
+	feature, the about dialog, or the color chooser popup.  See
+	|:HTMLplugin| for more information.
 
 HTMLMapObject.Template()		*HTMLMapObject.Template()*
 	This is normally called by the |n_;html| mapping, but it works
@@ -1971,7 +1977,7 @@ HTMLMapObject.Template()		*HTMLMapObject.Template()*
 	This function returns true if the cursor is on an insert point after
 	creating the template in the buffer, false otherwise.
 
-					*HTMLUtilObject.TitleCase*
+					*HTMLUtilObject.TitleCase()*
 HTMLUtilObject.TitleCase({words})
    	This function returns {words} in Title Case, with the first letter of
 	each word capitalized, and the rest of the letters in lowercase.  It
@@ -1980,12 +1986,12 @@ HTMLUtilObject.TitleCase({words})
 	limitations to this function, and it may not work correctly for all
 	words.
 					*HTMLUtilObject.SetIfUnset()*
-HTMLUtilObject.SetIfUnset({variable}, {value})
+HTMLUtilObject.SetIfUnset('{variable}', {value})
 	This function sets {variable} to {value} if the variable is not
-	already set. A {value} of "" makes sure the variable is set with an
-	empty string, a {value} of [] initializes to an empty list, and a
-	value of {} initializes to an empty dictionary. Be sure to enclose
-	the variable name in quotes. This function will not work for
+	already set. A {value} of '""' or "''" makes sure the variable is set
+	with an empty string, a {value} of "[]" initializes to an empty list,
+	and a value of "{}" initializes to an empty dictionary. Be sure to
+	enclose the variable name in quotes. This function will not work for
 	function-local variables (|l:var|).
 
 	This function returns Util.SetIfUnsetR.success if the variable
