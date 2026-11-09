@@ -7,7 +7,7 @@ endif
 
 # Glue functions for the HTML macros filetype plugin.                     {{{1
 #
-# Last Change: November 06, 2026
+# Last Change: November 09, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -205,8 +205,8 @@ export class HTMLGlue extends Util.HTMLUtil
 
     # b:htmlplugin.smarttags[tag][mode][open/close/insert] = value
     #  tag        - The literal tag, lowercase and without the <>'s
-    #               Numbers at the end of the literal tag name are stripped,
-    #               allowing for multiple mappings of the same tag but with
+    #               Numbers at the end of the literal tag name are ignored and
+    #               allow for multiple mappings of the same tag but with
     #               different effects
     #  mode       - i = insert, v = visual
     #               (no "o", because o-mappings invoke visual mode)
@@ -218,9 +218,7 @@ export class HTMLGlue extends Util.HTMLUtil
     #               Whether to interpret value as an expression and uses
     #               its result as the RHS keystrokes.
     #  value      - The keystrokes to execute
-    if !b:htmlplugin->has_key('smarttags')
-      b:htmlplugin.smarttags = {}
-    endif
+    this.SetIfUnset('b:htmlplugin.smarttags', '{}')
 
     for json: dict<any> in json_data
         if json->has_key('menu') && json.menu[2]->has_key('n')

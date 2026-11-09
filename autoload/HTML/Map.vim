@@ -7,7 +7,7 @@ endif
 
 # Mapping functions for the HTML macros filetype plugin.                  {{{1
 #
-# Last Change: November 03, 2026
+# Last Change: November 09, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -516,7 +516,7 @@ export class HTMLMap extends Util.HTMLUtil
   # Return Value:
   #  Boolean: Whether a mapping was added to the mappings list
   def MappingsListAdd(arg: dict<any>, mode: string, internal: bool = false): bool
-    if ! (internal)
+    if ! internal
       this.SetIfUnset('b:htmlplugin.mappings', '[]')
       b:htmlplugin.mappings->add([arg, mode])
       return true

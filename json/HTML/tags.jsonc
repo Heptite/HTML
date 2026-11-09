@@ -1,19 +1,54 @@
-/* TODO: Document this rather complex data structure... */
+// TODO: Document this rather complex data structure...
 
 [
+	/*
+	 * This is how a menu separator is defined:
+	 * (menus are defined and appear in the order they are encountered in this
+	 * file)
+	 */
 	{"menu": ["-", ["-sep4-"], {"n": ["<nop>"]}]},
 
 	{
+		/*
+		 * All non-menu-exclusive items must have a "lhs" which defines the left
+		 * side of the mapping, excluding the plugin's map leader, which defaults
+		 * to ';'
+		 */
 		"lhs": "fs",
 
+		/*
+		 * The "maps" key has keys of "i" (insert), "n" (normal), or "v"
+		 * (visual), but not "o" because operator mappings are created
+		 * automatically to use the "v" map
+		 */
 		"maps": {
+			/*
+			 * The value of the mappings is an array with element 0 defining the
+			 * "rhs" of the mapping, and element 1 a dictionary defining behavior:
+			 *    "extra": false  --  turn off adding extra stuff to the mapping
+			 *    "insert": true  --  land in insert mode after the mapping runs
+			 *    "expr": true    --  the "lhs" is to be evaluated instead of used
+			 *                        as keystrokes to run
+			 */
 			"i": ["<C-R>=b:htmlplugin.HTMLUtilO.FileSelect()<CR>", {"extra": false}],
 			"n": ["\"=b:htmlplugin.HTMLUtilO.FileSelect()<CR>P", {"extra": false}]
 		},
 
+		/*
+		 * The "menu" key is an array where the first element is:
+		 *   0 (string)       --  The priority in form of NN.NN..., - for
+		 *                        automatic
+		 *   1 (string array) --  The menu name in the form of ["Submenu", ...
+		 *                        "Menu Item"]
+		 *   2 (dictonary)    --  "i"/"n"/"v"/"a": ["lhs, overriden by 'lhs' key
+		 *                                         above, or empty string",
+		 *                                         "optional, rhs"]
+		 */
 		"menu": ["-", ["&Insert a Filename"], {
 			"i": ["", ""], "n": ["", ""]
 		}]
+
+		// See below for the "smarttag" key usage
 	},
 
 	{
@@ -102,6 +137,7 @@
 	{
 		"lhs": "bo",
 
+		// This is how you make a tag mapping "smart":
 		"maps": {
 			"i": ["b:htmlplugin.HTMLMapO.SmartTag('b', 'i')", {"expr": true}],
 			"v": ["b:htmlplugin.HTMLMapO.SmartTag('b', 'v')", {"expr": true}],
@@ -112,6 +148,16 @@
 			"i": ["", ""], "v": ["", ""], "n": ["", "i"]
 		}],
 
+		/*
+		 * "smarttag": {"tagname": {"i/v": {"o/c/insert": "keystrokes"/true/false}}}
+		 * "i" or "v"  --  insert or visual (operator automatically goes to
+		 *                 visual so no "o")
+		 * "o" or "c"  --  "o" is for opening the tag, and "c" is for when the
+		 *                 cursor is already in a tag of that type, so it closes
+		 *                 and opens the tag, making valid HTML.
+		 * "insert"    --  true or false, determines whether the cursor lands in
+		 *                 insert mode
+		 */
 		"smarttag": {
 			"b": {
 				"i": {
