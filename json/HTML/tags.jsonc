@@ -30,7 +30,7 @@
 			 *    "expr": true    --  the "lhs" is to be evaluated instead of used
 			 *                        as keystrokes to run
 			 */
-			"i": ["<C-R>=b:htmlplugin.HTMLUtilO.FileSelect()<CR>", {"extra": false}],
+			"i": ["b:htmlplugin.HTMLUtilO.FileSelect()", {"expr": true}],
 			"n": ["\"=b:htmlplugin.HTMLUtilO.FileSelect()<CR>P", {"extra": false}]
 		},
 
