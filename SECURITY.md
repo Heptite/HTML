@@ -5,7 +5,7 @@
 | Version | Supported          |
 | ------- | ------------------ |
 | 1.7.x   | :white_check_mark: |
-| < 1.7   | :x:                |
+| &lt; 1.7   | :x:                |
 
 ## Reporting a Vulnerability
 
