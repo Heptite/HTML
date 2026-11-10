@@ -1,4 +1,4 @@
-// TODO: Document this rather complex data structure...
+// I attempt to document this rather complex data structure below
 
 [
 	/*
@@ -12,7 +12,7 @@
 		/*
 		 * All non-menu-exclusive items must have a "lhs" which defines the left
 		 * side of the mapping, excluding the plugin's map leader, which defaults
-		 * to ';'
+		 * to ';', which is automatically added
 		 */
 		"lhs": "fs",
 
@@ -31,21 +31,24 @@
 			 *                        as keystrokes to run
 			 */
 			"i": ["b:htmlplugin.HTMLUtilO.FileSelect()", {"expr": true}],
-			"n": ["\"=b:htmlplugin.HTMLUtilO.FileSelect()<CR>P", {"extra": false}]
+			"n": ["\"=b:htmlplugin.HTMLUtilO.FileSelect()<CR>P", {"extra": false}],
+			"v": ["s<C-R><C-R>=b:htmlplugin.HTMLUtilO.FileSelect()<CR>", {"extra": false}]
 		},
 
 		/*
 		 * The "menu" key is an array where the first element is:
 		 *   0 (string)       --  The priority in form of NN.NN..., - for
 		 *                        automatic
-		 *   1 (string array) --  The menu name in the form of ["Submenu", ...
-		 *                        "Menu Item"]
-		 *   2 (dictonary)    --  "i"/"n"/"v"/"a": ["lhs, overriden by 'lhs' key
-		 *                                         above, or empty string",
-		 *                                         "optional, rhs"]
+		 *   1 (string array) --  The menu name in the form of another array:
+		 *                        ["Submenu", ... "Menu Item"]
+		 *   2 (dictonary)    --  {"i"/"n"/"v"/"a": ["lhs -- string to use lhs
+		 *                                          above",
+		 *                                          "rhs -- empty string to
+		 *                                          automatically define it as
+		 *                                          the script-leader + lhs"]}
 		 */
 		"menu": ["-", ["&Insert a Filename"], {
-			"i": ["", ""], "n": ["", ""]
+			"i": ["", ""], "n": ["", ""], "v": ["", ""]
 		}]
 
 		// See below for the "smarttag" key usage
@@ -2621,3 +2624,5 @@
 		}]
 	}
 ]
+
+// vim:comments=s1\:/*,mb\:*,ex\:*/,\://
