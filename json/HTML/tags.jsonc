@@ -18,8 +18,9 @@
 
 		/*
 		 * The "maps" key has keys of "i" (insert), "n" (normal), or "v"
-		 * (visual), but not "o" because operator mappings are created
-		 * automatically to use the "v" map
+		 * (visual). The "o" key is special and doesn't take an rhs operator
+		 * mappings--they use the "v" map, but will take a dictionary for
+		 * defining behavior.
 		 */
 		"maps": {
 			/*
@@ -36,16 +37,15 @@
 		},
 
 		/*
-		 * The "menu" key is an array where the first element is:
+		 * The "menu" key is an array where the first elements are:
 		 *   0 (string)       --  The priority in form of NN.NN..., - for
 		 *                        automatic
 		 *   1 (string array) --  The menu name in the form of another array:
-		 *                        ["Submenu", ... "Menu Item"]
-		 *   2 (dictonary)    --  {"i"/"n"/"v"/"a": ["lhs -- string to use lhs
-		 *                                          above",
-		 *                                          "rhs -- empty string to
-		 *                                          automatically define it as
-		 *                                          the script-leader + lhs"]}
+		 *                        ["Submenu", ..., "Menu Item"]
+		 *   2 (dictonary)    --  {"i"/"n"/"v"/"a": ["lhs" -- string, empty to
+		 *                                          use lhs above,
+		 *                                          "extra keystrokes to run
+		 *                                          before the lhs"]}
 		 */
 		"menu": ["-", ["&Insert a Filename"], {
 			"i": ["", ""], "n": ["", ""], "v": ["", ""]
