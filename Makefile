@@ -84,7 +84,7 @@ pushed: commit
 tag: commit version
 	test "`git branch --show-current`" = "master"
 	test -z "`git status --porcelain --untracked-files=no 2>/dev/null`" 
-	git tag -l v`cat version` | grep -q v`cat version`
+	! git tag -l v`cat version` | grep -q v`cat version`
 	git tag -a v`cat version` -m "Version `cat version`"
 	git push --atomic origin master v`cat version`
 	touch pushed
