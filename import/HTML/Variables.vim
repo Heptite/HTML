@@ -7,7 +7,7 @@ endif
 
 # Various constants and variables for the HTML macros filetype plugin.    {{{1
 #
-# Last Change: November 08, 2026
+# Last Change: November 15, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -36,7 +36,7 @@ export class HTMLVariables
   static const AUTHOR: string    = 'Christian J. Robinson'
   static const EMAIL: string     = 'heptite' .. "\x2B" .. 'html' .. "\x40" .. 'proton' .. "\x2E"  .. 'me'
   static const HOMEPAGE: string  = 'https://christianrobinson.name/HTML/'
-  static const COPYRIGHT: string = $'Copyright © 1998-{strftime("%Y")} under the terms of the GPL3'
+  static const COPYRIGHT: string = $"Copyright \xA9 1998-{strftime('%Y')} under the terms of the GPL3"
 
   static const VERSION: string   = '1.7.11'
 
@@ -78,9 +78,9 @@ export class HTMLVariables
       vlinkcolor:  'vlinkcolor',
     },
     static: {
-      vimversion:    $'{v:version / 100}.{v:version % 100}.{v:versionlong % 10000}',
-      htmlversion:   HTMLVariables.VERSION,
-      hthmlhomepage: HTMLVariables.HOMEPAGE,
+      vimversion:   $'{v:version / 100}.{v:version % 100}.{v:versionlong % 10000}',
+      htmlversion:  HTMLVariables.VERSION,
+      htmlhomepage: HTMLVariables.HOMEPAGE,
     },
     dynamic: {
       date:    'strftime("%B %d, %Y")',
@@ -102,7 +102,7 @@ export class HTMLVariables
     .. 'charset=%charset%" />',
     '  <[{META NAME}]="Generator" [{CONTENT}]="Vim %vimversion% '
     .. '(Vi IMproved editor; http://www.vim.org/) with HTML Editing Macros '
-    .. '%htmlversion% (%hthmlhomepage%)" />',
+    .. '%htmlversion% (%htmlhomepage%)" />',
     '  <[{META NAME}]="Author" [{CONTENT}]="%authorname%" />',
     '  <[{META NAME}]="Copyright" [{CONTENT}]="Copyright (C) %date% %authorname%" />',
     '  <[{LINK REL}]="made" [{HREF}]="mailto:%authoremail%" />',
