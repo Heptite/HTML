@@ -2125,3 +2125,5 @@
   "&zwj;": { "codepoints": [8205], "characters": "\u200D" },
   "&zwnj;": { "codepoints": [8204], "characters": "\u200C" }
 }
+
+// vim:comments=s1\:/*,mb\:*,ex\:*/,\://:formatoptions=tcqjro

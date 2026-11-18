@@ -1100,6 +1100,7 @@
 		}
 	},
 
+	// Special mapping already defined in the plugin file:
 	{
 		"menu": ["-", ["&General Tags", "HTML"], {
 			"i": ["ht", ""], "v": ["ht", ""], "n": ["ht", "i"]
@@ -2606,10 +2607,12 @@
 		}]
 	},
 
+	/*
+	 * These are special mappings that are conditionally defined based on
+	 * filetype in the plugin file, so just make the menu items available:
+	 */
 	{"menu": ["-", ["Doctype (4.01 transitional)"], {"n": ["4", ""]}]},
-
 	{"menu": ["-", ["Doctype (4.01 strict)"], {"n": ["s4", ""]}]},
-
 	{"menu": ["-", ["Doctype (HTML 5)"], {"n": ["5", ""]}]},
 
 	{
@@ -2625,4 +2628,4 @@
 	}
 ]
 
-// vim:comments=s1\:/*,mb\:*,ex\:*/,\://
+// vim:comments=s1\:/*,mb\:*,ex\:*/,\://:formatoptions=tcqjro:

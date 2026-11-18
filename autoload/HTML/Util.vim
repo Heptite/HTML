@@ -7,7 +7,7 @@ endif
 
 # Utility functions for the HTML macros filetype plugin.                  {{{1
 #
-# Last Change: November 08, 2026
+# Last Change: November 16, 2026
 #
 # Requirements:
 #       Vim 9.2 or later
@@ -652,6 +652,7 @@ export class HTMLUtil
   def ReadJsonFile(file: string, path: string = &runtimepath): list<any>
     # Code for stripping comments found at:
     # https://github.com/romainl/vim-jsonc
+    # (this is actually very brittle, despite the original author's claims)
     return this.FindAndRead(file, path, false, false)
           ->filter((_, val) => val !~ '\(^\s*\/\/\)\|\(^\s*\/\*\)\|\(^\s*\*\/\)')
           ->filter((_, val) => val !~ '\(^\s*\w\)\|\(^\s*\*\)')

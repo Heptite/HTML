@@ -323,3 +323,5 @@
    ["O/",      "&Oslash;",   ["&etc...", "O-slash"],                        "\\xD8"],
    ["o/",      "&oslash;",   ["&etc...", "o-slash"],                        "\\xF8"]
 ]
+
+// vim:comments=s1\:/*,mb\:*,ex\:*/,\://:formatoptions=tcqjro
